@@ -1,11 +1,14 @@
 #ifndef __CAMERA_FE_H__
 #define __CAMERA_FE_H__
 
-#include "../CameraBase.h"
+#include "../xrEngine/CameraBase.h"
 
 class CCameraFirstEye : public CCameraBase
 {
 	typedef CCameraBase inherited;
+	Fvector			lookat_point;
+	bool			lookat_active;
+	void			UpdateLookat	();
 public:
 					CCameraFirstEye	( CObject* p, u32 flags=0);
 	virtual			~CCameraFirstEye( );
@@ -18,6 +21,7 @@ public:
 
 	virtual float	GetWorldYaw		( )	{ return -yaw;	};
 	virtual float	GetWorldPitch	( )	{ return pitch; };
+			void	LookAtPoint		(Fvector p){lookat_point=p;lookat_active=true;}
 };
 
 #endif // __CAMERALOOK_H__

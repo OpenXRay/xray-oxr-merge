@@ -115,7 +115,7 @@ IC	bool CConditionStateAbstract::operator<	(const CConditionState &condition) co
 }
 
 TEMPLATE_SPECIALIZATION
-IC	bool CConditionStateAbstract::operator==	(const CConditionState &condition)
+IC	bool CConditionStateAbstract::operator==	(const CConditionState &condition) const
 {
 	if (hash_value() != condition.hash_value())
 		return				(false);

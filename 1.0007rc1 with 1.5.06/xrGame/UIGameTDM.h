@@ -4,7 +4,6 @@
 #include "UIGameDM.h"
 
 #include "ui/UIDialogWnd.h"
-#include "ui/UIInventoryWnd.h"
 #include "ui/UISpawnWnd.h"
 
 // refs 

@@ -2,7 +2,6 @@
 #include "game_cl_mp.h"
 #include "ui/UISpeechMenu.h"
 #include "xrMessages.h"
-#include "../../xrNetServer/net_utils.h"
 #include "Level.h"
 #include "HUDManager.h"
 #include "ui/UIMessagesWindow.h"
@@ -26,7 +25,7 @@ void				game_cl_mp::AddMessageMenu			(LPCSTR	menu_section, LPCSTR snd_path, LPCS
 		if (!pSettings->line_exist(menu_section, *LineName)) break;
 		//---------------------------------------------------------
 		string4096			Line;
-		std::strcpy(Line, pSettings->r_string(menu_section, *LineName));
+		strcpy_s(Line, pSettings->r_string(menu_section, *LineName));
 		u32 count	= _GetItemCount(Line);
 		if (!count) continue;
 		//---------------------------------------------------------
@@ -115,6 +114,7 @@ void		game_cl_mp::DestroyMessagesMenus	()
 
 void		game_cl_mp::OnMessageSelected		(CUISpeechMenu* pMenu, u8 PhraseID)
 {
+	m_cur_MenuID = u32(-1);
 	if (m_aMessageMenus.empty()) return;
 	MESSAGEMENUS_it it = std::find(m_aMessageMenus.begin(), m_aMessageMenus.end(), pMenu);
 	if (it == m_aMessageMenus.end()) return;

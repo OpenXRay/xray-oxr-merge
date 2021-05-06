@@ -3,7 +3,7 @@
 #include "actor.h"
 #include "ai/stalker/ai_stalker.h"
 #include "ai/trader/ai_trader.h"
-#include "artifact.h"
+#include "artefact.h"
 #include "inventory.h"
 #include "xrmessages.h"
 #include "character_info.h"
@@ -143,6 +143,7 @@ void CTrade::StartTrade(CInventoryOwner* pInvOwner)
 	SetPartner(smart_cast<CEntity*>(pInvOwner));
 	StartTrade();
 }
+
 void CTrade::TradeCB(bool bStart)
 {
 	if(bStart){

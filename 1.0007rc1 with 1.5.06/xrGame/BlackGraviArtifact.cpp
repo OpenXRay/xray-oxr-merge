@@ -13,7 +13,6 @@
 #include "xrmessages.h"
 #include "physicsshellholder.h"
 #include "explosive.h"
-#include "../../xrNetServer/net_utils.h"
 #include "PHWorld.h"
 #include "CharacterPhysicsSupport.h"
 extern CPHWorld*	ph_world;
@@ -60,7 +59,7 @@ BOOL CBlackGraviArtefact::net_Spawn(CSE_Abstract* DC)
 	Fvector vel;
 	vel.set(0,0,0);
 	pStaticPG->UpdateParent(pos, vel); 
-	pStaticPG->Play();
+	pStaticPG->Play(false);
 
 
 
@@ -109,7 +108,7 @@ void CBlackGraviArtefact::UpdateCLChild()
 			//vel.div((Level().timeServer()-ps_Element(0).dwTime)/1000.f);
 			vel.set(0,0,0);
 			pStaticPG->UpdateParent(pos, vel); 
-			pStaticPG->Play();
+			pStaticPG->Play(false);
 
 			m_bStrike = false;
 		}

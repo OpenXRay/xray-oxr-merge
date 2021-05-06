@@ -33,13 +33,28 @@ IC	u32	CSpaceRestrictionBridge::accessible_nearest	(T &restriction, const Fvecto
 	xr_vector<u32>::const_iterator	I = restriction->accessible_neighbour_border(restriction,out_restriction).begin();
 	xr_vector<u32>::const_iterator	E = restriction->accessible_neighbour_border(restriction,out_restriction).end();
 	for ( ; I != E; ++I) {
+		VERIFY2						(
+			ai().level_graph().valid_vertex_id(*I),
+			make_string(
+				"%d",
+				*I
+			)
+		);
 		float	distance_sqr = ai().level_graph().vertex_position(*I).distance_to_sqr(position);
 		if (distance_sqr < min_dist_sqr) {
 			min_dist_sqr			= distance_sqr;
 			selected				= *I;
 		}
 	}
-	VERIFY2							(ai().level_graph().valid_vertex_id(selected),*name());
+	VERIFY2							(
+		ai().level_graph().valid_vertex_id(selected),
+		make_string(
+			"vertex_id[%d], object[%s], position[%f][%f][%f]",
+			selected,
+			*name(),
+			VPUSH(position)
+		)
+	);
 
 	{
 		min_dist_sqr = flt_max;

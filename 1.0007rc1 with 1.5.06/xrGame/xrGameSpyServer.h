@@ -82,7 +82,7 @@ public:
 	xrGameSpyServer				();
 	virtual ~xrGameSpyServer	();
 
-	virtual EConnect		Connect				(shared_str& session_name);
+	virtual EConnect		Connect				(shared_str& session_name, GameDescriptionData & game_descr);
 	virtual void			Update				();
 
 //	virtual void			OnCL_Connected		(IClient* C);

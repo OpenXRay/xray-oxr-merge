@@ -4,7 +4,6 @@
 #include "GameSpy/GameSpy_GCD_Server.h"
 #include "GameSpy/GameSpy_QR2.h"
 
-
 class xrGameSpyClientData	: public xrClientData
 {
 private:
@@ -66,7 +65,6 @@ public:
 	int								m_iMaxPlayers;
 	bool							m_bCheckCDKey;
 	
-
 	int								GetPlayersCount					();
 	void							OnCDKey_Validation				(int LocalID, int res, char* errormsg);
 	void							OnCDKey_ReValidation			(int LocalID, int hint, char* challenge);

@@ -1,8 +1,7 @@
 #pragma once
 
 #include "ui_base.h"
-//.#include "../Include/xrRender/FactoryPtr.h"
-//. class IUIShader;
+
 class CUIStatic;
 
 class CUICursor:public pureRender

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../cameramanager.h"
-#include "../effector.h"
-#include "../effectorPP.h"
+#include "../xrEngine/CameraManager.h"
+#include "../xrEngine/effector.h"
+#include "../xrEngine/effectorPP.h"
 
 #define eStartEffectorID		50
 
@@ -15,6 +15,7 @@
 #define effControllerAura		(eStartEffectorID+7)
 #define effControllerAura2		(eStartEffectorID+8)
 #define effBigMonsterHit		(eStartEffectorID+9)
+#define effActorDeath			(eStartEffectorID+10)
 
 #define	eCEFall					((ECamEffectorType)(cefNext+1))
 #define	eCENoise				((ECamEffectorType)(cefNext+2))
@@ -28,3 +29,6 @@
 #define	eCEVampire				((ECamEffectorType)(cefNext+13))
 #define	eCEPseudoGigantStep		((ECamEffectorType)(cefNext+14))
 #define	eCEMonsterHit			((ECamEffectorType)(cefNext+15))
+#define	eCEDOF					((ECamEffectorType)(cefNext+16))
+#define	eCEWeaponAction			((ECamEffectorType)(cefNext+17))
+#define	eCEActorMoving			((ECamEffectorType)(cefNext+18))

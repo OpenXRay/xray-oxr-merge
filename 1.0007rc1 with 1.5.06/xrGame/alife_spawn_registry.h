@@ -37,12 +37,10 @@ private:
 	SPAWN_IDS								m_temp1;
 	SPAWN_STORY_IDS							m_spawn_story_ids;
 
-#ifdef PRIQUEL
 private:
 	IReader									*m_file;
 	IReader									*m_chunk;
 	CGameGraph								*m_game_graph;
-#endif // PRIQUEL
 
 protected:
 			void							save_updates				(IWriter &stream);

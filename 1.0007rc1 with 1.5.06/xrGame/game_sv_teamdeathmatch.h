@@ -6,6 +6,7 @@ class	game_sv_TeamDeathmatch			: public game_sv_Deathmatch
 {
 private:
 	typedef game_sv_Deathmatch inherited;
+	bool	teams_swaped;
 
 protected:
 	
@@ -20,7 +21,7 @@ protected:
 	virtual		void				ConsoleCommands_Clear	();
 
 public:	
-									game_sv_TeamDeathmatch	(){m_type = GAME_TEAMDEATHMATCH;}
+									game_sv_TeamDeathmatch	(){m_type = eGameIDTeamDeathmatch;}
 	virtual		void				Create					(shared_str& options);
 
 	virtual		void				OnEvent					(NET_Packet &tNetPacket, u16 type, u32 time, ClientID sender );
@@ -44,7 +45,8 @@ public:
 	virtual		void				OnPlayerHitPlayer		(u16 id_hitter, u16 id_hitted, NET_Packet& P);
 	virtual		void				OnPlayerHitPlayer_Case	(game_PlayerState* ps_hitter, game_PlayerState* ps_hitted, SHit* pHitS);
 
-	virtual		void				OnRoundStart			();												// старт раунда
+	virtual		void				OnRoundStart			();
+	virtual		void				OnRoundEnd				();
 	virtual		void				AutoBalanceTeams		();
 	virtual		void				AutoSwapTeams			();
 

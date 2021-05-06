@@ -23,6 +23,8 @@ protected:
 	bool					m_bActive;
 	bool					m_bAutoFire;
 	float					m_weapon_h;
+	virtual bool			IsHudModeNow		(){return false;};
+
 public:
 	enum{
 			eWpnDesiredDir		=1,
@@ -63,5 +65,5 @@ private:
 	float					m_barrel_speed;
 	Fvector					m_destEnemyDir;
 	bool					m_allow_fire;
-	HUD_SOUND				m_sndShot;
+	HUD_SOUND_ITEM			m_sndShot;
 };

@@ -154,7 +154,7 @@ ALife::EMeetActionType	CSE_ALifeMonsterAbstract::tfGetActionType(CSE_ALifeSchedu
 bool CSE_ALifeMonsterAbstract::bfActive()
 {
 	CSE_ALifeGroupAbstract		*l_tpALifeGroupAbstract = smart_cast<CSE_ALifeGroupAbstract*>(this);
-	return						(/**/interactive() && /**/((l_tpALifeGroupAbstract && (l_tpALifeGroupAbstract->m_wCount > 0)) || (!l_tpALifeGroupAbstract && (fHealth > EPS_L))));
+	return						(/**/interactive() && /**/((l_tpALifeGroupAbstract && (l_tpALifeGroupAbstract->m_wCount > 0)) || (!l_tpALifeGroupAbstract && (get_health() > EPS_L))));
 }
 
 CSE_ALifeDynamicObject *CSE_ALifeMonsterAbstract::tpfGetBestDetector()
@@ -220,7 +220,15 @@ bool CSE_ALifeMonsterAbstract::redundant				() const
 		return					(false);
 
 	ALife::_TIME_ID				current_time = alife().time_manager().game_time();
-	VERIFY						(m_game_death_time <= current_time);
+	VERIFY2						(
+		m_game_death_time <= current_time,
+		make_string(
+			"incorrect death time for monster %s[death time = %I64d][current time = %I64d]",
+			name_replace(),
+			m_game_death_time,
+			current_time
+		)
+	);
 	if ((m_game_death_time + m_stay_after_death_time_interval) > current_time)
 		return					(false);
 

@@ -193,6 +193,7 @@ public:
 class CStalkerActionSearchEnemy : public CStalkerActionCombatBase {
 private:
 	const CCoverPoint	*m_enemy_cover;
+	u32					m_last_hit_time;
 
 protected:
 	typedef CStalkerActionCombatBase inherited;
@@ -280,4 +281,31 @@ public:
 	virtual void		finalize					();
 };
 
+//////////////////////////////////////////////////////////////////////////
+// CStalkerCombatActionThrowGrenade
+//////////////////////////////////////////////////////////////////////////
+class CStalkerCombatActionThrowGrenade : public CStalkerActionCombatBase {
+protected:
+	typedef CStalkerActionCombatBase inherited;
+	ALife::_OBJECT_ID	m_grenade_id;
+public:
+						CStalkerCombatActionThrowGrenade(CAI_Stalker *object, LPCSTR action_name = "");
+	virtual void		initialize						();
+	virtual void		execute							();
+	virtual void		finalize						();
+};
+//////////////////////////////////////////////////////////////////////////
+// CStalkerCombatActionSmartCover
+//////////////////////////////////////////////////////////////////////////
+class CStalkerCombatActionSmartCover : public CStalkerActionCombatBase {
+private:
+	typedef CStalkerActionCombatBase					inherited;
+public:
+						CStalkerCombatActionSmartCover	(CAI_Stalker *object, LPCSTR action_name = "");
+	virtual void		initialize						();
+	virtual void		execute							();
+	virtual void		finalize						();
+private:
+	bool				m_check_can_kill_enemy;
+};
 #include "stalker_combat_actions_inline.h"

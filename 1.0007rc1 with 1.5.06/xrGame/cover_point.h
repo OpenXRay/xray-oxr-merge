@@ -16,10 +16,10 @@ public:
 	u32					m_level_vertex_id;
 
 public:
-	IC					CCoverPoint		(const Fvector &point, u32 level_vertex_id);
-	IC	const Fvector	&position		() const;
+	IC					CCoverPoint		(Fvector const &point, u32 level_vertex_id);
+	IC	Fvector	const	&position		() const;
 	IC	u32				level_vertex_id	() const;
-	IC	bool			operator==		(const CCoverPoint &point) const;
+	IC	bool			operator==		(CCoverPoint const &point) const;
 
 	DECLARE_SCRIPT_REGISTER_FUNCTION
 };

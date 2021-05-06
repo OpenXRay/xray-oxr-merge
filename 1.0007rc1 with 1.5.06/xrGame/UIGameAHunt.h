@@ -4,7 +4,6 @@
 #include "UIGameTDM.h"
 
 #include "ui/UIDialogWnd.h"
-#include "ui/UIInventoryWnd.h"
 #include "ui/UISpawnWnd.h"
 
 #include "ui/UITextBanner.h"
@@ -21,7 +20,6 @@ class CUIGameAHunt: public CUIGameTDM
 private:
 	game_cl_ArtefactHunt * m_game;
 	typedef CUIGameTDM inherited;
-
 
 public:
 	CUIProgressShape*	m_pReinforcementInidcator;

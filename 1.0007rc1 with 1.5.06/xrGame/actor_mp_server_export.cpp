@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "actor_mp_server.h"
-#include "../../xrNetServer/net_utils.h"
+#include "Physics.h"
+#include "mathutils.h"
 
 void CSE_ActorMP::fill_state	(actor_mp_state &state)
 {
@@ -24,7 +25,7 @@ void CSE_ActorMP::fill_state	(actor_mp_state &state)
 
 	state.inventory_active_slot		= weapon;
 	state.body_state_flags			= mstate;
-	state.health					= fHealth;
+	state.health					= get_health();
 	state.radiation					= fRadiation;
 	state.physics_state_enabled		= m_AliveState.enabled ? 1 : 0;
 
@@ -38,6 +39,7 @@ void CSE_ActorMP::UPDATE_Write	(NET_Packet &packet)
 		fill_state					(state);
 		m_state_holder.relevant		(state);
 	}
-
+	//Msg("--- Client 0x%08x UPDATE_Write, health is: %2.04f", this->ID, m_state_holder.state().health);
+	R_ASSERT2(valid_pos(m_state_holder.state().position,phBoundaries), "trying to write bad position");
 	m_state_holder.write			(packet);
 }

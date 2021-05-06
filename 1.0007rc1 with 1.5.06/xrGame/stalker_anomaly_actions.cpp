@@ -22,7 +22,7 @@
 #include "enemy_manager.h"
 #include "sight_manager.h"
 #include "restricted_object.h"
-#include "stalker_movement_manager.h"
+#include "stalker_movement_manager_smart_cover.h"
 #include "sound_player.h"
 #include "ai/stalker/ai_stalker_space.h"
 
@@ -115,7 +115,7 @@ void CStalkerActionDetectAnomaly::initialize	()
 
 	Fvector							result;
 	object().eye_matrix.transform_tiny	(result,Fvector().set(0.f,0.f,10.f));
-	object().throw_target			(result);
+	object().throw_target			(result, 0);
 }
 
 void CStalkerActionDetectAnomaly::finalize	()

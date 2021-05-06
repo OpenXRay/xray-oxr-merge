@@ -66,6 +66,7 @@ inline void revert_contact(dContactGeom *c)
 	c->g1 = c->g2;
 	c->g2 = tmp;
 }
+
 int dCollideRMCyl (dxGeom *o1, dxGeom *o2, int flags,
 				 dContactGeom *contact, int skip)
 {

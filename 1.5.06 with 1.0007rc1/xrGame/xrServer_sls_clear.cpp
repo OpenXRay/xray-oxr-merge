@@ -87,6 +87,5 @@ void xrServer::SLS_Clear		()
 			}
 			FATAL("can't delete all entities");
 		}
-		
 	}
 }

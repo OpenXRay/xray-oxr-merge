@@ -3,7 +3,6 @@
 #include "Physics.h"
 #include "mathutils.h"
 
-
 void CSE_ActorMP::fill_state	(actor_mp_state &state)
 {
 	state.physics_quaternion		= m_AliveState.quaternion;

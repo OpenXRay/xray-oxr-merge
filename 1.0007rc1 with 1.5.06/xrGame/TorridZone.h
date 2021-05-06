@@ -18,4 +18,8 @@ public:
 	virtual bool		IsVisibleForZones	() { return true;		}
 	virtual	void		GoEnabledState		();
 	virtual	void		GoDisabledState		();
+
+	// Lain: added
+	virtual bool        light_in_slow_mode  ();
+	virtual BOOL        AlwaysTheCrow       ();
 };

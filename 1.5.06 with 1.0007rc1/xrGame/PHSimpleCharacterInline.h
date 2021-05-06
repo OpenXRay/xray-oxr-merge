@@ -151,4 +151,3 @@ IC		void	CPHSimpleCharacter::foot_material_update(u16	contact_material_idx,u16	f
 								*p_lastMaterialIDX=foot_material_idx					;
 
 }
-

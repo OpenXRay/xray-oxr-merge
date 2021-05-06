@@ -56,8 +56,10 @@ public:
 	
 	void				 ClearRelations				(u16 person_id);
 
-private:
 	CHARACTER_GOODWILL	 GetCommunityRelation		(CHARACTER_COMMUNITY_INDEX, CHARACTER_COMMUNITY_INDEX) const;	
+	void				 SetCommunityRelation		(CHARACTER_COMMUNITY_INDEX index1, CHARACTER_COMMUNITY_INDEX index2, CHARACTER_GOODWILL goodwill);
+
+private:
 	CHARACTER_GOODWILL	 GetRankRelation			(CHARACTER_RANK_VALUE, CHARACTER_RANK_VALUE) const;
 	CHARACTER_GOODWILL	 GetReputationRelation		(CHARACTER_REPUTATION_VALUE, CHARACTER_REPUTATION_VALUE) const;
 

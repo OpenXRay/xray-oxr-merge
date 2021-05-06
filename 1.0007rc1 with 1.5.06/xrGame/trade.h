@@ -60,6 +60,7 @@ public:
 	u32						GetItemPrice			(CInventoryItem* pItem, bool b_buying);
 
 	void					UpdateTrade				();
+
 private:
 	bool					SetPartner				(CEntity *p);
 	void					RemovePartner			();

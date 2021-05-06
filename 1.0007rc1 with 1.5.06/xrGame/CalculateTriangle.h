@@ -26,16 +26,16 @@ ICF void CalculateTriangle(CDB::TRI* XTri,const float* pos,Triangle& triangle)
 	InitTriangle(XTri,triangle);
 	triangle.dist=dDOT(pos,triangle.norm)-triangle.pos;
 }
-ICF void CalculateTriangle(CDB::TRI* XTri,dGeomID g,Triangle& triangle)
+ICF void CalculateTriangle( CDB::TRI* XTri, dGeomID g, Triangle& triangle )
 {
 	dVector3	v											;
 	dMatrix3	m											;
 	const float *p						=NULL				;
 	const float *r						=NULL				;
-	VERIFY								(g)					;
-	CODEGeom::get_final_tx				(g,p,r,v,m)			;
-	VERIFY								(p)					;
-	CalculateTriangle					(XTri,p,triangle)	;
+	VERIFY								( g )					;
+	CODEGeom::get_final_tx				( g, p, r, v, m )		;
+	VERIFY								( p )					;
+	CalculateTriangle					( XTri, p, triangle )	;
 	
 }
 

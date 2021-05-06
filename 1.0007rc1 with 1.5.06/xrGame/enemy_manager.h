@@ -31,6 +31,7 @@ private:
 	const CEntityAlive			*m_last_enemy;
 	USEFULE_CALLBACK			m_useful_callback;
 	bool						m_enable_enemy_change;
+	CEntityAlive const			*m_smart_cover_enemy;
 
 private:
 	u32							m_last_enemy_change;
@@ -72,6 +73,9 @@ public:
 public:
 			void				wounded				(const CEntityAlive *wounded_enemy);
 	IC		const CEntityAlive	*wounded			() const;
+	IC		CEntityAlive const	*selected			() const;
+	IC		void				set_enemy			(CEntityAlive const	*enemy);
+	IC		void				invalidate_enemy	();
 
 public:
 	IC		void				enable_enemy_change	(const bool &value);

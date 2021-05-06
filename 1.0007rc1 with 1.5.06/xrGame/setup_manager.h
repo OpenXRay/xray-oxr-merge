@@ -36,8 +36,8 @@ private:
 	};
 
 protected:
-	_object_type					*m_object;
 	setup_actions					m_actions;
+	_object_type					*m_object;
 	_action_id_type					m_current_action_id;
 	_action_id_type					m_previous_action_id;
 	bool							m_actuality;

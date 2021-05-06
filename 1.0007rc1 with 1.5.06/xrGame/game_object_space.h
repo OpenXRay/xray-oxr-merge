@@ -29,6 +29,7 @@ namespace GameObject {
 
 		eActionTypeMovement,
 		eActionTypeWatch,
+		eActionTypeRemoved,
 		eActionTypeAnimation,
 		eActionTypeSound,
 		eActionTypeParticle,
@@ -49,6 +50,8 @@ namespace GameObject {
 		eTraderSoundEnd,
 
 		eInvBoxItemTake,
+		eWeaponNoAmmoAvailable,
+
 		eDummy = u32(-1),
 	};
 };

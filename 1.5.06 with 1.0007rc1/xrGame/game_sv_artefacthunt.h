@@ -66,8 +66,8 @@ protected:
 	virtual		void				DestroyAllPlayerItems(ClientID id_who);
 
 	bool		assign_rp_tmp		(game_PlayerState* ps_who, xr_vector<RPoint>& points_vec, xr_vector<u32>& dest, xr_vector<u32>& rpIDEnemy, xr_vector<ClientID>& EnemyIt,  bool use_safe_dist);
-public:
 
+public:
 									game_sv_ArtefactHunt	(){m_type = eGameIDArtefactHunt;}
 	virtual		void				Create					(shared_str& options);
 

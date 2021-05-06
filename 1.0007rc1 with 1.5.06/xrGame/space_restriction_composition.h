@@ -9,10 +9,8 @@
 #pragma once
 
 #include "space_restriction_base.h"
+#include "space_restriction_bridge.h"
 #include "space_restriction_holder.h"
-
-class CSpaceRestrictionBridge;
-class CSpaceRestrictionHolder;
 
 extern int g_restriction_checker;
 

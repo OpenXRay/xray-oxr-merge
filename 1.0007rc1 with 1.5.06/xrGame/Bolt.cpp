@@ -79,11 +79,6 @@ bool CBolt::Action(s32 cmd, u32 flags)
 	return false;
 }
 
-void CBolt::Destroy()
-{
-	inherited::Destroy();
-}
-
 void CBolt::activate_physic_shell	()
 {
 	inherited::activate_physic_shell	();

@@ -31,6 +31,10 @@ class CSE_ALifeDynamicObject;
 class CSE_ALifeGroupAbstract;
 class CSE_ALifeCreatureAbstract;
 
+namespace inventory { namespace upgrade {
+	class Manager;
+} } // namespace upgrade, inventory
+
 class CALifeSimulatorBase : public IPureDestroyableObject {
 protected:
 	xrServer									*m_server;
@@ -44,6 +48,7 @@ protected:
 	CALifeSmartTerrainRegistry					*m_smart_terrains;
 	CALifeGroupRegistry							*m_groups;
 	CALifeRegistryContainer						*m_registry_container;
+	inventory::upgrade::Manager					*m_upgrade_manager;
 	CRandom32									m_random;
 	bool										m_initialized;
 	shared_str									*m_server_command_line;
@@ -67,6 +72,7 @@ public:
 	IC		CALifeScheduleRegistry				&scheduled					();
 	IC		CALifeTimeManager					&time_manager				();
 	IC		CALifeRegistryContainer				&registry					() const;
+	IC		inventory::upgrade::Manager			&inventory_upgrade_manager	() const;
 
 public:
 												CALifeSimulatorBase			(xrServer *server, LPCSTR section);

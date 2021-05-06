@@ -4,8 +4,10 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-
+#include "../Include/xrRender/Kinematics.h"
 #include "ExplosiveRocket.h"
+#include "physicsshellholder.h"
+#include "physicsshell.h"
 
 
 CExplosiveRocket::CExplosiveRocket() 

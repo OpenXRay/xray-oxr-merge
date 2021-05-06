@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "torridZone.h"
-#include "../objectanimator.h"
+#include "../xrEngine/objectanimator.h"
 #include "xrServer_Objects_ALife_Monsters.h"
 
 CTorridZone::CTorridZone()
@@ -58,3 +58,13 @@ void CTorridZone::GoDisabledState()
 	inherited::GoDisabledState();
 }
 
+// Lain: added
+bool   CTorridZone::light_in_slow_mode ()
+{
+	return false;
+}
+
+BOOL   CTorridZone::AlwaysTheCrow ()
+{
+	return true;
+}

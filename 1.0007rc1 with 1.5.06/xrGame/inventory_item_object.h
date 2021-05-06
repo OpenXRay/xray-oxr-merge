@@ -80,4 +80,4 @@ public:
 	virtual u32		ef_weapon_type			() const;
 };
 
-#include "inventory_item_inline.h"
+#include "inventory_item_object_inline.h"

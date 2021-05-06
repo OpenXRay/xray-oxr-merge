@@ -254,5 +254,3 @@ void CPHUpdateObject::Deactivate()
 	ph_world->RemoveUpdateObject(this);
 	b_activated=false;
 }
-
-
