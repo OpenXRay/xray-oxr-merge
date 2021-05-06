@@ -9,8 +9,8 @@
 #include "GameObject.h"
 #include "entity_alive.h"
 
-#include "ode_include.h"
-#include "MathUtils.h"
+//#include "ode_include.h"
+#include "../xrphysics/MathUtils.h"
 
 #include "ik_collide_data.h"
 

@@ -19,6 +19,11 @@ IC	CCoverManager::CPointQuadTree *CCoverManager::get_covers	()
 	return					(m_covers);
 }
 
+IC	smart_cover::storage *CCoverManager::smart_covers_storage	() const
+{
+	return					m_smart_covers_storage;
+}
+
 template <typename _evaluator_type, typename _restrictor_type>
 IC	bool CCoverManager::inertia									(float radius, _evaluator_type &evaluator, const _restrictor_type &restrictor) const
 {

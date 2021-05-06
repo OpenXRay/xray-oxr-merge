@@ -11,7 +11,7 @@
 #include "game_graph_space.h"
 #include "script_export_space.h"
 
-class CSE_ALifeMonsterAbstract;
+class CMovementManagerHolder;
 class CPatrolPath;
 
 namespace PatrolPathManager {
@@ -21,7 +21,7 @@ namespace PatrolPathManager {
 
 class CALifeMonsterPatrolPathManager {
 public:
-	typedef CSE_ALifeMonsterAbstract							object_type;
+	typedef CMovementManagerHolder								object_type;
 	typedef PatrolPathManager::EPatrolStartType					EPatrolStartType;
 	typedef PatrolPathManager::EPatrolRouteType					EPatrolRouteType;
 	typedef GameGraph::_GRAPH_ID								_GRAPH_ID;

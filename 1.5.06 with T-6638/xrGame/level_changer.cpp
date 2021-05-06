@@ -17,8 +17,8 @@
 #include "level_graph.h"
 #include "game_level_cross_table.h"
 
-#include "HudManager.h"
 #include "UIGameSP.h"
+#include "../xrengine/xr_collide_form.h"
 
 xr_vector<CLevelChanger*>	g_lchangers;
 
@@ -128,7 +128,7 @@ void CLevelChanger::feel_touch_new	(CObject *tpObject)
 	}
 	Fvector			p,r;
 	bool			b = get_reject_pos(p,r);
-	CUIGameSP		*pGameSP = smart_cast<CUIGameSP*>(HUD().GetUI()->UIGame());
+	CUIGameSP		*pGameSP = smart_cast<CUIGameSP*>(CurrentGameUI());
 	if (pGameSP)
         pGameSP->ChangeLevel	(m_game_vertex_id, m_level_vertex_id, m_position, m_angles, p, r, b, m_invite_str, m_b_enabled);
 
@@ -183,7 +183,7 @@ void CLevelChanger::update_actor_invitation()
 			continue;
 
 		if(m_entrance_time+5.0f < Device.fTimeGlobal){
-			CUIGameSP* pGameSP = smart_cast<CUIGameSP*>(HUD().GetUI()->UIGame());
+			CUIGameSP* pGameSP = smart_cast<CUIGameSP*>(CurrentGameUI());
 			Fvector p,r;
 			bool b = get_reject_pos(p,r);
 			

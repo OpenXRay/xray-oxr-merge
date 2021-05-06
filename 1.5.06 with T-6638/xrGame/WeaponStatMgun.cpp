@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "WeaponStatMgun.h"
 #include "../Include/xrRender/Kinematics.h"
-#include "PhysicsShell.h"
+#include "../xrphysics/PhysicsShell.h"
 #include "weaponAmmo.h"
 #include "object_broker.h"
 #include "ai_sounds.h"
@@ -64,7 +64,7 @@ void CWeaponStatMgun::Load(LPCSTR section)
 	inheritedPH::Load(section);
 	inheritedShooting::Load	(section);
 
-	m_sounds.LoadSound(section,"snd_shoot", "sndShot", SOUND_TYPE_WEAPON_SHOOTING);
+	m_sounds.LoadSound(section,"snd_shoot", "sndShot", false, SOUND_TYPE_WEAPON_SHOOTING);
 	m_Ammo->Load(pSettings->r_string(section, "ammo_class"), 0);
 	camMaxAngle			= pSettings->r_float		(section,"cam_max_angle"	); 
 	camMaxAngle			= _abs( deg2rad				(camMaxAngle) );
@@ -257,7 +257,7 @@ void CWeaponStatMgun::SetDesiredDir		(float h, float p)
 	m_destEnemyDir.setHP				(h,p);
 }
 
-void CWeaponStatMgun::Action				(int id, u32 flags)
+void CWeaponStatMgun::Action				(u16 id, u32 flags)
 {
 	inheritedHolder::Action(id,flags);
 	switch (id){

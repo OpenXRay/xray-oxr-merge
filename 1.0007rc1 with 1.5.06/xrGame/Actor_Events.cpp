@@ -1,10 +1,10 @@
 #include "stdafx.h"
 #include "actor.h"
 #include "customdetector.h"
-#include "uigamesp.h"
-#include "hudmanager.h"
+//#include "uigamesp.h"
+//#include "hudmanager.h"
 #include "weapon.h"
-#include "artifact.h"
+#include "artefact.h"
 #include "scope.h"
 #include "silencer.h"
 #include "grenadelauncher.h"
@@ -18,7 +18,7 @@
 #include "CameraLook.h"
 #include "CameraFirstEye.h"
 #include "holder_custom.h"
-#include "ui/uiinventoryWnd.h"
+//.#include "ui/uiinventoryWnd.h"
 #include "game_base_space.h"
 #ifdef DEBUG
 #include "PHDebug.h"
@@ -30,7 +30,7 @@ IC BOOL BE	(BOOL A, BOOL B)
 	return a==b;
 }
 
-void CActor::OnEvent		(NET_Packet& P, u16 type)
+void CActor::OnEvent(NET_Packet& P, u16 type)
 {
 	inherited::OnEvent			(P,type);
 	CInventoryOwner::OnEvent	(P,type);

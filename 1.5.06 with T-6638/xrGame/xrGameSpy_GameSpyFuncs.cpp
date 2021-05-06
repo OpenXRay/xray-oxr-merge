@@ -62,7 +62,7 @@ void			xrGameSpyServer::OnCDKey_Validation				(int LocalID, int res, char* error
 	else
 	{
 		Msg						("CDKey: Validation failed - <%s>", errormsg);
-		SendConnectResult		(CL, u8(res), u8(1), errormsg);
+		SendConnectResult		(CL, u8(res), ecr_cdkey_validation_failed, errormsg);
 	}
 };
 
@@ -71,7 +71,7 @@ void			xrGameSpyServer::OnCDKey_ReValidation			(int LocalID, int hint, char* cha
 	ClientID ID; ID.set(u32(LocalID));
 	xrGameSpyClientData* CL = (xrGameSpyClientData*)  ID_to_client(ID);
 	if (!CL) return;
-	strcpy_s(CL->m_pChallengeString, challenge);
+	xr_strcpy(CL->m_pChallengeString, challenge);
 	CL->m_iCDKeyReauthHint = hint;
 	//--------- Send Respond ---------------------------------------------
 	NET_Packet P;

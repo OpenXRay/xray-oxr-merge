@@ -10,7 +10,7 @@
 
 #include "script_export_space.h"
 
-class CSE_ALifeMonsterAbstract;
+class CMovementManagerHolder;
 class CALifeMonsterDetailPathManager;
 class CALifeMonsterPatrolPathManager;
 
@@ -20,7 +20,7 @@ namespace MovementManager {
 
 class CALifeMonsterMovementManager {
 public:
-	typedef CSE_ALifeMonsterAbstract							object_type;
+	typedef CMovementManagerHolder							object_type;
 	typedef CALifeMonsterDetailPathManager					detail_path_type;
 	typedef CALifeMonsterPatrolPathManager					patrol_path_type;
 	typedef MovementManager::EPathType						EPathType;

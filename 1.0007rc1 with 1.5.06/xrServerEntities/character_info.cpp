@@ -67,7 +67,7 @@ void CCharacterInfo::InitSpecificCharacter (shared_str new_id)
 	if(Reputation().value() == NO_REPUTATION)
 		SetReputation(m_SpecificCharacter.Reputation());
 	if(Community().index() == NO_COMMUNITY_INDEX)
-		SetCommunity(m_SpecificCharacter.Community());
+		SetCommunity(m_SpecificCharacter.Community().index());
 	if(!m_StartDialog || !m_StartDialog.size() )
 		m_StartDialog = m_SpecificCharacter.data()->m_StartDialog;
 }
@@ -116,9 +116,9 @@ void CCharacterInfo::load_shared	(LPCSTR)
 #ifdef XRGAME_EXPORTS
 void CCharacterInfo::Init	(CSE_ALifeTraderAbstract* trader)
 {
-	m_CurrentCommunity.set		(trader->m_community_index);
-	m_CurrentRank.set			(trader->m_rank);
-	m_CurrentReputation.set		(trader->m_reputation);
+	SetCommunity				(trader->m_community_index);
+	SetRank						(trader->m_rank);
+	SetReputation				(trader->m_reputation);
 	Load						(trader->character_profile());
 	InitSpecificCharacter		(trader->specific_character());
 }
@@ -150,6 +150,11 @@ void CCharacterInfo::SetReputation (CHARACTER_REPUTATION_VALUE reputation)
 	m_CurrentReputation.set(reputation);
 }
 
+void CCharacterInfo::SetCommunity(CHARACTER_COMMUNITY_INDEX community)
+{
+	m_CurrentCommunity.set( community );
+	m_Sympathy = m_CurrentCommunity.sympathy( m_CurrentCommunity.index() );
+}
 
 const shared_str& CCharacterInfo::IconName() const
 {

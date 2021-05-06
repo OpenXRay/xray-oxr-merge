@@ -23,7 +23,7 @@ void CWeaponPistol::Load	(LPCSTR section)
 {
 	inherited::Load		(section);
 
-	m_sounds.LoadSound(section, "snd_close", "sndClose", m_eSoundClose);
+	m_sounds.LoadSound(section, "snd_close", "sndClose", false, m_eSoundClose);
 }
 
 void CWeaponPistol::OnH_B_Chield		()
@@ -74,7 +74,6 @@ void CWeaponPistol::PlayAnimIdle()
 {
 	if (TryPlayAnimIdle()) return;
 
-	VERIFY(GetState()==eIdle);
 	if(iAmmoElapsed==0)
 	{
 		PlayHUDMotion("anm_idle_empty", TRUE, NULL, GetState());

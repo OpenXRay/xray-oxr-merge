@@ -51,6 +51,8 @@ public:
 	static CHARACTER_GOODWILL	relation			(CHARACTER_COMMUNITY_INDEX from, CHARACTER_COMMUNITY_INDEX to);
 	CHARACTER_GOODWILL			relation			(CHARACTER_COMMUNITY_INDEX to);
 	
+	static void					set_relation		(CHARACTER_COMMUNITY_INDEX from, CHARACTER_COMMUNITY_INDEX to, CHARACTER_GOODWILL goodwill);
+
 	static float				sympathy			(CHARACTER_COMMUNITY_INDEX);
 	
 	static void					DeleteIdToIndexData	();

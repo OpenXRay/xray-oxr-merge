@@ -61,7 +61,7 @@ public:
 	virtual BOOL					net_Spawn				(CSE_Abstract* DC);
 	virtual	void					update					();
 	virtual void					OnItemTake				(CInventoryItem *inventory_item);
-	virtual void					OnItemDrop				(CInventoryItem *inventory_item);
+	virtual void					OnItemDrop				(CInventoryItem *inventory_item, bool just_before_destroy);
 	virtual	void					attach					(CInventoryItem *inventory_item);
 	virtual	void					detach					(CInventoryItem *inventory_item);
 			CInventoryItem			*best_weapon			() const;
@@ -69,13 +69,14 @@ public:
 			void					set_goal				(MonsterSpace::EObjectAction object_action, CInventoryItem *inventory_item, u32 min_queue_size = -1, u32 max_queue_size = -1, u32 min_queue_interval = 300, u32 max_queue_interval = 300);
 			bool					goal_reached			();
 	IC		bool					hammer_is_clutched		() const;
-	IC		bool const&				inifinite_ammo			() const;
+	IC		bool const&				infinite_ammo			() const;
 	IC		CObjectHandlerPlanner	&planner				() const;
 			void					weapon_bones			(int &b0, int &b1, int &b2) const;
 			bool					weapon_strapped			() const;
 			bool					weapon_strapped			(CWeapon *weapon) const;
 			bool					weapon_unstrapped		() const;
 			bool					weapon_unstrapped		(CWeapon *weapon) const;
+			bool			is_weapon_going_to_be_strapped	( CGameObject const* object ) const;
 
 private:
 			void					set_inertia				(const CWeapon &weapon, const u32 &action_id, const u32 &aim_time) const;

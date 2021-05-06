@@ -36,11 +36,11 @@ public:
 	};	
 							CCarWeapon			(CPhysicsShellHolder* obj);
 				virtual		~CCarWeapon			();
-	static void 			BoneCallbackX		(CBoneInstance *B);
-	static void				BoneCallbackY		(CBoneInstance *B);
+	static void _BCL		BoneCallbackX		(CBoneInstance *B);
+	static void	_BCL		BoneCallbackY		(CBoneInstance *B);
 				void		Load				(LPCSTR section);
 				void		UpdateCL			();
-			void			Action				(int id, u32 flags);
+			void			Action				(u16 id, u32 flags);
 			void			SetParam			(int id, Fvector2 val);
 			void			SetParam			(int id, Fvector val);
 			bool			AllowFire			();

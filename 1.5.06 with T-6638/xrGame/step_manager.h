@@ -34,7 +34,7 @@ public:
 	// call on set animation
 			void		on_animation_start		(MotionID motion_id, CBlend *blend);
 	// call on updateCL
-			void		update					();
+			void		update					(bool b_hud_view);
 	
 	// process event
 	virtual	void		event_on_step			() {}	

@@ -176,19 +176,19 @@ void CActor::g_cl_CheckControls(u32 mstate_wf, Fvector &vControlAccel, float &Ju
 			{
 				character_physics_support()->movement()->EnableCharacter();
 				bool Crouched = false;
-				if(isActorAccelerated(mstate_wf, IsZoomAimingMode()))
+				if (isActorAccelerated(mstate_wf, IsZoomAimingMode()))
 					Crouched = character_physics_support()->movement()->ActivateBoxDynamic(1);
 				else
 					Crouched = character_physics_support()->movement()->ActivateBoxDynamic(2);
 				
-				if(Crouched) 
+				if (Crouched) 
 					mstate_real			|=	mcCrouch;
 			}
 		}
 		// jump
 		m_fJumpTime				-=	dt;
 
-		if( CanJump() && (mstate_wf&mcJump) )
+		if ( CanJump() && (mstate_wf&mcJump) )
 		{
 			mstate_real			|=	mcJump;
 			m_bJumpKeyPressed	=	TRUE;
@@ -204,7 +204,7 @@ void CActor::g_cl_CheckControls(u32 mstate_wf, Fvector &vControlAccel, float &Ju
 		// mask input into "real" state
 		u32 move	= mcAnyMove|mcAccel;
 
-		if(mstate_real&mcCrouch)
+		if ( mstate_real&mcCrouch )
 		{
 			if (!isActorAccelerated(mstate_real, IsZoomAimingMode()) && isActorAccelerated(mstate_wf, IsZoomAimingMode()))
 			{
@@ -220,7 +220,9 @@ void CActor::g_cl_CheckControls(u32 mstate_wf, Fvector &vControlAccel, float &Ju
 		}
 
 		if ((mstate_wf&mcSprint) && !CanSprint())
+		{
 			mstate_wf				&= ~mcSprint;
+		}
 
 		mstate_real &= (~move);
 		mstate_real |= (mstate_wf & move);
@@ -236,7 +238,7 @@ void CActor::g_cl_CheckControls(u32 mstate_wf, Fvector &vControlAccel, float &Ju
 		}
 				
 		// check player move state
-		if(mstate_real&mcAnyMove)
+		if (mstate_real&mcAnyMove)
 		{
 			BOOL	bAccelerated		= isActorAccelerated(mstate_real, IsZoomAimingMode())&&CanAccelerate();
 
@@ -246,7 +248,7 @@ void CActor::g_cl_CheckControls(u32 mstate_wf, Fvector &vControlAccel, float &Ju
 
 			// normalize and analyze crouch and run
 			float	scale			= vControlAccel.magnitude();
-			if(scale>EPS)	
+			if (scale>EPS)
 			{
 				scale	=	m_fWalkAccel/scale;
 				if (bAccelerated)

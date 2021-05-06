@@ -22,6 +22,7 @@ public :
 	virtual			void				Init					();
 	virtual			void				net_import_state		(NET_Packet& P);
 	virtual			CUIGameCustom*		createGameUI			();
+	virtual			void				SetGameUI				(CUIGameCustom*);
 	virtual			void				GetMapEntities			(xr_vector<SZoneMapEntityData>& dst);
 	
 	virtual BOOL					CanCallBuyMenu			();
@@ -49,7 +50,9 @@ public :
 	virtual			bool				Get_ShowPlayerNamesEnabled () {return m_bFriendlyNames;};
 	
 	virtual			bool				IsPlayerInTeam			(game_PlayerState* ps, ETeam team);
-
+	virtual			LPCSTR				GetGameScore			(string32&	score_dest);
+	s32									GetGreenTeamScore		() const { return teams[0].score; };
+	s32									GetBlueTeamScore		() const { return teams[1].score; };
 //from UIGameTDM
 protected:
 	virtual const shared_str			GetBaseCostSect			() {return "teamdeathmatch_base_cost";}
@@ -79,6 +82,7 @@ protected:
 	virtual	void						OnSwitchPhase_InProgress();
 
 	virtual		u8						GetTeamCount			() { return 2; };
+	virtual		void					OnConnected				();
 };
 
 IC bool	TDM_Compare_Players		(game_PlayerState* p1, game_PlayerState* p2)

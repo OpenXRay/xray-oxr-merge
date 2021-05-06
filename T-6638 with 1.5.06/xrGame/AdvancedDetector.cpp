@@ -5,7 +5,6 @@
 #include "player_hud.h"
 #include "game_object_space.h"
 
-
 CAdvancedDetector::CAdvancedDetector()
 {
 	m_artefacts.m_af_rank = 2;

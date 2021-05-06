@@ -134,4 +134,4 @@ struct					InterpData
 	SRotation			o_torso;				// torso in world coords
 };
 
-};
+}; // namespace ACTOR_DEFS 

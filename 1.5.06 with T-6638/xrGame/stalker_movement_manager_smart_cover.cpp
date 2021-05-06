@@ -235,7 +235,7 @@ void stalker_movement_manager_smart_cover::reach_enter_location			(u32 const& ti
 	if (!object().sight().current_action().target_reached())
 		return;
 
-	if (target_params().cover()->is_combat_cover()) {
+	if (target_params().cover()->can_fire()) {
 		CInventoryItem const* const		inventory_item = object().inventory().ActiveItem();
 		if (!inventory_item) {
 			if (!object().CObjectHandler::goal_reached())
@@ -245,7 +245,7 @@ void stalker_movement_manager_smart_cover::reach_enter_location			(u32 const& ti
 			return;
 		}
 
-		if (inventory_item->GetSlot() != 2) {
+		if (inventory_item->BaseSlot() != INV_SLOT_3) {
 			if (!object().CObjectHandler::goal_reached())
 				return;
 
@@ -563,4 +563,15 @@ bool stalker_movement_manager_smart_cover::in_smart_cover		() const
 		return						(true);
 
 	return							(false);
+}
+
+void stalker_movement_manager_smart_cover::remove_links			(CObject *object)
+{
+	inherited::remove_links			( object );
+
+	if ( m_target.cover_fire_object() == object )
+		m_target.cover_fire_object	( 0 );
+
+	if ( m_current.cover_fire_object() == object )
+		m_current.cover_fire_object	( 0 );
 }

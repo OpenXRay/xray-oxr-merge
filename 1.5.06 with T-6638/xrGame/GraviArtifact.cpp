@@ -6,13 +6,13 @@
 
 #include "stdafx.h"
 #include "GraviArtifact.h"
-#include "PhysicsShell.h"
+#include "../xrphysics/PhysicsShell.h"
 #include "level.h"
 #include "xrmessages.h"
 #include "game_cl_base.h"
 #include "../Include/xrRender/Kinematics.h"
-#include "phworld.h"
-extern CPHWorld*	ph_world;
+#include "../xrphysics/IPHWorld.h"
+//extern CPHWorld*	ph_world;
 #define CHOOSE_MAX(x,inst_x,y,inst_y,z,inst_z)\
 	if(x>y)\
 		if(x>z){inst_x;}\
@@ -48,7 +48,7 @@ void CGraviArtefact::Load(LPCSTR section)
 void CGraviArtefact::UpdateCLChild() 
 {
 
-	VERIFY(!ph_world->Processing());
+	VERIFY(!physics_world()->Processing());
 	if (getVisible() && m_pPhysicsShell) {
 		if (m_fJumpHeight) {
 			Fvector dir; 

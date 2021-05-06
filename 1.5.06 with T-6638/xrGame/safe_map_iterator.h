@@ -42,7 +42,7 @@ public:
 	IC		void			add					(const _key_type &id, _data_type *value, bool no_assert = false);
 	IC		void			remove				(const _key_type &id, bool no_assert = false);
 	template <typename _update_predicate>
-	IC		u32				update				(const _update_predicate &predicate);
+	IC		u32				update				(const _update_predicate &predicate, bool const iterate_as_first_time_next_time);
 	IC		void			set_process_time	(const float &process_time);
 	IC		const _REGISTRY	&objects			() const;
 	IC		void			clear				();

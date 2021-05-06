@@ -46,6 +46,7 @@ public:
 	//величина от -100< (крайне враждебное) до >100 (очень дрюжелюбное)
 	CHARACTER_GOODWILL	 GetGoodwill				(u16 from, u16 to) const ;
 	void				 SetGoodwill				(u16 from, u16 to, CHARACTER_GOODWILL goodwill);
+	void				 ForceSetGoodwill			(u16 from, u16 to, CHARACTER_GOODWILL goodwill);
 	void				 ChangeGoodwill 			(u16 from, u16 to, CHARACTER_GOODWILL delta_goodwill);
 
 	//отношения группировки к персонажу (именно так, а не наоборот)

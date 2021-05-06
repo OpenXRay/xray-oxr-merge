@@ -31,12 +31,14 @@ public :
 	string64						WinnerName;
 	
 	virtual		CUIGameCustom*		createGameUI			();
+	virtual		void				SetGameUI				(CUIGameCustom*);
 	virtual		void				net_import_state		(NET_Packet& P);
 	virtual		void				net_import_update		(NET_Packet& P);	
 	virtual		void				Init					();
 
 	virtual		void				LoadSndMessages				();
 
+	virtual		bool				Is_Rewarding_Allowed	()  const { return m_cl_dwWarmUp_Time == 0; };
 protected:
 	struct PresetItem
 	{
@@ -156,6 +158,8 @@ public:
 	virtual		void				UpdateMapLocations		();
 	virtual		bool				IsPlayerInTeam			(game_PlayerState* ps, ETeam team);
 	virtual		bool				LocalPlayerCanBuyItem	(shared_str const & name_sect);
+	virtual		LPCSTR				GetGameScore			(string32&	score_dest);
+	virtual		void				OnConnected				();
 private:
 	//next methods for alife players in buy menu (artefacthunt)
 	typedef buffer_vector<shared_str> aditional_ammo_t;

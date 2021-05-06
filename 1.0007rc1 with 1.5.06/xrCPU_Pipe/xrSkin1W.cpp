@@ -5,8 +5,8 @@
 	#include "skeletonX.h"
  	#include "skeletoncustom.h"
 #else
-#include "..\skeletonX.h"
- 	#include "..\skeletoncustom.h"
+#include "../xrEngine/bone.h"
+#include "../Layers/xrRender/SkeletonXVertRender.h"
 #endif
 
 void __stdcall xrSkin1W_x86(	vertRender*		D,

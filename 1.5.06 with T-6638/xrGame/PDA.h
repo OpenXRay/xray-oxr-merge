@@ -8,7 +8,6 @@
 
 #include "PdaMsg.h"
 
-
 class CInventoryOwner;
 class CPda;
 
@@ -53,6 +52,8 @@ public:
 			void							ActivePDAContacts		(xr_vector<CPda*>& res);
 			CPda*							GetPdaFromOwner			(CObject* owner);
 			u32								ActiveContactsNum		()							{return m_active_contacts.size();}
+			void							PlayScriptFunction		();
+			bool							CanPlayScriptFunction	() {if(!xr_strcmp(m_functor_str, "")) return false; return true;};
 
 
 	virtual void							save					(NET_Packet &output_packet);
@@ -72,4 +73,5 @@ protected:
 	xr_string								m_sFullName;
 
 	bool									m_bTurnedOff;
+	shared_str								m_functor_str;
 };

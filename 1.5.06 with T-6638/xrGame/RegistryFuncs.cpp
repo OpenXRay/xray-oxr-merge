@@ -121,3 +121,57 @@ void	WriteRegistry_DWValue	(LPCSTR rKeyName, const DWORD& value )
 {
 	WriteRegistryValue(rKeyName, REG_DWORD, &value);
 }
+
+u32 const	ReadRegistry_BinaryValue	(LPCSTR rKeyName, u8 * buffer_dest, u32 const buffer_size)
+{
+	HKEY hKey = 0;	
+	long res = RegOpenKeyEx(REGISTRY_BASE, REGISTRY_PATH, 0, KEY_READ, &hKey);
+
+	if (res != ERROR_SUCCESS)
+	{
+		Msg ("! Unable to find %s in registry", REGISTRY_PATH);
+		return 0;
+	}
+	if (!hKey) 
+	{
+		Msg ("! Unable to find %s entry in registry", REGISTRY_PATH); 
+		return 0;
+	}
+
+	DWORD	value_type = REG_BINARY;
+	DWORD	tmp_buffer_size = buffer_size;
+
+	res		= RegQueryValueEx(hKey, rKeyName, NULL, &value_type, buffer_dest, &tmp_buffer_size);
+	
+	if (res != ERROR_SUCCESS)
+	{
+		Msg ("! Unable to find %s entry in registry", rKeyName); 
+		return 0;
+	}
+	
+	return static_cast<u32>(tmp_buffer_size);
+}
+
+void	WriteRegistry_BinaryValue	(LPCSTR rKeyName, u8 const * buffer_src, u32 const buffer_size)
+{
+	HKEY hKey;
+
+	long res = RegOpenKeyEx(REGISTRY_BASE, 
+		REGISTRY_PATH, 0, KEY_WRITE, &hKey);
+
+	if (res != ERROR_SUCCESS)
+	{
+		Msg ("! Unable to find %s in registry", REGISTRY_PATH);
+		return;
+	}
+
+	if (!hKey) 
+	{
+		Msg ("! Unable to find %s entry in registry", REGISTRY_PATH); 
+		return;
+	}
+
+	res = RegSetValueEx(hKey, rKeyName, NULL, REG_BINARY, buffer_src, buffer_size);
+
+	RegCloseKey(hKey);
+}

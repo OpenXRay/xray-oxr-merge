@@ -19,7 +19,7 @@ IC	CObjectHandlerPlanner &CObjectHandler::planner	() const
 	return				(*m_planner);
 }
 
-IC	bool const& CObjectHandler::inifinite_ammo		() const
+IC	bool const& CObjectHandler::infinite_ammo		() const
 {
 	return				(m_infinite_ammo);
 }

@@ -47,6 +47,7 @@ public :
 	virtual							~game_cl_ArtefactHunt		();
 	virtual			void				Init					();
 	virtual			CUIGameCustom*		createGameUI			();
+	virtual			void				SetGameUI				(CUIGameCustom*);
 	virtual			void				net_import_state		(NET_Packet& P);
 	virtual			void				GetMapEntities(xr_vector<SZoneMapEntityData>& dst);
 	virtual			char*				getTeamSection			(int Team);
@@ -58,4 +59,5 @@ public :
 	virtual			void				OnSpawn					(CObject* pObj);
 	virtual			void				OnDestroy				(CObject* pObj);	
 	virtual			void				SendPickUpEvent			(u16 ID_who, u16 ID_what);
+	virtual		void					OnConnected				();
 };

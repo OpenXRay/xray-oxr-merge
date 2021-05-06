@@ -19,7 +19,7 @@ public:
 
 public:
 	virtual void		Load				(LPCSTR section);
-	virtual bool		Action				(s32 cmd, u32 flags);
+	virtual bool		Action				(u16 cmd, u32 flags);
 	virtual void		SwitchState			(u32 S);
 	virtual void		OnStateSwitch		(u32 S);
 	virtual void		OnEvent				(NET_Packet& P, u16 type);
@@ -34,10 +34,10 @@ public:
 	virtual void		UpdateCL			();
 	virtual void		renderable_Render	();
 	virtual void		on_renderable_Render();
-	virtual void		OnMoveToRuck		(EItemPlace prev);
+	virtual void		OnMoveToRuck		(const SInvItemPlace& prev);
 
 	virtual bool			use_parent_ai_locations	() const
 	{
-		return				(Device.dwFrame != dwXF_Frame);
+		return				CInventoryItemObject::use_parent_ai_locations	() && (Device.dwFrame != dwXF_Frame);
 	}
 };

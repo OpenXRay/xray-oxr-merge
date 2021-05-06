@@ -72,7 +72,8 @@ void SStatSectionData::load(IReader &stream)
 			key = "foo";
 			break;
 		}
-	load_data		(tmp,				stream);// old total_points
+		s32				tmp2;
+		load_data		(tmp2,				stream);// old total_points
 	}else
 		load_data			(key,				stream);
 };

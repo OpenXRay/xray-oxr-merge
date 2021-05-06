@@ -43,6 +43,7 @@ void SStatSectionData::save(IWriter &stream)
 void SStatSectionData::load(IReader &stream)	
 {
 	load_data			(data,				stream);
+
 	if(ai().get_alife()->header().version()==0x0002)
 	{
 	int tmp;

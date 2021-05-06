@@ -246,12 +246,7 @@ void add_offline_impl						(CSE_ALifeDynamicObject *object, const xr_vector<ALif
 			continue;
 		}
 
-#ifdef DEBUG
-		if (!child->client_data.empty())
-			Msg							("CSE_ALifeTraderAbstract::add_offline: client_data is cleared for [%d][%s]",child->ID,child->name_replace());
-#endif // DEBUG
-		if (!child->keep_saved_data_anyway())
-			child->client_data.clear	();
+		child->clear_client_data();
 		object->alife().graph().add		(child,child->m_tGraphID,false);
 		object->alife().graph().attach	(*object,inventory_item,child->m_tGraphID,true);
 	}

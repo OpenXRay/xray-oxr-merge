@@ -1,9 +1,10 @@
 #include "stdafx.h"
 #pragma hdrstop
-#ifdef DEBUG
 
+#ifdef DEBUG
 #include "PHDebug.h"
 #endif
+
 #include "alife_space.h"
 #include "hit.h"
 #include "phdestroyable.h"

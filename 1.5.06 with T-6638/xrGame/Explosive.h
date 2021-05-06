@@ -9,7 +9,7 @@
 #include "inventory_item.h"
 #include "ai_sounds.h"
 #include "script_export_space.h"
-#include "DamageSource.h"
+#include "../xrphysics/DamageSource.h"
 #include "wallmark_manager.h"
 #include "ParticlesObject.h"
 class IRender_Light;
@@ -25,7 +25,7 @@ public:
 	virtual						~CExplosive(void);
 
 	virtual void 				Load(LPCSTR section);
-	virtual void				Load(CInifile *ini,LPCSTR section);
+	virtual void				Load(CInifile const * ini,LPCSTR section);
 
 	virtual void 				net_Destroy		();
 	virtual void				net_Relcase		(CObject* O);

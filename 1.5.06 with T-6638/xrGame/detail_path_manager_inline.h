@@ -157,12 +157,16 @@ IC	void CDetailPathManager::assign_angle(
 	VERIFY				(_valid(angle));
 }
 
-IC	void CDetailPathManager::compute_circles(
+IC	bool CDetailPathManager::compute_circles(
 	STrajectoryPoint	&point, 
 	SCirclePoint		*circles
 )
 {
-	VERIFY				(!fis_zero(point.angular_velocity));
+	if ( fis_zero(point.angular_velocity) ) {
+		VERIFY2			(0, "point.angular_velocity is zero");
+		return			false;
+	}
+
 	point.radius		= _abs(point.linear_velocity)/point.angular_velocity;
 	circles[0].radius	= circles[1].radius = point.radius;
 	VERIFY				(fsimilar(point.direction.square_magnitude(),1.f));
@@ -170,6 +174,7 @@ IC	void CDetailPathManager::compute_circles(
 	circles[0].center.y = -point.direction.x*point.radius + point.position.y;
 	circles[1].center.x = -point.direction.y*point.radius + point.position.x;
 	circles[1].center.y =  point.direction.x*point.radius + point.position.y;
+	return				true;
 }
 
 IC	void CDetailPathManager::set_velocity_mask			(const u32 velocity_mask)

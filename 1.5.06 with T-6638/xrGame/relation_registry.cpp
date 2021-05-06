@@ -11,6 +11,10 @@
 #include "character_reputation.h"
 #include "character_rank.h"
 
+#include "alife_object_registry.h"
+#include "xrServer_Objects_ALife_Monsters.h"
+#include "script_engine.h"
+
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -150,6 +154,23 @@ void RELATION_REGISTRY::SetGoodwill 	(u16 from, u16 to, CHARACTER_GOODWILL goodw
 	clamp							(goodwill, gw_limits.x, gw_limits.y);
 
 	relation_data.personal[to].SetGoodwill(goodwill);
+}
+
+void RELATION_REGISTRY::ForceSetGoodwill 	(u16 from, u16 to, CHARACTER_GOODWILL goodwill)
+{
+	RELATION_DATA& relation_data = relation_registry().registry().objects(from);
+
+	CSE_ALifeTraderAbstract* from_obj	= smart_cast<CSE_ALifeTraderAbstract*>(ai().alife().objects().object(from));
+	CSE_ALifeTraderAbstract* to_obj		= smart_cast<CSE_ALifeTraderAbstract*>(ai().alife().objects().object(to));
+	
+	if (!from_obj||!to_obj){
+		ai().script_engine().script_log		(ScriptStorage::eLuaMessageTypeError,"RELATION_REGISTRY::ForceSetGoodwill  : cannot convert obj to CSE_ALifeTraderAbstract!");
+		return;
+	}	
+	CHARACTER_GOODWILL community_to_obj_goodwill		= GetCommunityGoodwill	(from_obj->Community(), to					);
+	CHARACTER_GOODWILL community_to_community_goodwill	= GetCommunityRelation	(from_obj->Community(), to_obj->Community()	);
+	
+	relation_data.personal[to].SetGoodwill(goodwill - community_to_obj_goodwill - community_to_community_goodwill);
 }
 
 

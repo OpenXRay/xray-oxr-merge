@@ -16,7 +16,7 @@
 
 typedef CStalkerAnimationManager::callback_params	callback_params;
 
-static void callback_rotation		(CBoneInstance* bone)
+static void	_BCL callback_rotation		(CBoneInstance* bone)
 {
 	R_ASSERT						( _valid( bone->mTransform ) );
 	callback_params*				parameter = static_cast<callback_params*>( bone->callback_param() );
@@ -57,7 +57,7 @@ static void callback_rotation		(CBoneInstance* bone)
 	R_ASSERT						( _valid( bone->mTransform ) );
 }
 
-static void callback_rotation_blend	(CBoneInstance* const bone)
+static void	_BCL callback_rotation_blend	(CBoneInstance* const bone)
 {
 	R_ASSERT						( _valid( bone->mTransform ) );
 
@@ -66,7 +66,7 @@ static void callback_rotation_blend	(CBoneInstance* const bone)
 	VERIFY							(parameter->m_rotation);
 	VERIFY							(parameter->m_object);
 	VERIFY							(parameter->m_blend);
-//	VERIFY							(*parameter->m_blend);
+//	VERIFY2							( *parameter->m_blend, make_string( "%d %s[%s]", Device.dwTimeGlobal, parameter->m_object->cName().c_str(), parameter->m_object->g_Alive() ? "+" : "-") );
 
 	float multiplier				= 1.f;
 	if ( *parameter->m_blend ) {

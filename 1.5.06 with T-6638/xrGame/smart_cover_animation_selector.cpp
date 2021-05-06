@@ -105,10 +105,10 @@ MotionID animation_selector::select_animation		(bool &animation_movement_control
 		current_operator()->select_animation(m_animation);
 
 		VERIFY				( m_object->movement().current_params().cover() );
-		if ( !m_object->movement().current_params().cover()->is_combat_cover() )
+		if ( !m_object->movement().current_params().cover()->can_fire() )
 			return			(m_skeleton_animated->ID_Cycle( m_animation.c_str()));
 
-#ifndef MASTER_GOLD
+#if 0//ndef MASTER_GOLD
 		if (!psAI_Flags.test((u32)aiUseSmartCoversAnimationSlot))
 			return			(m_skeleton_animated->ID_Cycle( m_animation.c_str()));
 

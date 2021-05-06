@@ -209,7 +209,7 @@ void stalker_movement_params::actualize_loophole					() const
 
 	float						value;
 	Fvector						position = m_manager->position_to_cover_from();
-	m_cover_selected_loophole	= m_cover->best_loophole(position, value, true);
+	m_cover_selected_loophole	= m_cover->best_loophole(position, value, true, m_manager->current_params().cover() == m_cover );
 }
 
 LPCSTR stalker_movement_params::cover_loophole_id		() const

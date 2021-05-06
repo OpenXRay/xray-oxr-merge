@@ -37,9 +37,9 @@ void xrServer::Process_update(NET_Packet& P, ClientID sender)
 				string16	tmp;
 				CLSID2TEXT	(E->m_tClassID,tmp);
 				Debug.fatal	(DEBUG_INFO,
-					"Beer from the creator of '%s'; initiator: %s, r_tell() = %d, pos = %d, objectID = %d",
+					"Beer from the creator of '%s'; initiator: 0x%08x, r_tell() = %d, pos = %d, objectID = %d",
 					tmp,
-					CL->name.c_str(),
+					CL->ID.value(),
 					P.r_tell(), 
 					_pos,
 					E->ID

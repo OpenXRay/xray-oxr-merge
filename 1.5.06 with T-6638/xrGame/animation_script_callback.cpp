@@ -11,7 +11,6 @@ CBlend	*PlayMotionByParts(IKinematicsAnimated* sa, MotionID motion_ID, BOOL bMix
 	CBlend	*ret = 0;
 	for (u16 i=0; i<MAX_PARTS; ++i) 
 	{
-
 		CBlend	*blend	= sa->LL_PlayCycle( i, motion_ID, bMixIn, Callback, CallbackParam );
 		if(blend && !ret)
 				ret = blend;
@@ -24,6 +23,7 @@ CBlend*	anim_script_callback::play_cycle( IKinematicsAnimated* sa,const shared_s
 {
 
 	MotionID	m			=	sa->LL_MotionID		( *anim )			;
+	R_ASSERT( m.valid( ) );
 	if(sa->LL_GetMotionDef	( m )->StopAtEnd())
 	{
 		on_end		= false;

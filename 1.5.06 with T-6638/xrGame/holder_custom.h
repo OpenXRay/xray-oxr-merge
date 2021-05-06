@@ -40,7 +40,7 @@ public:
 	virtual Fvector			ExitPosition		()				= 0;
 	virtual Fvector			ExitVelocity		()				{return Fvector().set(0,0,0);}
 	virtual CCameraBase*	Camera				()				= 0;
-	virtual void			Action				(int id, u32 flags)				{};
+	virtual void			Action				(u16 id, u32 flags)				{};
 	virtual void			SetParam			(int id, Fvector2 val)			{};
 	virtual void			SetParam			(int id, Fvector val)			{};
 	DECLARE_SCRIPT_REGISTER_FUNCTION

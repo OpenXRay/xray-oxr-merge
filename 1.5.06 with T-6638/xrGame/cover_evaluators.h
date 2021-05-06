@@ -16,6 +16,8 @@
 //////////////////////////////////////////////////////////////////////////
 
 class CCoverPoint;
+class CAI_Stalker;
+
 namespace smart_cover{
 	class cover;
 	class loophole;
@@ -33,6 +35,7 @@ protected:
 	bool						m_initialized;
 	Fvector						m_start_position;
 	CRestrictedObject			*m_object;
+	CAI_Stalker					*m_stalker;
 	bool						m_actuality;
 	float						m_last_radius;
 	smart_cover::loophole		*m_loophole;
@@ -44,10 +47,10 @@ protected:
 	virtual	void				evaluate_cover		(const CCoverPoint *cover_point, float weight) = 0;
 
 public:
-	IC							CCoverEvaluatorBase	(CRestrictedObject *object);
+								CCoverEvaluatorBase	(CRestrictedObject *object);
 	IC		const CCoverPoint	*selected			() const;
 	IC		smart_cover::loophole const	*loophole	() const;
-	IC		bool				inertia				(float radius);
+			bool				inertia				(Fvector const& position, float radius);
 	IC		bool				initialized			() const;
 	IC		void				setup				();
 	IC		void				set_inertia			(u32 inertia_time);

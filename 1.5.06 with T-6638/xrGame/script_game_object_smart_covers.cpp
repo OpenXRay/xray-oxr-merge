@@ -196,6 +196,16 @@ CCoverPoint const* CScriptGameObject::get_dest_smart_cover			()
 
 	return								(stalker->movement().target_params().cover());
 }
+LPCSTR CScriptGameObject::get_dest_smart_cover_name		()
+{
+	CAI_Stalker*						stalker = smart_cast<CAI_Stalker*>(&object());
+	if (!stalker) {
+		ai().script_engine().script_log	(ScriptStorage::eLuaMessageTypeError,"CAI_Stalker : cannot access class member get_dest_smart_cover!");
+		return							(0);
+	}
+
+	return								(stalker->movement().target_params().cover_id().c_str());
+}
 
 void CScriptGameObject::set_dest_loophole							(LPCSTR loophole_id)
 {

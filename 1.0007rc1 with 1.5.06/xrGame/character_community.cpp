@@ -68,6 +68,15 @@ CHARACTER_GOODWILL  CHARACTER_COMMUNITY::relation		(CHARACTER_COMMUNITY_INDEX fr
 	return m_relation_table.table()[from][to];
 }
 
+void  CHARACTER_COMMUNITY::set_relation			(CHARACTER_COMMUNITY_INDEX from, CHARACTER_COMMUNITY_INDEX to, CHARACTER_GOODWILL goodwill)
+{
+	VERIFY(from >= 0 && from <(int)m_relation_table.table().size());
+	VERIFY(to >= 0 && to <(int)m_relation_table.table().size());
+	VERIFY(goodwill != NO_GOODWILL);
+
+	m_relation_table.table()[from][to] = goodwill;
+}
+
 float  CHARACTER_COMMUNITY::sympathy			(CHARACTER_COMMUNITY_INDEX comm)
 {
 	VERIFY(comm >= 0 && comm <(int)m_sympathy_table.table().size());

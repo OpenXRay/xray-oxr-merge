@@ -133,7 +133,7 @@ private:
 	IC		bool	check_mask					(u32					mask,			  u32							test) const;
 	IC		void	adjust_point				(const Fvector2			&source,		  float							yaw,				  float							magnitude,				  Fvector2						&dest) const;
 	IC		void	assign_angle				(float					&angle,		const float							start_yaw,		const float							dest_yaw,			const bool							positive,			const EDirectionType				direction_type,				const bool				start = true) const;
-	IC		void	compute_circles				(STrajectoryPoint		&point,			  SCirclePoint					*circles);
+	IC		bool	compute_circles				(STrajectoryPoint		&point,			  SCirclePoint					*circles);
 			bool	compute_tangent				(const STrajectoryPoint	&start,		const SCirclePoint					&start_circle,	const STrajectoryPoint				&dest,				const SCirclePoint					&dest_circle,		      SCirclePoint					*tangents,					const EDirectionType	direction_type);
 			bool	build_circle_trajectory		(const STrajectoryPoint &position,		  xr_vector<STravelPathPoint>	*path,				  u32							*vertex_id,			const u32							velocity);
 			bool	build_line_trajectory		(const STrajectoryPoint &start,		const STrajectoryPoint				&dest,				  u32							vertex_id,				  xr_vector<STravelPathPoint>	*path,				const u32							velocity);
@@ -171,6 +171,7 @@ public:
 	virtual	void	reinit						();
 			bool	valid						() const;
 			Fvector direction					() const;
+			bool	try_get_direction			(Fvector& direction) const;
 	IC		bool	actual						() const;
 	IC		void	make_inactual				();
 	IC		bool	failed						() const;

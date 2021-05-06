@@ -1,6 +1,5 @@
 #pragma once;
 
-
 #include "../xrphysics/physicsshell.h"
 
 struct	CPHCaptureBoneCallback :

@@ -11,9 +11,9 @@
 #include "associative_vector.h"
 
 #ifdef XRGAME_EXPORTS
-#	include "../xrLevel.h"
+#	include "../xrEngine/xrLevel.h"
 #else
-#	include "xrLevel.h"
+#	include "../../xrEngine/xrLevel.h"
 #endif
 
 namespace GameGraph {
@@ -175,4 +175,4 @@ namespace GameGraph {
 	};
 
 	DEFINE_VECTOR	(STerrainPlace,				TERRAIN_VECTOR,					TERRAIN_IT);
-};
+}

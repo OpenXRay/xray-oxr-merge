@@ -63,7 +63,9 @@ void CScriptMovementAction::script_register(lua_State *L)
 				value("run_fwd",					int(MonsterSpace::eMA_Run)),
 				value("drag",						int(MonsterSpace::eMA_Drag)),
 				value("jump",						int(MonsterSpace::eMA_Jump)),
-				value("steal",						int(MonsterSpace::eMA_Steal))
+				value("steal",						int(MonsterSpace::eMA_Steal)),
+				value("walk_with_leader",			int(MonsterSpace::eMA_WalkWithLeader)),
+				value("run_with_leader",			int(MonsterSpace::eMA_RunWithLeader))
 			]
 			.enum_("monster_speed_param")
 			[

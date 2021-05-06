@@ -3,7 +3,7 @@
 #include "hudmanager.h"
 #ifdef DEBUG
 #	include "ode_include.h"
-#	include "../StatGraph.h"
+#	include "../xrEngine/StatGraph.h"
 #	include "PHDebug.h"
 #endif // DEBUG
 #include "alife_space.h"
@@ -15,7 +15,6 @@
 #include "CameraFirstEye.h"
 #include "effectorfall.h"
 #include "EffectorBobbing.h"
-#include "clsid_game.h"
 #include "ActorEffector.h"
 #include "EffectorZoomInertion.h"
 #include "SleepEffector.h"
@@ -23,10 +22,14 @@
 #include "CustomOutfit.h"
 #include "actorcondition.h"
 #include "UIGameCustom.h"
+#include "matrix_utils.h"
+#include "clsid_game.h"
 #include "game_cl_base_weapon_usage_statistic.h"
+#include "Grenade.h"
+#include "Torch.h"
 
 // breakpoints
-#include "../xr_input.h"
+#include "../xrEngine/xr_input.h"
 
 //
 #include "Actor.h"
@@ -45,11 +48,11 @@
 #include "xrmessages.h"
 #include "string_table.h"
 #include "usablescriptobject.h"
-#include "../cl_intersect.h"
+#include "../xrEngine/cl_intersect.h"
 #include "ExtendedGeom.h"
 #include "alife_registry_wrappers.h"
-#include "../skeletonanimated.h"
-#include "artifact.h"
+#include "../Include/xrRender/Kinematics.h"
+#include "artefact.h"
 #include "CharacterPhysicsSupport.h"
 #include "material_manager.h"
 #include "IColisiondamageInfo.h"

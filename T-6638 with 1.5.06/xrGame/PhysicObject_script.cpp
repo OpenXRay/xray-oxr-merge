@@ -6,9 +6,6 @@
 #include "damage_manager.h"
 #include "DestroyablePhysicsObject.h"
 
-
-
-
 using namespace luabind;
 
 #pragma optimize("s",on)
@@ -29,6 +26,5 @@ void CPhysicObject::script_register(lua_State *L)
 			.def("stop_bones_sound",				&CPhysicObject::stop_bones_sound)
 			.def("set_door_ignore_dynamics",		&CPhysicObject::set_door_ignore_dynamics)
 			.def("unset_door_ignore_dynamics",		&CPhysicObject::unset_door_ignore_dynamics)
-
 	];
 }

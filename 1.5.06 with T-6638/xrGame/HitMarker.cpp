@@ -162,7 +162,7 @@ SHitMark::SHitMark( const ui_shader& sh, const Fvector& dir )
 	m_UIStaticItem					= xr_new<CUIStaticItem>();
 	m_UIStaticItem->SetShader		( sh );
 	m_UIStaticItem->SetPos			( 256.0f, 128.0f );
-	m_UIStaticItem->SetRect			( 0.0f, 0.0f, 512.0f, 512.0f );
+	m_UIStaticItem->SetSize			(Fvector2().set( 512.0f, 512.0f) );
 }
 
 SHitMark::~SHitMark()
@@ -199,7 +199,7 @@ SGrenadeMark::SGrenadeMark( const ui_shader& sh, CGrenade* grn )
 	float xs = 640.0f;
 	float ys = 640.0f;
 	m_UIStaticItem->SetPos			( ( UI_BASE_WIDTH - xs ) * 0.5f, ( UI_BASE_HEIGHT - ys ) * 0.5f );
-	m_UIStaticItem->SetRect			( 0.0f, 0.0f, xs, ys );
+	m_UIStaticItem->SetSize			(Fvector2().set(xs, ys));
 }
 
 SGrenadeMark::~SGrenadeMark()

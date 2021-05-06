@@ -384,6 +384,7 @@ void PATargetColor::Load	(IReader& F)
     alpha			= F.r_float();
 	scale			= F.r_float();
 }
+
 void PATargetColor::Save	(IWriter& F)
 {
 	ParticleAction::Save   	(F);

@@ -40,7 +40,7 @@ bool stalker_movement_manager_smart_cover::enemy_in_fov				() const
 		return			(false);
 
 	float				value;
-	if (m_current.cover()->best_loophole(position, value, false))
+	if (m_current.cover()->best_loophole(position, value, false, true ))
 		return			(true);
 
 	VERIFY				(m_current.cover_loophole());

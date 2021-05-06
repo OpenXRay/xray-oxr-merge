@@ -70,7 +70,7 @@ void CStalkerActionNoALife::initialize	()
 	object().movement().set_detail_path_type	(DetailPathManager::eDetailPathTypeSmooth);
 	object().movement().set_nearest_accessible_position();
 	object().sight().setup						(CSightAction(SightManager::eSightTypeCurrentDirection));
-	object().CObjectHandler::set_goal			(eObjectActionFire1,object().inventory().m_slots[1].m_pIItem,0,1,2500,3000);
+	object().CObjectHandler::set_goal			(eObjectActionFire1,object().inventory().ItemFromSlot(INV_SLOT_2),0,1,2500,3000);
 //	object().movement().patrol().set_path		("way_0000",PatrolPathManager::ePatrolStartTypeNearest);
 #endif
 }
@@ -132,6 +132,8 @@ void CStalkerActionGatherItems::initialize	()
 void CStalkerActionGatherItems::finalize	()
 {
 	inherited::finalize		();
+
+	object().sight().setup						(SightManager::eSightTypePathDirection);
 
 	object().movement().set_desired_position	(0);
 

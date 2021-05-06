@@ -34,6 +34,8 @@ public:
 	virtual void		initialize			();
 	IC		void		set_property		(_condition_type condition_id, _value_type value);
 	IC		CAI_Stalker &object				() const;
+			void		prevent_weapon_state_switch_ugly	( );
+			void		stop_hiding_operation_if_any		( ) const;
 };
 
 class CGameObject;
@@ -102,6 +104,7 @@ protected:
 public:
 						CObjectActionHide	(CInventoryItem *item, CAI_Stalker *owner, CPropertyStorage *storage, LPCSTR action_name = "");
 	virtual void		execute				();
+	virtual void		finalize			();
 };
 
 //////////////////////////////////////////////////////////////////////////

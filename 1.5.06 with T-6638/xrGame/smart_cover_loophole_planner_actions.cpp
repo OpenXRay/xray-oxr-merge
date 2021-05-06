@@ -461,14 +461,15 @@ void loophole_fire::on_mark				()
 	if (!best_weapon)
 		return;
 
-	u32 magazine_size			= best_weapon->GetAmmoMagSize();
+	u32 const magazine_size		= best_weapon->GetAmmoMagSize();
+//	Msg							( "started firing: %d", magazine_size );
 	object().set_goal			(eObjectActionFireNoReload,object().best_weapon(), magazine_size, magazine_size);
 }
 
 void loophole_fire::on_no_mark			()
 {
 	VERIFY						(object().movement().current_params().cover());
-	if (!object().movement().current_params().cover()->is_combat_cover())
+	if (!object().movement().current_params().cover()->can_fire())
 		return;
 
 	object().set_goal			(eObjectActionIdle,object().best_weapon(), 1, 3);

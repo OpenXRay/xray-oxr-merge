@@ -12,7 +12,8 @@ enum{
 		AF_GODMODE_RT		=(1<<8),
 };
 
-extern Flags32 psActorFlags;
+extern Flags32	psActorFlags;
 
 extern BOOL		GodMode	();	
 
+extern int		psActorSleepTime;

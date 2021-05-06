@@ -21,8 +21,8 @@ private:
 private:
 	CCameraBase*			camera;
 	// 
-	static void				BoneCallbackX		(CBoneInstance *B);
-	static void				BoneCallbackY		(CBoneInstance *B);
+	static void		_BCL	BoneCallbackX		(CBoneInstance *B);
+	static void		_BCL	BoneCallbackY		(CBoneInstance *B);
 	void					SetBoneCallbacks	();
 	void					ResetBoneCallbacks	();
 
@@ -99,6 +99,6 @@ public:
 
 	virtual CCameraBase*	Camera				()						{return camera;};
 
-	virtual void			Action				(int id, u32 flags);
+	virtual void			Action				(u16 id, u32 flags);
 	virtual void			SetParam			(int id, Fvector2 val);
 };

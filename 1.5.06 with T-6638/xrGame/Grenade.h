@@ -22,6 +22,7 @@ public:
 	virtual void 			OnH_B_Independent					(bool just_before_destroy);
 	virtual void 			OnH_A_Independent					();
 	virtual void 			OnH_A_Chield						();
+	virtual void			DiscardState						();
 	
 	virtual void 			OnEvent								(NET_Packet& P, u16 type);
 	virtual bool			DropGrenade							();			//in this case if grenade state is eReady, it should Throw
@@ -33,7 +34,7 @@ public:
 	virtual void 			Destroy();
 
 	
-	virtual bool			Action								(s32 cmd, u32 flags);
+	virtual bool			Action								(u16 cmd, u32 flags);
 	virtual bool			Useful								() const;
 	virtual void			State								(u32 state);
 
@@ -47,7 +48,7 @@ public:
 			void			PutNextToSlot						();
 
 	virtual void			DeactivateItem						();
-	virtual void			GetBriefInfo						(xr_string& str_name, xr_string& icon_sect_name, xr_string& str_count, string16& fire_mode);
+	virtual bool			GetBriefInfo						(II_BriefInfo& info);
 
 	virtual void			SendHiddenItem						();	//same as OnHiddenItem but for client... (sends message to a server)...
 protected:
@@ -58,6 +59,7 @@ protected:
 private:
 	float					m_grenade_detonation_threshold_hit;
 	bool					m_thrown;
+
 protected:
 	virtual	void			UpdateXForm							()		{ CMissile::UpdateXForm(); };
 public:
@@ -68,4 +70,10 @@ public:
 	virtual CHudItem		*cast_hud_item						()	{return this;}
 	virtual CGameObject		*cast_game_object					()	{return this;}
 	virtual IDamageSource	*cast_IDamageSource					()	{return CExplosive::cast_IDamageSource();}
+
+	typedef					fastdelegate::FastDelegate< void (CGrenade*) >	destroy_callback;
+	void					set_destroy_callback				(destroy_callback callback) 
+																{ m_destroy_callback = callback; }
+private:
+	destroy_callback		m_destroy_callback;
 };

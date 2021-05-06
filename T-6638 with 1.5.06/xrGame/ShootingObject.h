@@ -194,5 +194,5 @@ protected:
 	//имя партиклов следа от пули
 	shared_str				m_sShotParticles;
 public:
-	virtual void				DumpActiveParams		(shared_str const & section_name, CInifile & dst_ini) const;
+	virtual void			DumpActiveParams	(shared_str const & section_name, CInifile & dst_ini) const;
 };

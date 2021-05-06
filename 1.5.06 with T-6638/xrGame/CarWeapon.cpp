@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "CarWeapon.h"
-#include "PhysicsShell.h"
+#include "../xrphysics/PhysicsShell.h"
 #include "PhysicsShellHolder.h"
 //#include "../Include/xrRender/Kinematics.h"
 #include "../Include/xrRender/Kinematics.h"
@@ -240,7 +240,7 @@ void CCarWeapon::OnShot()
 	HUD_SOUND_ITEM::PlaySound	(m_sndShot, m_fire_pos, m_object, false);
 }
 
-void CCarWeapon::Action				(int id, u32 flags)
+void CCarWeapon::Action				(u16 id, u32 flags)
 {
 	switch (id){
 		case eWpnFire:{

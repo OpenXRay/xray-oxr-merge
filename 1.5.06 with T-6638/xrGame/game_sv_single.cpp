@@ -72,7 +72,7 @@ void	game_sv_Single::OnCreate		(u16 id_who)
 			if (trader)
 				alife().create			(alife_object);
 			else {
-				CSE_InventoryBox* const	box = smart_cast<CSE_InventoryBox*>(parent);
+				CSE_ALifeInventoryBox* const	box = smart_cast<CSE_ALifeInventoryBox*>(parent);
 				if (box)
 					alife().create		(alife_object);
 				else
@@ -342,8 +342,8 @@ void game_sv_Single::restart_simulator			(LPCSTR saved_game_name)
 	delete_data				(m_alife_simulator);
 	server().clear_ids		();
 
-	strcpy_s					(g_pGamePersistent->m_game_params.m_game_or_spawn,saved_game_name);
-	strcpy_s					(g_pGamePersistent->m_game_params.m_new_or_load,"load");
+	xr_strcpy					(g_pGamePersistent->m_game_params.m_game_or_spawn,saved_game_name);
+	xr_strcpy					(g_pGamePersistent->m_game_params.m_new_or_load,"load");
 
 	pApp->LoadBegin			();
 	m_alife_simulator		= xr_new<CALifeSimulator>(&server(),&options);

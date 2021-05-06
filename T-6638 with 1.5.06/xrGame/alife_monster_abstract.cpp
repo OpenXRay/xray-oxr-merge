@@ -49,7 +49,6 @@ void CSE_ALifeMonsterAbstract::on_unregister							()
 		ai().alife().groups().object(m_group_id).unregister_member	(ID);
 }
 
-
 void CSE_ALifeMonsterAbstract::update								()
 {
 	if (!bfActive())

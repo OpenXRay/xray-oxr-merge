@@ -119,7 +119,7 @@
 #	include "PHDestroyable.h"
 #	include "car.h"
 #	include "script_lanim.h"
-#	include "artifact.h"
+#	include "artefact.h"
 #	include "game_cl_single.h"
 #	include "alife_human_brain.h"
 #	include "alife_monster_brain.h"
@@ -160,4 +160,7 @@
 #	include "ai/trader/ai_trader.h"
 #	include "space_restrictor.h"
 #	include "physicobject.h"
+#	include "smart_cover_object.h"
+#	include "ui/FactionState.h"
+#	include "actor.h"
 #endif

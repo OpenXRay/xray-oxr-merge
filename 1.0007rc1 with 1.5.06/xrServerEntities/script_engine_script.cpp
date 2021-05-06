@@ -10,28 +10,33 @@
 #include "script_engine.h"
 #include "ai_space.h"
 #include "script_debugger.h"
-//#include <ostream>
 
 using namespace luabind;
 
 void LuaLog(LPCSTR caMessage)
 {
+#ifndef MASTER_GOLD
 	ai().script_engine().script_log	(ScriptStorage::eLuaMessageTypeMessage,"%s",caMessage);
+#endif // #ifndef MASTER_GOLD
+
 #ifdef USE_DEBUGGER
-	if( ai().script_engine().debugger() ){
+#	ifndef USE_LUA_STUDIO
+	if( ai().script_engine().debugger() )
 		ai().script_engine().debugger()->Write(caMessage);
-	}
-#endif
+#	endif // #ifndef USE_LUA_STUDIO
+#endif // #ifdef USE_DEBUGGER
 }
 
 void ErrorLog(LPCSTR caMessage)
 {
-	ai().script_engine().script_log	(ScriptStorage::eLuaMessageTypeError,"%s",caMessage);
+	ai().script_engine().error_log("%s",caMessage);
 #ifdef USE_DEBUGGER
+#	ifndef USE_LUA_STUDIO
 	if( ai().script_engine().debugger() ){
 		ai().script_engine().debugger()->Write(caMessage);
 	}
-#endif
+#	endif // #ifndef USE_LUA_STUDIO
+#endif // #ifdef USE_DEBUGGER
 }
 
 void FlushLogs()
@@ -47,7 +52,7 @@ void verify_if_thread_is_running()
 	THROW2	(ai().script_engine().current_thread(),"coroutine.yield() is called outside the LUA thread!");
 }
 
-bool editor()
+bool is_editor()
 {
 #ifdef XRGAME_EXPORTS
 	return		(false);
@@ -200,7 +205,7 @@ void CScriptEngine::script_register(lua_State *L)
 	function	(L,	"flush",						FlushLogs);
 	function	(L,	"prefetch",						prefetch_module);
 	function	(L,	"verify_if_thread_is_running",	verify_if_thread_is_running);
-	function	(L,	"editor",						editor);
+	function	(L,	"editor",						is_editor);
 	function	(L,	"bit_and",						bit_and);
 	function	(L,	"bit_or",						bit_or);
 	function	(L,	"bit_xor",						bit_xor);

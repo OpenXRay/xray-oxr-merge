@@ -4,7 +4,7 @@
 ///////////////////////////////////////////////////////////////
 
 #pragma once
-#include "artifact.h"
+#include "artefact.h"
 
 class CFadedBall : public CArtefact 
 {

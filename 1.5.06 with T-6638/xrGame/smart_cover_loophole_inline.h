@@ -20,6 +20,11 @@ IC	float const	&loophole::fov						() const
 	return		(m_fov);
 }
 
+IC	float const	&loophole::danger_fov				() const
+{
+	return		(m_danger_fov);
+}
+
 IC	float const	&loophole::range					() const
 {
 	return		(m_range);
@@ -33,6 +38,11 @@ IC	Fvector const &loophole::fov_position			() const
 IC	Fvector	const &loophole::fov_direction			() const
 {
 	return		(m_fov_direction);
+}
+
+IC	Fvector	const &loophole::danger_fov_direction	() const
+{
+	return		(m_danger_fov_direction);
 }
 
 IC	Fvector	const &loophole::enter_direction		() const

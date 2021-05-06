@@ -20,7 +20,6 @@ void CLevel::cl_Process_Spawn(NET_Packet& P)
 	CSE_Abstract*	E	= F_entity_Create	(*s_name);
 	R_ASSERT2(E, *s_name);
 
-
 	E->Spawn_Read		(P);
 	if (E->s_flags.is(M_SPAWN_UPDATE))
 		E->UPDATE_Read	(P);

@@ -14,7 +14,6 @@
 #include "stalker_animation_data.h"
 #include "uigamesp.h"
 #include "ui/uitalkwnd.h"
-#include "hudmanager.h"
 
 void CStalkerAnimationManager::head_play_callback		(CBlend *blend)
 {
@@ -29,7 +28,7 @@ MotionID CStalkerAnimationManager::assign_head_animation	()
 {
 	const ANIM_VECTOR		&animations = m_data_storage->m_head_animations.A;
 
-	CUIGameSP*				pGameSP = smart_cast<CUIGameSP*>(HUD().GetUI()->UIGame());
+	CUIGameSP*				pGameSP = smart_cast<CUIGameSP*>(CurrentGameUI());
 	if (pGameSP && pGameSP->TalkMenu->IsShown()) {
 		if (pGameSP->TalkMenu->OthersInvOwner() == m_object) {
 			if (pGameSP->TalkMenu->playing_sound())

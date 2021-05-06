@@ -101,6 +101,7 @@ void CUIArtefactDetectorAdv::construct(CAdvancedDetector* p)
 	m_target_dir.set	(0,0,0);
 	m_curr_ang_speed	= 0.0f;
 	m_cur_y_rot			= 0.0f;
+	m_bid				= u16(-1);
 }
 
 CUIArtefactDetectorAdv::~CUIArtefactDetectorAdv()
@@ -114,7 +115,7 @@ void CUIArtefactDetectorAdv::SetValue(const float val1, const Fvector& val2)
 
 void CUIArtefactDetectorAdv::update()
 {
-	if(NULL==m_parent->HudItemData())	return;
+	if(NULL==m_parent->HudItemData() || m_bid == u16(-1))	return;
 	inherited::update();
 	attachable_hud_item* itm		= m_parent->HudItemData();
 	R_ASSERT						(itm);

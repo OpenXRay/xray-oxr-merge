@@ -90,6 +90,10 @@ struct functor3<void> : public functor2<void>
 
 } // namespace detail
 
+enum EMaxProps
+{
+	max_properties_count = 3,
+};
 
 class Upgrade : public UpgradeBase
 {
@@ -107,9 +111,11 @@ public:
 	IC			LPCSTR		icon_name() const;
 	IC			LPCSTR		name() const;
 	IC			LPCSTR		description_text() const;
+
 				LPCSTR		get_prerequisites();
+		UpgradeStateResult	get_preconditions();
 	IC			bool		get_highlight() const;
-	IC	shared_str const&	get_property_name() const;
+	IC	shared_str const&	get_property_name(u8 index=0) const;
 	IC	Ivector2 const&		get_scheme_index() const;
 
 #ifdef DEBUG
@@ -145,7 +151,7 @@ protected:
 	shared_str			m_name;
 	shared_str			m_description;
 	shared_str			m_icon;
-	shared_str			m_property;
+	shared_str				m_properties[max_properties_count];
 
 	IntFunctor			m_preconditions;
 	VoidFunctor3		m_effects;

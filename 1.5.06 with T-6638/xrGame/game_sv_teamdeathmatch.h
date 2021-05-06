@@ -73,6 +73,15 @@ public:
 	virtual		int					Get_TeamKillLimit		();
 	virtual		BOOL				Get_TeamKillPunishment	();
 
+				BOOL				OnTouchItem(CSE_ActorMP *actor, CSE_Abstract *item);
+				void				OnDetachItem(CSE_ActorMP *actor, CSE_Abstract *item);
+	
+	virtual		BOOL				OnTouch					(u16 eid_who, u16 eid_what, BOOL bForced = FALSE);
+	virtual		void				OnDetach				(u16 eid_who, u16 eid_what);
+
+				void				OnObjectEnterTeamBase	(u16 id, u16 zone_team);
+				void				OnObjectLeaveTeamBase	(u16 id, u16 zone_team);
+	virtual		void				RespawnPlayer			(ClientID id_who, bool NoSpectator);
 protected:
 	virtual		void				WriteGameState			(CInifile& ini, LPCSTR sect, bool bRoundResult);
 };

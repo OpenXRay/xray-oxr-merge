@@ -55,4 +55,3 @@ namespace GameObject {
 		eDummy = u32(-1),
 	};
 };
-

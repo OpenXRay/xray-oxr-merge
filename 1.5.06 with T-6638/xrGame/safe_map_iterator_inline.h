@@ -113,7 +113,7 @@ IC	const typename CSSafeMapIterator::_REGISTRY	&CSSafeMapIterator::objects	() co
 
 TEMPLATE_SPEZIALIZATION
 template <typename _update_predicate>
-IC	u32 CSSafeMapIterator::update				(const _update_predicate &predicate)
+IC	u32 CSSafeMapIterator::update				(const _update_predicate &predicate, bool const iterate_as_first_time_next_time )
 {
 	if (empty())
 		return			(0);
@@ -127,7 +127,7 @@ IC	u32 CSSafeMapIterator::update				(const _update_predicate &predicate)
 		predicate		(I,m_cycle_count);
 		I				= next();
 	}
-	m_first_update		= false;
+	m_first_update		= iterate_as_first_time_next_time;
 	return				(i);
 }
 

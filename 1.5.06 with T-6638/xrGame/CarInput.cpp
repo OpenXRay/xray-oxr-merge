@@ -1,10 +1,10 @@
 #include "stdafx.h"
 #pragma hdrstop
+
 #ifdef DEBUG
-#include "ode_include.h"
-#include "../xrEngine/StatGraph.h"
 #include "PHDebug.h"
 #endif
+
 #include "alife_space.h"
 #include "hit.h"
 #include "phdestroyable.h"
@@ -189,7 +189,7 @@ void	CCar::OnKeyboardHold(int cmd)
 //	clamp(m_vCamDeltaHP.x, -PI_DIV_2,	PI_DIV_2);
 //	clamp(m_vCamDeltaHP.y, active_camera->lim_pitch.x,	active_camera->lim_pitch.y);
 }
-void CCar::Action(int id, u32 flags)
+void CCar::Action(u16 id, u32 flags)
 {
 	if(m_car_weapon)m_car_weapon->Action(id,flags);
 }

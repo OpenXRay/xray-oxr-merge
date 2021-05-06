@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "xrServer.h"
-#include "hudmanager.h"
 #include "xrserver_objects.h"
-#include "game_sv_mp_script.h"//fake
 
 #ifdef DEBUG
 #	include "xrserver_objects_alife_items.h"

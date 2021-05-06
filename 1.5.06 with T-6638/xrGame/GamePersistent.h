@@ -35,6 +35,10 @@ class CGamePersistent:
 
 	void xr_stdcall		start_logo_intro		();
 	void xr_stdcall		update_logo_intro		();
+
+	void xr_stdcall		game_loaded				();
+	void xr_stdcall		update_game_loaded		();
+
 	void xr_stdcall		start_game_intro		();
 	void xr_stdcall		update_game_intro		();
 
@@ -65,7 +69,8 @@ public:
 	virtual void		OnAppEnd				();
 	virtual	void		OnGameStart				();
 	virtual void		OnGameEnd				();
-	virtual void		OnFrame					();
+
+	virtual void	_BCL	OnFrame					();
 	virtual void		OnEvent					(EVENT E, u64 P1, u64 P2);
 
 	virtual void		UpdateGameType			();
@@ -77,7 +82,7 @@ public:
 	virtual bool		OnRenderPPUI_query		();
 	virtual void		OnRenderPPUI_main		();
 	virtual void		OnRenderPPUI_PP			();
-	virtual	void		LoadTitle				(LPCSTR str);
+	virtual	void		LoadTitle				(bool change_tip = false, shared_str map_name = "");
 
 	virtual bool		CanBePaused				();
 

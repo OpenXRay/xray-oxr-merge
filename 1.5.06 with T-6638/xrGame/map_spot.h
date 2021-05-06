@@ -79,9 +79,6 @@ public:
 
 				void	InitWndOrigin		();
 				void	ScaleOrigin			( float k );
-
-				CUIStaticOrig				() {};
-	virtual		~CUIStaticOrig				() {};
 }; //class CUIStaticOrig 
 
 class CComplexMapSpot : public CMapSpot

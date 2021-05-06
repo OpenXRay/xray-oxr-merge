@@ -93,8 +93,13 @@ bool CZoneCampfire::is_on()
 	return m_turned_on;
 }
 
-void CZoneCampfire::shedule_Update(u32	dt	)
+void CZoneCampfire::shedule_Update(u32	dt)
 {
+	if (!IsEnabled() && m_turn_time)
+	{
+		UpdateWorkload	(dt);
+	}
+
 	if (m_pIdleParticles)
 	{
 		Fvector vel;
@@ -146,7 +151,7 @@ void CZoneCampfire::UpdateWorkload(u32 dt)
 			StartIdleLight		();
 		}else
 		{
-			StopIdleParticles(false);
+			StopIdleParticles	(false);
 		}
 
 		if(m_pIdleLight && m_pIdleLight->get_active())

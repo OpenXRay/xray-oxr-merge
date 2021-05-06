@@ -9,7 +9,7 @@
 #include "stdafx.h"
 #include "actor_memory.h"
 #include "actor.h"
-#include "../camerabase.h"
+#include "../xrEngine/camerabase.h"
 #include "gamepersistent.h"
 
 CActorMemory::CActorMemory					(CActor *actor) :
@@ -46,5 +46,5 @@ void CActorMemory::camera					(
 	field_of_view	= deg2rad(camera.f_fov);
 	aspect_ratio	= camera.f_aspect;
 	near_plane		= .1f;
-	far_plane		= g_pGamePersistent->Environment().CurrentEnv.far_plane;
+	far_plane		= g_pGamePersistent->Environment().CurrentEnv->far_plane;
 }

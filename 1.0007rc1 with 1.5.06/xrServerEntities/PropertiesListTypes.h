@@ -3,10 +3,14 @@
 #define PropertiesListTypesH
 
 #include "WaveForm.H"
+#include "gametype_chooser.h"
 
 #ifdef __BORLANDC__            
 #	include "ElTree.hpp"
 #endif
+
+#pragma pack( push,1 )
+
 //---------------------------------------------------------------------------
 enum EPropType{
 	PROP_UNDEF		= -1,
@@ -34,7 +38,9 @@ enum EPropType{
 	PROP_CLIST,
     PROP_SH_TOKEN,
 	PROP_TEXTURE2,
+    PROP_GAMETYPE,
 };
+
 // refs
 struct 	xr_token;        
 class PropValue;
@@ -42,8 +48,7 @@ class PropItem;
 DEFINE_VECTOR			(PropItem*,PropItemVec,PropItemIt);
 
 //------------------------------------------------------------------------------
-#include "ChooseTypes.H"     
-#include "fastdelegate.h"                         
+#include "../xrcore/ChooseTypes.H"     
 //------------------------------------------------------------------------------
 typedef fastdelegate::FastDelegate2<PropValue*, xr_string&> 	TOnDrawTextEvent; 
 typedef fastdelegate::FastDelegate1<PropItem*> 					TOnClick;
@@ -422,6 +427,14 @@ public:
 						WaveValue		(TYPE* val):CustomValue<WaveForm>(val){};
     virtual xr_string	GetDrawText		(TOnDrawTextEvent){return "[Wave]";}
 };
+
+IC bool operator == (const GameTypeChooser& A, const GameTypeChooser& B){return A.m_GameType.flags==B.m_GameType.flags;}
+class GameTypeValue: public CustomValue<GameTypeChooser>{
+public:
+						GameTypeValue	(TYPE* val):CustomValue<GameTypeChooser>(val){};
+    virtual xr_string	GetDrawText		(TOnDrawTextEvent);
+};
+
 //------------------------------------------------------------------------------
 
 IC bool operator == (const Fcolor& A, const Fcolor& B)
@@ -468,12 +481,12 @@ public:
 //------------------------------------------------------------------------------
 template <class T>
 IC xr_string draw_sprintf(xr_string& s, const T& V, int tag)
-{  string256 tmp; sprintf_s(tmp,"%d",V); s=tmp; return s;}
+{  string256 tmp; sprintf_s(tmp,sizeof(tmp),"%d",V); s=tmp; return s;}
 //------------------------------------------------------------------------------
 IC xr_string draw_sprintf(xr_string& s, const float& V, int dec)
 {
-    string32 	fmt; sprintf_s(fmt,"%%.%df",dec);
-	string256 	tmp; sprintf_s(tmp,fmt,V); 
+    string32 	fmt; sprintf_s(fmt,sizeof(fmt),"%%.%df",dec);
+	string256 	tmp; sprintf_s(tmp,sizeof(tmp),fmt,V);
     s			= tmp; 
     return s;
 }
@@ -488,8 +501,8 @@ IC void clamp(Fvector& V, const Fvector& mn, const Fvector& mx)
 }
 IC xr_string draw_sprintf(xr_string& s, const Fvector& V, int dec)
 {
-	string128 fmt;	sprintf_s(fmt,"{%%.%df, %%.%df, %%.%df}",dec,dec,dec);
-    string256 tmp;	sprintf_s(tmp,fmt,V.x,V.y,V.z);
+	string128 fmt;	sprintf_s(fmt,sizeof(fmt),"{%%.%df, %%.%df, %%.%df}",dec,dec,dec);
+    string256 tmp;	sprintf_s(tmp,sizeof(tmp),fmt,V.x,V.y,V.z);
     s 				= tmp;
     return s;
 }
@@ -670,6 +683,7 @@ public:
     }
 };
 //------------------------------------------------------------------------------
+#pragma pack( pop )
 
 #endif
 

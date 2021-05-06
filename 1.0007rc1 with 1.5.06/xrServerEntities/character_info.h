@@ -109,15 +109,15 @@ public:
 	shared_str					Bio()				const;
 
 
-	const CHARACTER_COMMUNITY&	Community()			const	{return m_CurrentCommunity;};
-	const CHARACTER_RANK&		Rank()				const	{ return m_CurrentRank;};
-	const CHARACTER_REPUTATION&	Reputation()		const	{ return m_CurrentReputation;};
+	const CHARACTER_COMMUNITY&	Community()			const	{ return m_CurrentCommunity;  }
+	const CHARACTER_RANK&		Rank()				const	{ return m_CurrentRank;       }
+	const CHARACTER_REPUTATION&	Reputation()		const	{ return m_CurrentReputation; }
 
 	//доступут только у InventoryOwner
 protected:
 	void						SetRank				(CHARACTER_RANK_VALUE			rank);
 	void						SetReputation		(CHARACTER_REPUTATION_VALUE		reputation);
-	void						SetCommunity		(const CHARACTER_COMMUNITY&		community)		{m_CurrentCommunity = community;};
+	void						SetCommunity		(CHARACTER_COMMUNITY_INDEX		community);
 
 public:
 	const shared_str&			IconName			()	const;

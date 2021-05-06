@@ -1,12 +1,9 @@
 #include "pch_script.h"
 
-
 #include "PHScriptCall.h"
 #include "PHCommander.h"
 
-
 #include "../xrEngine/xr_object.h"
-
 
 /*
 IC bool compare_safe(const luabind::object &o1 , const luabind::object &o2)

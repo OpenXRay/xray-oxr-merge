@@ -468,12 +468,12 @@ void CDbgLuaHelper::RestoreGlobals()
 void CDbgLuaHelper::DrawVariable(lua_State * l, const char* name, bool bOpenTable)
 {
 	Variable var;
-	strcpy(var.szName, name );
+	strcpy_s(var.szName, name );
 
 	const char * type;
 	int ntype = lua_type(l, -1);
 	type = lua_typename(l, ntype);
-	strcpy(var.szType, type);
+	strcpy_s(var.szType, type);
 
 	char value[64];
 
@@ -481,17 +481,17 @@ void CDbgLuaHelper::DrawVariable(lua_State * l, const char* name, bool bOpenTabl
 	{
 	case LUA_TNUMBER:
 		sprintf_s(value, "%f", lua_tonumber(l, -1));
-		strcpy(var.szValue, value );
+		strcpy_s(var.szValue, value );
 		break;
 
 	case LUA_TBOOLEAN:
 		sprintf_s(value, "%s", lua_toboolean(L, -1) ? "true" : "false");
-		strcpy(var.szValue, value );
+		strcpy_s(var.szValue, value );
 		break;
 
 	case LUA_TSTRING:
 		sprintf_s(value, "%.63s", lua_tostring(l, -1));
-		strcpy(var.szValue, value );
+		strcpy_s(var.szValue, value );
 		break;
 
 

@@ -134,4 +134,3 @@ struct					InterpData
 };
 
 }; // namespace ACTOR_DEFS 
-

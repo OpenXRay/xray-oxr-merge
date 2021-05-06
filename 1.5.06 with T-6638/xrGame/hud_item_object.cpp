@@ -22,7 +22,7 @@ void CHudItemObject::Load				(LPCSTR section)
 	CHudItem::Load				(section);
 }
 
-bool CHudItemObject::Action				(s32 cmd, u32 flags)
+bool CHudItemObject::Action				(u16 cmd, u32 flags)
 {
 	if (CInventoryItemObject::Action(cmd, flags))
 		return					(true);
@@ -39,7 +39,7 @@ void CHudItemObject::OnStateSwitch		(u32 S)
 	CHudItem::OnStateSwitch		(S);
 }
 
-void CHudItemObject::OnMoveToRuck(EItemPlace prev)
+void CHudItemObject::OnMoveToRuck(const SInvItemPlace& prev)
 {
 	CInventoryItemObject::OnMoveToRuck(prev);
 	CHudItem::OnMoveToRuck			(prev);

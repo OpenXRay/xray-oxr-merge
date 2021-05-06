@@ -260,6 +260,7 @@ public:
 	virtual	void OnEvent(NET_Packet &tNetPacket, u16 type, u32 time, ClientID sender );
 	virtual	void RespawnPlayer(ClientID id_who, bool NoSpectator);
 	virtual void OnPlayerBuySpawn(ClientID sender);
+	virtual	bool Player_Check_Rank(game_PlayerState* ps);
 
 			void SwapTeams();
 };

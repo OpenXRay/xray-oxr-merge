@@ -51,9 +51,10 @@ IC bool Upgrade::get_highlight() const
 	return m_highlight;
 }
 
-IC shared_str const& Upgrade::get_property_name() const
+IC shared_str const& Upgrade::get_property_name(u8 index) const
 {
-	return m_property;
+	VERIFY(index<max_properties_count&&index>=0);
+	return m_properties[index];
 }
 
 IC Ivector2 const& Upgrade::get_scheme_index() const

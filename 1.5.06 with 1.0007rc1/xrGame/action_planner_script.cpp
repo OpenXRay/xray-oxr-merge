@@ -53,7 +53,7 @@ void CScriptActionPlanner::script_register(lua_State *L)
 			.def("clear",						&CScriptActionPlanner::clear)
 #ifdef LOG_ACTION
 			.def("show",						&CScriptActionPlanner::show)
-#endif // LOG_ACTION
+#endif
 
 		,def("cast_planner",					&cast_planner)
 	];

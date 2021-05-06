@@ -37,6 +37,11 @@ void CCameraLook::Update(Fvector& point, Fvector& /**noise_dangle/**/)
 		parent->XFORM().transform_dir(vDirection);
 		parent->XFORM().transform_dir(vNormal);
 	}
+	UpdateDistance		(point);
+}
+
+void CCameraLook::UpdateDistance( Fvector& point )
+{
 	Fvector				vDir;
 	collide::rq_result	R;
 
@@ -49,7 +54,6 @@ void CCameraLook::Update(Fvector& point, Fvector& /**noise_dangle/**/)
 	
 	vPosition.mul		(vDirection,-d-VIEWPORT_NEAR);
 	vPosition.add		(point);
-
 }
 
 void CCameraLook::Move( int cmd, float val, float factor)

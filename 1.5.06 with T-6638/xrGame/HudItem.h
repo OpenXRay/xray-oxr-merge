@@ -82,7 +82,7 @@ public:
 	
 	virtual void				PlaySound			(LPCSTR alias, const Fvector& position);
 
-	virtual bool				Action				(s32 cmd, u32 flags)			{return false;}
+	virtual bool				Action				(u16 cmd, u32 flags)			{return false;}
 			void				OnMovementChanged	(ACTOR_DEFS::EMoveCommand cmd)	;
 	
 	virtual	u8					GetCurrentHudOffsetIdx ()							{return 0;}
@@ -96,7 +96,7 @@ public:
 	virtual void				OnActiveItem		()				{};
 	virtual void				OnHiddenItem		()				{};
 	virtual void				SendHiddenItem		();			//same as OnHiddenItem but for client... (sends message to a server)...
-	virtual void				OnMoveToRuck		(EItemPlace prev);
+	virtual void				OnMoveToRuck		(const SInvItemPlace& prev);
 
 	bool						IsHidden			()	const		{	return GetState() == eHidden;}						// Does weapon is in hidden state
 	bool						IsHiding			()	const		{	return GetState() == eHiding;}

@@ -25,10 +25,10 @@ IC	smart_cover::storage *CCoverManager::smart_covers_storage	() const
 }
 
 template <typename _evaluator_type, typename _restrictor_type>
-IC	bool CCoverManager::inertia									(float radius, _evaluator_type &evaluator, const _restrictor_type &restrictor) const
+IC	bool CCoverManager::inertia									(Fvector const& position, float radius, _evaluator_type &evaluator, const _restrictor_type &restrictor) const
 {
 	// check if evaluator has no inertion or it's time to reevaluate
-	if (!evaluator.inertia(radius))
+	if (!evaluator.inertia(position,radius))
 		return				(false);
 
 	// so, evaluator has inertion and it's not time to search
@@ -62,7 +62,7 @@ IC	const CCoverPoint *CCoverManager::best_cover				(const Fvector &position, flo
 {
 	START_PROFILE("Covers/best_cover")
 
-	if (inertia(radius,evaluator,restrictor))
+	if (inertia(position,radius,evaluator,restrictor))
 		return				(evaluator.selected());
 
 	const CCoverPoint		*last = evaluator.selected();

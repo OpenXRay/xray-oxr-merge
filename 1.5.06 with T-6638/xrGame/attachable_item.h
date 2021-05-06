@@ -18,7 +18,6 @@ private:
 	Fmatrix						m_offset;
 	u16							m_bone_id;
 	bool						m_enabled;
-//	bool						m_auto_attach;
 #ifdef DEBUG
 	bool						m_valid;
 #endif
@@ -34,6 +33,7 @@ public:
 	virtual void				OnH_A_Independent		();
 	virtual void				renderable_Render		();
 	virtual bool				can_be_attached			() const;
+			bool				load_attach_position	(LPCSTR section);
 	virtual	void				afterAttach				();
 	virtual	void				afterDetach				();
 	IC		CInventoryItem		&item					() const;
@@ -44,7 +44,11 @@ public:
 	IC		const Fmatrix		&offset					() const;
 	IC		bool				enabled					() const;
 	virtual	void				enable					(bool value);
-
+protected:
+	virtual bool		use_parent_ai_locations	() const	=0
+	{
+		return !enabled();
+	}
 public:
 #ifdef DEBUG
 	static CAttachableItem		*m_dbgItem;

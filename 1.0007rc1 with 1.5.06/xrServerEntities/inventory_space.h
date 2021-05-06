@@ -15,7 +15,9 @@
 #define DETECTOR_SLOT		8
 #define TORCH_SLOT			9
 #define ARTEFACT_SLOT		10
-#define SLOTS_TOTAL			11
+#define FLARE_SLOT			11
+//.#define SLOTS_TOTAL			12
+
 
 #define RUCK_HEIGHT			280
 #define RUCK_WIDTH			7

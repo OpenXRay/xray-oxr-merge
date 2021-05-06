@@ -4,7 +4,8 @@
 #include "actor.h"
 #include "actor_mp_state.h"
 
-class CActorMP : public CActor {
+class CActorMP :
+	public CActor {
 private:
 	typedef CActor			inherited;
 

@@ -130,3 +130,9 @@ void CSE_ALifeAnomalousZone::on_spawn						()
 	inherited::on_spawn		();
 //	spawn_artefacts			();
 }
+
+bool CSE_ALifeAnomalousZone::keep_saved_data_anyway() const
+{
+	return (true);
+}
+

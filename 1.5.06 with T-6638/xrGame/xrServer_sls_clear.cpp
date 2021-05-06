@@ -77,15 +77,16 @@ void xrServer::SLS_Clear		()
 			for (; I != E; ++I)
 			{
 				if (I->second)
-					Msg("! can't destroy object [%d][%s] with parent [%d]",
+					Msg("! ERROR: can't destroy object [%d][%s] with parent [%d]",
 						I->second->ID, I->second->s_name.size() ? I->second->s_name.c_str() : "unknown",
 						I->second->ID_Parent
 					);
 				else
-					Msg("! can't destroy entity [%d][?] with parent[?]", I->first);
+					Msg("! ERROR: can't destroy entity [%d][?] with parent[?]", I->first);
 
 			}
-			FATAL("can't delete all entities");
+			Msg("! ERROR: FATAL: can't delete all entities !");
+			entities.clear();
 		}
 		
 	}

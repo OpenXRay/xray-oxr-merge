@@ -92,6 +92,7 @@ namespace StalkerDecisionSpace {
 		eWorldPropertyLoopholeCanExitWithAnimation,
 		eWorldPropertyLoopholeUseDefaultBehaviour,
 		eWorldPropertyLoopholeCanFireAtEnemy,
+		eWorldPropertyLoopholeTooMuchTimeFiring,
 		eWorldPropertyStayIdle,
 
 		eWorldPropertyScript,

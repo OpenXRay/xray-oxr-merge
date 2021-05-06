@@ -16,8 +16,19 @@ template <
 	typename _compare_predicate_type = std::less<_key_type>
 >
 class associative_vector : 
-	protected xr_vector<std::pair<_key_type,_data_type> >,
-	protected associative_vector_compare_predicate<_key_type,_data_type,_compare_predicate_type>
+	protected
+		xr_vector<
+			std::pair<
+				_key_type,
+				_data_type
+			>
+		>,
+	protected
+		associative_vector_compare_predicate<
+			_key_type,
+			_data_type,
+			_compare_predicate_type
+		>
 {
 private:
 	typedef 
@@ -64,7 +75,7 @@ public:
 	typedef std::pair<const_iterator,const_iterator>	const_equal_range_result;
 
 private:
-	IC		void						actualize			() const;//.
+	IC		void						actualize			() const;
 
 public:
 	template <typename _iterator_type>

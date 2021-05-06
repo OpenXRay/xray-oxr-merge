@@ -8,13 +8,14 @@
 #include "xr_level_controller.h"
 #include "UsableScriptObject.h"
 #include "customzone.h"
-#include "GameMtlLib.h"
+#include "../xrEngine/gamemtllib.h"
 #include "ui/UIMainIngameWnd.h"
 #include "Grenade.h"
-#include "clsid_game.h"
-
+#include "WeaponRPG7.h"
+#include "ExplosiveRocket.h"
 #include "game_cl_base.h"
 #include "Level.h"
+#include "clsid_game.h"
 
 #define PICKUP_INFO_COLOR 0xFFDDDDDD
 //AAAAAA
@@ -113,7 +114,7 @@ BOOL CActor::CanPickItem(const CFrustum& frustum, const Fvector& from, CObject* 
 void CActor::PickupModeUpdate()
 {
 	if(!m_bPickupMode) return;
-	if (GameID() != GAME_SINGLE) return;
+	if (GameID() != eGameIDSingle) return;
 
 	//подбирание объекта
 	if(inventory().m_pTarget && inventory().m_pTarget->Useful() &&
@@ -136,7 +137,7 @@ void CActor::PickupModeUpdate()
 		if (CanPickItem(frustum,Device.vCameraPosition,*it)) PickupInfoDraw(*it);
 }
 
-#include "../CameraBase.h"
+#include "../xrEngine/CameraBase.h"
 BOOL	g_b_COD_PickUpMode = TRUE;
 void	CActor::PickupModeUpdate_COD	()
 {
@@ -197,7 +198,6 @@ void	CActor::PickupModeUpdate_COD	()
 		if (!CanPickItem(frustum,Device.vCameraPosition,&pNearestItem->object()))
 			pNearestItem = NULL;
 	}
-
 	if (pNearestItem && pNearestItem->cast_game_object())
 	{
 		if (Level().m_feel_deny.is_object_denied(pNearestItem->cast_game_object()))
@@ -250,3 +250,43 @@ void CActor::feel_sound_new(CObject* who, int type, CSound_UserDataPtr user_data
 	if(who == this)
 		m_snd_noise = _max(m_snd_noise,power);
 }
+
+void CActor::Feel_Grenade_Update( float rad )
+{
+	if ( !IsGameTypeSingle() )
+	{
+		return;
+	}
+	// Find all nearest objects
+	Fvector pos_actor;
+	Center( pos_actor );
+
+	q_nearest.clear_not_free();
+	g_pGameLevel->ObjectSpace.GetNearest( q_nearest, pos_actor, rad, NULL );
+
+	xr_vector<CObject*>::iterator	it_b = q_nearest.begin();
+	xr_vector<CObject*>::iterator	it_e = q_nearest.end();
+
+	// select only grenade
+	for ( ; it_b != it_e; ++it_b )
+	{
+		if ( (*it_b)->getDestroy() ) continue;					// Don't touch candidates for destroy
+
+		CGrenade* grn = smart_cast<CGrenade*>( *it_b );
+		if( !grn || grn->Initiator() == ID() || grn->Useful() )
+		{
+			continue;
+		}
+		if ( grn->time_from_begin_throw() < m_fFeelGrenadeTime )
+		{
+			continue;
+		}
+		if ( HUD().AddGrenade_ForMark( grn ) )
+		{
+			//.	Msg("__ __ Add new grenade! id = %d ", grn->ID() );
+		}
+	}// for it
+
+	HUD().Update_GrenadeView( pos_actor );
+}
+

@@ -7,9 +7,6 @@
 #else // _EDITOR
 #include "../xrEngine/bone.h"
 #include "../Layers/xrRender/SkeletonXVertRender.h"
-//#	include "../xrEngine/skeletonX.h"
-//#	include "../Layers/xrRender/skeletonX.h"
-//#	include "../Layers/xrRender/skeletoncustom.h"
 #endif // _EDITOR
 
 
@@ -49,8 +46,6 @@ void __stdcall xrSkin2W_x86(vertRender*		D,
 		S++; D++;
 	}
 }
-
-
 
 void __stdcall xrSkin3W_x86(vertRender*		D,
 							vertBoned3W*	S,
@@ -94,8 +89,6 @@ void __stdcall xrSkin3W_x86(vertRender*		D,
 		D++;
 	}
 }
-
-
 
 void __stdcall xrSkin4W_x86(vertRender*		D,
 							vertBoned4W*	S,

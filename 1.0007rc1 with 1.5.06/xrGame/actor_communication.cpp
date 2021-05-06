@@ -66,10 +66,12 @@ void CActor::AddEncyclopediaArticle	 (const CInfoPortion* info_portion) const
 		n = *(article.data()->name);
 		callback(GameObject::eArticleInfo)(lua_game_object(), g, n, _atype);
 
-		if( HUD().GetUI() ){
+		if ( HUD().GetUI() )
+		{
 			CUIGameSP* pGameSP = smart_cast<CUIGameSP*>(HUD().GetUI()->UIGame());
 			pda_section::part p = pda_section::encyclopedia;
-			switch (article.data()->articleType){
+			switch (article.data()->articleType)
+			{
 				case ARTICLE_DATA::eEncyclopediaArticle:	p = pda_section::encyclopedia;	break;
 				case ARTICLE_DATA::eJournalArticle:			p = pda_section::journal;		break;
 				case ARTICLE_DATA::eInfoArticle:			p = pda_section::info;			break;
@@ -83,7 +85,6 @@ void CActor::AddEncyclopediaArticle	 (const CInfoPortion* info_portion) const
 
 }
 
-
 void CActor::AddGameTask			 (const CInfoPortion* info_portion) const
 {
 	VERIFY(info_portion);
@@ -96,7 +97,6 @@ void CActor::AddGameTask			 (const CInfoPortion* info_portion) const
 	}
 }
 
-
 void  CActor::AddGameNews			 (GAME_NEWS_DATA& news_data)
 {
 
@@ -104,7 +104,8 @@ void  CActor::AddGameNews			 (GAME_NEWS_DATA& news_data)
 	news_data.receive_time			= Level().GetGameTime();
 	news_vector.push_back			(news_data);
 
-	if(HUD().GetUI()){
+	if ( HUD().GetUI() )
+	{
 		HUD().GetUI()->UIMainIngameWnd->ReceiveNews(&news_data);
 		CUIGameSP* pGameSP = smart_cast<CUIGameSP*>(HUD().GetUI()->UIGame());
 		if(pGameSP) 
@@ -199,15 +200,13 @@ void   CActor::UpdateAvailableDialogs	(CPhraseDialogManager* partner)
 
 void CActor::TryToTalk()
 {
-	VERIFY(m_pPersonWeLookingAt);
-
 	if(!IsTalking())
 	{
-		RunTalkDialog(m_pPersonWeLookingAt);
+		RunTalkDialog(m_pPersonWeLookingAt, false);
 	}
 }
 
-void CActor::RunTalkDialog(CInventoryOwner* talk_partner)
+void CActor::RunTalkDialog(CInventoryOwner* talk_partner, bool disable_break)
 {
 	//предложить поговорить с нами
 	if(talk_partner->OfferTalk(this))
@@ -219,7 +218,7 @@ void CActor::RunTalkDialog(CInventoryOwner* talk_partner)
 		{
 			if(pGameSP->MainInputReceiver())
 				Game().StartStopMenu(pGameSP->MainInputReceiver(),true);
-			pGameSP->StartTalk();
+			pGameSP->StartTalk(disable_break);
 		}
 	}
 }
@@ -261,7 +260,8 @@ void CActor::NewPdaContact		(CInventoryOwner* pInvOwner)
 
 	Level().MapManager().AddRelationLocation		( pInvOwner );
 
-	if( HUD().GetUI() ){
+	if( HUD().GetUI() )
+	{
 		CUIGameSP* pGameSP = smart_cast<CUIGameSP*>(HUD().GetUI()->UIGame());
 
 		if(pGameSP)
@@ -281,7 +281,8 @@ void CActor::LostPdaContact		(CInventoryOwner* pInvOwner)
 		Level().MapManager().RemoveMapLocation("deadbody_location",	GO->ID());
 	};
 
-	if( HUD().GetUI() ){
+	if( HUD().GetUI() )
+	{
 		CUIGameSP* pGameSP = smart_cast<CUIGameSP*>(HUD().GetUI()->UIGame());
 		if(pGameSP){
 			pGameSP->PdaMenu->PdaContentsChanged	(pda_section::contacts);
@@ -301,12 +302,14 @@ void CActor::AddGameNews_deffered	 (GAME_NEWS_DATA& news_data, u32 delay)
 }
 void CActor::UpdateDefferedMessages()
 {
-	while( m_defferedMessages.size() ){
+	while( m_defferedMessages.size() )
+	{
 		SDefNewsMsg& M = m_defferedMessages.back();
-		if(M.time <=Device.dwTimeGlobal){
-			AddGameNews(*M.news_data);		
-			xr_delete(M.news_data);
-			m_defferedMessages.pop_back();
+		if(M.time <=Device.dwTimeGlobal)
+		{
+			AddGameNews					(*M.news_data);		
+			xr_delete					(M.news_data);
+			m_defferedMessages.pop_back	();
 		}else
 			break;
 	}
@@ -320,6 +323,7 @@ bool CActor::OnDialogSoundHandlerStart(CInventoryOwner *inv_owner, LPCSTR phrase
 	trader->dialog_sound_start(phrase);
 	return true;
 }
+
 bool CActor::OnDialogSoundHandlerStop(CInventoryOwner *inv_owner)
 {
 	CAI_Trader *trader = smart_cast<CAI_Trader*>(inv_owner);
@@ -328,3 +332,10 @@ bool CActor::OnDialogSoundHandlerStop(CInventoryOwner *inv_owner)
 	trader->dialog_sound_stop();
 	return true;
 }
+
+#ifdef DEBUG
+void CActor::DumpTasks()
+{
+	Level().GameTaskManager().DumpTasks();
+}
+#endif // DEBUG

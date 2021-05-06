@@ -8,7 +8,7 @@
 
 #include "pch_script.h"
 extern "C" {
-	#include "lstate.h"
+	#include "lua/lua.h"
 };
 #include "script_engine.h"
 #include "script_thread.h"

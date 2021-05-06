@@ -11,6 +11,7 @@
 #include "cta_game_artefact_activation.h"
 #include "game_cl_capture_the_artefact.h"
 #include "xrServer_Objects_Alife_Items.h"
+#include "xr_level_controller.h"
 
 CtaGameArtefact::CtaGameArtefact()
 {
@@ -53,7 +54,7 @@ bool CtaGameArtefact::Action(s32 cmd, u32 flags)
 			return true;
 	}
 	
-	return inherited::Action(cmd, flags);
+	return inherited::Action((u16)cmd, flags);
 }
 
 void CtaGameArtefact::OnStateSwitch(u32 S)

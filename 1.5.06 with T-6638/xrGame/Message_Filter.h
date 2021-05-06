@@ -10,7 +10,7 @@
 class message_filter
 {
 public:
-	typedef fastdelegate::FastDelegate3<u32, u32, NET_Packet const &> msg_type_subtype_func_t;
+	typedef fastdelegate::FastDelegate3<u32, u32, NET_Packet&> msg_type_subtype_func_t;
 
 			message_filter	();
 			~message_filter	();
@@ -23,13 +23,6 @@ public:
 	
 	void	dbg_set_message_log_file(string_path const & message_log_file);
 
-	//ready to use delegates
-	msg_type_subtype_func_t	m_onround_start_pause;
-	msg_type_subtype_func_t	m_on_kill_pause;
-	msg_type_subtype_func_t	m_on_artefactdelivering_pause;
-	void __stdcall			on_round_start_pause_impl			(u32 message, u32 subtype, NET_Packet const & packet);
-	void __stdcall			on_kill_pause_impl					(u32 message, u32 subtype, NET_Packet const & packet);
-	void __stdcall			on_artefactdelivering_pause_impl	(u32 message, u32 subtype, NET_Packet const & packet);
 private:
 	struct msg_type_subtype_t
 	{

@@ -212,6 +212,7 @@ void CObjectFactory::register_classes	()
 	add<game_cl_CaptureTheArtefact>									(CLSID_CL_GAME_CAPTURETHEARTEFACT	,"game_cl_capture_the_artefact");
 
 
+	//Game UI type
 	add<CUIGameSP>												(CLSID_GAME_UI_SINGLE			,"game_ui_single");
 	add<CUIGameDM>												(CLSID_GAME_UI_DEATHMATCH		,"game_ui_deathmatch");
 	add<CUIGameTDM>												(CLSID_GAME_UI_TEAMDEATHMATCH	,"game_ui_team_deathmatch");

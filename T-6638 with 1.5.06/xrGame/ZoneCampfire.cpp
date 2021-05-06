@@ -100,7 +100,7 @@ void CZoneCampfire::shedule_Update(u32	dt)
 		UpdateWorkload	(dt);
 	}
 
-	if(m_pIdleParticles)
+	if (m_pIdleParticles)
 	{
 		Fvector vel;
 		vel.mul(GamePersistent().Environment().wind_blast_direction,GamePersistent().Environment().wind_strength_factor);

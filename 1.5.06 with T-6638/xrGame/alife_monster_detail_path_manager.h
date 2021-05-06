@@ -12,12 +12,12 @@
 #include "alife_space.h"
 #include "script_export_space.h"
 
-class CSE_ALifeMonsterAbstract;
+class CMovementManagerHolder;
 class CALifeSmartTerrainTask;
 
 class CALifeMonsterDetailPathManager {
 public:
-	typedef CSE_ALifeMonsterAbstract	object_type;
+	typedef CMovementManagerHolder		object_type;
 	typedef xr_vector<u32>				PATH;
 
 private:
@@ -71,6 +71,7 @@ public:
 	IC		const float	&speed							() const;
 			bool		completed						() const;
 			bool		actual							() const;
+			void		make_inactual					();
 			bool		failed							() const;
 	IC		const PATH	&path							() const;
 	IC		const float	&walked_distance				() const;

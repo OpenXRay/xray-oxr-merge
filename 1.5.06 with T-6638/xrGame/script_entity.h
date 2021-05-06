@@ -24,18 +24,18 @@ using namespace ScriptEntity;
 class CScriptEntity {
 public:
 	struct CSavedSound {
-		CScriptGameObject	*m_lua_game_object;
+		u16					m_game_object_id;
 		int					m_sound_type;
 		Fvector				m_position;
 		float				m_sound_power;
 
 		IC				CSavedSound(
-							CScriptGameObject	*lua_game_object,
+							u16				game_object_id,
 							int				sound_type,
 							const Fvector	&position,
 							float			sound_power
 						) :
-						m_lua_game_object(lua_game_object),
+						m_game_object_id(game_object_id),
 						m_sound_type(sound_type),
 						m_position(position),
 						m_sound_power(sound_power)

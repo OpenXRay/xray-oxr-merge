@@ -44,10 +44,10 @@ IC	void CALifeLevelRegistry::remove			(CSE_ALifeDynamicObject *object, bool no_a
 }
 
 template <typename _update_predicate>
-IC	void CALifeLevelRegistry::update			(const _update_predicate &predicate)
+IC	void CALifeLevelRegistry::update			(const _update_predicate &predicate, bool const iterate_as_first_time_next_time)
 {
 //	u32					object_count = 
-		inherited::update(predicate);
+		inherited::update(predicate,iterate_as_first_time_next_time);
 #ifdef FULL_LEVEL_UPDATE
 	m_first_update		= true;
 #endif

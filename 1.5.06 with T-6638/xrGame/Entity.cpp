@@ -3,7 +3,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "hudmanager.h"
 #include "Entity.h"
 #include "actor.h"
 #include "xrserver_objects_alife_monsters.h"

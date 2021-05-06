@@ -9,7 +9,7 @@ class CEatableItem : public CInventoryItem {
 private:
 	typedef CInventoryItem	inherited;
 
-private:
+protected:
 	CPhysicItem		*m_physic_item;
 
 public:
@@ -25,7 +25,7 @@ public:
 
 	virtual void			OnH_B_Independent			(bool just_before_destroy);
 	virtual void			OnH_A_Independent			();
-	virtual	void			UseBy						(CEntityAlive* npc);
+	virtual	bool			UseBy						(CEntityAlive* npc);
 	virtual	bool			Empty						()						{return PortionsNum()==0;};
 			int				PortionsNum					()	const				{return m_iPortionsNum;}
 protected:	

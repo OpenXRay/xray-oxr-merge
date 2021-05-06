@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../xrServerEntities/alife_space.h"
 class CActor;
 class CPostprocessAnimatorLerp;
 
@@ -17,7 +18,7 @@ public:
 	CActor*						m_pActor;
 
 	void	Load				(LPCSTR section);
-	void	Update				(float dist, float radius);
+	void	Update				(float dist, float radius, ALife::EHitType hit_type);
 	void	Stop				();
 	float xr_stdcall GetFactor	();
 

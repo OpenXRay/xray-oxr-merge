@@ -82,7 +82,9 @@ namespace MonsterSpace {
 		eMA_Run,
 		eMA_Drag,
 		eMA_Jump,
-		eMA_Steal
+		eMA_Steal,
+		eMA_WalkWithLeader,
+		eMA_RunWithLeader
 	};
 	
 	enum EScriptMonsterSpeedParam {

@@ -99,6 +99,7 @@ class Upgrade : public UpgradeBase
 {
 private:
 	typedef		UpgradeBase	inherited;
+
 public:
 							Upgrade();
 	virtual					~Upgrade();

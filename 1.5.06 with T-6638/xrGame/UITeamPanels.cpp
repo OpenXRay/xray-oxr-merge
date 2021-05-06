@@ -2,6 +2,7 @@
 #include "UITeamPanels.h"
 #include "ui/UIStatsIcon.h"
 #include "ui/UIFrameLineWnd.h"
+#include "ui/UIStatic.h"
 
 UITeamPanels::UITeamPanels()
 {

@@ -103,12 +103,13 @@ public:
 	LPCSTR					GetTitle_script			()							{return m_Title.c_str();}
 	void					SetPriority_script		(int _prio)					{m_priority	= _prio;}
 	int						GetPriority_script		()							{return m_priority;}
+	void					SetType_script			(int t)						{m_task_type = (ETaskType)t;}
 
 	LPCSTR					GetID_script			()							{return m_ID.c_str();}
 	void					SetID_script			(LPCSTR _id)				{m_ID = _id;}
-	void					SetType_script			(int t)						{m_task_type = (ETaskType)t;}
 	void					SetDescription_script	(LPCSTR _desc)				{m_Description = _desc;}
 	void					SetIconName_script		(LPCSTR _tex)				{m_icon_texture_name = _tex;}
+	LPCSTR					GetIconName_script		()							{return m_icon_texture_name.c_str();}
 	void					SetMapHint_script		(LPCSTR _hint)				{m_map_hint = _hint;}
 
 	void					SetMapLocation_script	(LPCSTR _mls)				{m_map_location = _mls;}

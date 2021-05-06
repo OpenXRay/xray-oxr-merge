@@ -2,7 +2,6 @@
 #ifndef PropertiesListTypesH
 #define PropertiesListTypesH
 
-
 #include "WaveForm.H"
 #include "gametype_chooser.h"
 

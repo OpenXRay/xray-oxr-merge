@@ -7,6 +7,9 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #include "pch_script.h"
+
+#ifndef DEDICATED_SERVER_ONLY
+
 #include "object_factory.h"
 #include "ai_space.h"
 #include "script_engine.h"
@@ -58,11 +61,15 @@ void CObjectFactory::register_script_class			(LPCSTR unknown_class, LPCSTR clsid
 	);
 }
 
-ENGINE_API	bool g_dedicated_server;
+#ifndef NO_XR_GAME
+	ENGINE_API	bool g_dedicated_server;
+#endif // NO_XR_GAME
 
 void CObjectFactory::register_script_classes()
 {
+#ifndef NO_XR_GAME
 	if (!g_dedicated_server)
+#endif // NO_XR_GAME
 		ai();
 }
 
@@ -94,3 +101,5 @@ void CObjectFactory::script_register(lua_State *L)
 			.def("register",	(void (CObjectFactory::*)(LPCSTR,LPCSTR,LPCSTR))(&CObjectFactory::register_script_class))
 	];
 }
+
+#endif // #ifndef DEDICATED_SERVER_ONLY

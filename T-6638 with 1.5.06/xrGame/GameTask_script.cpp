@@ -22,7 +22,6 @@ void CGameTask::script_register(lua_State *L)
 					value("additional",				int(eTaskTypeAdditional))
 				],
 
-
 			class_<CGameTask>("CGameTask")
 				.def(										constructor<>()									)
 				.def("set_title",							&CGameTask::SetTitle_script						)

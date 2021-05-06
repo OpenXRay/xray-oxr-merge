@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "HUDmanager.h"
 #include "LevelGameDef.h"
 #include "ai_space.h"
 #include "ParticlesObject.h"
@@ -10,7 +9,7 @@
 #include "game_cl_base.h"
 #include "../xrEngine/x_ray.h"
 #include "../xrEngine/gamemtllib.h"
-#include "PhysicsCommon.h"
+#include "../xrphysics/PhysicsCommon.h"
 #include "level_sounds.h"
 #include "GamePersistent.h"
 
@@ -19,7 +18,8 @@ ENGINE_API	bool g_dedicated_server;
 BOOL CLevel::Load_GameSpecific_Before()
 {
 	// AI space
-	g_pGamePersistent->LoadTitle		("st_loading_ai_objects");
+//	g_pGamePersistent->LoadTitle		("st_loading_ai_objects");
+	g_pGamePersistent->LoadTitle		();
 	string_path							fn_game;
 	
 	if (GamePersistent().GameType() == eGameIDSingle && !ai().get_alife() && FS.exist(fn_game,"$level$","level.ai") && !net_Hosts.empty())

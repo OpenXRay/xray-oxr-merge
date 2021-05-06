@@ -39,11 +39,13 @@ void	CExplosiveItem::Hit					(SHit* pHDS)
 //	inherited::Hit(P,dir,who,element,position_in_object_space,impulse,hit_type);
 	if(CDelayedActionFuse::isActive())pHDS->power=0.f;
 	inherited::Hit(pHDS);
-	if(!CDelayedActionFuse::isActive()&&CDelayedActionFuse::CheckCondition(GetCondition())/*&&CExplosive::Initiator()==u16(-1)*/)
+	VERIFY(pHDS->who);
+	if(!CDelayedActionFuse::isActive() &&
+		CDelayedActionFuse::CheckCondition(GetCondition() &&
+		pHDS->who)/*&&CExplosive::Initiator()==u16(-1)*/)
 	{
 		//запомнить того, кто взорвал вещь
 		SetInitiator( pHDS->who->ID());
-
 	}
 }
 void	CExplosiveItem::StartTimerEffects	()

@@ -195,7 +195,7 @@ void CALifeSwitchManager::try_switch_online	(CSE_ALifeDynamicObject	*I)
 	I->try_switch_online		();
 
 	if (!I->m_bOnline && !I->keep_saved_data_anyway())
-		I->client_data.clear	();
+		I->clear_client_data();
 
 	STOP_PROFILE
 }

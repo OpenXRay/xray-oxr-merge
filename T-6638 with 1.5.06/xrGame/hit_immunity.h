@@ -12,8 +12,8 @@ class CHitImmunity
 	//коэффициенты на которые домножается хит
 	//при соответствующем типе воздействия
 	//(для защитных костюмов и специфичных животных)
-private:
 	HitImmunity::HitTypeSVec m_HitImmunityKoefs;
+
 public:
 						CHitImmunity	();
 	virtual				~CHitImmunity	();

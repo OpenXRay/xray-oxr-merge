@@ -17,6 +17,7 @@ public:
 
 protected:
 	virtual bool	BlowoutState				();
+	virtual	void	UpdateSecondaryHit			();
 	//для того чтобы blowout обновился один раз
 	//после того как зона перключилась в другое состояние
 	bool			m_bLastBlowoutUpdate;

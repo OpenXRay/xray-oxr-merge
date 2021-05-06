@@ -5,8 +5,8 @@
 
 #include "stdafx.h"
 #include "BastArtifact.h"
-#include "PhysicsShell.h"
-#include "extendedgeom.h"
+#include "../xrphysics/PhysicsShell.h"
+#include "../xrphysics/extendedgeom.h"
 #include "ParticlesObject.h"
 
 
@@ -35,8 +35,8 @@ void CBastArtefact::ObjectContactCallback(bool& /**do_colide/**/,bool bo1,dConta
 {
 	dxGeomUserData *l_pUD1 = NULL;
 	dxGeomUserData *l_pUD2 = NULL;
-	l_pUD1 = retrieveGeomUserData(c.geom.g1);
-	l_pUD2 = retrieveGeomUserData(c.geom.g2);
+	l_pUD1 = PHRetrieveGeomUserData(c.geom.g1);
+	l_pUD2 = PHRetrieveGeomUserData(c.geom.g2);
 
 	if(!l_pUD1 || !l_pUD2) return;
 

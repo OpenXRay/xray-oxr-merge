@@ -23,6 +23,10 @@ namespace smart_cover{
 	class object;
 };
 
+namespace luabind {
+	class object;
+} // namespace luabind
+
 class CCoverManager {
 public:
 	typedef CQuadTree<CCoverPoint> CPointQuadTree;
@@ -50,7 +54,7 @@ protected:
 
 private:
 	template <typename _evaluator_type, typename _restrictor_type>
-	IC		bool					inertia					(float radius, _evaluator_type &evaluator, const _restrictor_type &restrictor) const;
+	IC		bool					inertia					(Fvector const& position, float radius, _evaluator_type &evaluator, const _restrictor_type &restrictor) const;
 
 	static	void					clear_covers			(PointVector &covers);
 			void					remove_nearby_covers	(smart_cover::cover  const &cover, smart_cover::object const &object) const;
@@ -71,7 +75,7 @@ public:
 	IC		bool					operator()				(const CCoverPoint *) const;
 	IC		float					weight					(const CCoverPoint *) const;
 	IC		void					finalize				(const CCoverPoint *) const;
-			Cover const				*add_smart_cover		(LPCSTR table_name, smart_cover::object const &object, bool const &is_combat_cover) const;
+			Cover const				*add_smart_cover		(LPCSTR table_name, smart_cover::object const &object, bool const &is_combat_cover, bool const &can_fire, luabind::object const &loopholes) const;
 			Cover					*smart_cover			(shared_str const &cover_id) const;
 };
 

@@ -1,12 +1,11 @@
 #include "pch_script.h"
 #include "HairsZone.h"
-#include "hudmanager.h"
 #include "level.h"
 #include "PhysicsShellHolder.h"
 #include "entity_alive.h"
 #include "PHMovementControl.h"
 #include "CharacterPhysicsSupport.h"
-
+#include "../xrengine/xr_collide_form.h"
 bool CHairsZone::BlowoutState()
 {
 	bool result = inherited::BlowoutState();
