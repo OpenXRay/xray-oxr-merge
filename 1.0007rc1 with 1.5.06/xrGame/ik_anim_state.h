@@ -1,7 +1,7 @@
 #pragma once
 class	CBlend;
-class	motion_marks;
-class	CKinematicsAnimated;
+class	ENGINE_API	motion_marks;
+class	IKinematicsAnimated;
 class	ik_anim_state
 {
 

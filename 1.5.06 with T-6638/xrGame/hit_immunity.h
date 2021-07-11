@@ -12,7 +12,7 @@ class CHitImmunity
 	//коэффициенты на которые домножается хит
 	//при соответствующем типе воздействия
 	//(для защитных костюмов и специфичных животных)
-	HitImmunity::HitTypeSVec m_HitTypeK;
+	HitImmunity::HitTypeSVec m_HitImmunityKoefs;
 
 public:
 						CHitImmunity	();

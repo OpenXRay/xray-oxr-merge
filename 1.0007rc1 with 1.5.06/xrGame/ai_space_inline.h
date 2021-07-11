@@ -84,6 +84,12 @@ IC	const CPatrolPathStorage &CAI_Space::patrol_paths				() const
 	return					(*m_patrol_path_storage);
 }
 
+IC	moving_objects &CAI_Space::moving_objects						() const
+{
+	VERIFY					(m_moving_objects);
+	return					(*m_moving_objects);
+}
+
 IC	CAI_Space &ai													()
 {
 	if (!g_ai_space) {

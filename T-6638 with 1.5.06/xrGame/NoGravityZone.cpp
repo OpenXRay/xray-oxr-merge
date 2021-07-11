@@ -3,10 +3,9 @@
 #include "../xrphysics/physicsshell.h"
 #include "entity_alive.h"
 #include "PHMovementControl.h"
-//#include "PhWorld.h"
 #include "CharacterPhysicsSupport.h"
-//extern CPHWorld	*ph_world;
 #include "../xrphysics/IPHWorld.h"
+
 void CNoGravityZone::enter_Zone(SZoneObjectInfo& io)
 {
 	inherited::enter_Zone(io);

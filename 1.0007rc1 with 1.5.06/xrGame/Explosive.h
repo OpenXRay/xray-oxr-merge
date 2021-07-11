@@ -6,8 +6,8 @@
 
 #define SND_RIC_COUNT 5
 
-#include "../Render.h"
-#include "../feel_touch.h"
+#include "../xrEngine/Render.h"
+#include "../xrEngine/feel_touch.h"
 #include "inventory_item.h"
 #include "ai_sounds.h"
 #include "script_export_space.h"
@@ -67,6 +67,8 @@ public:
 protected:
 			bool				IsSoundPlaying			(){return !!sndExplode._feedback();}
 			bool				IsExploded				(){return !!m_explosion_flags.test(flExploded);}
+public:
+			bool				IsExploding				(){return !!m_explosion_flags.test(flExploding);}
 private:
 			void				PositionUpdate			();
 static		void				GetRaySourcePos			(CExplosive	*exp_obj,const Fvector &expl_centre,Fvector	&p);
@@ -95,6 +97,7 @@ protected:
 	//параметры и количество осколков
 	float 						m_fFragsRadius; 
 	float 						m_fFragHit;
+	float 						m_fFragHitCritical;
 	float 						m_fFragHitImpulse;
 	int	  						m_iFragsNum;
 
@@ -159,10 +162,6 @@ protected:
 
 	// эффектор
 	struct {
-/*		float 					time;
-		float 					amplitude;	
-		float 					period_number;
-		shared_str				file_name;*/
 		shared_str				effect_sect_name;
 	} effector;
 	DECLARE_SCRIPT_REGISTER_FUNCTION

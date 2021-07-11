@@ -73,7 +73,6 @@ CBaseDisableData::CBaseDisableData(): m_disabled(false), m_last_frame_updated(u1
 
 	m_frames	=worldDisablingParams.objects_params.L2frames		;
 	Reinit();
-	
 }
 
 void	CBaseDisableData::Reinit()
@@ -83,12 +82,9 @@ void	CBaseDisableData::Reinit()
 			m_count=m_count+ph_world->disable_count					;
 	m_stateL1	.Reset()											;
 	m_stateL2	.Reset()											;
-	
 }
 void	CBaseDisableData::Disabling()
 {
-	
-	
 	VERIFY(ph_world);
 	if(ph_world->IsFreezed())
 		return;
@@ -184,8 +180,6 @@ void	CPHDisablingTranslational::Reinit()
 }
 void	CPHDisablingTranslational::UpdateL1()
 {
-
-
 				m_stateL1			.	Reset						()							;
 	dBodyID			body				=	get_body()												;
 	const	dReal	*position			=	dBodyGetPosition(body)									;

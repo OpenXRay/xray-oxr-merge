@@ -36,19 +36,19 @@ void CUIDoubleProgressBar::SetTwoPos( float cur_value, float compare_value )
 {
 	if ( cur_value < compare_value ) // red
 	{
-		m_progress_one.m_UIProgressItem.SetColor( m_less_color );
+		m_progress_one.m_UIProgressItem.SetTextureColor( m_less_color );
 		m_progress_one.SetProgressPos( compare_value );
 		m_progress_two.SetProgressPos( cur_value );
 	}
 	else if ( cur_value > compare_value ) // green
 	{
-		m_progress_one.m_UIProgressItem.SetColor( m_more_color );
+		m_progress_one.m_UIProgressItem.SetTextureColor( m_more_color );
 		m_progress_one.SetProgressPos( cur_value );
 		m_progress_two.SetProgressPos( compare_value );
 	}
 	else
 	{
-		m_progress_one.m_UIProgressItem.SetColor( m_progress_two.m_UIProgressItem.GetColor() );
+		m_progress_one.m_UIProgressItem.SetTextureColor( m_progress_two.m_UIProgressItem.GetTextureColor() );
 		m_progress_one.SetProgressPos( cur_value );
 		m_progress_two.SetProgressPos( cur_value );
 	}

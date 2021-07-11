@@ -1,6 +1,7 @@
 #include "stdafx.h"
-#include "..\igame_persistent.h"
-#include "..\irenderable.h"
+#include "../../xrEngine/igame_persistent.h"
+#include "../../xrEngine/irenderable.h"
+#include "../xrRender/FBasicVisual.h"
 
 const	float	tweak_COP_initial_offs			= 1200.f	;
 const	float	tweak_ortho_xform_initial_offs	= 1000.f	;	//. ?
@@ -485,7 +486,7 @@ void CRender::render_sun				()
 		for		(u32 s=0; s<Sectors.size(); s++)
 		{
 			CSector*			S		= (CSector*)Sectors[s]	;
-			IRender_Visual*		V		= S->root()				;
+			dxRender_Visual*		V		= S->root()				;
 			float				vol		= V->vis.box.getvolume();
 			if (vol>largest_sector_vol)	{
 				largest_sector_vol		= vol;
@@ -549,7 +550,7 @@ void CRender::render_sun				()
 		for		(u32 s=0; s<Sectors.size(); s++)
 		{
 			CSector*			S		= (CSector*)Sectors[s]	;
-			IRender_Visual*		root	= S->root()				;
+			dxRender_Visual*		root	= S->root()				;
 
 			set_Frustum			(&cull_frustum);
 			add_Geometry		(root);
@@ -853,8 +854,8 @@ void CRender::render_sun				()
 	// Render shadow-map
 	//. !!! We should clip based on shrinked frustum (again)
 	{
-		bool	bNormal							= mapNormal[0].size() || mapMatrix[0].size();
-		bool	bSpecial						= mapNormal[1].size() || mapMatrix[1].size() || mapSorted.size();
+		bool	bNormal							= mapNormalPasses[0][0].size() || mapMatrixPasses[0][0].size();
+		bool	bSpecial						= mapNormalPasses[1][0].size() || mapMatrixPasses[1][0].size() || mapSorted.size();
 		if ( bNormal || bSpecial)	{
 			Target->phase_smap_direct			(fuckingsun, SE_SUN_FAR		);
 			RCache.set_xform_world				(Fidentity					);
@@ -942,7 +943,7 @@ void CRender::render_sun_near	()
 		for		(u32 s=0; s<Sectors.size(); s++)
 		{
 			CSector*			S		= (CSector*)Sectors[s]	;
-			IRender_Visual*		V		= S->root()				;
+			dxRender_Visual*		V		= S->root()				;
 			float				vol		= V->vis.box.getvolume();
 			if (vol>largest_sector_vol)	{
 				largest_sector_vol		= vol;
@@ -982,7 +983,7 @@ void CRender::render_sun_near	()
 									
 		float	nearborder			= 1*borderalpha + 1.136363636364f*(1-borderalpha);
 		float	spherical_range		= ps_r2_sun_near_border * nearborder * _max(_max(c0,c1), _max(k0,k1)*1.414213562373f );
-		Fbox	frustum_bb;			frustum_bb.invalidate	();
+		Fbox	frustum_bb;			frustum_bb.invalidate();
 		hull.points.push_back		(Device.vCameraPosition);
 		for (int it=0; it<9; it++)	{
 			Fvector	xf	= wform		(mdir_View,hull.points[it]);
@@ -1039,7 +1040,7 @@ void CRender::render_sun_near	()
 
 	// Begin SMAP-render
 	{
-		bool	bSpecialFull					= mapNormal[1].size() || mapMatrix[1].size() || mapSorted.size();
+		bool	bSpecialFull					= mapNormalPasses[1][0].size() || mapMatrixPasses[1][0].size() || mapSorted.size();
 		VERIFY									(!bSpecialFull);
 		HOM.Disable								();
 		phase									= PHASE_SMAP;
@@ -1057,8 +1058,8 @@ void CRender::render_sun_near	()
 	// Render shadow-map
 	//. !!! We should clip based on shrinked frustum (again)
 	{
-		bool	bNormal							= mapNormal[0].size() || mapMatrix[0].size();
-		bool	bSpecial						= mapNormal[1].size() || mapMatrix[1].size() || mapSorted.size();
+		bool	bNormal							= mapNormalPasses[0][0].size() || mapMatrixPasses[0][0].size();
+		bool	bSpecial						= mapNormalPasses[1][0].size() || mapMatrixPasses[1][0].size() || mapSorted.size();
 		if ( bNormal || bSpecial)	{
 			Target->phase_smap_direct			(fuckingsun	, SE_SUN_NEAR	);
 			RCache.set_xform_world				(Fidentity					);

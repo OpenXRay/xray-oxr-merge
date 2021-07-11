@@ -27,8 +27,8 @@ void CScriptGameObject::set_manual_invisibility(bool val)
 		ai().script_engine().script_log		(ScriptStorage::eLuaMessageTypeError,"CAI_Bloodsucker : cannot access class member set_manual_invisible!");
 		return;
 	}
+
 	val ? monster->set_manual_control(true) : monster->set_manual_control(false);
-	
 }
 
 void CScriptGameObject::bloodsucker_drag_jump(CScriptGameObject* e, LPCSTR e_str, const Fvector &position, float factor)

@@ -14,12 +14,13 @@
 #include "ai/stalker/ai_stalker_space.h"
 #include "memory_manager.h"
 #include "enemy_manager.h"
-#include "stalker_movement_manager.h"
+#include "stalker_movement_manager_smart_cover.h"
 #include "object_handler.h"
 #include "agent_manager.h"
 #include "agent_member_manager.h"
 #include "agent_enemy_manager.h"
 #include "inventory_item.h"
+#include "smart_cover.h"
 
 using namespace StalkerSpace;
 
@@ -291,4 +292,15 @@ void CStalkerActionCombatBase::play_start_search_sound	(u32 max_start_time, u32 
 		min_stop_time,
 		id
 	);
+}
+
+void CStalkerActionCombatBase::setup_cover	(CCoverPoint const& cover)
+{
+	if (cover.m_is_smart_cover) {
+		object().movement().target_params().cover_id(static_cast<smart_cover::cover const&>(cover).id());
+		return;
+	}
+
+	object().movement().set_level_dest_vertex		(cover.level_vertex_id());
+	object().movement().set_desired_position		(&cover.position());
 }

@@ -7,6 +7,8 @@ class CUIDetectorWave;
 class CSimpleDetector;
 class CAdvancedDetector;
 class CEliteDetector;
+class CUIXml;
+class CLAItem;
 
 class CUIArtefactDetectorBase
 {

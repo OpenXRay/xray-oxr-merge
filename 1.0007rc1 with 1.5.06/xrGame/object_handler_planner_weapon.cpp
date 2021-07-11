@@ -21,43 +21,44 @@ void CObjectHandlerPlanner::add_evaluators		(CWeapon *weapon)
 {
 	u16					id = weapon->ID();
 	// dynamic state properties
-//.	add_evaluator		(uid(id,eWorldPropertyHidden)		,xr_new<CObjectPropertyEvaluatorState>(weapon,m_object,CWeapon::eHidden));
-	add_evaluator		(uid(id,eWorldPropertyHidden)		,xr_new<CObjectPropertyEvaluatorWeaponHidden>(weapon,m_object));
+//.	add_evaluator		(uid(id,eWorldPropertyHidden)			,xr_new<CObjectPropertyEvaluatorState>(weapon,m_object,CWeapon::eHidden));
+	add_evaluator		(uid(id,eWorldPropertyHidden)			,xr_new<CObjectPropertyEvaluatorWeaponHidden>(weapon,m_object));
 	
 	// dynamic member properties
-	add_evaluator		(uid(id,eWorldPropertyAimed1)		,xr_new<CObjectPropertyEvaluatorMember>(&m_storage,eWorldPropertyAimed1,true));
-	add_evaluator		(uid(id,eWorldPropertyAimed2)		,xr_new<CObjectPropertyEvaluatorMember>(&m_storage,eWorldPropertyAimed2,true));
-	add_evaluator		(uid(id,eWorldPropertyStrapped)		,xr_new<CObjectPropertyEvaluatorMember>(&m_storage,eWorldPropertyStrapped,true));
-	add_evaluator		(uid(id,eWorldPropertyStrapped2Idle),xr_new<CObjectPropertyEvaluatorMember>(&m_storage,eWorldPropertyStrapped2Idle,true));
+	add_evaluator		(uid(id,eWorldPropertyAimed1)			,xr_new<CObjectPropertyEvaluatorMember>(&m_storage,eWorldPropertyAimed1,true));
+	add_evaluator		(uid(id,eWorldPropertyAimed2)			,xr_new<CObjectPropertyEvaluatorMember>(&m_storage,eWorldPropertyAimed2,true));
+	add_evaluator		(uid(id,eWorldPropertyStrapped)			,xr_new<CObjectPropertyEvaluatorMember>(&m_storage,eWorldPropertyStrapped,true));
+	add_evaluator		(uid(id,eWorldPropertyStrapped2Idle)	,xr_new<CObjectPropertyEvaluatorMember>(&m_storage,eWorldPropertyStrapped2Idle,true));
 
 	// dynamic properties
-	add_evaluator		(uid(id,eWorldPropertyAmmo1)		,xr_new<CObjectPropertyEvaluatorAmmo> (weapon,m_object,0));
-	add_evaluator		(uid(id,eWorldPropertyAmmo2)		,xr_new<CObjectPropertyEvaluatorAmmo> (weapon,m_object,1));
-	add_evaluator		(uid(id,eWorldPropertyEmpty1)		,xr_new<CObjectPropertyEvaluatorEmpty>(weapon,m_object,0));
-	add_evaluator		(uid(id,eWorldPropertyEmpty2)		,xr_new<CObjectPropertyEvaluatorEmpty>(weapon,m_object,1));
-	add_evaluator		(uid(id,eWorldPropertyFull1)		,xr_new<CObjectPropertyEvaluatorFull> (weapon,m_object,0));
-	add_evaluator		(uid(id,eWorldPropertyFull2)		,xr_new<CObjectPropertyEvaluatorFull> (weapon,m_object,1));
-	add_evaluator		(uid(id,eWorldPropertyReady1)		,xr_new<CObjectPropertyEvaluatorReady>(weapon,m_object,0));
-	add_evaluator		(uid(id,eWorldPropertyReady2)		,xr_new<CObjectPropertyEvaluatorReady>(weapon,m_object,1));
-	add_evaluator		(uid(id,eWorldPropertyQueueWait1)	,xr_new<CObjectPropertyEvaluatorQueue>(weapon,m_object,0));
-	add_evaluator		(uid(id,eWorldPropertyQueueWait2)	,xr_new<CObjectPropertyEvaluatorQueue>(weapon,m_object,1));
+	add_evaluator		(uid(id,eWorldPropertyAmmo1)			,xr_new<CObjectPropertyEvaluatorAmmo> (weapon,m_object,0));
+	add_evaluator		(uid(id,eWorldPropertyAmmo2)			,xr_new<CObjectPropertyEvaluatorAmmo> (weapon,m_object,1));
+	add_evaluator		(uid(id,eWorldPropertyEmpty1)			,xr_new<CObjectPropertyEvaluatorEmpty>(weapon,m_object,0));
+	add_evaluator		(uid(id,eWorldPropertyEmpty2)			,xr_new<CObjectPropertyEvaluatorEmpty>(weapon,m_object,1));
+	add_evaluator		(uid(id,eWorldPropertyFull1)			,xr_new<CObjectPropertyEvaluatorFull> (weapon,m_object,0));
+	add_evaluator		(uid(id,eWorldPropertyFull2)			,xr_new<CObjectPropertyEvaluatorFull> (weapon,m_object,1));
+	add_evaluator		(uid(id,eWorldPropertyReady1)			,xr_new<CObjectPropertyEvaluatorReady>(weapon,m_object,0));
+	add_evaluator		(uid(id,eWorldPropertyReady2)			,xr_new<CObjectPropertyEvaluatorReady>(weapon,m_object,1));
+	add_evaluator		(uid(id,eWorldPropertyQueueWait1)		,xr_new<CObjectPropertyEvaluatorQueue>(weapon,m_object,0));
+	add_evaluator		(uid(id,eWorldPropertyQueueWait2)		,xr_new<CObjectPropertyEvaluatorQueue>(weapon,m_object,1));
 	
 	// temporary const properties
-	add_evaluator		(uid(id,eWorldPropertySwitch1)		,xr_new<CObjectPropertyEvaluatorConst>(true));
-	add_evaluator		(uid(id,eWorldPropertySwitch2)		,xr_new<CObjectPropertyEvaluatorConst>(false));
+	add_evaluator		(uid(id,eWorldPropertySwitch1)			,xr_new<CObjectPropertyEvaluatorConst>(true));
+	add_evaluator		(uid(id,eWorldPropertySwitch2)			,xr_new<CObjectPropertyEvaluatorConst>(false));
 	
 	// const properties
-	add_evaluator		(uid(id,eWorldPropertyFiring1)		,xr_new<CObjectPropertyEvaluatorConst>(false));
-	add_evaluator		(uid(id,eWorldPropertyFiring2)		,xr_new<CObjectPropertyEvaluatorConst>(false));
-	add_evaluator		(uid(id,eWorldPropertyIdle)			,xr_new<CObjectPropertyEvaluatorConst>(false));
-	add_evaluator		(uid(id,eWorldPropertyIdleStrap)	,xr_new<CObjectPropertyEvaluatorConst>(false));
-	add_evaluator		(uid(id,eWorldPropertyDropped)		,xr_new<CObjectPropertyEvaluatorConst>(false));
-	add_evaluator		(uid(id,eWorldPropertyAiming1)		,xr_new<CObjectPropertyEvaluatorConst>(false));
-	add_evaluator		(uid(id,eWorldPropertyAiming2)		,xr_new<CObjectPropertyEvaluatorConst>(false));
-	add_evaluator		(uid(id,eWorldPropertyAimingReady1)	,xr_new<CObjectPropertyEvaluatorConst>(false));
-	add_evaluator		(uid(id,eWorldPropertyAimingReady2)	,xr_new<CObjectPropertyEvaluatorConst>(false));
-	add_evaluator		(uid(id,eWorldPropertyAimForceFull1),xr_new<CObjectPropertyEvaluatorConst>(false));
-	add_evaluator		(uid(id,eWorldPropertyAimForceFull2),xr_new<CObjectPropertyEvaluatorConst>(false));
+	add_evaluator		(uid(id,eWorldPropertyFiring1)			,xr_new<CObjectPropertyEvaluatorConst>(false));
+	add_evaluator		(uid(id,eWorldPropertyFiringNoReload1)	,xr_new<CObjectPropertyEvaluatorConst>(false));
+	add_evaluator		(uid(id,eWorldPropertyFiring2)			,xr_new<CObjectPropertyEvaluatorConst>(false));
+	add_evaluator		(uid(id,eWorldPropertyIdle)				,xr_new<CObjectPropertyEvaluatorConst>(false));
+	add_evaluator		(uid(id,eWorldPropertyIdleStrap)		,xr_new<CObjectPropertyEvaluatorConst>(false));
+	add_evaluator		(uid(id,eWorldPropertyDropped)			,xr_new<CObjectPropertyEvaluatorConst>(false));
+	add_evaluator		(uid(id,eWorldPropertyAiming1)			,xr_new<CObjectPropertyEvaluatorConst>(false));
+	add_evaluator		(uid(id,eWorldPropertyAiming2)			,xr_new<CObjectPropertyEvaluatorConst>(false));
+	add_evaluator		(uid(id,eWorldPropertyAimingReady1)		,xr_new<CObjectPropertyEvaluatorConst>(false));
+	add_evaluator		(uid(id,eWorldPropertyAimingReady2)		,xr_new<CObjectPropertyEvaluatorConst>(false));
+	add_evaluator		(uid(id,eWorldPropertyAimForceFull1)	,xr_new<CObjectPropertyEvaluatorConst>(false));
+	add_evaluator		(uid(id,eWorldPropertyAimForceFull2)	,xr_new<CObjectPropertyEvaluatorConst>(false));
 }
 
 void CObjectHandlerPlanner::add_operators		(CWeapon *weapon)
@@ -202,6 +203,18 @@ void CObjectHandlerPlanner::add_operators		(CWeapon *weapon)
 	add_condition		(action,id,eWorldPropertyStrapped2Idle,	false);
 	add_effect			(action,id,eWorldPropertyFiring1,	true);
 	add_operator		(uid(id,eWorldOperatorFire1),		action);
+
+	// fire no reload
+	action				= xr_new<CObjectActionFireNoReload>(weapon,m_object,&m_storage,uid(id,eWorldPropertyQueueWait1),"fire_no_reload");
+	add_condition		(action,id,eWorldPropertyHidden,	false);
+//	add_condition		(action,id,eWorldPropertyEmpty1,	false);
+//	add_condition		(action,id,eWorldPropertyAimed1,	true);
+	add_condition		(action,id,eWorldPropertySwitch1,	true);
+//	add_condition		(action,id,eWorldPropertyQueueWait1,true);
+	add_condition		(action,id,eWorldPropertyStrapped,	false);
+	add_condition		(action,id,eWorldPropertyStrapped2Idle,	false);
+	add_effect			(action,id,eWorldPropertyFiringNoReload1,	true);
+	add_operator		(uid(id,eWorldOperatorFireNoReload),action);
 
 	// fire2
 	action				= xr_new<CObjectActionFire>(weapon,m_object,&m_storage,uid(id,eWorldPropertyQueueWait2),"fire2");

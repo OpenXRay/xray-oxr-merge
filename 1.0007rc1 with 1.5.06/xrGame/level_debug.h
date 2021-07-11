@@ -2,8 +2,16 @@
 
 #ifdef DEBUG
 
+// Lain: added
+namespace debug { class text_tree; }
+
 class CLevelDebug {
 public:
+
+	// Lain: added
+	debug::text_tree* m_p_texttree;
+	int                  m_texttree_offs;
+
 
 	template <typename T>
 	class CItemBase {
@@ -193,6 +201,14 @@ public:
 	void		draw_object_info	();
 	void		draw_text			();
 	void		draw_level_info		();
+
+	// Lain: added
+	void        draw_debug_text     ();
+	void        log_debug_info      ();
+	void        debug_info_up       ();
+	void        debug_info_down     ();
+
+	debug::text_tree&  get_text_tree ();
 
 	void		on_destroy_object	(CObject *obj);
 

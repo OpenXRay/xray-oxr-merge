@@ -206,8 +206,12 @@ void CStalkerActionReachAmbushLocation::execute						()
 	else
 		object().movement().set_nearest_accessible_position	();
 
-	if (!object().movement().path_completed())
+	if (!object().movement().path_completed()) {
+#ifndef SILENT_COMBAT
+		play_enemy_lost_sound			(0,0,10000,10000);
+#endif // SILENT_COMBAT
 		return;
+	}
 
 	m_storage->set_property				(eWorldPropertyAmbushLocationReached, true);
 }

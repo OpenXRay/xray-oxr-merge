@@ -15,13 +15,14 @@
 #include "danger_manager.h"
 #include "agent_manager.h"
 #include "agent_member_manager.h"
-#include "stalker_movement_manager.h"
+#include "stalker_movement_manager_smart_cover.h"
 #include "cover_evaluators.h"
 #include "ai_space.h"
 #include "cover_manager.h"
 #include "cover_point.h"
 #include "stalker_movement_restriction.h"
 #include "enemy_manager.h"
+#include "stalker_animation_manager.h"
 
 using namespace StalkerDecisionSpace;
 

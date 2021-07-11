@@ -9,7 +9,7 @@
 #pragma once
 
 #include "GameObject.h"
-#include "../feel_touch.h"
+#include "../xrEngine/feel_touch.h"
 #include "game_graph_space.h"
 
 class CLevelChanger : public CGameObject, public Feel::Touch {
@@ -25,6 +25,7 @@ private:
 	void					update_actor_invitation	();
 	bool					m_bSilentMode;
 	bool					get_reject_pos(Fvector& p, Fvector& r);
+
 public:
 	virtual				~CLevelChanger		();
 	virtual BOOL		net_Spawn			(CSE_Abstract* DC);
@@ -35,5 +36,9 @@ public:
 	virtual void		feel_touch_new		(CObject* O);
 	virtual BOOL		feel_touch_contact	(CObject* O);
 
-	virtual bool		IsVisibleForZones() { return false;		}
+	virtual bool		IsVisibleForZones() { return false; }
+	//serialization
+	virtual BOOL	net_SaveRelevant		();
+	virtual void	save					(NET_Packet &output_packet);
+	virtual void	load					(IReader &input_packet);
 };

@@ -21,6 +21,8 @@ protected:
 	UIArtefactParamItem*	m_restore_item[ALife::eRestoreTypeMax];
 	UIArtefactParamItem*	m_additional_weight;
 
+	CUIStatic*				m_Prop_line;
+
 }; // class CUIArtefactParams
 
 // -----------------------------------

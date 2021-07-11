@@ -39,7 +39,7 @@ public:
 	virtual void		feel_touch_new		(CObject* O);
 	virtual BOOL		feel_touch_contact	(CObject* O);
 
-	virtual bool		IsVisibleForZones() { return false;}
+	virtual bool		IsVisibleForZones() { return false; }
 	void				EnableLevelChanger	(bool b)				{m_b_enabled=b;}
 	bool				IsLevelChangerEnabled() const				{return m_b_enabled;}
 	void				SetLEvelChangerInvitationStr(LPCSTR str)	{m_invite_str = str;}
@@ -47,5 +47,4 @@ public:
 	virtual BOOL	net_SaveRelevant		();
 	virtual void	save					(NET_Packet &output_packet);
 	virtual void	load					(IReader &input_packet);
-
 };

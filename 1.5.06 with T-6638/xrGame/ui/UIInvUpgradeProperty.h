@@ -60,6 +60,7 @@ private:
 protected:
 	Properties_type		m_properties_ui;
 	ItemUpgrades_type	m_temp_upgrade_vector;
+	CUIStatic*			m_Upgr_line;
 
 public:
 					UIInvUpgPropertiesWnd();

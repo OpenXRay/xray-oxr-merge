@@ -1,19 +1,17 @@
 #include "pch_script.h"
 #include "weaponsvd.h"
 
-CWeaponSVD::CWeaponSVD(void) : CWeaponCustomPistol("SVD")
-{
-}
+CWeaponSVD::CWeaponSVD(void)
+{}
 
 CWeaponSVD::~CWeaponSVD(void)
-{
-}
+{}
 
 void CWeaponSVD::switch2_Fire	()
 {
 	m_bFireSingleShot			= true;
 	bWorking					= false;
-	m_bPending					= true;
+	SetPending					(TRUE);
 	m_iShotNum					= 0;
 	m_bStopedAfterQueueFired	= false;
 
@@ -24,7 +22,7 @@ void CWeaponSVD::OnAnimationEnd(u32 state)
 	switch(state) 
 	{
 	case eFire:	{
-		m_bPending = false;
+		SetPending			(FALSE);
 		}break;	// End of reload animation
 	}
 	inherited::OnAnimationEnd(state);

@@ -39,7 +39,7 @@ bool CSavedGameWrapper::valid_saved_game		(IReader &stream)
 	if (stream.r_u32() != u32(-1))
 		return					(false);
 
-	if (stream.r_u32() < 0x0002)
+	if (stream.r_u32() < ALIFE_VERSION)
 		return					(false);
 
 	return						(true);

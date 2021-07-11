@@ -57,6 +57,7 @@ int dCollideRMS(dxGeom *o1, dxGeom *o2, int flags,
 	}
 	return ret;
 }
+
 inline void revert_contact(dContactGeom *c)
 {
 	c->normal[0] = -c->normal[0];

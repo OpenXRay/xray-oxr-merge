@@ -10,10 +10,15 @@
 #include "alife_simulator.h"
 #include "xrServer_Objects_ALife.h"
 #include "ai_space.h"
-#include "../IGame_Persistent.h"
+#include "../xrEngine/IGame_Persistent.h"
 #include "script_engine.h"
 #include "mainmenu.h"
 #include "object_factory.h"
+#include "alife_object_registry.h"
+
+#ifdef DEBUG
+#	include "moving_objects.h"
+#endif // DEBUG
 
 LPCSTR alife_section = "alife";
 
@@ -28,6 +33,10 @@ void restart_all				()
 	MainMenu()->DestroyInternal	(true);
 	xr_delete					(g_object_factory);
 	ai().script_engine().init	();
+
+#ifdef DEBUG
+	ai().moving_objects().clear	();
+#endif // DEBUG
 }
 
 CALifeSimulator::CALifeSimulator		(xrServer *server, shared_str *command_line) :
@@ -52,7 +61,7 @@ CALifeSimulator::CALifeSimulator		(xrServer *server, shared_str *command_line) :
 	);
 	
 	string256					temp;
-	strcpy						(temp,p.m_game_or_spawn);
+	strcpy_s						(temp,p.m_game_or_spawn);
 	strcat						(temp,"/");
 	strcat						(temp,p.m_game_type);
 	strcat						(temp,"/");
@@ -90,3 +99,17 @@ void CALifeSimulator::reload			(LPCSTR section)
 {
 	CALifeUpdateManager::reload	(section);
 }
+
+namespace detail
+{
+
+bool object_exists_in_alife_registry (u32 id)
+{
+	if ( ai().get_alife() )
+	{
+		return ai().alife().objects().object((ALife::_OBJECT_ID)id, true) != 0;
+	}
+	return false;
+}
+
+} // detail

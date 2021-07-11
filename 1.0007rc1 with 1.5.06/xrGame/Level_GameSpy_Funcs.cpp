@@ -1,14 +1,16 @@
 #include "stdafx.h"
 #include "Level.h"
 #include "xrMessages.h"
-#include "../x_ray.h"
+#include "../xrEngine/x_ray.h"
 #include "GameSpy/GameSpy_GCD_Client.h"
 
 
-#include "../igame_persistent.h"
+#include "../xrEngine/igame_persistent.h"
 void						CLevel::OnGameSpyChallenge			(NET_Packet* P)
 {
+#ifndef MASTER_GOLD
 	Msg("xrGS::CDKey::Level : Responding on Challenge");
+#endif // #ifndef MASTER_GOLD
 
 	u8	Reauth = P->r_u8();
 	string64 ChallengeStr;

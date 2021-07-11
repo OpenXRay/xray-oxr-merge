@@ -7,12 +7,15 @@
 #include "../Level.h"
 #include "UICellItemFactory.h"
 #include "UIDragDropListEx.h"
+#include "UIDragDropReferenceList.h"
 #include "UICellCustomItems.h"
 #include "UIItemInfo.h"
 #include "UIFrameLineWnd.h"
 #include "UIPropertiesBox.h"
 #include "UIListBoxItem.h"
 #include "UIMainIngameWnd.h"
+#include "UIGameCustom.h"
+#include "eatable_item_object.h"
 
 #include "../silencer.h"
 #include "../scope.h"
@@ -24,10 +27,14 @@
 #include "../Medkit.h"
 #include "../Antirad.h"
 #include "../CustomOutfit.h"
+#include "../ActorHelmet.h"
 #include "../UICursor.h"
 #include "../MPPlayersBag.h"
-#include "../HUDManager.h"
 #include "../player_hud.h"
+#include "../CustomDetector.h"
+#include "../PDA.h"
+
+#include "../actor_defs.h"
 
 
 void move_item_from_to(u16 from_id, u16 to_id, u16 what_id);
@@ -37,33 +44,36 @@ void CUIActorMenu::InitInventoryMode()
 	m_pInventoryBagList->Show			(true);
 	m_pInventoryBeltList->Show			(true);
 	m_pInventoryOutfitList->Show		(true);
+	m_pInventoryHelmetList->Show		(true);
 	m_pInventoryDetectorList->Show		(true);
 	m_pInventoryPistolList->Show		(true);
 	m_pInventoryAutomaticList->Show		(true);
-	
+	m_pQuickSlot->Show					(true);
+	m_pTrashList->Show					(true);
 	m_RightDelimiter->Show				(false);
 	m_clock_value->Show					(true);
 
 	InitInventoryContents				(m_pInventoryBagList);
 
-	VERIFY( HUD().GetUI() && HUD().GetUI()->UIMainIngameWnd );
-	HUD().GetUI()->UIMainIngameWnd->ShowZoneMap(true);
+	VERIFY( CurrentGameUI() );
+	CurrentGameUI()->UIMainIngameWnd->ShowZoneMap(true);
 }
 
 void CUIActorMenu::DeInitInventoryMode()
 {
-	m_clock_value->Show					(false);
+	m_pTrashList->Show				(false);
+//	m_clock_value->Show					(false);
 }
 
-void CUIActorMenu::SendEvent_ActivateSlot(u32 slot, u16 recipient)
+void CUIActorMenu::SendEvent_ActivateSlot(u16 slot, u16 recipient)
 {
 	NET_Packet						P;
 	CGameObject::u_EventGen			(P, GEG_PLAYER_ACTIVATE_SLOT, recipient);
-	P.w_u32							(slot);
+	P.w_u16							(slot);
 	CGameObject::u_EventSend		(P);
 }
 
-void CUIActorMenu::SendEvent_Item2Slot(PIItem pItem, u16 recipient)
+void CUIActorMenu::SendEvent_Item2Slot(PIItem pItem, u16 recipient, u16 slot_id)
 {
 	if(pItem->parent_id()!=recipient)
 		move_item_from_to			(pItem->parent_id(), recipient, pItem->object_id());
@@ -71,6 +81,7 @@ void CUIActorMenu::SendEvent_Item2Slot(PIItem pItem, u16 recipient)
 	NET_Packet						P;
 	CGameObject::u_EventGen			(P, GEG_PLAYER_ITEM2SLOT, pItem->object().H_Parent()->ID());
 	P.w_u16							(pItem->object().ID());
+	P.w_u16							(slot_id);
 	CGameObject::u_EventSend		(P);
 
 	PlaySnd							(eItemToSlot);
@@ -228,6 +239,7 @@ void CUIActorMenu::OnInventoryAction(PIItem pItem, u16 action_type)
 		m_pInventoryPistolList, 
 		m_pInventoryAutomaticList, 
 		m_pInventoryOutfitList, 
+		m_pInventoryHelmetList,
 		m_pInventoryDetectorList, 
 		m_pInventoryBagList,
 		m_pTradeActorBagList,

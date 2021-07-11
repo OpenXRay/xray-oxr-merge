@@ -18,7 +18,7 @@ u32 get_rank(const shared_str &section)
 		string32			buff;
 		for (int i = 0; i<_RANK_COUNT; i++)
 		{
-			sprintf_s(buff, "rank_%d", i);
+			xr_sprintf(buff, "rank_%d", i);
 			g_ranks[i] = pSettings->r_string(buff, "available_items");
 		}
 	}
@@ -67,7 +67,7 @@ void CRestrictions::InitGroups()
 	string32				rank;
 	for (u32 i = 0; i<_RANK_COUNT; ++i)
 	{
-		sprintf_s				(rank,"rank_%d", i);
+		xr_sprintf				(rank,"rank_%d", i);
 		
         AddRestriction4rank	(i, pSettings->r_string(rank, "amount_restriction"));
 		m_names[i]			= CStringTable().translate( pSettings->r_string(rank, "rank_name"));
@@ -149,7 +149,7 @@ RESTR CRestrictions::GetRestr(const shared_str& item)
 	ptrdiff_t n				= strchr(item.c_str(),':') - item.c_str();
 	if( n>0 )
 	{
-		strncpy			(_name, item.c_str(), n );
+		strncpy_s		(_name, item.c_str(), n );
 		_name[n]		= 0;
 		_cnt			= sscanf(item.c_str()+n+1,"%d", &ret.n);
 	}

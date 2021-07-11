@@ -2,13 +2,13 @@
 #include "level_debug.h"
 #include "../xrEngine/xr_object.h"
 #include "level.h"
-#include "HUDManager.h"
 
 #ifdef DEBUG
 #	include "debug_renderer.h"
 // Lain: added
 #	include "debug_text_tree.h"
 #	include "ai/monsters/basemonster/base_monster.h"
+#	include "ui_base.h"
 #endif
 
 #ifdef DEBUG
@@ -54,6 +54,17 @@ void   CLevelDebug::draw_debug_text ()
 
 	if ( !smart_cast<CBaseMonster*>( Level().CurrentEntity() ) )
 	{
+		bool debug_actor_view	=	false;
+		if ( !ai_dbg::get_var("actor_view", debug_actor_view) )
+			debug_actor_view	=	false;
+
+		debug::text_tree* actor_view	=	m_p_texttree->find_node("ActorView");
+		if ( debug_actor_view && actor_view )
+		{
+			debug::draw_text_tree	(*actor_view, 2, x_start, y_start, 
+									 m_texttree_offs, column_size, 80, 
+									 D3DCOLOR_XRGB(0,255,0), D3DCOLOR_XRGB(255,255,0));
+		}
 		return;
 	}
 
@@ -243,10 +254,10 @@ struct DrawInfoPredicate {
 	}
 
 	void operator() (const CLevelDebug::SInfoItem &s) {
-		HUD().Font().pFontMedium->SetAligment(CGameFont::alLeft);
-		HUD().Font().pFontMedium->SetColor	(s.color);
-		HUD().Font().pFontMedium->OutSet	(x, y-=delta_height);
-		HUD().Font().pFontMedium->OutNext	(*(s.text));
+		UI().Font().pFontMedium->SetAligment(CGameFont::alLeft);
+		UI().Font().pFontMedium->SetColor	(s.color);
+		UI().Font().pFontMedium->OutSet	(x, y-=delta_height);
+		UI().Font().pFontMedium->OutNext	(*(s.text));
 	}
 };
 
@@ -269,10 +280,10 @@ void CLevelDebug::CTextInfo::add_item	(LPCSTR text, float x, float y, u32 color,
 
 struct DrawTextPredicate {
 	void operator() (const CLevelDebug::STextItem &s) {
-		HUD().Font().pFontMedium->SetAligment(CGameFont::alLeft);
-		HUD().Font().pFontMedium->SetColor	(s.color);
-		HUD().Font().pFontMedium->OutSet	(s.x, s.y);
-		HUD().Font().pFontMedium->OutNext	(*(s.text));
+		UI().Font().pFontMedium->SetAligment(CGameFont::alLeft);
+		UI().Font().pFontMedium->SetColor	(s.color);
+		UI().Font().pFontMedium->OutSet	(s.x, s.y);
+		UI().Font().pFontMedium->OutNext	(*(s.text));
 	}
 };
 

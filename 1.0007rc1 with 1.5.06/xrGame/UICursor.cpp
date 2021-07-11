@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "uicursor.h"
 
-#include "../CustomHUD.h"
+#include "../xrEngine/CustomHUD.h"
 #include "UI.h"
 #include "HUDManager.h"
 #include "ui/UIStatic.h"
@@ -10,6 +10,7 @@
 #define C_DEFAULT	D3DCOLOR_XRGB(0xff,0xff,0xff)
 
 CUICursor::CUICursor()
+:m_static(NULL)
 {    
 	bVisible				= false;
 	vPos.set				(0.f,0.f);
@@ -21,6 +22,12 @@ CUICursor::~CUICursor	()
 {
 	xr_delete				(m_static);
 	Device.seqRender.Remove	(this);
+}
+
+void CUICursor::OnScreenRatioChanged()
+{
+	xr_delete					(m_static);
+	InitInternal				();
 }
 
 void CUICursor::InitInternal()

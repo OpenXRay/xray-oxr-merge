@@ -28,18 +28,19 @@ void CScriptGameObject::script_register(lua_State *L)
 		class_<CSightParams>("CSightParams")
 			.enum_("bla-bla")
 			[
-				value("eSightTypeCurrentDirection",	int(SightManager::eSightTypeCurrentDirection)),
-				value("eSightTypePathDirection",	int(SightManager::eSightTypePathDirection	)),
-				value("eSightTypeDirection",		int(SightManager::eSightTypeDirection		)),
-				value("eSightTypePosition",			int(SightManager::eSightTypePosition		)),
-				value("eSightTypeObject",			int(SightManager::eSightTypeObject			)),
-				value("eSightTypeCover",			int(SightManager::eSightTypeCover			)),
-				value("eSightTypeSearch",			int(SightManager::eSightTypeSearch			)),
-				value("eSightTypeLookOver",			int(SightManager::eSightTypeLookOver		)),
-				value("eSightTypeCoverLookOver",	int(SightManager::eSightTypeCoverLookOver	)),
-				value("eSightTypeFireObject",		int(SightManager::eSightTypeFireObject		)),
-				value("eSightTypeFirePosition",		int(SightManager::eSightTypeFirePosition	)),
-				value("eSightTypeDummy",			int(SightManager::eSightTypeDummy			))
+				value("eSightTypeCurrentDirection",	int(SightManager::eSightTypeCurrentDirection	)),
+				value("eSightTypePathDirection",	int(SightManager::eSightTypePathDirection		)),
+				value("eSightTypeDirection",		int(SightManager::eSightTypeDirection			)),
+				value("eSightTypePosition",			int(SightManager::eSightTypePosition			)),
+				value("eSightTypeObject",			int(SightManager::eSightTypeObject				)),
+				value("eSightTypeCover",			int(SightManager::eSightTypeCover				)),
+				value("eSightTypeSearch",			int(SightManager::eSightTypeSearch				)),
+				value("eSightTypeLookOver",			int(SightManager::eSightTypeLookOver			)),
+				value("eSightTypeCoverLookOver",	int(SightManager::eSightTypeCoverLookOver		)),
+				value("eSightTypeFireObject",		int(SightManager::eSightTypeFireObject			)),
+				value("eSightTypeFirePosition",		int(SightManager::eSightTypeFirePosition		)),
+				value("eSightTypeAnimationDirection",	int(SightManager::eSightTypeAnimationDirection	)),
+				value("eSightTypeDummy",			int(SightManager::eSightTypeDummy				))
 			]
 			.def(							constructor<>())
 			.def_readonly("m_object",		&CSightParams::m_object)
@@ -74,6 +75,7 @@ void CScriptGameObject::script_register(lua_State *L)
 				value("use_object",					int(GameObject::eUseObject)),
 				value("hit",						int(GameObject::eHit)),
 				value("sound",						int(GameObject::eSound)),
+				value("action_removed",				int(GameObject::eActionTypeRemoved)),
 				value("action_movement",			int(GameObject::eActionTypeMovement)),
 				value("action_watch",				int(GameObject::eActionTypeWatch)),
 				value("action_animation",			int(GameObject::eActionTypeAnimation)),
@@ -88,6 +90,8 @@ void CScriptGameObject::script_register(lua_State *L)
 				value("script_animation",			int(GameObject::eScriptAnimation)),
 				value("task_state",					int(GameObject::eTaskStateChange)),
 				value("take_item_from_box",			int(GameObject::eInvBoxItemTake)),
+				value("weapon_no_ammo",				int(GameObject::eWeaponNoAmmoAvailable)),
+				
 				value("map_location_added",			int(GameObject::eMapLocationAdded))
 			],
 

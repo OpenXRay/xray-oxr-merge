@@ -12,7 +12,8 @@
 
 class CCoverPoint;
 
-class CStalkerActionCombatBase : public CStalkerActionBase {
+class CStalkerActionCombatBase : public CStalkerActionBase
+{
 public:
 						CStalkerActionCombatBase	(CAI_Stalker *object, LPCSTR action_name = "");
 	virtual void		initialize					();

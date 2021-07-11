@@ -16,6 +16,17 @@
 #include "movement_manager.h"
 #include "ai_space.h"
 #include "profiler.h"
+#include "ai/stalker/ai_stalker.h"
+#include "stalker_movement_manager_smart_cover.h"
+#include "restricted_object.h"
+
+CItemManager::CItemManager			(CCustomMonster *object)
+{
+	VERIFY					(object);
+	m_object				= object;
+
+	m_stalker				= smart_cast<CAI_Stalker*>( m_object );
+}
 
 bool CItemManager::is_useful		(const CGameObject *object) const
 {

@@ -1,10 +1,13 @@
 #pragma once
 
-class CPhysicsShellHolder;
-struct dContact;
-struct SGameMtl;
+#include "../xrphysics/icollisiondamagereceiver.h"
 
-class CPHCollisionDamageReceiver
+class CPhysicsShellHolder;
+//struct dContact;
+//struct SGameMtl;
+
+class CPHCollisionDamageReceiver:
+	public ICollisionDamageReceiver
 {
 typedef std::pair<u16,float> SControledBone;
 DEFINE_VECTOR(SControledBone,DAMAGE_CONTROLED_BONES_V,DAMAGE_BONES_I);

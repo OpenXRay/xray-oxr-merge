@@ -1,9 +1,8 @@
 #pragma once
 
 #include "game_base.h"
-#include "../../xrNetServer/client_id.h"
+#include "../xrCore/client_id.h"
 #include "WeaponAmmo.h"
-//#include "Level_Bullet_Manager.h"
 
 class	NET_Packet;
 class	CGameObject;
@@ -43,6 +42,7 @@ public:
 	PLAYERS_MAP							players;
 	ClientID							local_svdpnid;
 	game_PlayerState*					local_player;
+	game_PlayerState*					lookat_player();
 //.	xr_vector<CGameObject*>				targets;
 
 
@@ -129,6 +129,10 @@ public:
 	virtual		void				OnDestroy				(CObject* pObj)	{};
 
 	virtual		void				OnPlayerFlagsChanged	(game_PlayerState* ps)	{};
+	virtual		void				OnNewPlayerConnected	(ClientID const & newClient) {};
 	virtual		void				OnPlayerVoted			(game_PlayerState* ps)	{};
 	virtual		void				SendPickUpEvent			(u16 ID_who, u16 ID_what);
+
+	virtual		bool				IsPlayerInTeam			(game_PlayerState* ps, ETeam team) {return ps->team == team;};
+	virtual		void				OnConnected				() {};
 };

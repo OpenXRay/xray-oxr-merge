@@ -3,6 +3,7 @@
 #ifdef DEBUG
 struct dContact;
 #include "../xrEngine/StatGraph.h"
+#include "../xrphysics/debug_output.h"
 #define DRAW_CONTACTS
 
 

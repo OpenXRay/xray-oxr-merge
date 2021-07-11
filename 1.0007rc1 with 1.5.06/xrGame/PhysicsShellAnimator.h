@@ -11,7 +11,7 @@ class CPhysicsShellAnimator
 
 
 public:
-													CPhysicsShellAnimator		(CPhysicsShell* _pPhysicsShell);
+													CPhysicsShellAnimator		( CPhysicsShell* _pPhysicsShell );
 													~CPhysicsShellAnimator		();
 	void											OnFrame						();
 };

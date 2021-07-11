@@ -30,7 +30,6 @@ private:
 DEFINE_VECTOR(CPHShellSplitter,SPLITTER_STORAGE,SPLITTER_I)
 typedef		xr_vector<CPHShellSplitter>::reverse_iterator	SPLITTER_RI;
 
-
 class CPHShellSplitterHolder : public CPHUpdateObject			//call all Fractures and Breakable Joints Updates
 {
 friend class CPHShell;

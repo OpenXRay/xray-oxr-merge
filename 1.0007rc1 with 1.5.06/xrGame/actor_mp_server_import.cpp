@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "actor_mp_server.h"
-#include "../../xrNetServer/net_utils.h"
+#include "Physics.h"
+#include "mathutils.h"
 
 void CSE_ActorMP::UPDATE_Read	(NET_Packet &packet)
 {
@@ -8,13 +9,14 @@ void CSE_ActorMP::UPDATE_Read	(NET_Packet &packet)
 	m_u16NumItems				= 1;
 	velocity.set				(0.f,0.f,0.f);
 
-	if (fHealth<=0)
+	if (get_health() <= 0)
 	{
 		actor_mp_state_holder	tmp_state_holder;
 		tmp_state_holder.read	(packet);
 		return;
 	}
 	m_state_holder.read			(packet);
+	R_ASSERT2(valid_pos(m_state_holder.state().position,phBoundaries), "read bad position");
 
 	m_AliveState.quaternion		= m_state_holder.state().physics_quaternion;
 	m_AliveState.angular_vel	= m_state_holder.state().physics_angular_velocity;
@@ -41,4 +43,5 @@ void CSE_ActorMP::UPDATE_Read	(NET_Packet &packet)
 	m_AliveState.enabled		= m_state_holder.state().physics_state_enabled;
 
 	m_ready_to_update			= true;
+	//Msg("--- Client 0x%08x UPDATE_Read, health is: %2.04f", this->ID, m_state_holder.state().health);
 }

@@ -7,7 +7,6 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "../../xrNetServer/net_utils.h"
 #include "xrServer_Objects.h"
 #include "game_base_space.h"
 
@@ -32,9 +31,16 @@ void CSE_Shape::cform_read					(NET_Packet	&tNetPacket)
 		shape_def				S;
 		tNetPacket.r_u8			(S.type);
 		switch (S.type) {
-			case 0 :	
-				tNetPacket.r	(&S.data.sphere,sizeof(S.data.sphere));	
-				break;
+			case 0 :
+				{
+					if(tNetPacket.inistream)
+					{
+						tNetPacket.r_vec3(S.data.sphere.P);
+						tNetPacket.r_float(S.data.sphere.R);
+					}else
+						tNetPacket.r	(&S.data.sphere,sizeof(S.data.sphere));	
+
+				}break;
 			case 1 :	
 				tNetPacket.r_matrix(S.data.box);
 				break;
@@ -47,13 +53,21 @@ void CSE_Shape::cform_read					(NET_Packet	&tNetPacket)
 void CSE_Shape::cform_write					(NET_Packet	&tNetPacket)
 {
 	tNetPacket.w_u8				(u8(shapes.size()));
-	for (u32 i=0; i<shapes.size(); ++i) {
+	for (u32 i=0; i<shapes.size(); ++i)
+	{
 		shape_def				&S = shapes[i];
 		tNetPacket.w_u8			(S.type);
-		switch (S.type) {
+		switch (S.type)
+		{
 			case 0:	
-				tNetPacket.w	(&S.data.sphere,sizeof(S.data.sphere));
-				break;
+				{
+					if(tNetPacket.inistream)
+					{
+						tNetPacket.w_vec3(S.data.sphere.P);
+						tNetPacket.w_float(S.data.sphere.R);
+					}else
+						tNetPacket.w	(&S.data.sphere,sizeof(S.data.sphere));
+				}break;
 			case 1:	
 				tNetPacket.w_matrix	(S.data.box);
 				break;
@@ -100,10 +114,12 @@ void CSE_Spectator::UPDATE_Write			(NET_Packet	&tNetPacket)
 {
 }
 
+#ifndef XRGAME_EXPORTS
 void CSE_Spectator::FillProps				(LPCSTR pref, PropItemVec& items)
 {
   	inherited::FillProps			(pref,items);
 }
+#endif // #ifndef XRGAME_EXPORTS
 
 ////////////////////////////////////////////////////////////////////////////
 // CSE_Temporary
@@ -135,9 +151,11 @@ void CSE_Temporary::UPDATE_Write			(NET_Packet	&tNetPacket)
 {
 };
 
+#ifndef XRGAME_EXPORTS
 void CSE_Temporary::FillProps				(LPCSTR pref, PropItemVec& values)
 {
 };
+#endif // #ifndef XRGAME_EXPORTS
 
 /**
 ////////////////////////////////////////////////////////////////////////////
@@ -263,10 +281,11 @@ void CSE_PHSkeleton::UPDATE_Read(NET_Packet &tNetPacket)
 
 }
 
+#ifndef XRGAME_EXPORTS
 void CSE_PHSkeleton::FillProps				(LPCSTR pref, PropItemVec& values)
 {
-
 }
+#endif // #ifndef XRGAME_EXPORTS
 
 CSE_AbstractVisual::CSE_AbstractVisual(LPCSTR section):inherited1(section),inherited2(section)
 {
@@ -288,11 +307,13 @@ void CSE_AbstractVisual::STATE_Write	(NET_Packet	&tNetPacket)
 	tNetPacket.w_stringZ		(startup_animation);
 }
 
+#ifndef XRGAME_EXPORTS
 void CSE_AbstractVisual::FillProps		(LPCSTR pref, PropItemVec& values)
 {
 	inherited1::FillProps			(pref,values);
 	inherited2::FillProps			(pref,values);
 }
+#endif // #ifndef XRGAME_EXPORTS
 
 void CSE_AbstractVisual::UPDATE_Read	(NET_Packet	&tNetPacket)
 {

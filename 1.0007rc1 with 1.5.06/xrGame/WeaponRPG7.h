@@ -10,8 +10,8 @@ class CWeaponRPG7 :	public CWeaponCustomPistol,
 private:
 	typedef CWeaponCustomPistol inherited;
 public:
-	CWeaponRPG7(void);
-	virtual ~CWeaponRPG7(void);
+				CWeaponRPG7		();
+	virtual		~CWeaponRPG7	();
 
 	virtual BOOL net_Spawn		(CSE_Abstract* DC);
 	virtual void OnStateSwitch	(u32 S);
@@ -19,6 +19,7 @@ public:
 	virtual void ReloadMagazine	();
 	virtual void Load			(LPCSTR section);
 	virtual void switch2_Fire	();
+	virtual	void FireTrace		(const Fvector& P, const Fvector& D);
 
 	virtual void FireStart		();
 	virtual void SwitchState	(u32 S);

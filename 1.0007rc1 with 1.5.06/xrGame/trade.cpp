@@ -138,7 +138,7 @@ void CTrade::StartTrade()
 //	if (pThis.type == TT_TRADER) smart_cast<CAI_Trader*>(pThis.base)->OnStartTrade();
 }
 
-void CTrade::StartTrade(CInventoryOwner* pInvOwner)
+void CTrade::StartTradeEx(CInventoryOwner* pInvOwner)
 {
 	SetPartner(smart_cast<CEntity*>(pInvOwner));
 	StartTrade();

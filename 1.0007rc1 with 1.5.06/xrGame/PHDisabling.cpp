@@ -2,6 +2,11 @@
 #include "PHDisabling.h"
 #include "PhysicsCommon.h"
 #include "Physics.h"
+#include "mathutils.h"
+#ifdef	DEBUG
+#include "phdebug.h"
+#endif
+
 extern CPHWorld* ph_world;
 SDisableVector::SDisableVector()
 {
@@ -63,7 +68,7 @@ SDisableUpdateState& SDisableUpdateState::operator &=	(SDisableUpdateState& lsta
 	return *this;
 }
 
-CBaseDisableData::CBaseDisableData()
+CBaseDisableData::CBaseDisableData(): m_disabled(false), m_last_frame_updated(u16(-1))
 {
 
 	m_frames	=worldDisablingParams.objects_params.L2frames		;
@@ -80,7 +85,12 @@ void	CBaseDisableData::Reinit()
 }
 void	CBaseDisableData::Disabling()
 {
-	
+	VERIFY(ph_world);
+	if(ph_world->IsFreezed())
+		return;
+	if( m_last_frame_updated == ph_world->StepsShortCnt() )
+		return;
+	m_last_frame_updated = ph_world->StepsShortCnt();
 	dBodyID	body	=		get_body();		
 	m_count--;
 
@@ -174,7 +184,10 @@ void	CPHDisablingTranslational::UpdateL1()
 	dBodyID			body				=	get_body()												;
 	const	dReal	*position			=	dBodyGetPosition(body)									;
 	const	dReal	*velocity			=	dBodyGetLinearVel(body)									;
-
+#if	0
+	DBG_DrawLine( cast_fv( position ), Fvector().add(cast_fv( position ),m_mean_velocity.sum), D3DCOLOR_XRGB( 255, 0, 0 )   );
+	DBG_DrawLine( cast_fv( position ), Fvector().add(cast_fv( position ),m_mean_acceleration.sum), D3DCOLOR_XRGB( 0, 0, 255 )  );
+#endif
 	CPHDisablingBase::UpdateValues(* (Fvector*) position,* (Fvector*) velocity);
 	//float			velocity_param		=	m_mean_velocity		.Update(* (Fvector*) position)		;
 	//float			acceleration_param	=	m_mean_acceleration	.Update(* (Fvector*) velocity)		;

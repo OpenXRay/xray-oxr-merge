@@ -7,7 +7,6 @@
 
 // refs
 class CHUDManager;
-class CWeapon;
 class CUIGameCustom;
 class CUIMainIngameWnd;
 class CUIMessagesWindow;
@@ -40,16 +39,15 @@ public:
 
 	CUIGameCustom*			UIGame					()					{return pUIGame;}
 
-
-	void					ShowGameIndicators		();
-	void					HideGameIndicators		();
+	void					ShowGameIndicators		(bool show);
 	bool					GameIndicatorsShown		()					{return m_bShowGameIndicators;};
 
-	void					ShowCrosshair			();
-	void					HideCrosshair			();
+	void					ShowCrosshair			(bool show);
 	bool					CrosshairShown			();
 
 	SDrawStaticStruct*		AddInfoMessage			(LPCSTR message);
 	void					OnConnected				();
+
+	void					UpdatePda				();
 };
 

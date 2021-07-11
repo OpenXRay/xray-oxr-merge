@@ -16,8 +16,55 @@
 #include "smart_cover.h"
 #include "smart_cover_loophole.h"
 #include "ai_debug.h"
+#include "ai/stalker/ai_stalker.h"
+#include "stalker_movement_manager_smart_cover.h"
 
 float	g_smart_cover_factor	= 1.f;
+
+CCoverEvaluatorBase::CCoverEvaluatorBase					(CRestrictedObject *object)
+{
+	m_inertia_time			= 0;
+	m_last_update			= 0;
+	m_inertia_time			= 0;
+	m_best_value			= flt_max;
+	m_initialized			= false;
+	m_start_position.set	(flt_max,flt_max,flt_max);
+	m_selected				= 0;
+	m_previous_selected		= 0;
+	m_object				= object;
+	m_stalker				= smart_cast<CAI_Stalker*>( &object->object() );
+	m_actuality				= true;
+	m_last_radius			= flt_max;
+	m_use_smart_covers_only	= false;
+}
+
+bool CCoverEvaluatorBase::inertia							(Fvector const& position, float radius)
+{
+//	m_actuality				= m_actuality && fsimilar(m_last_radius,radius);
+//	m_actuality				= m_actuality && ((m_last_radius + EPS_L) >= radius);
+	bool					radius_criteria = ((m_last_radius + EPS_L) >= radius);
+	bool					time_criteria = (Device.dwTimeGlobal < m_last_update + m_inertia_time);
+
+	m_last_radius			= radius;
+
+	if (time_criteria && radius_criteria)
+		return				true;
+
+	if ( !m_stalker )
+		return				false;
+
+	smart_cover::cover const*	cover = m_stalker->get_current_smart_cover();
+	if ( !cover )
+		return				false;
+
+	if ( !m_stalker->get_current_loophole() || !cover->is_position_in_danger_fov(*m_stalker->get_current_loophole(), position) )
+		return				false;
+
+	if ( !m_stalker->can_fire_right_now() )
+		return				false;
+
+	return					true;
+}
 
 void CCoverEvaluatorBase::evaluate							(CCoverPoint const *cover_point, float weight)
 {

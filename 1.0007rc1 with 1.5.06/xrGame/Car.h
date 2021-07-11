@@ -27,7 +27,7 @@ struct						dSurfaceParameters;
 // defs
 
 #ifdef DEBUG
-	#include "../StatGraph.h"
+	#include "../xrEngine/StatGraph.h"
 	#include "PHDebug.h"
 #endif
 
@@ -514,7 +514,7 @@ IC	size_t				CurrentTransmission					(){return m_current_transmission_num;}
 	static void				cb_Steer					(CBoneInstance* B);
 	virtual	void			Hit							(SHit* pHDS);
 	virtual void			Die							(CObject* who);
-	virtual void PHHit									(float P,Fvector &dir, CObject *who,s16 element,Fvector p_in_object_space, float impulse, ALife::EHitType hit_type/* =ALife::eHitTypeWound */);
+	virtual void PHHit									(SHit &H);
 			bool WheelHit								(float P,s16 element,ALife::EHitType hit_type);
 			bool DoorHit								(float P,s16 element,ALife::EHitType hit_type);
 public:
@@ -601,6 +601,7 @@ protected:
 	virtual	void					RestoreNetState						(CSE_PHSkeleton* po)															;
 			void					SetDefaultNetState					(CSE_PHSkeleton* po)															;
 
+	virtual bool					IsHudModeNow		(){return false;};
 	
 public:
 	CCar(void);

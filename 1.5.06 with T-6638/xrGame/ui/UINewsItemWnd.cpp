@@ -33,16 +33,11 @@ void CUINewsItemWnd::Init(CUIXml& uiXml, LPCSTR start_from)
 
 void CUINewsItemWnd::Setup			(GAME_NEWS_DATA& news_data)
 {
-//	string128						time_str;
-//	u32								years, months, days, hours, minutes, seconds, milliseconds;
-//	split_time						(news_data.receive_time, years, months, days, hours, minutes, seconds, milliseconds);
-//	sprintf_s						(time_str, "%%c[255,225,225,250]%02i/%02i/%04i %02i:%02i  ", days, months, years, hours, minutes );
-
 	shared_str time_str				= InventoryUtilities::GetTimeAndDateAsString( news_data.receive_time );
 	u32    sz  = (time_str.size() + 5) * sizeof(char);
 	PSTR   str = (PSTR)_alloca( sz );
-	strcpy_s( str, sz, time_str.c_str() );
-	strcat_s( str, sz, " -" );
+	xr_strcpy( str, sz, time_str.c_str() );
+	xr_strcat( str, sz, " -" );
 	m_UIDate->SetText(str);
 	m_UIDate->AdjustWidthToText();
 

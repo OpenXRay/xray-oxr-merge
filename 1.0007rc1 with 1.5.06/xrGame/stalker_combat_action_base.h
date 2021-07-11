@@ -10,14 +10,20 @@
 
 #include "stalker_base_action.h"
 
-class CStalkerActionCombatBase : public CStalkerActionBase {
-protected:
-	typedef CStalkerActionBase inherited;
+class CCoverPoint;
 
+class CStalkerActionCombatBase : public CStalkerActionBase
+{
 public:
 						CStalkerActionCombatBase	(CAI_Stalker *object, LPCSTR action_name = "");
 	virtual void		initialize					();
 	virtual void		finalize					();
+
+protected:
+	typedef CStalkerActionBase						inherited;
+
+protected:
+			void		setup_cover					(CCoverPoint const& cover);
 			void		select_queue_params			(const float &distance, u32 &min_queue_size, u32 &max_queue_size, u32 &min_queue_interval, u32 &max_queue_interval) const;
 			bool		fire_make_sense				() const;
 			void		fire						();

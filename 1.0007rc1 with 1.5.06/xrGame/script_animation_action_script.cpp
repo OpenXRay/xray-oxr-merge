@@ -26,6 +26,7 @@ void CScriptAnimationAction::script_register(lua_State *L)
 			.enum_("monster")
 			[
 				value("stand_idle",				int(MonsterSpace::eAA_StandIdle)),
+				value("capture_prepare",		int(MonsterSpace::eAA_CapturePrepare)),
 				value("sit_idle",				int(MonsterSpace::eAA_SitIdle)),
 				value("lie_idle",				int(MonsterSpace::eAA_LieIdle)),
 				value("eat",					int(MonsterSpace::eAA_Eat)),

@@ -1,6 +1,7 @@
 #include "pch_script.h"
 #include "MosquitoBald.h"
 #include "ZoneCampfire.h"
+#include "TorridZone.h"
 
 using namespace luabind;
 
@@ -9,6 +10,8 @@ void CMosquitoBald::script_register	(lua_State *L)
 {
 	module(L)
 	[
+		class_<CTorridZone,CGameObject>("CTorridZone")
+			.def(constructor<>()),
 		class_<CMosquitoBald,CGameObject>("CMosquitoBald")
 			.def(constructor<>()),
 		class_<CZoneCampfire,CGameObject>("CZoneCampfire")

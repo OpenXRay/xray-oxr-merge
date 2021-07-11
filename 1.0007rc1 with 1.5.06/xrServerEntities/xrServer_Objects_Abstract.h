@@ -11,11 +11,7 @@
 
 #pragma pack(push,4)
 #include "xrServer_Space.h"
-#ifdef XRGAME_EXPORTS
-#	include "../../xrCDB/xrCDB.h"
-#else // XRGAME_EXPORTS
-#	include "../xrCDB/xrCDB.h"
-#endif // XRGAME_EXPORTS
+#include "../xrCDB/xrCDB.h"
 #include "ShapeData.h"
 
 class NET_Packet;
@@ -23,13 +19,17 @@ class CDUInterface;
 
 #ifndef _EDITOR
     #ifndef XRGAME_EXPORTS
-        #include "Sound.h"
+		#include "../../engine/xrSound/Sound.h"
     #endif
 #endif
 
 #include "xrEProps.h"
-#include "DrawUtils.h"
 
+#ifndef XRGAME_EXPORTS
+	#include "..\..\Include\xrRender\DrawUtils.h"
+#else
+	#include "..\Include\xrRender\DrawUtils.h"
+#endif
 #pragma warning(push)
 #pragma warning(disable:4005)
 
@@ -41,6 +41,7 @@ public:
 SERVER_ENTITY_DECLARE_BEGIN0(CSE_Visual)
     void __stdcall					OnChangeVisual	(PropValue* sender);  
     void __stdcall					OnChangeAnim	(PropValue* sender);  
+
 public:
 	shared_str						visual_name;
 	shared_str						startup_animation;
@@ -57,7 +58,9 @@ public:
 
     void							set_visual		(LPCSTR name, bool load=true);
 	LPCSTR							get_visual		() const {return *visual_name;};
+#ifndef XRGAME_EXPORTS
 	virtual void					FillProps		(LPCSTR pref, PropItemVec &items);
+#endif // #ifndef XRGAME_EXPORTS
 
 	virtual CSE_Visual* __stdcall	visual			() = 0;
 };
@@ -78,7 +81,9 @@ public:
     void							set_motion		(LPCSTR name);
 	LPCSTR							get_motion		() const {return *motion_name;};
 
+#ifndef XRGAME_EXPORTS
 	virtual void					FillProps		(LPCSTR pref, PropItemVec &items);
+#endif // #ifndef XRGAME_EXPORTS
 
 	virtual CSE_Motion* __stdcall	motion			() = 0;
 };

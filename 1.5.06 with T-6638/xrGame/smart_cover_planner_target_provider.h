@@ -34,6 +34,43 @@ private:
 	u32					m_loophole_value;
 };
 
+////////////////////////////////////////////////////////////////////////////
+//	class target_idle
+////////////////////////////////////////////////////////////////////////////
+
+class target_idle : 
+	public	target_provider,
+	private debug::make_final<target_idle>
+{
+private:
+	typedef target_provider inherited;
+
+public:
+						target_idle						(animation_planner *object, LPCSTR name, StalkerDecisionSpace::EWorldProperties const &world_property, u32 const &loophole_value);
+	virtual	void		execute							();
+};
+
+////////////////////////////////////////////////////////////////////////////
+//	class target_fire
+////////////////////////////////////////////////////////////////////////////
+
+class target_fire : 
+	public	target_provider,
+	private debug::make_final<target_fire>
+{
+private:
+	typedef target_provider inherited;
+
+public:
+						target_fire						(animation_planner *object, LPCSTR name, StalkerDecisionSpace::EWorldProperties const &world_property, u32 const &loophole_value);
+	virtual	void		initialize						();
+	virtual	void		execute							();
+};
+
+////////////////////////////////////////////////////////////////////////////
+//	class target_fire_no_lookout
+////////////////////////////////////////////////////////////////////////////
+
 class target_fire_no_lookout : 
 	public	target_provider,
 	private debug::make_final<target_fire_no_lookout>

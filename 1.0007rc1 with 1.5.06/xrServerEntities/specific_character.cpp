@@ -26,6 +26,7 @@ SSpecificCharacterData::SSpecificCharacterData()
 	m_fPanic_threshold		= 0.0f;
 	m_fHitProbabilityFactor	= 1.f;
 	m_crouch_type			= 0;
+	m_upgrade_mechanic		= false;
 }
 
 SSpecificCharacterData::~SSpecificCharacterData()
@@ -126,6 +127,7 @@ void CSpecificCharacter::load_shared	(LPCSTR)
 	data()->m_fPanic_threshold		= pXML->ReadFlt("panic_threshold",0,0.f);
 	data()->m_fHitProbabilityFactor	= pXML->ReadFlt("hit_probability_factor",0,1.f);
 	data()->m_crouch_type			= pXML->ReadInt("crouch_type",0,0);
+	data()->m_upgrade_mechanic		= ( pXML->ReadInt("mechanic_mode",0,0) == 1 );
 
 	data()->m_critical_wound_weights= pXML->Read("critical_wound_weights", 0, "1");
 
@@ -255,6 +257,11 @@ float CSpecificCharacter::hit_probability_factor () const
 int CSpecificCharacter::crouch_type	() const 
 {
 	return data()->m_crouch_type;
+}
+
+bool CSpecificCharacter::upgrade_mechanic() const 
+{
+	return data()->m_upgrade_mechanic;
 }
 
 LPCSTR CSpecificCharacter::critical_wound_weights () const 

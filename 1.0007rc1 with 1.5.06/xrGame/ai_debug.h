@@ -15,7 +15,6 @@
 #	define aiFrustum					(1<<3)
 #	define aiFuncs						(1<<4)
 #	define aiALife						(1<<5)
-#	define aiLua						(1<<6)
 #	define aiGOAP						(1<<7)
 #	define aiCover						(1<<8)
 #	define aiAnimation					(1<<9)
@@ -33,15 +32,17 @@
 #	define aiDrawGameGraphStalkers		(1<<21)
 #	define aiDrawGameGraphObjects		(1<<22)
 #	define aiNilObjectAccess			(1<<23)
-#endif // DEBUG
-
-#ifndef MASTER_GOLD
-#	define aiIgnoreActor				(1<<24)
-	extern Flags32						psAI_Flags;
-#endif // MASTER_GOLD
-
-#ifdef DEBUG
 #	define aiDebugOnFrameAllocs			(1<<25)
 #	define aiDrawVisibilityRays			(1<<26)
 #	define aiAnimationStats				(1<<27)
 #endif // DEBUG
+
+#ifndef MASTER_GOLD
+#	define aiLua						(1<<6)
+#	define aiIgnoreActor				(1<<24)
+#	define aiObstaclesAvoiding			(1<<28)
+#	define aiObstaclesAvoidingStatic	(1<<29)
+#	define aiUseSmartCovers				(1<<30)
+#	define aiUseSmartCoversAnimationSlot (1<<31)
+	extern Flags32						psAI_Flags;
+#endif

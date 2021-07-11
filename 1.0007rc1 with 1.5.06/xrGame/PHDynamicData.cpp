@@ -4,10 +4,11 @@
 #include "stdafx.h"
 #include "PHDynamicData.h"
 
-#if 0
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
+
+#if 0
 
 PHDynamicData::PHDynamicData()
 {
@@ -200,4 +201,5 @@ void PHDynamicData::SetAsZeroRecursive(){
 void PHDynamicData::SetZeroTransform(Fmatrix& aTransform){
 	ZeroTransform.set(aTransform);
 }
+
 #endif // #if 0

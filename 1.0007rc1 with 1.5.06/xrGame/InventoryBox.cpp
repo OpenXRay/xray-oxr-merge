@@ -18,6 +18,7 @@ void CInventoryBox::OnEvent(NET_Packet& P, u16 type)
 
 	switch (type)
 	{
+	case GE_TRADE_BUY:
 	case GE_OWNERSHIP_TAKE:
 		{
 			u16 id;
@@ -28,6 +29,8 @@ void CInventoryBox::OnEvent(NET_Packet& P, u16 type)
 			itm->setVisible		(FALSE);
 			itm->setEnabled		(FALSE);
 		}break;
+
+	case GE_TRADE_SELL:
 	case GE_OWNERSHIP_REJECT:
 		{
 			u16 id;
@@ -36,7 +39,11 @@ void CInventoryBox::OnEvent(NET_Packet& P, u16 type)
 			xr_vector<u16>::iterator it;
 			it = std::find(m_items.begin(),m_items.end(),id); VERIFY(it!=m_items.end());
 			m_items.erase		(it);
-			itm->H_SetParent	(NULL,!P.r_eof() && P.r_u8());
+
+			bool just_before_destroy		= !P.r_eof() && P.r_u8();
+			bool dont_create_shell			= (type==GE_TRADE_SELL) || just_before_destroy;
+
+			itm->H_SetParent	(NULL, dont_create_shell);
 
 			if( m_in_use )
 			{
@@ -47,6 +54,15 @@ void CInventoryBox::OnEvent(NET_Packet& P, u16 type)
 	};
 }
 
+void CInventoryBox::UpdateCL()
+{
+	inherited::UpdateCL	();
+}
+
+void CInventoryBox::net_Destroy()
+{
+	inherited::net_Destroy	();
+}
 BOOL CInventoryBox::net_Spawn(CSE_Abstract* DC)
 {
 	inherited::net_Spawn	(DC);

@@ -66,3 +66,54 @@ IC	bool CStalkerAnimationManager::non_script_need_update	() const
 		m_legs.need_update()
 	);
 }
+
+IC	const float &CStalkerAnimationManager::target_speed			() const
+{
+	return							(m_last_non_zero_speed);
+}
+
+IC	void CStalkerAnimationManager::special_danger_move			(const bool &value)
+{
+	m_special_danger_move			= value;
+}
+
+IC	const bool &CStalkerAnimationManager::special_danger_move	() const
+{
+	return							(m_special_danger_move);
+}
+
+IC	CStalkerAnimationManager::AnimationSelector const &CStalkerAnimationManager::global_selector() const
+{
+	return							(m_global_selector);
+}
+
+IC	void CStalkerAnimationManager::global_selector				(AnimationSelector const &selector)
+{
+	m_global_selector				= selector;
+}
+
+IC	CStalkerAnimationManager::AnimationCallback const &CStalkerAnimationManager::global_callback() const
+{
+	return							(m_global_callback);
+}
+
+IC	void CStalkerAnimationManager::global_callback	(AnimationCallback const &callback)
+{
+	m_global_callback				= callback;
+}
+
+IC	CStalkerAnimationManager::AnimationModifier const &CStalkerAnimationManager::global_modifier() const
+{
+	return							(m_global_modifier);
+}
+
+IC	void CStalkerAnimationManager::global_modifier				(AnimationModifier const &modifier)
+{
+	m_global_modifier				= modifier;
+}
+
+IC CStalkerAnimationData const &CStalkerAnimationManager::data_storage	() const
+{
+	VERIFY							(m_data_storage);
+	return							(*m_data_storage);
+}

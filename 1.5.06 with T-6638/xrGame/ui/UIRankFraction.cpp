@@ -78,7 +78,7 @@ void CUIRankFraction::update_info( u8 sn )
 	m_fraction_state.update_info();
 
 	string32 buf;
-	sprintf_s( buf, sizeof(buf), "%d", sn );
+	xr_sprintf( buf, sizeof(buf), "%d", sn );
 	m_sn->SetText( buf );
 
 	m_name->SetText( m_fraction_state.get_name() );
@@ -86,7 +86,7 @@ void CUIRankFraction::update_info( u8 sn )
 	
 	m_location_value->SetText( m_fraction_state.get_location() );
 	
-	sprintf_s( buf, sizeof(buf), "%.0f", m_fraction_state.power );
+	xr_sprintf( buf, sizeof(buf), "%.0f", m_fraction_state.power );
 	m_power_value->SetText( buf );
 	
 	float gw = (float)m_fraction_state.get_actor_goodwill();

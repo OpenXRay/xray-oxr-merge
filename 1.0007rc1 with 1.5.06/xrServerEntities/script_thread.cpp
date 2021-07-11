@@ -47,12 +47,12 @@ CScriptThread::CScriptThread(LPCSTR caNamespaceName, bool do_string, bool reload
 			if (!l_iErrorCode) {
 				l_iErrorCode = lua_pcall(ai().script_engine().lua(),0,0,0);
 				if (l_iErrorCode) {
-					ai().script_engine().print_output(ai().script_engine().lua(),*m_script_name,l_iErrorCode);
+					ai().script_engine().print_output	(ai().script_engine().lua(),*m_script_name,l_iErrorCode);
 					return;
 				}
 			}
 			else {
-				ai().script_engine().print_output(ai().script_engine().lua(),*m_script_name,l_iErrorCode);
+				ai().script_engine().print_output		(ai().script_engine().lua(),*m_script_name,l_iErrorCode);
 				return;
 			}
 		}
@@ -122,7 +122,7 @@ bool CScriptThread::update()
 		int					l_iErrorCode = lua_resume(lua(),0);
 		
 		if (l_iErrorCode && (l_iErrorCode != LUA_YIELD)) {
-			ai().script_engine().print_output(lua(),*script_name(),l_iErrorCode);
+			ai().script_engine().print_output	(lua(),*script_name(),l_iErrorCode);
 #ifdef DEBUG
 			print_stack		(lua());
 #endif
@@ -132,7 +132,7 @@ bool CScriptThread::update()
 			if (l_iErrorCode != LUA_YIELD) {
 #ifdef DEBUG
 				if (m_current_stack_level) {
-					ai().script_engine().print_output(lua(),*script_name(),l_iErrorCode);
+					ai().script_engine().print_output	(lua(),*script_name(),l_iErrorCode);
 //					print_stack		(lua());
 				}
 #endif // DEBUG

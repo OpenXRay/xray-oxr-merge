@@ -25,6 +25,9 @@
 
 extern XRNETSERVER_API int psNET_GuaranteedPacketMode;
 
+/*#ifdef DEBUG
+void PrintParsedPacket(const char* message, u16 message_type, const void* packet_data, u32 packet_size);
+#endif*/
 
 //==============================================================================
 

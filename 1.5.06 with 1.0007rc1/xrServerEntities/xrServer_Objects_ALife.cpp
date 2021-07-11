@@ -15,7 +15,7 @@
 
 #ifndef AI_COMPILER
 #	include "character_info.h"
-#endif // AI_COMPILER
+#endif
 
 #ifndef XRGAME_EXPORTS
 #	include "bone.h"
@@ -308,7 +308,7 @@ void CSE_ALifeGraphPoint::FillProps			(LPCSTR pref, PropItemVec& items)
 	PHelper().CreateRToken8		(items,	PrepareKey(pref,*s_name,"Location\\4"),				&m_tLocations[3],			&*fp_data.locations[3].begin(), fp_data.locations[3].size());
 	PHelper().CreateRList	 	(items,	PrepareKey(pref,*s_name,"Connection\\Level name"),	&m_caConnectionLevelName,	&*fp_data.level_ids.begin(),	fp_data.level_ids.size());
 	PHelper().CreateRText	 	(items,	PrepareKey(pref,*s_name,"Connection\\Point name"),	&m_caConnectionPointName);
-#	endif // #ifdef XRSE_FACTORY_EXPORTS
+#	endif
 }
 #endif // #ifndef XRGAME_EXPORTS
 
@@ -847,7 +847,7 @@ CSE_ALifeObject::CSE_ALifeObject			(LPCSTR caSection) : CSE_Abstract(caSection)
 #endif
 #ifdef XRSE_FACTORY_EXPORTS
     fp_data.inc					();
-#endif // XRSE_FACTORY_EXPORTS
+#endif
 	m_flags.set					(flOfflineNoMove,FALSE);
 	seed						(u32(CPU::QPC() & 0xffffffff));
 }
@@ -869,7 +869,7 @@ CSE_ALifeObject::~CSE_ALifeObject			()
 {
 #ifdef XRSE_FACTORY_EXPORTS
     fp_data.dec					();
-#endif // XRSE_FACTORY_EXPORTS
+#endif
 }
 
 bool CSE_ALifeObject::move_offline			() const

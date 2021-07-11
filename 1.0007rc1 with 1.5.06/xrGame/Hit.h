@@ -2,11 +2,13 @@
 
 struct SHit
 {
-	SHit										(float Power, Fvector &dir, CObject *who, u16 element, Fvector p_in_object_space, float impulse,  ALife::EHitType hit_type, float ap = 0.0f, bool AimBullet=false);
+	SHit(float powerA, float power_criticalA, Fvector &dirA, CObject *whoA, u16 elementA, Fvector p_in_bone_spaceA,\
+		float impulseA, ALife::EHitType hit_typeA, float armor_piercingA=0.0f, bool AimBullet=false);
 	SHit										();	
 	bool				is_valide				()		const	;	
 	void				invalidate				()				;
 IC	float				damage					()		const	{VERIFY(is_valide());return power;}
+IC	float				critical_power			()		const	{VERIFY(is_valide());return power_critical;}
 IC	const Fvector		&direction				()		const	{VERIFY(is_valide());return dir;}
 IC	const CObject		*initiator				()		const	{VERIFY(is_valide());return who;}
 IC			u16			bone					()		const	{VERIFY(is_valide());return boneID;}
@@ -25,16 +27,19 @@ IC	ALife::EHitType		type					()		const	{VERIFY(is_valide());return hit_type;}
 	u16					PACKET_TYPE;
 	u16					DestID;
 	
-	float				power																																						;
-	Fvector				dir																																						;
-	CObject				*who																																					;
+	float				power;
+	float				power_critical;
+	Fvector				dir;
+	CObject				*who;
 	u16					whoID;
 	u16					weaponID;
-	u16					boneID																																					;
-	Fvector				p_in_bone_space																																			;
-	float				impulse																																					;
-	ALife::EHitType		hit_type																																				;
-	float				ap;
+	u16					boneID;
+	Fvector				p_in_bone_space;
+	float				impulse;
+	
+	ALife::EHitType		hit_type;
+	float				armor_piercing;
+	bool				add_wound;
 	bool				aim_bullet;
 	//---------------------------------------------------
 	//GE_HIT_STATISTIC

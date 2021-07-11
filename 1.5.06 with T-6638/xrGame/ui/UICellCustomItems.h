@@ -51,7 +51,7 @@ public:
 								CUIWeaponCellItem			(CWeapon* itm);
 				virtual			~CUIWeaponCellItem			();
 	virtual		void			Update						();
-	virtual		void			SetColor					(u32 color);
+	virtual		void			SetTextureColor				(u32 color);
 
 				CWeapon*		object						() {return (CWeapon*)m_pData;}
 	virtual		void			OnAfterChild				(CUIDragDropListEx* parent_list);
@@ -60,7 +60,7 @@ public:
 	CUIStatic*					get_addon_static			(u32 idx)				{return m_addons[idx];}
 };
 
-class CBuyItemCustomDrawCell :public ICustomDrawCell
+class CBuyItemCustomDrawCell :public ICustomDrawCellItem
 {
 	CGameFont*			m_pFont;
 	string16			m_string;

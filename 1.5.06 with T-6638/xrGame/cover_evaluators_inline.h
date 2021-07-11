@@ -11,22 +11,6 @@
 //////////////////////////////////////////////////////////////////////////
 // CCoverEvaluatorBase
 //////////////////////////////////////////////////////////////////////////
-IC	CCoverEvaluatorBase::CCoverEvaluatorBase	(CRestrictedObject *object)
-{
-	m_inertia_time			= 0;
-	m_last_update			= 0;
-	m_inertia_time			= 0;
-	m_best_value			= flt_max;
-	m_initialized			= false;
-	m_start_position.set	(flt_max,flt_max,flt_max);
-	m_selected				= 0;
-	m_previous_selected		= 0;
-	m_object				= object;
-	m_actuality				= true;
-	m_last_radius			= flt_max;
-	m_use_smart_covers_only	= false;
-}
-
 IC	const CCoverPoint *CCoverEvaluatorBase::selected	() const
 {
 	return					(m_selected);
@@ -40,18 +24,6 @@ IC	smart_cover::loophole const	*CCoverEvaluatorBase::loophole		() const
 IC	void CCoverEvaluatorBase::set_inertia				(u32 inertia_time)
 {
 	m_inertia_time			= inertia_time;
-}
-
-bool CCoverEvaluatorBase::inertia						(float radius)
-{
-//	m_actuality				= m_actuality && fsimilar(m_last_radius,radius);
-//	m_actuality				= m_actuality && ((m_last_radius + EPS_L) >= radius);
-	bool					radius_criteria = ((m_last_radius + EPS_L) >= radius);
-	bool					time_criteria = (Device.dwTimeGlobal < m_last_update + m_inertia_time);
-
-	m_last_radius			= radius;
-
-	return					(time_criteria && radius_criteria);// && (radius_criteria || m_selected));
 }
 
 IC	void CCoverEvaluatorBase::setup						()

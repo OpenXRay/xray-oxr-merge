@@ -95,7 +95,6 @@ void CScriptMovementAction::script_register(lua_State *L)
 			.def(								constructor<MonsterSpace::EScriptMonsterMoveAction,CPatrolPathParams &,	float,	MonsterSpace::EScriptMonsterSpeedParam>())
 			.def(								constructor<MonsterSpace::EScriptMonsterMoveAction,CScriptGameObject*,	float,	MonsterSpace::EScriptMonsterSpeedParam>())
 
-
 			.def("body",						&CScriptMovementAction::SetBodyState)
 			.def("move",						&CScriptMovementAction::SetMovementType)
 			.def("path",						&CScriptMovementAction::SetPathType)

@@ -25,6 +25,9 @@ private:
 	static void				BoneCallbackY		(CBoneInstance *B);
 	void					SetBoneCallbacks	();
 	void					ResetBoneCallbacks	();
+
+	HUD_SOUND_COLLECTION	m_sounds;
+
 //casts
 public:
 	virtual CHolderCustom	*cast_holder_custom	()				{return this;}
@@ -59,7 +62,6 @@ private:
 	Fvector2				m_dAngle;
 	Fvector					m_destEnemyDir;
 	bool					m_allow_fire;
-	HUD_SOUND				sndShot;
 	float					camRelaxSpeed;
 	float					camMaxAngle;
 
@@ -75,6 +77,8 @@ protected:
 			void			AddShotEffector		();
 			void			RemoveShotEffector	();
 			void			SetDesiredDir		(float h, float p);
+	virtual bool			IsHudModeNow		(){return false;};
+
 //HolderCustom
 public:
 	virtual bool			Use					(const Fvector& pos,const Fvector& dir,const Fvector& foot_pos) {return !Owner();};

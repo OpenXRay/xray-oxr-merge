@@ -11,7 +11,7 @@
 
 #pragma pack(push,4)
 #include "xrServer_Space.h"
-#	include "../xrCDB/xrCDB.h"
+#include "../xrCDB/xrCDB.h"
 #include "ShapeData.h"
 #include "gametype_chooser.h"
 
@@ -33,8 +33,6 @@ class CDUInterface;
 #endif
 #pragma warning(push)
 #pragma warning(disable:4005)
-
-
 
 class ISE_Shape{
 public:

@@ -6,6 +6,23 @@ class CObjectAnimator;
 class CEffectorController;
 class CActor;
 
+class CActorCameraManager	:public CCameraManager
+{
+	typedef CCameraManager	inherited;
+
+	SCamEffectorInfo		m_cam_info_hud;
+
+protected:
+	virtual void			UpdateCamEffectors		();
+	virtual bool			ProcessCameraEffector	(CEffectorCam* eff);
+
+public:
+							CActorCameraManager():inherited(false){}
+	virtual					~CActorCameraManager() {}
+
+	IC void					hud_camera_Matrix		(Fmatrix& M){M.set(m_cam_info_hud.r, m_cam_info_hud.n, m_cam_info_hud.d, m_cam_info_hud.p);}
+};
+
 typedef fastdelegate::FastDelegate0<float>		GET_KOEFF_FUNC;
 
 void AddEffector		(CActor* A, int type, const shared_str& sect_name);
@@ -42,7 +59,7 @@ public:
 						CAnimatorCamEffector	();
 	virtual				~CAnimatorCamEffector	();
 			void		Start					(LPCSTR fn);
-	virtual	BOOL		Process					(Fvector &p, Fvector &d, Fvector &n, float& fFov, float& fFar, float& fAspect);
+	virtual BOOL		ProcessCam				(SCamEffectorInfo& info);
 			void		SetCyclic				(bool b)				{m_bCyclic=b;}
 	virtual	BOOL		Valid					();
 			float		GetAnimatorLength		()						{return fLifeTime;};
@@ -57,7 +74,7 @@ public:
 	CAnimatorCamEffectorScriptCB	(LPCSTR _cb){cb_name =_cb;};
 	virtual	BOOL		Valid					();
 	virtual BOOL		AllowProcessingIfInvalid()	{return m_bAbsolutePositioning;}
-	virtual	void		ProcessIfInvalid		(Fvector &p, Fvector &d, Fvector &n, float& fFov, float& fFar, float& fAspect);
+	virtual	void		ProcessIfInvalid		(SCamEffectorInfo& info);
 };
 
 class CAnimatorCamLerpEffector :public CAnimatorCamEffector
@@ -67,7 +84,7 @@ protected:
 	GET_KOEFF_FUNC									m_func;
 public:
 			void		SetFactorFunc				(GET_KOEFF_FUNC f)	{m_func=f;}
-	virtual	BOOL		Process						(Fvector &p, Fvector &d, Fvector &n, float& fFov, float& fFar, float& fAspect);
+	virtual BOOL		ProcessCam					(SCamEffectorInfo& info);
 };
 
 class CAnimatorCamLerpEffectorConst :public CAnimatorCamLerpEffector
@@ -125,6 +142,6 @@ class CControllerPsyHitCamEffector :public CEffectorCam {
 
 public:
 						CControllerPsyHitCamEffector	(ECamEffectorType type, const Fvector &src_pos, const Fvector &target_pos, float time);
-	virtual	BOOL		Process							(Fvector &p, Fvector &d, Fvector &n, float& fFov, float& fFar, float& fAspect);
+	virtual BOOL		ProcessCam						(SCamEffectorInfo& info);
 };
 //////////////////////////////////////////////////////////////////////////

@@ -47,6 +47,28 @@ void CStalkerAnimationManager::script_play_callback(CBlend *blend)
 	pair.on_animation_end		();
 }
 
+void CStalkerAnimationManager::add_script_animation	(LPCSTR animation, bool hand_usage, Fvector position, Fvector rotation, bool local_animation)
+{
+	const MotionID					&motion = m_skeleton_animated->ID_Cycle_Safe(animation);
+	if (!motion) {
+		ai().script_engine().script_log(eLuaMessageTypeError,"There is no animation %s (object %s)!",animation,*object().cName());
+		return;
+	}
+
+//	Msg("add_script_animation %f,%f,%f %f,%f,%f local=%s [%s]",
+//		position.x,position.y,position.z, 
+//		rotation.x,rotation.y,rotation.z,
+//		local_animation ? "true" : "false",
+//		m_object->animation_movement() ? "true" : "false"
+//	);
+
+	Fmatrix							transform;
+	rotation.mul					(PI/180.f);
+	transform.setXYZ				(rotation);
+	transform.c						= position;
+	m_script_animations.push_back	( CStalkerAnimationScript( motion, hand_usage, true, &transform, local_animation ) );
+}
+
 void CStalkerAnimationManager::add_script_animation	(LPCSTR animation, bool hand_usage, bool use_movement_controller)
 {
 	const MotionID					&motion = m_skeleton_animated->ID_Cycle_Safe(animation);

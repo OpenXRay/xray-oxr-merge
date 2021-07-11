@@ -1,12 +1,10 @@
 #pragma once
 
-//#include "../Include/xrRender/KinematicsAnimated.h"
 #include "../Include/xrRender/KinematicsAnimated.h"
 class CHudItem;
 
 struct weapon_hud_value: public shared_value
 {
-	//IKinematicsAnimated*	m_animations;
 	IKinematicsAnimated*	m_animations;
 public:
 	int					m_fire_bone;
@@ -36,7 +34,6 @@ public:
 	{	
 		shared_item<weapon_hud_value>::create	(key,g_pWeaponHUDContainer,on_new_pred(owner));	
 	}
-	//IKinematicsAnimated*	animations				(){return p_->m_animations;}
 	IKinematicsAnimated*	animations				(){return p_->m_animations;}
 	u32					motion_length			(MotionID M);
 	MotionID			motion_id				(LPCSTR name);

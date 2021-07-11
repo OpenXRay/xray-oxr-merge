@@ -12,8 +12,6 @@ class CWeaponBinoculars: public CWeaponCustomPistol
 private:
 	typedef CWeaponCustomPistol inherited;
 protected:
-	HUD_SOUND		sndZoomIn;
-	HUD_SOUND		sndZoomOut;
 	float			m_fRTZoomFactor; //run-time zoom factor
 	bool			m_bVision;
 public:
@@ -28,7 +26,7 @@ public:
 	virtual	void	ZoomDec				();
 	virtual void	net_Destroy			();
 	virtual BOOL	net_Spawn			(CSE_Abstract* DC);
-
+	bool			can_kill			() const;
 	virtual void	save				(NET_Packet &output_packet);
 	virtual void	load				(IReader &input_packet);
 
@@ -36,7 +34,7 @@ public:
 	virtual void	UpdateCL			();
 	virtual void	OnDrawUI			();
 	virtual bool	use_crosshair		()	const {return false;}
-	virtual void	GetBriefInfo		(xr_string& str_name, xr_string& icon_sect_name, xr_string& str_count);
+	virtual void	GetBriefInfo		(xr_string& str_name, xr_string& icon_sect_name, xr_string& str_count, string16& fire_mode);
 	virtual void	net_Relcase			(CObject *object);
 protected:
 	CBinocularsVision*					m_binoc_vision;

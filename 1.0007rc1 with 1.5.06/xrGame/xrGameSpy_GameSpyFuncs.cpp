@@ -3,6 +3,7 @@
 
 #include "xrMessages.h"
 /////////////////////// QR2 ///////////////////////////////////////
+//void			xrGameSpyServer::QR2_Init			(u32 PortID)
 void			xrGameSpyServer::QR2_Init			(int PortID)
 {	
 	if (!m_QR2.Init(PortID, m_iReportToMasterServer, this)) return;
@@ -53,12 +54,14 @@ void			xrGameSpyServer::OnCDKey_Validation				(int LocalID, int res, char* error
 	if (0 != res)
 	{
 		CL->m_bCDKeyAuth = true;
+#ifndef MASTER_GOLD
 		Msg("xrGS::CDKey: Validation successful - <%s>", errormsg);
+#endif // #ifndef MASTER_GOLD
 		Check_GameSpy_CDKey_Success(CL);
 	}
 	else
 	{
-		Msg						("xrGS::CDKey: Validation failed - <%s>", errormsg);
+		Msg						("CDKey: Validation failed - <%s>", errormsg);
 		SendConnectResult		(CL, u8(res), u8(1), errormsg);
 	}
 };
@@ -68,7 +71,7 @@ void			xrGameSpyServer::OnCDKey_ReValidation			(int LocalID, int hint, char* cha
 	ClientID ID; ID.set(u32(LocalID));
 	xrGameSpyClientData* CL = (xrGameSpyClientData*)  ID_to_client(ID);
 	if (!CL) return;
-	strcpy(CL->m_pChallengeString, challenge);
+	strcpy_s(CL->m_pChallengeString, challenge);
 	CL->m_iCDKeyReauthHint = hint;
 	//--------- Send Respond ---------------------------------------------
 	NET_Packet P;

@@ -49,6 +49,13 @@ void UITeamPanels::InitAllFrames(shared_str const & frame_node)
 			temp_frame_line->SetAutoDelete	(true);
 			AttachChild						(temp_frame_line);
 		}
+		else if(!xr_strcmp(frame_class, "static"))
+		{
+			CUIStatic*						temp_static = xr_new<CUIStatic>();
+			CUIXmlInit::InitStatic			(uiXml, frame_node.c_str(), i, temp_static);
+			temp_static->SetAutoDelete		(true);
+			AttachChild						(temp_static);
+		}
 	}
 }
 

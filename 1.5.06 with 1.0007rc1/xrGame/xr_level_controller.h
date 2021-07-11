@@ -20,6 +20,7 @@ enum	EGameActions
 	kL_LOOKOUT,
 	kR_LOOKOUT,
 						
+	kENGINE,
 	kCAM_1,
 	kCAM_2,
 	kCAM_3,

@@ -12,6 +12,7 @@
 #include "property_evaluator_const.h"
 #include "property_evaluator_member.h"
 #include "danger_object.h"
+#include "smart_cover.h"
 
 class CAI_Stalker;
 
@@ -160,8 +161,24 @@ class CStalkerPropertyEvaluatorReadyToKill : public CStalkerPropertyEvaluator {
 protected:
 	typedef CStalkerPropertyEvaluator inherited;
 
+private:
+	u32					m_min_ammo_count;
+
 public:
-						CStalkerPropertyEvaluatorReadyToKill	(CAI_Stalker *object = 0, LPCSTR evaluator_name = "");
+						CStalkerPropertyEvaluatorReadyToKill	(CAI_Stalker *object = 0, LPCSTR evaluator_name = "", u32 min_ammo_count = 0);
+	virtual _value_type	evaluate						();
+};
+
+//////////////////////////////////////////////////////////////////////////
+// CStalkerPropertyEvaluatorReadyToKillSmartCover
+//////////////////////////////////////////////////////////////////////////
+
+class CStalkerPropertyEvaluatorReadyToKillSmartCover : public CStalkerPropertyEvaluatorReadyToKill {
+protected:
+	typedef CStalkerPropertyEvaluatorReadyToKill inherited;
+
+public:
+						CStalkerPropertyEvaluatorReadyToKillSmartCover	(CAI_Stalker *object = 0, LPCSTR evaluator_name = "", u32 min_ammo_count = 0);
 	virtual _value_type	evaluate						();
 };
 
@@ -267,6 +284,45 @@ protected:
 public:
 						CStalkerPropertyEvaluatorEnemyCriticallyWounded	(CAI_Stalker *object = 0, LPCSTR evaluator_name = "");
 	virtual _value_type	evaluate										();
+};
+
+//////////////////////////////////////////////////////////////////////////
+// CStalkerPropertyEvaluatorShouldThrowGrenade
+//////////////////////////////////////////////////////////////////////////
+
+class CStalkerPropertyEvaluatorShouldThrowGrenade : public CStalkerPropertyEvaluator {
+protected:
+	typedef CStalkerPropertyEvaluator inherited;
+
+public:
+						CStalkerPropertyEvaluatorShouldThrowGrenade		(CAI_Stalker *object = 0, LPCSTR evaluator_name = "");
+	virtual _value_type	evaluate										();
+};
+
+//////////////////////////////////////////////////////////////////////////
+// CStalkerPropertyEvaluatorTooFarToKillEnemy
+//////////////////////////////////////////////////////////////////////////
+
+class CStalkerPropertyEvaluatorTooFarToKillEnemy : public CStalkerPropertyEvaluator {
+protected:
+	typedef CStalkerPropertyEvaluator inherited;
+
+public:
+						CStalkerPropertyEvaluatorTooFarToKillEnemy	(CAI_Stalker *object = 0, LPCSTR evaluator_name = "");
+	virtual _value_type	evaluate									();
+};
+
+//////////////////////////////////////////////////////////////////////////
+// CStalkerPropertyEvaluatorLowCover
+//////////////////////////////////////////////////////////////////////////
+
+class CStalkerPropertyEvaluatorLowCover : public CStalkerPropertyEvaluator {
+protected:
+	typedef CStalkerPropertyEvaluator inherited;
+
+public:
+						CStalkerPropertyEvaluatorLowCover	(CAI_Stalker *object = 0, LPCSTR evaluator_name = "");
+	virtual _value_type	evaluate							();
 };
 
 #include "stalker_property_evaluators_inline.h"

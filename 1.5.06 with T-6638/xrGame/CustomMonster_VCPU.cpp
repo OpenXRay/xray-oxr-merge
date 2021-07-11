@@ -2,22 +2,17 @@
 #include "custommonster.h"
 #include "movement_manager.h"
 
-IC void conv_angle(float& c)
-{
-	if (c<0)				c+=PI_MUL_2;
-	else if (c>PI_MUL_2)	c-=PI_MUL_2;
-}
-
 void CCustomMonster::mk_rotation	(Fvector &dir, SRotation &R)
 {
 	// parse yaw
 	Fvector DYaw;	
-	DYaw.set(dir.x,0.f,dir.z); 
-	DYaw.normalize_safe();
-	clamp(DYaw.x,-0.9999999f,0.9999999f);
-	clamp(DYaw.y,-0.9999999f,0.9999999f);
-	clamp(DYaw.z,-0.9999999f,0.9999999f);
-	if (DYaw.x>=0)	
+	DYaw.set						(dir.x,0.f,dir.z); 
+	DYaw.normalize_safe				();
+	clamp							(DYaw.x,-0.9999999f,0.9999999f);
+	clamp							(DYaw.y,-0.9999999f,0.9999999f);
+	clamp							(DYaw.z,-0.9999999f,0.9999999f);
+
+	if ( DYaw.x >= 0 )	
 		R.yaw = acosf(DYaw.z);
 	else			
 		R.yaw = 2*PI-acosf(DYaw.z);

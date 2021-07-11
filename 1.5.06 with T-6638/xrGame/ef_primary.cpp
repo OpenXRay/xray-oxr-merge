@@ -145,7 +145,7 @@ float CPersonalWeaponTypeFunction::ffGetTheBestWeapon()
 		if (tpInventoryOwner) {
 			xr_vector<CInventorySlot>::const_iterator I = tpInventoryOwner->inventory().m_slots.begin();
 			xr_vector<CInventorySlot>::const_iterator E = tpInventoryOwner->inventory().m_slots.end();
-			for ( ; I != E; ++I)
+			for ( ; I != E; ++I) {
 				if ((*I).m_pIItem) {
 					CWeapon *tpCustomWeapon = smart_cast<CWeapon*>((*I).m_pIItem);
 					if (tpCustomWeapon && (tpCustomWeapon->GetSuitableAmmoTotal(true) > tpCustomWeapon->GetAmmoMagSize()/10)) {
@@ -156,6 +156,7 @@ float CPersonalWeaponTypeFunction::ffGetTheBestWeapon()
 						ef_storage().non_alife().member_item()	= 0;
 					}
 				}
+			}
 		}	
 	}
 	else {

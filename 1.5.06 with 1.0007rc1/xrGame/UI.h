@@ -39,10 +39,10 @@ public:
 
 	CUIGameCustom*			UIGame					()					{return pUIGame;}
 
-	void					ShowGameIndicators		(bool b);
+	void					ShowGameIndicators		(bool show);
 	bool					GameIndicatorsShown		()					{return m_bShowGameIndicators;};
 
-	void					ShowCrosshair			(bool b);
+	void					ShowCrosshair			(bool show);
 	bool					CrosshairShown			();
 
 	SDrawStaticStruct*		AddInfoMessage			(LPCSTR message);

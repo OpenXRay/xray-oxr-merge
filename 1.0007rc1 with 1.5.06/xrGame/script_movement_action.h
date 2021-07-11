@@ -40,6 +40,7 @@ public:
 		eGoalTypeNoPathPosition,
 		eGoalTypePathNodePosition,
 		eGoalTypeInput,
+		eGoalTypeJumpToPosition,
 		eGoalTypeDummy = u32(-1),
 	};
 
@@ -77,6 +78,8 @@ public:
 	u32											m_previous_patrol_point;
 	float										m_fDistToEnd;
 
+public:
+	float										m_jump_factor;
 
 public:
 					CScriptMovementAction	();

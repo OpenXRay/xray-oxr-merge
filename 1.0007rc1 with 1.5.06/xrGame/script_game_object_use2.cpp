@@ -31,6 +31,61 @@ void CScriptGameObject::set_manual_invisibility(bool val)
 	val ? monster->set_manual_control(true) : monster->set_manual_control(false);
 }
 
+void CScriptGameObject::bloodsucker_drag_jump(CScriptGameObject* e, LPCSTR e_str, const Fvector &position, float factor)
+{
+
+	CAI_Bloodsucker	*monster = smart_cast<CAI_Bloodsucker*>(&object());
+	if (!monster) {
+		ai().script_engine().script_log	(ScriptStorage::eLuaMessageTypeError,"CScriptGameObject : cannot process drag, anim, jump for CAI_Bloodsucker!");
+		return;
+	}
+
+		
+	CGameObject *game_object = &e->object();
+	CEntityAlive *entity_alive = smart_cast<CEntityAlive*>(game_object);
+
+	
+	monster->set_drag_jump(entity_alive, e_str, position, factor);
+}
+
+void CScriptGameObject::set_enemy(CScriptGameObject* e)
+{
+
+	CAI_Bloodsucker		*monster = smart_cast<CAI_Bloodsucker*>(&object());
+	if (!monster) {
+		ai().script_engine().script_log		(ScriptStorage::eLuaMessageTypeError,"CAI_Bloodsucker : cannot access class member set_enemy!");
+		return;
+	}
+	CGameObject *game_object = &e->object();
+	CEntityAlive *entity_alive = smart_cast<CEntityAlive*>(game_object);
+	monster->SetEnemy(entity_alive);
+}
+
+void CScriptGameObject::set_vis_state(float val)
+{
+	CAI_Bloodsucker		*monster = smart_cast<CAI_Bloodsucker*>(&object());
+	if (!monster) {
+		ai().script_engine().script_log		(ScriptStorage::eLuaMessageTypeError,"CAI_Bloodsucker : cannot access class member set_vis_state!");
+		return;
+	}
+	if(val==1){
+		monster->set_vis();
+	}
+	if(val==-1){
+		monster->set_invis();
+	}
+}
+
+void CScriptGameObject::off_collision(bool val)
+{
+	CAI_Bloodsucker		*monster = smart_cast<CAI_Bloodsucker*>(&object());
+	if (!monster) {
+		ai().script_engine().script_log		(ScriptStorage::eLuaMessageTypeError,"CAI_Bloodsucker : cannot access class member set_vis_state!");
+		return;
+	}
+	monster->set_collision_off(val);
+}
+
 void CScriptGameObject::set_alien_control(bool val)
 {
 	CAI_Bloodsucker		*monster = smart_cast<CAI_Bloodsucker*>(&object());

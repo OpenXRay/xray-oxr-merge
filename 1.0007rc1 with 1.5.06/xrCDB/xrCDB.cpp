@@ -82,6 +82,7 @@ void	MODEL::build			(Fvector* V, int Vcnt, TRI* T, int Tcnt, build_callback* bc,
 	if(!strstr(Core.Params, "-mt_cdb"))
 	{
 		build_internal				(V,Vcnt,T,Tcnt,bc,bcp);
+		status						= S_READY;
 	}else
 	{
 		BTHREAD_params				P = { this, V, Vcnt, T, Tcnt, bc, bcp };

@@ -1,16 +1,16 @@
 #pragma once
-
-#include "net_utils.h"
-#include "net_messages.h"
-
-
 #ifdef XR_NETSERVER_EXPORTS
 	#define XRNETSERVER_API __declspec(dllexport)
 #else
 	#define XRNETSERVER_API __declspec(dllimport)
+
+	#ifndef _EDITOR
 	#pragma comment(lib,	"xrNetServer"	)
+    #endif
 #endif
 
+#include "../xrCore/net_utils.h"
+#include "net_messages.h"
 #include "net_compressor.h"
 
 XRNETSERVER_API extern ClientID BroadcastCID;
@@ -50,6 +50,7 @@ public:
 
 	IC u32	getPing				()	{ return ci_last.dwRoundTripLatencyMS;	}
 	IC u32	getBPS				()	{ return ci_last.dwThroughputBPS;		}
+	IC u32	getPeakBPS			()	{ return ci_last.dwPeakThroughputBPS;	}
 	IC u32	getDroppedCount		()	{ return ci_last.dwPacketsDropped;		}
 	IC u32	getRetriedCount		()	{ return ci_last.dwPacketsRetried;		}
 	IC u32	getMPS_Receive		()  { return mps_recive;	}

@@ -10,16 +10,17 @@
 #include "gameobject.h"
 #include "script_game_object.h"
 
-CPhrase::CPhrase	(void)
+CPhrase::CPhrase()
 {
 	m_ID				= "";
 	m_iGoodwillLevel	= 0;
 }
-CPhrase::~CPhrase	(void)
+
+CPhrase::~CPhrase()
 {
 }
 
-LPCSTR CPhrase::GetText		()	const			
+LPCSTR CPhrase::GetText()	const			
 {
 	return m_text.c_str();
 }

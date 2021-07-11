@@ -60,13 +60,20 @@ enum {
 	M_PLAYER_FIRE,
 	//-----------------------------------------------------
 	M_MOVE_PLAYERS,
+	M_MOVE_ARTEFACTS,
 	M_MOVE_PLAYERS_RESPOND,
 	//-----------------------------------------------------
 	M_CHANGE_SELF_NAME,
 	M_REMOTE_CONTROL_AUTH,
 	M_REMOTE_CONTROL_CMD,
 	M_BATTLEYE,
+
 	M_MAP_SYNC,
+
+	M_FILE_TRANSFER,
+	M_MAKE_SCREENSHOT,
+	M_SECURE_KEY_SYNC,
+	M_SECURE_MESSAGE,
 
 	MSG_FORCEDWORD				= u32(-1)
 };
@@ -102,6 +109,7 @@ enum {
 	GE_ADDON_ATTACH,
 	GE_ADDON_DETACH,
 	GE_ADDON_CHANGE,
+	GE_INSTALL_UPGRADE,
 	
 	GE_GRENADE_EXPLODE,
 	GE_INV_ACTION,				//a action beign taken on inventory
@@ -111,6 +119,7 @@ enum {
 	GE_MOVE_ACTOR,				//move actor to desired position instantly
 	GE_ACTOR_JUMPING,			//actor press jump key
 	GE_ACTOR_MAX_POWER,
+	GE_ACTOR_MAX_HEALTH,
 
 	GE_CHANGE_POS,
 
@@ -128,6 +137,8 @@ enum {
 	GEG_PLAYER_ACTIVATEARTEFACT,
 
 	GEG_PLAYER_WEAPON_HIDE_STATE,
+	GEG_PLAYER_DISABLE_SPRINT,
+	
 	
 	GEG_PLAYER_ATTACH_HOLDER,
 	GEG_PLAYER_DETACH_HOLDER,
@@ -149,6 +160,8 @@ enum EGameMessages {  //game_cl <----> game_sv messages
 	GAME_EVENT_PLAYER_READY,	
 	GAME_EVENT_PLAYER_KILL,			//player wants to die
 	GAME_EVENT_PLAYER_BUY_FINISHED,	//player end to buy items
+	GAME_EVENT_PLAYER_BUYMENU_OPEN,
+	GAME_EVENT_PLAYER_BUYMENU_CLOSE,
 	GAME_EVENT_PLAYER_BUY_SPAWN,
 
 	GAME_EVENT_PLAYER_GAME_MENU,
@@ -187,6 +200,7 @@ enum EGameMessages {  //game_cl <----> game_sv messages
 	GAME_EVENT_VOTE_NO,
 	GAME_EVENT_VOTE_STOP,
 	GAME_EVENT_VOTE_END,
+	GAME_EVENT_GET_ACTIVE_VOTE,
 //	GAME_EVENT_VOTE_PLAYER_VOTED,
 
 	GAME_EVENT_PLAYER_AUTH,
@@ -198,6 +212,9 @@ enum EGameMessages {  //game_cl <----> game_sv messages
 	GAME_EVENT_PLAYERS_MONEY_CHANGED,
 	GAME_EVENT_SERVER_STRING_MESSAGE,
 	GAME_EVENT_SERVER_DIALOG_MESSAGE,
+
+	GAME_EVENT_PLAYER_STARTED,
+	GAME_EVENT_MAKE_DATA,
 
 	//-----------------------------------------
 	GAME_EVENT_SCRIPT_BEGINS_FROM,		// don't add messages after this

@@ -10,7 +10,6 @@
 #pragma hdrstop
 #pragma pack(push,4)
 
-#include "../../xrNetServer/net_utils.h"
 #include "xrServer_Objects_Abstract.h"
 #include "xrMessages.h"
 
@@ -22,7 +21,7 @@ CSE_Visual::CSE_Visual		   	(LPCSTR name)
 	if(name)
 	{
 		string_path					tmp;
-		strcpy						(tmp, name);
+		strcpy_s						(tmp, name);
 		if(strext(tmp)) 
 			*strext(tmp)			=0;
 		xr_strlwr					(tmp);
@@ -41,7 +40,7 @@ CSE_Visual::~CSE_Visual			()
 void CSE_Visual::set_visual	   	(LPCSTR name, bool load)
 {
 	string_path					tmp;
-    strcpy						(tmp,name);
+    strcpy_s						(tmp,name);
     if (strext(tmp))		 	*strext(tmp) = 0;
 	xr_strlwr					(tmp);
 	visual_name					= tmp; 
@@ -72,6 +71,7 @@ void CSE_Visual::OnChangeAnim(PropValue* sender)
 	abstract->set_editor_flag	(ISE_Abstract::flVisualAnimationChange);
 }
 
+#ifndef XRGAME_EXPORTS
 void CSE_Visual::FillProps		(LPCSTR pref, PropItemVec &items)
 {
 	ISE_Abstract* abstract		= smart_cast<ISE_Abstract*>(this); VERIFY(abstract);
@@ -81,6 +81,7 @@ void CSE_Visual::FillProps		(LPCSTR pref, PropItemVec &items)
 	V->OnChangeEvent.bind		(this,&CSE_Visual::OnChangeAnim);
 	PHelper().CreateFlag8		(items, PrepareKey(pref,abstract->name(),"Model\\Obstacle"),	&flags,	flObstacle);
 }
+#endif // #ifndef XRGAME_EXPORTS
 
 ////////////////////////////////////////////////////////////////////////////
 // CSE_Animated
@@ -115,11 +116,13 @@ void CSE_Motion::OnChangeMotion	(PropValue* sender)
 	abstract->set_editor_flag	(ISE_Abstract::flMotionChange);
 }
 
+#ifndef XRGAME_EXPORTS
 void CSE_Motion::FillProps(		LPCSTR pref, PropItemVec &items)
 {
 	ISE_Abstract* abstract		= smart_cast<ISE_Abstract*>(this); VERIFY(abstract);
 	ChooseValue *V				= PHelper().CreateChoose(items, PrepareKey(pref,abstract->name(),"Motion"),&motion_name, smGameAnim);
 	V->OnChangeEvent.bind		(this,&CSE_Motion::OnChangeMotion);
 }
+#endif // #ifndef XRGAME_EXPORTS
 
 #pragma pack(pop,4)

@@ -10,7 +10,7 @@ CUIEditBoxEx::CUIEditBoxEx()
 	m_pFrameWindow = xr_new<CUIFrameWindow>();
 	AttachChild(m_pFrameWindow);
 
-	SetTextComplexMode( true );
+	TextItemControl()->SetTextComplexMode( true );
 }
 
 CUIEditBoxEx::~CUIEditBoxEx()

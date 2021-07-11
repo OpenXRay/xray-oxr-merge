@@ -454,7 +454,8 @@ bool CInventory::Ruck(PIItem pIItem, bool strict_placement)
 			Activate(NO_ACTIVE_SLOT);
 
 		m_slots[pIItem->CurrSlot()].m_pIItem = NULL;
-	}else
+	}
+	else
 	{
 		//вещь была на по€се или вообще только подн€та с земли
 		TIItemContainer::iterator it = std::find(m_belt.begin(), m_belt.end(), pIItem); 
@@ -518,12 +519,6 @@ void CInventory::Activate(u16 slot, bool bForce)
 
 	if (GetActiveSlot()==slot || (GetNextActiveSlot()==slot && !bForce))
 	{
-//		if (m_iNextActiveSlot != slot) {
-//			LPCSTR const name = smart_cast<CGameObject const*>(m_pOwner)->cName().c_str();
-//			if ( !xr_strcmp("jup_b43_stalker_assistant_pri6695", name) )
-//				LogStackTrace	("");
-//			Msg				( "[%6d][%s] CInventory::Activate changing next active slot to %d", Device.dwTimeGlobal, name, slot );
-//		}
 		m_iNextActiveSlot=slot;
 #ifdef DEBUG
 //		Msg("--- There's no need to activate slot [%d], next active slot is [%d]", slot, m_iNextActiveSlot);
@@ -533,7 +528,7 @@ void CInventory::Activate(u16 slot, bool bForce)
 
 	R_ASSERT2(slot<=LastSlot(), "wrong slot number");
 
-	if (slot != NO_ACTIVE_SLOT && !m_slots[slot].CanBeActivated()) 
+	if (slot != NO_ACTIVE_SLOT && !m_slots[slot].CanBeActivated())
 		return;
 
 #ifdef DEBUG
@@ -545,12 +540,6 @@ void CInventory::Activate(u16 slot, bool bForce)
 	{
 		if (tmp_item)
 		{
-//			if ( m_iNextActiveSlot != slot) {
-//				LPCSTR const name = smart_cast<CGameObject const*>(m_pOwner)->cName().c_str();
-//				if ( !xr_strcmp("jup_b43_stalker_assistant_pri6695", name) )
-//					LogStackTrace	("");
-//				Msg				( "[%6d][%s] CInventory::Activate changing next active slot2 to %d", Device.dwTimeGlobal, name, slot );
-//			}
 			m_iNextActiveSlot		= slot;
 		}
 		else 
@@ -580,22 +569,9 @@ void CInventory::Activate(u16 slot, bool bForce)
 		{
 			if (tmp_item)
 				tmp_item->ActivateItem();
-			
-//!			if ( m_iActiveSlot != slot ) {
-//!				LPCSTR const name = smart_cast<CGameObject const*>(m_pOwner)->cName().c_str();
-//				if ( !xr_strcmp("jup_b43_stalker_assistant_pri6695", name) )
-//					LogStackTrace	("");
-//!				Msg				("[%6d][%s] CInventory::Activate changing active slot from %d to %d", Device.dwTimeGlobal, name, m_iActiveSlot, slot );
-//!			}
 
 			m_iActiveSlot		= slot;
 		}
-//		if ( m_iNextActiveSlot != slot ) {
-//			LPCSTR const name = smart_cast<CGameObject const*>(m_pOwner)->cName().c_str();
-//			if ( !xr_strcmp("jup_b43_stalker_assistant_pri6695", name) && !slot )
-//				LogStackTrace	("");
-//			Msg				( "[%6d][%s] CInventory::Activate changing next active slot3 to %d", Device.dwTimeGlobal, name, slot );
-//		}
 		m_iNextActiveSlot		= slot;
 	}
 }
@@ -729,7 +705,6 @@ void CInventory::ActiveWeapon( u16 slot )
 			Activate(NO_ACTIVE_SLOT);
 		else
 			ActivateNextItemInActiveSlot();
-
 		return;
 	}
 	Activate(slot);
@@ -756,7 +731,7 @@ void CInventory::ActiveWeapon( u16 slot )
 	}*/
 }
 
-void CInventory::Update() 
+void CInventory::Update()
 {
 	if( OnServer() )
 	{
@@ -774,7 +749,6 @@ void CInventory::Update()
 			if( ActiveItem() )
 			{
 				CHudItem* hi = ActiveItem()->cast_hud_item();
-				
 				if(!hi->IsHidden())
 				{
 					if(hi->GetState()==CHUDState::eIdle && hi->GetNextState()==CHUDState::eIdle)
@@ -794,19 +768,10 @@ void CInventory::Update()
 					{
 						Activate(m_iActiveSlot);
 						return;
-					} else
-					{
-						tmp_next_active->ActivateItem();
 					}
+					tmp_next_active->ActivateItem();
 				}
 			}
-			
-//			if ( m_iActiveSlot != GetNextActiveSlot() ) {
-//				LPCSTR const name = smart_cast<CGameObject const*>(m_pOwner)->cName().c_str();
-//				if ( !xr_strcmp("jup_b43_stalker_assistant_pri6695", name) )
-//					LogStackTrace	("");
-//				Msg					("[%6d][%s] CInventory::Activate changing active slot from %d to next active slot %d", Device.dwTimeGlobal, name, m_iActiveSlot, GetNextActiveSlot() );
-//			}
 			m_iActiveSlot			= GetNextActiveSlot();
 		}
 		if((GetNextActiveSlot()!=NO_ACTIVE_SLOT) && ActiveItem() && ActiveItem()->cast_hud_item()->IsHidden())
@@ -1118,7 +1083,6 @@ bool CInventory::CanPutInSlot(PIItem pIItem, u16 slot_id) const
 	if(!m_bSlotsUseful) return false;
 
 	if( !GetOwner()->CanPutInSlot(pIItem, slot_id ) ) return false;
-
 
 	if(slot_id==HELMET_SLOT)
 	{

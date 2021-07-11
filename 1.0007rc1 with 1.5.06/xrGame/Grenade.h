@@ -1,7 +1,7 @@
 #pragma once
 #include "missile.h"
 #include "explosive.h"
-#include "../feel_touch.h"
+#include "../xrEngine/feel_touch.h"
 
 #define SND_RIC_COUNT 5
 
@@ -26,6 +26,7 @@ public:
 	virtual void 			OnH_A_Chield						();
 	
 	virtual void 			OnEvent								(NET_Packet& P, u16 type);
+	virtual bool			DropGrenade							();			//in this case if grenade state is eReady, it should Throw
 	
 	virtual void 			OnAnimationEnd						(u32 state);
 	virtual void 			UpdateCL							();
@@ -48,12 +49,13 @@ public:
 			void			PutNextToSlot						();
 
 	virtual void			Deactivate							();
-	virtual void			GetBriefInfo						(xr_string& str_name, xr_string& icon_sect_name, xr_string& str_count);
+	virtual void			GetBriefInfo						(xr_string& str_name, xr_string& icon_sect_name, xr_string& str_count, string16& fire_mode);
+
+	virtual void			SendHiddenItem						();	//same as OnHiddenItem but for client... (sends message to a server)...
 protected:
 	ALife::_TIME_ID			m_dwGrenadeRemoveTime;
 	ALife::_TIME_ID			m_dwGrenadeIndependencyTime;
 protected:
-	HUD_SOUND				sndCheckout;
 	ESoundTypes				m_eSoundCheckout;
 private:
 	float					m_grenade_detonation_threshold_hit;

@@ -47,7 +47,7 @@ public:
 	bool							m_clutched_hammer_enabled;
 
 private:
-			void					actualize_strap_mode(CWeapon *weapon) const;
+			void					actualize_strap_mode	(CWeapon *weapon) const;
 
 protected:
 	IC		void					switch_torch		(CInventoryItem *inventory_item, bool value);
@@ -69,6 +69,7 @@ public:
 			void					set_goal			(MonsterSpace::EObjectAction object_action, CInventoryItem *inventory_item, u32 min_queue_size = -1, u32 max_queue_size = -1, u32 min_queue_interval = 300, u32 max_queue_interval = 300);
 			bool					goal_reached		();
 	IC		bool					hammer_is_clutched	() const;
+	IC		bool const&				inifinite_ammo			() const;
 	IC		CObjectHandlerPlanner	&planner			() const;
 			void					weapon_bones		(int &b0, int &b1, int &b2) const;
 			bool					weapon_strapped		() const;
@@ -76,8 +77,13 @@ public:
 			bool					weapon_unstrapped	() const;
 			bool					weapon_unstrapped	(CWeapon *weapon) const;
 
+private:
+			void					set_inertia				(const CWeapon &weapon, const u32 &action_id, const u32 &aim_time) const;
+
 public:
 	virtual bool					can_use_dynamic_lights	();
+			void					aim_time				(const CWeapon &weapon, const u32 &aim_time) const;
+			u32						aim_time				(const CWeapon &weapon) const;
 };
 
 #include "object_handler_inline.h"

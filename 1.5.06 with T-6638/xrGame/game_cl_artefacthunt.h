@@ -10,8 +10,6 @@ class game_cl_ArtefactHunt :public game_cl_TeamDeathmatch
 	shared_str							m_Eff_Af_Spawn;
 	shared_str							m_Eff_Af_Disappear;
 	typedef game_cl_TeamDeathmatch inherited;
-protected:
-//	ref_sound							pMessageSounds[8];
 
 protected:
 	virtual const shared_str			GetBaseCostSect			() {return "artefacthunt_base_cost";}
@@ -20,9 +18,6 @@ protected:
 
 	virtual			BOOL				CanCallBuyMenu			();
 	virtual			bool				CanBeReady				();
-
-//	virtual			void				OnObjectEnterTeamBase	(u16 player_id, u8 zone_team_id);
-//	virtual			void				OnObjectLeaveTeamBase	(u16 player_id, u8 zone_team_id);
 	virtual			void				UpdateMapLocations		();
 
 	virtual			bool				NeedToSendReady_Spectator		(int key, game_PlayerState* ps);

@@ -25,7 +25,6 @@ struct GameDescriptionData
 #define NET_LOG_COMPRESSION             0
 #define NET_DUMP_COMPRESSION            0
 
-
 #define NET_GUARANTEEDPACKET_DEFAULT    0
 #define NET_GUARANTEEDPACKET_IGNORE     1
 #define NET_GUARANTEEDPACKET_SEPARATE   2

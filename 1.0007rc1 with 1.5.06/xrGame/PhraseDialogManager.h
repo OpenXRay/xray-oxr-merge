@@ -1,7 +1,6 @@
 #pragma once
 
-//#include "PhraseDialogDefs.h"
-#include "PhraseDialog.h"
+#include "PhraseDialogDefs.h"
 
 class CPhraseDialogManager
 {

@@ -3,7 +3,7 @@
 
 class CUIArtefactDetectorSimple;
 
-class CSimpleDetector :public CCustomDetector
+class CSimpleDetector : public CCustomDetector
 {
 	typedef CCustomDetector	inherited;
 public:

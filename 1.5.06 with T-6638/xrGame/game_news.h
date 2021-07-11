@@ -27,14 +27,7 @@ struct GAME_NEWS_DATA : public IPureSerializeObject<IReader,IWriter>
 	ALife::_TIME_ID		receive_time;
 
 	shared_str			texture_name;
-//	Frect				tex_rect;
-
-//	LPCSTR				SingleLineText();
-
 private:
-	//полный текст новостей, формируется при первом обращении
-//	xr_string full_news_text;
-
 };
 
 DEFINE_VECTOR(GAME_NEWS_DATA, GAME_NEWS_VECTOR, GAME_NEWS_IT);

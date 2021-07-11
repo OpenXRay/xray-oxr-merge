@@ -171,7 +171,7 @@ void game_sv_mp::OnRoundEnd()
 	inherited::OnRoundEnd();
 
 	string64 res_str;
-	strcpy_s( res_str, get_token_name( round_end_result_str, round_end_reason ) );
+	xr_strcpy( res_str, get_token_name( round_end_result_str, round_end_reason ) );
 	
 	OnVoteStop();
 
@@ -237,14 +237,14 @@ void	game_sv_mp::KillPlayer				(ClientID id_who, u16 GameID)
 	// Remove everything	
 	xrClientData* xrCData	=	m_server->ID_to_client(id_who);
 #ifdef DEBUG
-	if (xrCData && xrCData->ps && xrCData->ps->name)
-		Msg("--- Killing player [%s]", xrCData->ps->name);
+	if (xrCData && xrCData->ps && xrCData->ps->getName())
+		Msg("--- Killing player [%s]", xrCData->ps->getName());
 #endif // #ifdef DEBUG
 	
 	if (xrCData && xrCData->ps && xrCData->ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD))
 	{
 #ifdef DEBUG
-		Msg("--- Killing dead player [%s]", xrCData->ps->name);
+		Msg("--- Killing dead player [%s]", xrCData->ps->getName());
 #endif // #ifdef DEBUG
 		return;
 	}
@@ -659,7 +659,7 @@ void	game_sv_mp::SetSkin					(CSE_Abstract* E, u16 Team, u16 ID)
 	if (!pV) return;
 	//-------------------------------------------
 	string256 SkinName;
-	strcpy_s(SkinName, pSettings->r_string("mp_skins_path", "skin_path"));
+	xr_strcpy(SkinName, pSettings->r_string("mp_skins_path", "skin_path"));
 	//загружены ли скины для этой комманды
 
 	if (!TeamList.empty()	&&
@@ -669,16 +669,16 @@ void	game_sv_mp::SetSkin					(CSE_Abstract* E, u16 Team, u16 ID)
 		//загружено ли достаточно скинов для этой комманды
 		if (TeamList[Team].aSkins.size() > ID)
 		{
-			std::strcat(SkinName, TeamList[Team].aSkins[ID].c_str());
+			xr_strcat(SkinName, TeamList[Team].aSkins[ID].c_str());
 		}
 		else
-			std::strcat(SkinName, TeamList[Team].aSkins[0].c_str());
+			xr_strcat(SkinName, TeamList[Team].aSkins[0].c_str());
 	}
 	else
 	{
 		R_ASSERT2(0,"Skin not loaded");
 	};
-	std::strcat(SkinName, ".ogf");
+	xr_strcat(SkinName, ".ogf");
 	Msg("* Skin - %s", SkinName);
 	int len = xr_strlen(SkinName);
 	R_ASSERT2(len < 64, "Skin Name is too LONG!!!");
@@ -709,10 +709,11 @@ bool	game_sv_mp::GetPosAngleFromActor				(ClientID id, Fvector& Pos, Fvector &An
 TeamStruct* game_sv_mp::GetTeamData				(u32 Team)
 {
 	VERIFY(TeamList.size());
-	if (TeamList.empty()) return NULL;
+	if (TeamList.empty())
+		return NULL;
 	
-	VERIFY(TeamList.size()>Team);
-	if (TeamList.size()<=Team) return NULL;
+	if (TeamList.size()<=Team)
+		return NULL;
 
 	return &(TeamList[Team]);
 };
@@ -932,7 +933,7 @@ bool game_sv_mp::OnNextMap				()
 	m_bMapSwitched			= true;
 
 	string1024				Command;
-	sprintf_s				(Command, "sv_changelevel %s %s", R.map_name.c_str(), R.map_ver.c_str());
+	xr_sprintf				(Command, "sv_changelevel %s %s", R.map_name.c_str(), R.map_ver.c_str());
 	Console->Execute		(Command);
 	return true;
 };
@@ -952,7 +953,7 @@ void game_sv_mp::OnPrevMap				()
 	m_bMapSwitched = true;
 
 	string1024	Command;
-	sprintf_s(Command, "sv_changelevel %s %s", R.map_name.c_str(), R.map_ver.c_str());
+	xr_sprintf(Command, "sv_changelevel %s %s", R.map_name.c_str(), R.map_ver.c_str());
 	Console->Execute(Command);
 };
 
@@ -1052,8 +1053,8 @@ void game_sv_mp::OnVoteStart				(LPCSTR VoteCommand, ClientID sender)
 			string256 WeatherTime = "", WeatherName = "";
 			sscanf(CommandParams, "%s %s", WeatherName, WeatherTime );
 
-			m_pVoteCommand.sprintf("%s %s", votecommands[i].command, WeatherTime);
-			sprintf_s(resVoteCommand, "%s %s", votecommands[i].name, WeatherName);
+			m_pVoteCommand.printf("%s %s", votecommands[i].command, WeatherTime);
+			xr_sprintf(resVoteCommand, "%s %s", votecommands[i].name, WeatherName);
 		} else if (!stricmp(votecommands[i].name, "changemap"))
 		{
 			string256 LevelName;
@@ -1071,7 +1072,7 @@ void game_sv_mp::OnVoteStart				(LPCSTR VoteCommand, ClientID sender)
 			LPCSTR sv_vote_command = NULL;
 			STRCONCAT(sv_vote_command, votecommands[i].command, " ", LevelName, " ", LevelVersion);
 			m_pVoteCommand = sv_vote_command;
-			sprintf_s(resVoteCommand, 
+			xr_sprintf(resVoteCommand, 
 				"%s %s [%s]",
 				votecommands[i].name,
 				LevelName,
@@ -1083,12 +1084,12 @@ void game_sv_mp::OnVoteStart				(LPCSTR VoteCommand, ClientID sender)
 			IClient*	tmp_client = m_server->FindClient(tmp_predicate);
 			if (tmp_client)
 			{
-				m_pVoteCommand.sprintf("sv_kick_id %u", tmp_client->ID.value());
+				m_pVoteCommand.printf("sv_kick_id %u", tmp_client->ID.value());
 			} else
 			{
-				m_pVoteCommand.sprintf("%s %s", votecommands[i].command, CommandParams);	//backward compatibility
+				m_pVoteCommand.printf("%s %s", votecommands[i].command, CommandParams);	//backward compatibility
 			}
-			strcpy_s(resVoteCommand, VoteCommand);
+			xr_strcpy(resVoteCommand, VoteCommand);
 		} else if (!stricmp(votecommands[i].name, "ban"))
 		{
 			string256 tmp_victim_name;
@@ -1099,7 +1100,7 @@ void game_sv_mp::OnVoteStart				(LPCSTR VoteCommand, ClientID sender)
 			IClient*	tmp_client = m_server->FindClient(tmp_predicate);
 			if (tmp_client)
 			{
-				m_pVoteCommand.sprintf("sv_banplayer %u %d", tmp_client->ID.value(), ban_time);
+				m_pVoteCommand.printf("sv_banplayer %u %d", tmp_client->ID.value(), ban_time);
 			} else
 			{
 				Msg("! ERROR: can't find player with name %s", tmp_victim_name);
@@ -1108,16 +1109,16 @@ void game_sv_mp::OnVoteStart				(LPCSTR VoteCommand, ClientID sender)
 			//{
 			//	Msg("! ERROR: failed to extract ban time from vote string.");
 			//}
-			strcpy_s(resVoteCommand, VoteCommand);
+			xr_strcpy(resVoteCommand, VoteCommand);
 		} else
 		{
-			m_pVoteCommand.sprintf("%s %s", votecommands[i].command, CommandParams);
-			strcpy_s(resVoteCommand, VoteCommand);
+			m_pVoteCommand.printf("%s %s", votecommands[i].command, CommandParams);
+			xr_strcpy(resVoteCommand, VoteCommand);
 		}		
 	}
 	else
 	{
-		m_pVoteCommand.sprintf("%s", VoteCommand+1);
+		m_pVoteCommand.printf("%s", VoteCommand+1);
 	};
 
 	struct vote_status_setter
@@ -1287,7 +1288,8 @@ void		game_sv_mp::OnPlayerEnteredGame		(ClientID id_who)
 	NET_Packet			P;
 	GenerateGameMessage (P);
 	P.w_u32				(GAME_EVENT_PLAYER_ENTERED_GAME);
-	P.w_stringZ			( xrCData->name.c_str() );
+	VERIFY				( xrCData->ps);
+	P.w_stringZ			( xrCData->ps->getName());
 	u_EventSend(P);
 };
 
@@ -1333,7 +1335,7 @@ void	game_sv_mp::SetPlayersDefItems		(game_PlayerState* ps)
 			strconcat(sizeof(ItemStr),ItemStr, "def_item_repl_", *WeaponName);
 			if (!pSettings->line_exist(RankStr, ItemStr)) continue;
 			
-			strcpy_s(NewItemStr,sizeof(NewItemStr),pSettings->r_string(RankStr, ItemStr));
+			xr_strcpy(NewItemStr,sizeof(NewItemStr),pSettings->r_string(RankStr, ItemStr));
 //			if (!GetTeamItem_ByName(&pWpnS, &(TeamList[ps->team].aWeapons), NewItemStr)) continue;
 			if (m_strWeaponsData->GetItemIdx(NewItemStr) == u32(-1)) continue;
 
@@ -1355,7 +1357,7 @@ void	game_sv_mp::SetPlayersDefItems		(game_PlayerState* ps)
 		if (pSettings->line_exist(WeaponName, "ammo_class"))
 		{
 			string1024 wpnAmmos, BaseAmmoName;
-			strcpy_s(wpnAmmos, pSettings->r_string(WeaponName, "ammo_class"));
+			xr_strcpy(wpnAmmos, pSettings->r_string(WeaponName, "ammo_class"));
 			_GetItem(wpnAmmos, 0, BaseAmmoName);
 			AmmoID = u16(m_strWeaponsData->GetItemIdx(BaseAmmoName)&0xffff);
 		};
@@ -1410,7 +1412,7 @@ void game_sv_mp::OnPlayerKilled(NET_Packet P)
 #ifndef MASTER_GOLD
 		Msg("! ERROR:  killed entity is null ! (entitty [%d][%s]), killer id [%d][%s], Frame [%d]",
 			KilledID, entity ? entity->cName().c_str() : "unknown",
-			KillerID, ps_killer ? ps_killer->name : "unknown",
+			KillerID, ps_killer ? ps_killer->getName() : "unknown",
 			Device.dwFrame);
 #endif // #ifndef MASTER_GOLD
 		return;
@@ -1609,7 +1611,7 @@ void	game_sv_mp::LoadRanks	()
 	while(1)
 	{
 		string256 RankSect;
-		sprintf_s(RankSect, "rank_%d",NumRanks);
+		xr_sprintf(RankSect, "rank_%d",NumRanks);
 		if (!pSettings->section_exist(RankSect)) break;
 		NumRanks++;
 	};
@@ -1617,7 +1619,7 @@ void	game_sv_mp::LoadRanks	()
 	for (int i=0; ; i++)
 	{
 		string256 RankSect;
-		sprintf_s(RankSect, "rank_%d",i);
+		xr_sprintf(RankSect, "rank_%d",i);
 		if (!pSettings->section_exist(RankSect)) break;
 		Rank_Struct NewRank; 
 		
@@ -1800,8 +1802,8 @@ void game_sv_mp::ReadOptions(shared_str &options)
 	g_sv_dwMaxClientPing					= get_option_i(*options,"maxping",g_sv_dwMaxClientPing);
 
 	string64	StartTime, TimeFactor;
-	strcpy_s(StartTime,get_option_s			(*options,"estime","9:00"));
-	strcpy_s(TimeFactor,get_option_s		(*options,"etimef","1"));
+	xr_strcpy(StartTime,get_option_s			(*options,"estime","9:00"));
+	xr_strcpy(TimeFactor,get_option_s		(*options,"etimef","1"));
 
 	u32 hours = 0, mins = 0;
 	sscanf									(StartTime,"%d:%d",&hours,&mins);
@@ -1904,7 +1906,7 @@ void game_sv_mp::RejectGameItem(CSE_Abstract* entity)
 //	R_ASSERT2( e_parent, make_string( "RejectGameItem: parent not found. entity_id = [%d], parent_id = [%d]", entity->ID, entity->ID_Parent ).c_str() );
 	VERIFY2  ( e_parent, make_string( "RejectGameItem: parent not found. entity_id = [%d], parent_id = [%d]", entity->ID, entity->ID_Parent ).c_str() );
 	if ( !e_parent ) {
-		Msg               ( "! ERROR (RejectGameItem): parent not found. entity_id = [%d], parent_id = [%d]", entity->ID, entity->ID_Parent );
+		Msg( "! ERROR (RejectGameItem): parent not found. entity_id = [%d], parent_id = [%d]", entity->ID, entity->ID_Parent );
 		return;
 	}
 
@@ -1921,8 +1923,8 @@ void game_sv_mp::DumpOnlineStatistic()
 
 	string_path					fn;
 	FS.update_path				(fn,"$logs$","mp_stats\\");
-	strcat_s					(fn, srv->HostName.c_str());
-	strcat_s					(fn, "\\online_dump.ltx" );
+	xr_strcat					(fn, srv->HostName.c_str());
+	xr_strcat					(fn, "\\online_dump.ltx" );
 
 	string64					t_stamp;
 	timestamp					(t_stamp);
@@ -1935,10 +1937,10 @@ void game_sv_mp::DumpOnlineStatistic()
 	
 	ini.w_u32					(current_section.c_str(), "players_total_cnt", m_server->GetClientsCount());
 
-	sprintf_s					(str_buff,"\"%s\"",CStringTable().translate(Level().name().c_str()).c_str());
+	xr_sprintf					(str_buff,"\"%s\"",CStringTable().translate(Level().name().c_str()).c_str());
 	ini.w_string				(current_section.c_str(), "current_map_name", str_buff);
 
-	sprintf_s					(str_buff,"%s",CStringTable().translate(type_name()).c_str() );
+	xr_sprintf					(str_buff,"%s",CStringTable().translate(type_name()).c_str() );
 	ini.w_string				(current_section.c_str(), "game_mode", str_buff);
 
 	MAP_ROTATION_LIST_it it		= m_pMapRotation_List.begin();
@@ -1946,8 +1948,8 @@ void game_sv_mp::DumpOnlineStatistic()
 	for(u32 idx=0;it!=it_e;++it,++idx)
 	{
 		string16					num_buf;
-		sprintf_s					(num_buf,"%d",idx);
-		sprintf_s					(str_buff,"\"%s\"", CStringTable().translate((*it).map_name.c_str()).c_str());
+		xr_sprintf					(num_buf,"%d",idx);
+		xr_sprintf					(str_buff,"\"%s\"", CStringTable().translate((*it).map_name.c_str()).c_str());
 		ini.w_string				("map_rotation", num_buf, str_buff);
 	}
 
@@ -1969,7 +1971,7 @@ void game_sv_mp::DumpOnlineStatistic()
 				return;
 
 			string16					num_buf;
-			sprintf_s					(num_buf,"player_%d",player_index);
+			xr_sprintf					(num_buf,"player_%d",player_index);
 			++player_index;
 
 			m_owner->WritePlayerStats(*ini,num_buf,l_pC);
@@ -2099,10 +2101,10 @@ void game_sv_mp::StartToDumpStatistics	()
 	FS.update_path				(round_statistics_dump_fn,"$logs$","mp_stats\\");
 	string64					t_stamp;
 	timestamp					(t_stamp);
-	strcat_s					(round_statistics_dump_fn, srv->HostName.c_str() );
-	strcat_s					(round_statistics_dump_fn, "\\games\\dmp" );
-	strcat_s					(round_statistics_dump_fn, t_stamp );
-	strcat_s					(round_statistics_dump_fn, ".ltx" );
+	xr_strcat					(round_statistics_dump_fn, srv->HostName.c_str() );
+	xr_strcat					(round_statistics_dump_fn, "\\games\\dmp" );
+	xr_strcat					(round_statistics_dump_fn, t_stamp );
+	xr_strcat					(round_statistics_dump_fn, ".ltx" );
 }
 
 void game_sv_mp::StopToDumpStatistics	()
@@ -2134,13 +2136,13 @@ void game_sv_mp::DumpRoundStatistics()
 	timestamp					(str_current_time);
 	ini.w_string				(current_section.c_str(),"end_time", str_current_time);
 
-	sprintf_s					(str_buff,"%s",CStringTable().translate(type_name()).c_str() );
+	xr_sprintf					(str_buff,"%s",CStringTable().translate(type_name()).c_str() );
 	ini.w_string				(current_section.c_str(), "game_mode", str_buff);
 
-	sprintf_s					(str_buff,"\"%s\"",CStringTable().translate(Level().name().c_str()).c_str());
+	xr_sprintf					(str_buff,"\"%s\"",CStringTable().translate(Level().name().c_str()).c_str());
 	ini.w_string				(current_section.c_str(), "current_map_name", str_buff);
 
-	sprintf_s					(str_buff,"\"%s\"",Level().name().c_str());
+	xr_sprintf					(str_buff,"\"%s\"",Level().name().c_str());
 	ini.w_string				(current_section.c_str(), "current_map_name_internal", str_buff);
 
 	struct player_stats_writer
@@ -2160,7 +2162,7 @@ void game_sv_mp::DumpRoundStatistics()
 				return;
 			
 			string16					num_buf;
-			sprintf_s					(num_buf,"player_%d",player_index);
+			xr_sprintf					(num_buf,"player_%d",player_index);
 			++player_index;
 
 			m_owner->WritePlayerStats(*ini,num_buf,l_pC);
@@ -2188,7 +2190,7 @@ void game_sv_mp::DestroyAllPlayerItems(ClientID id_who)	//except rukzak
 	VERIFY(xrCData->ps);
 	game_PlayerState*	ps	=	xrCData->ps;
 #ifndef MASTER_GOLD
-	Msg("---Destroying player [%s] items before spawning new bought items.", ps->name);
+	Msg("---Destroying player [%s] items before spawning new bought items.", ps->getName());
 #endif // #ifndef MASTER_GOLD
 	
 	CActor* pActor = smart_cast<CActor*>(Level().Objects.net_Find(ps->GameID));

@@ -16,6 +16,7 @@ IC	CGraphEngine::CGraphEngine		(u32 max_vertex_count)
 
 #ifndef AI_COMPILER
 	m_solver_algorithm	= xr_new<CSolverAlgorithm>			(16*1024);
+	m_string_algorithm	= xr_new<CStringAlgorithm>			(1024);
 #endif // AI_COMPILER
 }
 
@@ -24,6 +25,7 @@ IC	CGraphEngine::~CGraphEngine			()
 	xr_delete			(m_algorithm);
 #ifndef AI_COMPILER
 	xr_delete			(m_solver_algorithm);
+	xr_delete			(m_string_algorithm);
 #endif // AI_COMPILER
 }
 
@@ -217,4 +219,48 @@ IC	bool CGraphEngine::search(
 	STOP_PROFILE
 #endif
 }
+
+template <
+	typename _Graph,
+	typename _Parameters
+>
+IC	bool CGraphEngine::search	(
+		const _Graph			&graph, 
+		const shared_str		&start_node, 
+		const shared_str		&dest_node, 
+		xr_vector<shared_str>	*node_path,
+		_Parameters				&parameters
+	)
+{
+#ifndef AI_COMPILER
+	Device.Statistic->AI_Path.Begin();
+	START_PROFILE("graph_engine")
+	START_PROFILE("graph_engine/search")
+#endif
+
+	typedef CPathManager<_Graph, CStringAlgorithm::CDataStorage, _Parameters, float, shared_str,u32>	CPathManagerGeneric;
+
+	CPathManagerGeneric			path_manager;
+
+	path_manager.setup			(
+		&graph,
+		&m_string_algorithm->data_storage(),
+		node_path,
+		start_node,
+		dest_node,
+		parameters
+	);
+	
+	bool						successfull = m_string_algorithm->find(path_manager);
+
+#ifndef AI_COMPILER
+	Device.Statistic->AI_Path.End();
+#endif
+	return						(successfull);
+#ifndef AI_COMPILER
+	STOP_PROFILE
+	STOP_PROFILE
+#endif
+}
+
 #endif // AI_COMPILER

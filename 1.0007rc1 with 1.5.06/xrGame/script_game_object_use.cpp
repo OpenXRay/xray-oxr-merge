@@ -137,8 +137,10 @@ template <typename T>
 IC	T	*CScriptGameObject::action_planner()
 {
 	CAI_Stalker				*manager = smart_cast<CAI_Stalker*>(&object());
-	if (!manager)
+	if (!manager) {
 		ai().script_engine().script_log				(ScriptStorage::eLuaMessageTypeError,"CAI_Stalker : cannot access class member action_planner!");
+		return							(0);
+	}
 	return					(&manager->brain());
 }
 

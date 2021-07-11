@@ -16,6 +16,7 @@
 #include "gameobject.h"
 #include "level.h"
 
+// comment next string when commiting
 //#define DBG_DISABLE_SCRIPTS
 
 CScriptBinder::CScriptBinder		()

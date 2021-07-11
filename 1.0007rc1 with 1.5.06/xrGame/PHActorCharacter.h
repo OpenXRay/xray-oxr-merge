@@ -1,6 +1,7 @@
 #pragma once
 #include "phsimplecharacter.h"
 #include "PHActorCharacterInline.h"
+
 class CPhysicShellHolder;
 struct SPHCharacterRestrictor
 {
@@ -109,6 +110,10 @@ public:
 virtual		void		ChooseRestrictionType				(ERestrictionType my_type,float my_depth,CPHCharacter *ch);
 						CPHActorCharacter					();
 	virtual				~CPHActorCharacter					(void);
+private:
+	virtual	void		ValidateWalkOn						();
+			bool		CanJump								();
+	virtual	void		update_last_material				();
 private:
 		void			ClearRestrictors					();
 		RESTRICTOR_I	Restrictor							(CPHCharacter::ERestrictionType rtype);

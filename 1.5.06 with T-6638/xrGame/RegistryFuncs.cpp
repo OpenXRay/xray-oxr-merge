@@ -1,14 +1,8 @@
 #include "StdAfx.h"
 #include "RegistryFuncs.h"
+#include "../xrGameSpy/xrGameSpy_MainDefs.h"
 
 #define REGISTRY_BASE	HKEY_LOCAL_MACHINE
-
-#ifdef DEMO_BUILD
-	#define REGISTRY_PATH	"Software\\GSC Game World\\STALKER-STCS_DBG\\"
-#else
-	#define REGISTRY_PATH	"Software\\GSC Game World\\STALKER-STCS\\"
-#endif
-
 
 bool	ReadRegistryValue(LPCSTR rKeyName, DWORD rKeyType, void* value )
 {	

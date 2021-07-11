@@ -1,5 +1,7 @@
 #pragma	once
 
+#include "ode_include.h"
+
 IC BOOL dV_valid			(const dReal * v)
 {
 	return _valid(v[0])&&_valid(v[1])&&_valid(v[2]);
@@ -52,6 +54,7 @@ IC BOOL dBodyStateValide(const dBodyID body)
 }\
 }
 #define	VERIFY_BOUNDARIES(pos,bounds,obj)	VERIFY_BOUNDARIES2(pos,bounds,obj,"	")
+
 #else
 #define	VERIFY_BOUNDARIES(pos,bounds,obj)
 #define	VERIFY_BOUNDARIES2(pos,bounds,obj,msg)

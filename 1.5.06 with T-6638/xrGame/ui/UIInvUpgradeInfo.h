@@ -37,7 +37,6 @@ public:
 			bool		is_upgrade() { return (m_upgrade != NULL); }
 	IC Upgrade_type const*	get_upgrade() const { return m_upgrade; }
 
-//	virtual void		Update();
 	virtual void		Draw();
 
 protected:

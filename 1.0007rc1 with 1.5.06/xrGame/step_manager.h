@@ -3,7 +3,7 @@
 
 class CEntityAlive;
 class CBlend;
-
+struct SGameMtlPair;
 class CStepManager {
 	u8				m_legs_count;
 
@@ -14,7 +14,13 @@ class CStepManager {
 
 	u16				m_foot_bones[MAX_LEGS_COUNT];
 	CBlend			*m_blend;
-
+	struct material_sound
+	{
+		u8				m_last_step_sound_played;
+		SGameMtlPair*	last_mtl_pair;
+		material_sound(): m_last_step_sound_played(u8(-1)), last_mtl_pair(0){}
+		void play_next( SGameMtlPair* mtl_pair, CEntityAlive	*object, float volume );
+	}				m_step_sound;
 	u32				m_time_anim_started;
 
 public: 

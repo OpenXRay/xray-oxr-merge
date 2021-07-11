@@ -44,7 +44,7 @@ public:
 
 	bool					CanTrade				();
 	
-	void					StartTrade				(CInventoryOwner* pInvOwner);
+	void					StartTradeEx			(CInventoryOwner* pInvOwner);
 	void					StartTrade				();
 	void					StopTrade				();
 	bool					IsInTradeState			() {return TradeState;}

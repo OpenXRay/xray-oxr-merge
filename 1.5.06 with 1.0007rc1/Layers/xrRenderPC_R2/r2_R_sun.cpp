@@ -976,46 +976,14 @@ void CRender::render_sun_near	()
 		mdir_View.build_camera_dir	(L_pos,L_dir,L_up);
 
 		// projection: box
-		/*
-		//	Original
-		float	_D					= ps_r2_sun_near;
-		float	a0					= deg2rad(Device.fFOV*Device.fASPECT)/2.f;
-		float	a1					= deg2rad(Device.fFOV)/2.f;
-		float	c0					= _D/_cos(a0);
-		float	c1					= _D/_cos(a1);
-		float	k0					= 2.f*c0*_sin(a0);
-		float	k1					= 2.f*c1*_sin(a1);
-		float	borderalpha			= (Device.fFOV-10) / (90-10);
-
-		float	nearborder			= 1*borderalpha + 1.136363636364f*(1-borderalpha);
-		float	spherical_range		= ps_r2_sun_near_border * nearborder * _max(_max(c0,c1), _max(k0,k1)*1.414213562373f );
-		Fbox	frustum_bb;			frustum_bb.invalidate	();
-		hull.points.push_back		(Device.vCameraPosition);
-		for (int it=0; it<9; it++)	{
-		Fvector	xf	= wform		(mdir_View,hull.points[it]);
-		frustum_bb.modify		(xf);
-		}
-		float	size_x				= frustum_bb.max.x - frustum_bb.min.x;
-		float	size_y				= frustum_bb.max.y - frustum_bb.min.y;
-		float	diff_x				= (spherical_range - size_x)/2.f;	//VERIFY(diff_x>=0);
-		float	diff_y				= (spherical_range - size_y)/2.f;	//VERIFY(diff_y>=0);
-		frustum_bb.min.x -= diff_x; frustum_bb.max.x += diff_x;
-		frustum_bb.min.y -= diff_y; frustum_bb.max.y += diff_y;
-		Fbox&	bb					= frustum_bb;
-		D3DXMatrixOrthoOffCenterLH	((D3DXMATRIX*)&mdir_Project,bb.min.x,bb.max.x,  bb.min.y,bb.max.y,  bb.min.z-tweak_ortho_xform_initial_offs,bb.max.z);
-		/**/
-
-		//	Simple
 		Fbox	frustum_bb;			frustum_bb.invalidate();
 		for (int it=0; it<8; it++)	{
-			//for (int it=0; it<9; it++)	{
 			Fvector	xf	= wform		(mdir_View,hull.points[it]);
 			frustum_bb.modify		(xf);
 		}
 		Fbox&	bb					= frustum_bb;
-		bb.grow				(EPS);
+		bb.grow						(EPS);
 		D3DXMatrixOrthoOffCenterLH	((D3DXMATRIX*)&mdir_Project,bb.min.x,bb.max.x,  bb.min.y,bb.max.y,  bb.min.z-tweak_ortho_xform_initial_offs,bb.max.z);
-		/**/
 
 		// build viewport xform
 		float	view_dim			= float(RImplementation.o.smapsize);

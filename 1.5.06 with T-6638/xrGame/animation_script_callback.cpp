@@ -9,6 +9,11 @@
 CBlend	*PlayMotionByParts(IKinematicsAnimated* sa, MotionID motion_ID, BOOL bMixIn, PlayCallback Callback, LPVOID CallbackParam)
 {
 	CBlend	*ret = 0;
+	CMotionDef * md = sa->LL_GetMotionDef( motion_ID );
+
+	if( md->bone_or_part != BI_NONE )
+		return sa->LL_PlayCycle( md->bone_or_part, motion_ID, bMixIn, Callback, CallbackParam );
+
 	for (u16 i=0; i<MAX_PARTS; ++i) 
 	{
 		CBlend	*blend	= sa->LL_PlayCycle( i, motion_ID, bMixIn, Callback, CallbackParam );
@@ -45,7 +50,29 @@ void	anim_script_callback::anim_callback		(CBlend*		B)
 	anim_script_callback* ths = ( ( anim_script_callback*) B->CallbackParam );
 	VERIFY( ths );
 	VERIFY( ths->is_set );
-	if( B->timeTotal - B->timeCurrent < B->timeCurrent )
+
+////////////////////BLEND UPDATE//////////////////////////////////////////////
+	//float quant = dt*speed;
+	//timeCurrent += quant; // stop@end - time is not going
+
+	//bool	running_fwrd	=  ( quant > 0 );
+	//float	const END_EPS	=	SAMPLE_SPF+EPS;
+	//bool	at_end			=	running_fwrd && ( timeCurrent > ( timeTotal-END_EPS ) );
+	//bool	at_begin		=	!running_fwrd && ( timeCurrent < 0.f );
+	////..............................
+	////..............................
+	////..............................
+	//if( at_end )
+	//{
+	//	timeCurrent	= timeTotal-END_EPS;		// stop@end - time frozen at the end
+	//	if( timeCurrent<0.f ) timeCurrent =0.f; 
+	//}
+	//else
+	//	timeCurrent	= 0.f;
+
+////////////////////BLEND UPDATE//////////////////////////////////////////////
+
+	if( B->timeTotal - B->timeCurrent - END_EPS < B->timeCurrent )//this cool expression sims to work for all cases!
 	{	
 		VERIFY( B->speed > 0.f );
 		ths->on_end = true;

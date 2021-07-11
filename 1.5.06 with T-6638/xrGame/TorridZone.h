@@ -16,8 +16,8 @@ public:
 	BOOL				net_Spawn			(CSE_Abstract* DC);
 
 	virtual bool		IsVisibleForZones	() { return true;		}
-	virtual	void		GoEnabledState		();
-	virtual	void		GoDisabledState		();
+	virtual	bool		Enable				();
+	virtual	bool		Disable				();
 
 	// Lain: added
 	virtual bool        light_in_slow_mode  ();

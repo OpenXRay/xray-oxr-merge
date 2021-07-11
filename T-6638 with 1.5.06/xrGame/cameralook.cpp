@@ -188,7 +188,6 @@ void CCameraLook2::Load(LPCSTR section)
 	m_autoaim_inertion_pitch= pSettings->r_fvector2	(section,"autoaim_speed_x");
 }
 
-
 void CCameraFixedLook::Load	(LPCSTR section)
 {
 	CCameraLook::Load(section);

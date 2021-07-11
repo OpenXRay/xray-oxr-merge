@@ -21,9 +21,8 @@ void CActorMP::OnEvent		( NET_Packet &P, u16 type)
 
 void CActorMP::Die			(CObject *killer)
 {
-	//m_i_am_dead				= true;
-	//conditions().health()	= 0.f;
-	conditions().SetHealth( 0.f );
+	//m_i_am_dead		=	true;
+	conditions().SetHealth	( 0.f );
 	inherited::Die			(killer);
 
 	if(OnServer())

@@ -215,3 +215,8 @@ CHARACTER_GOODWILL	 RELATION_REGISTRY::GetReputationRelation		(CHARACTER_REPUTAT
 }
 
 //////////////////////////////////////////////////////////////////////////
+
+void RELATION_REGISTRY::SetCommunityRelation( CHARACTER_COMMUNITY_INDEX index1, CHARACTER_COMMUNITY_INDEX index2, CHARACTER_GOODWILL goodwill )
+{
+	CHARACTER_COMMUNITY::set_relation( index1, index2, goodwill );
+}

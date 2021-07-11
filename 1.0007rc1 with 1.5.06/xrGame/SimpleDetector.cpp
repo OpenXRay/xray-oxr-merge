@@ -8,5 +8,4 @@ CSimpleDetector::CSimpleDetector(void)
 }
 
 CSimpleDetector::~CSimpleDetector(void)
-{
-}
+{}

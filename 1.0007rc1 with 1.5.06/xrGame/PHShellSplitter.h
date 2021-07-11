@@ -2,6 +2,14 @@
 #define PHSHELL_SPLITTER_H
 #include "PHDefs.h"
 #include "PHObject.h"
+#include "PHFracture.h"
+
+class CPHShellSplitter;
+
+class CPHShell;
+class CODEGeom;
+typedef std::pair<u16,CODEGeom*>	id_geom;
+DEFINE_MAP(u16,CODEGeom*,GEOM_MAP,GEOM_MAP_I)
 
 class CPHShellSplitter 
 {
@@ -19,11 +27,6 @@ private:
 	CPHShellSplitter			()														;
 };
 
-//class CPHShellSplitter;
-class CPHShell;
-class CODEGeom;
-typedef std::pair<u16,CODEGeom*>	id_geom;
-DEFINE_MAP(u16,CODEGeom*,GEOM_MAP,GEOM_MAP_I)
 DEFINE_VECTOR(CPHShellSplitter,SPLITTER_STORAGE,SPLITTER_I)
 typedef		xr_vector<CPHShellSplitter>::reverse_iterator	SPLITTER_RI;
 

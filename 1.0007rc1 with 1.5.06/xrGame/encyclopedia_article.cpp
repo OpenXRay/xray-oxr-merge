@@ -9,6 +9,7 @@
 #include "ui/UIXmlInit.h"
 #include "ui/UIInventoryUtilities.h"
 #include "object_broker.h"
+#include "../Include/xrRender/UIShader.h"
 
 using namespace InventoryUtilities;
 
@@ -87,14 +88,16 @@ void CEncyclopediaArticle::load_shared	(LPCSTR)
 	}
 	else 
 	{
-		if( pXML->NavigateToNode(pNode,"texture",0) ){
+		if( pXML->NavigateToNode(pNode,"texture",0) )
+		{
 			pXML->SetLocalRoot(pNode);
 			CUIXmlInit::InitTexture(*pXML, "", 0, &data()->image);
 			pXML->SetLocalRoot(pXML->GetRoot());
 		}
 	}
 
-	if(data()->image.TextureAvailable() ){
+	if(data()->image.TextureAvailable())
+	{
 		Frect r = data()->image.GetUIStaticItem().GetOriginalRect();
 		data()->image.SetAutoDelete(false);
 
@@ -115,7 +118,7 @@ void CEncyclopediaArticle::load_shared	(LPCSTR)
 			data()->image.SetTextureOffset(data()->image.GetTextureOffeset()[0], dy / 2);
 		}
 
-		data()->image.SetWndRect(0, 0, r.width(), r.height());
+		data()->image.SetWndRect(Frect().set(0,0,r.width(),r.height()));
 	};
 
 	// Тип статьи

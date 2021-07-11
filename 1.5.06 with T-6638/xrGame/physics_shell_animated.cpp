@@ -1,11 +1,11 @@
 #include "stdafx.h"
 #include "physics_shell_animated.h"
 
-#include	"physicsshell.h"
+#include	"../xrphysics/physicsshell.h"
 
 #include	"../Include/xrRender/Kinematics.h"
 
-physics_shell_animated::physics_shell_animated( CGameObject* O, bool _update_velocity ): 
+physics_shell_animated::physics_shell_animated( CPhysicsShellHolder* O, bool _update_velocity ): 
 update_velocity( _update_velocity )
 {
 	create_shell( O );

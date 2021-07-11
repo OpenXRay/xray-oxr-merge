@@ -148,7 +148,7 @@ void CPatrolPathManager::select_point(const Fvector &position, u32 &dest_vertex_
 		R_ASSERT2			(
 			vertex || show_restrictions(m_object),
 			make_string(
-				"any vertex in patrol path [%s] in inaccessible for object [%s]",
+				"any vertex in patrol path [%s] is inaccessible for object [%s]",
 				*m_path_name,
 				*m_game_object->cName()
 			)

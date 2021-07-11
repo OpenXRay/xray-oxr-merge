@@ -10,7 +10,6 @@
 
 #include "../xrEngine/gamemtllib.h"
 #include "phmovementcontrol.h"
-class CPHMovementControl;
 
 class CMaterialManager {
 private:

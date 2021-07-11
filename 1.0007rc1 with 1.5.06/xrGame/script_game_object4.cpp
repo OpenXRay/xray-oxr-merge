@@ -13,12 +13,15 @@
 #include "alife_simulator.h"
 
 #include "ai/stalker/ai_stalker.h"
-#include "stalker_movement_manager.h"
+#include "stalker_movement_manager_smart_cover.h"
 
 #include "sight_manager_space.h"
 #include "sight_control_action.h"
 #include "sight_manager.h"
 #include "inventoryBox.h"
+#include "ZoneCampfire.h"
+#include "physicobject.h"
+#include "artefact.h"
 class CWeapon;
 
 //////////////////////////////////////////////////////////////////////////
@@ -214,4 +217,73 @@ bool CScriptGameObject::IsInvBoxEmpty()
 		return			(false);
 	else
 		return			ib->IsEmpty		();
+}
+
+CZoneCampfire* CScriptGameObject::get_campfire()
+{
+	return smart_cast<CZoneCampfire*>(&object());
+}
+
+CArtefact* CScriptGameObject::get_artefact()
+{
+	return smart_cast<CArtefact*>(&object());
+}
+
+CPhysicObject* CScriptGameObject::get_physics_object()
+{
+	return smart_cast<CPhysicObject*>(&object());
+}
+#include "level_changer.h"
+void CScriptGameObject::enable_level_changer(bool b)
+{
+	CLevelChanger* lch = smart_cast<CLevelChanger*>(&object());
+	if(lch)
+		lch->EnableLevelChanger(b);
+}
+bool CScriptGameObject::is_level_changer_enabled()
+{
+	CLevelChanger* lch = smart_cast<CLevelChanger*>(&object());
+	if(lch)
+		return lch->IsLevelChangerEnabled();
+	return false;
+}
+
+void CScriptGameObject::set_level_changer_invitation(LPCSTR str)
+{
+	CLevelChanger* lch = smart_cast<CLevelChanger*>(&object());
+	if(lch)
+		lch->SetLEvelChangerInvitationStr(str);
+}
+
+void CScriptGameObject::start_particles(LPCSTR pname, LPCSTR bone)
+{
+	CParticlesPlayer* PP			= smart_cast<CParticlesPlayer*>(&object());
+	if(!PP)	return;
+
+	IKinematics* K					= smart_cast<IKinematics*>(object().Visual());
+	R_ASSERT						(K);
+
+	u16 play_bone					= K->LL_BoneID(bone);
+	R_ASSERT						(play_bone!=BI_NONE);
+	if(K->LL_GetBoneVisible(play_bone))
+		PP->StartParticles				(pname, play_bone, Fvector().set(0,1,0), 9999);
+	else
+		ai().script_engine().script_log	(ScriptStorage::eLuaMessageTypeError,"Cant start particles, bone [%s] is not visible now", bone);
+}
+
+void CScriptGameObject::stop_particles(LPCSTR pname, LPCSTR bone)
+{
+	CParticlesPlayer* PP			= smart_cast<CParticlesPlayer*>(&object());
+	if(!PP)	return;
+
+	IKinematics* K					= smart_cast<IKinematics*>(object().Visual());
+	R_ASSERT						(K);
+
+	u16 play_bone					= K->LL_BoneID(bone);
+	R_ASSERT						(play_bone!=BI_NONE);
+
+	if(K->LL_GetBoneVisible(play_bone))
+		PP->StopParticles				(9999, play_bone, true);
+	else
+		ai().script_engine().script_log	(ScriptStorage::eLuaMessageTypeError,"Cant stop particles, bone [%s] is not visible now", bone);
 }
