@@ -21,6 +21,8 @@
 #include "object_factory.h"
 #include "script_sound_type.h"
 #include "xrServer_Objects_ALife_All.h"
+#include "xrServer_Objects_ALife_Smartcovers.h"
+
 
 #ifndef XRGAME_EXPORTS
 #	include "script_properties_list_helper.h"

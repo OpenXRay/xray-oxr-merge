@@ -141,6 +141,7 @@ PHCALL_I CPHCommander::find_call(CPHReqComparerV* cmp_condition,CPHReqComparerV*
 {
 	return std::find_if( cs.begin(),cs.end(),SFEqualPred(cmp_condition,cmp_action));
 }
+
 PHCALL_I CPHCommander::find_call(CPHReqComparerV* cmp_condition,CPHReqComparerV* cmp_action)
 {
 	return find_call(cmp_condition,cmp_action,m_calls);

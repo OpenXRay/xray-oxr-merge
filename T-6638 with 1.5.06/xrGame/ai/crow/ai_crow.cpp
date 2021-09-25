@@ -19,9 +19,6 @@
 #include "game_object_space.h"
 #include "script_game_object.h"
 #include "hit.h"
-#ifdef	DEBUG
-//#include "../xrphysics/phvalide.h"
-#endif
 
 void CAI_Crow::SAnim::Load	(IKinematicsAnimated* visual, LPCSTR prefix)
 {

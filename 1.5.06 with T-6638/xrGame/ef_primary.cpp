@@ -143,11 +143,12 @@ float CPersonalWeaponTypeFunction::ffGetTheBestWeapon()
 	if (ef_storage().non_alife().member()) {
 		const CInventoryOwner *tpInventoryOwner = smart_cast<const CInventoryOwner*>(ef_storage().non_alife().member());
 		if (tpInventoryOwner) {
-			xr_vector<CInventorySlot>::const_iterator I = tpInventoryOwner->inventory().m_slots.begin();
-			xr_vector<CInventorySlot>::const_iterator E = tpInventoryOwner->inventory().m_slots.end();
-			for ( ; I != E; ++I) {
-				if ((*I).m_pIItem) {
-					CWeapon *tpCustomWeapon = smart_cast<CWeapon*>((*I).m_pIItem);
+			u16 I = tpInventoryOwner->inventory().FirstSlot();
+			u16 E = tpInventoryOwner->inventory().LastSlot();
+			for ( ; I <= E; ++I) {
+				PIItem iitem = tpInventoryOwner->inventory().ItemFromSlot(I);
+				if (iitem) {
+					CWeapon *tpCustomWeapon = smart_cast<CWeapon*>(iitem);
 					if (tpCustomWeapon && (tpCustomWeapon->GetSuitableAmmoTotal(true) > tpCustomWeapon->GetAmmoMagSize()/10)) {
 						ef_storage().non_alife().member_item()	= tpCustomWeapon;
 						u32 dwCurrentBestWeapon = dwfGetWeaponType();

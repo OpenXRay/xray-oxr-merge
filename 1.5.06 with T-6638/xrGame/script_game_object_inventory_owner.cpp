@@ -70,7 +70,7 @@ void  CScriptGameObject::AddIconedTalkMessage(LPCSTR caption, LPCSTR text, LPCST
 
 void _AddIconedTalkMessage(LPCSTR caption, LPCSTR text, LPCSTR texture_name, LPCSTR templ_name)
 {
-	CUIGameSP* pGameSP = smart_cast<CUIGameSP*>(HUD().GetUI()->UIGame());
+	CUIGameSP* pGameSP = smart_cast<CUIGameSP*>(CurrentGameUI());
 	if(!pGameSP) return;
 
 	if(pGameSP->TalkMenu->IsShown())
@@ -137,8 +137,6 @@ xrTime CScriptGameObject::GetInfoTime			(LPCSTR info_id)
 	else
 		return xrTime(0);
 }
-
-
 
 bool CScriptGameObject::IsTalking()
 {
@@ -450,6 +448,18 @@ void CScriptGameObject::SetGoodwill(int goodwill, CScriptGameObject* pWhoToSet)
 	return RELATION_REGISTRY().SetGoodwill(pInventoryOwner->object_id(), pWhoToSet->object().ID(), goodwill);
 }
 
+void CScriptGameObject::ForceSetGoodwill(int goodwill, CScriptGameObject* pWhoToSet)
+{
+	CInventoryOwner* pInventoryOwner = smart_cast<CInventoryOwner*>(&object());
+
+	if (!pInventoryOwner) {
+		ai().script_engine().script_log		(ScriptStorage::eLuaMessageTypeError,"ForceSetGoodwill available only for InventoryOwner");
+		return ;
+	}
+	RELATION_REGISTRY().ForceSetGoodwill(pInventoryOwner->object_id(), pWhoToSet->object().ID(), goodwill);
+}
+
+
 void CScriptGameObject::ChangeGoodwill(int delta_goodwill, CScriptGameObject* pWhoToSet)
 {
 	CInventoryOwner* pInventoryOwner = smart_cast<CInventoryOwner*>(&object());
@@ -704,7 +714,7 @@ void  CScriptGameObject::SwitchToTrade		()
 	CActor* pActor = smart_cast<CActor*>(&object());	if(!pActor) return;
 
 	//только если находимся в режиме single
-	CUIGameSP* pGameSP = smart_cast<CUIGameSP*>(HUD().GetUI()->UIGame());
+	CUIGameSP* pGameSP = smart_cast<CUIGameSP*>(CurrentGameUI());
 	if(!pGameSP) return;
 
 	if(pGameSP->TalkMenu->IsShown())
@@ -718,7 +728,7 @@ void  CScriptGameObject::SwitchToUpgrade		()
 	CActor* pActor = smart_cast<CActor*>(&object());	if(!pActor) return;
 
 	//только если находимся в режиме single
-	CUIGameSP* pGameSP = smart_cast<CUIGameSP*>(HUD().GetUI()->UIGame());
+	CUIGameSP* pGameSP = smart_cast<CUIGameSP*>(CurrentGameUI());
 	if(!pGameSP) return;
 
 	if(pGameSP->TalkMenu->IsShown())
@@ -1039,6 +1049,18 @@ void CScriptGameObject::GiveTaskToActor(CGameTask* t, u32 dt, bool bCheckExistin
 CGameTask* CScriptGameObject::GetTask(LPCSTR id, bool only_inprocess)
 {
 	return Level().GameTaskManager().HasGameTask(id, only_inprocess);
+}
+
+void CScriptGameObject::SetActiveTask(CGameTask* t)
+{
+	VERIFY(t);
+	Level().GameTaskManager().SetActiveTask(t);
+}
+
+bool CScriptGameObject::IsActiveTask(CGameTask* t)
+{
+	VERIFY(t);
+	return Level().GameTaskManager().ActiveTask()==t;
 }
 
 u32	CScriptGameObject::active_slot()

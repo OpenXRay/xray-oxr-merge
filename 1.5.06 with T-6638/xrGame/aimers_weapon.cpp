@@ -88,7 +88,13 @@ void weapon::compute_bone	(u32 const bone_id)
 	Fmatrix					mRes;
 	Fvector					R,D,N;
 	D.sub					(mL.c,mR.c);	
-	D.normalize				();
+
+	float const magnitude	= D.magnitude( );
+	if ( !fis_zero( magnitude ) )
+		D.div				( magnitude );
+	else
+		D.set				( 0.f, 0.f, 1.f );
+
 	R.crossproduct			(mR.j,D);	
 
 	N.crossproduct			(D,R);			

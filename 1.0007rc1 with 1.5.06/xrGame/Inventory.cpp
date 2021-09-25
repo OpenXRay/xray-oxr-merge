@@ -1,6 +1,7 @@
 #include "pch_script.h"
 #include "inventory.h"
 #include "actor.h"
+#include "CustomOutfit.h"
 #include "trade.h"
 #include "weapon.h"
 
@@ -15,7 +16,11 @@
 #include "ai_space.h"
 #include "entitycondition.h"
 #include "game_base_space.h"
+#include "hudmanager.h"
+#include "uigamecustom.h"
 #include "clsid_game.h"
+#include "static_cast_checked.hpp"
+#include "player_hud.h"
 
 using namespace InventoryUtilities;
 
@@ -675,6 +680,7 @@ void CInventory::Update()
 
 void CInventory::UpdateDropTasks()
 {
+	//проверить слоты
 	for(u32 i=0; i<m_slots.size(); ++i)	
 	{
 		if(m_slots[i].m_pIItem)
@@ -757,7 +763,7 @@ PIItem CInventory::Get(const char *name, bool bSearchRuck) const
 	for(TIItemContainer::const_iterator it = list.begin(); list.end() != it; ++it) 
 	{
 		PIItem pIItem = *it;
-		if(pIItem && !xr_strcmp(pIItem->object().cNameSect(), name) && 
+		if(!xr_strcmp(pIItem->object().cNameSect(), name) && 
 								pIItem->Useful()) 
 				return pIItem;
 	}
@@ -771,7 +777,7 @@ PIItem CInventory::Get(CLASS_ID cls_id, bool bSearchRuck) const
 	for(TIItemContainer::const_iterator it = list.begin(); list.end() != it; ++it) 
 	{
 		PIItem pIItem = *it;
-		if(pIItem && pIItem->object().CLS_ID == cls_id && 
+		if(pIItem->object().CLS_ID == cls_id && 
 								pIItem->Useful()) 
 				return pIItem;
 	}
@@ -785,7 +791,7 @@ PIItem CInventory::Get(const u16 id, bool bSearchRuck) const
 	for(TIItemContainer::const_iterator it = list.begin(); list.end() != it; ++it) 
 	{
 		PIItem pIItem = *it;
-		if(pIItem && pIItem->object().ID() == id) 
+		if(pIItem->object().ID() == id) 
 			return pIItem;
 	}
 	return NULL;
@@ -807,7 +813,7 @@ PIItem CInventory::item(CLASS_ID cls_id) const
 	for(TIItemContainer::const_iterator it = list.begin(); list.end() != it; ++it) 
 	{
 		PIItem pIItem = *it;
-		if(pIItem && pIItem->object().CLS_ID == cls_id && 
+		if(pIItem->object().CLS_ID == cls_id && 
 			pIItem->Useful()) 
 			return pIItem;
 	}
@@ -839,7 +845,7 @@ u32 CInventory::dwfGetSameItemCount(LPCSTR caSection, bool SearchAll)
 	for(TIItemContainer::iterator l_it = l_list.begin(); l_list.end() != l_it; ++l_it) 
 	{
 		PIItem	l_pIItem = *l_it;
-		if (l_pIItem && !xr_strcmp(l_pIItem->object().cNameSect(), caSection))
+		if (!xr_strcmp(l_pIItem->object().cNameSect(), caSection))
             ++l_dwCount;
 	}
 	
@@ -852,7 +858,7 @@ u32		CInventory::dwfGetGrenadeCount(LPCSTR caSection, bool SearchAll)
 	for(TIItemContainer::iterator l_it = l_list.begin(); l_list.end() != l_it; ++l_it) 
 	{
 		PIItem	l_pIItem = *l_it;
-		if (l_pIItem && l_pIItem->object().CLS_ID == CLSID_GRENADE_F1 || l_pIItem->object().CLS_ID == CLSID_GRENADE_RGD5)
+		if (l_pIItem->object().CLS_ID == CLSID_GRENADE_F1 || l_pIItem->object().CLS_ID == CLSID_GRENADE_RGD5)
 			++l_dwCount;
 	}
 
@@ -865,7 +871,7 @@ bool CInventory::bfCheckForObject(ALife::_OBJECT_ID tObjectID)
 	for(TIItemContainer::iterator l_it = l_list.begin(); l_list.end() != l_it; ++l_it) 
 	{
 		PIItem	l_pIItem = *l_it;
-		if (l_pIItem && l_pIItem->object().ID() == tObjectID)
+		if (l_pIItem->object().ID() == tObjectID)
 			return(true);
 	}
 	return		(false);
@@ -1006,6 +1012,9 @@ CInventoryItem	*CInventory::GetItemFromInventory(LPCSTR caItemName)
 
 bool CInventory::CanTakeItem(CInventoryItem *inventory_item) const
 {
+	VERIFY			(inventory_item);
+	VERIFY			(m_pOwner);
+
 	if (inventory_item->object().getDestroy()) return false;
 
 	if(!inventory_item->CanTake()) return false;

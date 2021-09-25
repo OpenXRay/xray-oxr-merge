@@ -48,7 +48,7 @@ static Fvector		GetPixel_7x7		(CDB::RESULT& rpinf)
 #endif
 
 	if (0==T.pSurface)									
-				return R;
+		return R;
 
 	// barycentric coords
 	// note: W,U,V order

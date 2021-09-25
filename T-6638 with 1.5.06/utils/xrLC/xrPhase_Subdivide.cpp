@@ -156,7 +156,6 @@ resplit:
 				D1->OA_Export();
 				lc_global_data()->g_deflectors().push_back(D1);
 
-				
 				CDeflector*		D2	= xr_new<CDeflector>(); 
 				//Deflector		= D2;
 				D2->OA_Place(s2); 

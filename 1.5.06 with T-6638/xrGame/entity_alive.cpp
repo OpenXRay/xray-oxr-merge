@@ -2,7 +2,7 @@
 #include "entity_alive.h"
 #include "inventoryowner.h"
 #include "inventory.h"
-#include "physicsshell.h"
+#include "../xrphysics/physicsshell.h"
 #include "../xrEngine/gamemtllib.h"
 #include "phmovementcontrol.h"
 #include "wound.h"
@@ -51,7 +51,8 @@ STR_VECTOR* CEntityAlive::m_pFireParticlesVector = NULL;
 /////////////////////////////////////////////
 // CEntityAlive
 /////////////////////////////////////////////
-CEntityAlive::CEntityAlive()
+CEntityAlive::CEntityAlive() :
+	m_hit_bone_surface_areas_actual	( false )
 {
 	
 	monster_community		= xr_new<MONSTER_COMMUNITY>	();
@@ -107,15 +108,6 @@ void CEntityAlive::LoadBloodyWallmarks (LPCSTR section)
 	
 	int cnt		=_GetItemCount(wallmarks_name);
 	
-	/*
-	ref_shader	s;
-	for (int k=0; k<cnt; ++k)
-	{
-		s.create ("effects\\wallmark",_GetItem(wallmarks_name,k,tmp));
-		m_pBloodMarksVector->push_back	(s);
-	}
-	*/
-
 	for (int k=0; k<cnt; ++k)	
 		(*m_pBloodMarksVector)->AppendMark(_GetItem(wallmarks_name,k,tmp));
 
@@ -272,8 +264,7 @@ void CEntityAlive::HitImpulse	(float /**amount/**/, Fvector& /**vWorldDir/**/, F
 	//	m_PhysicMovementControl->vExternalImpulse.mad	(vWorldDir,Q);
 }
 
-//void CEntityAlive::Hit(float P, Fvector &dir,CObject* who, s16 element,Fvector position_in_object_space, float impulse, ALife::EHitType hit_type, float AP)
-void	CEntityAlive::Hit							(SHit* pHDS)
+void	CEntityAlive::Hit	(SHit* pHDS)
 {
 	SHit HDS = *pHDS;
 	//-------------------------------------------------------------------
@@ -286,7 +277,7 @@ void	CEntityAlive::Hit							(SHit* pHDS)
 	CWound* pWound = conditions().ConditionHit(&HDS);
 
 	if(pWound){
-		if(ALife::eHitTypeBurn == HDS.hit_type)
+		if(ALife::eHitTypeBurn == HDS.hit_type || ALife::eHitTypeLightBurn == HDS.hit_type)
 			StartFireParticles(pWound);
 		else if(ALife::eHitTypeWound == HDS.hit_type || ALife::eHitTypeFireWound == HDS.hit_type)
 			StartBloodDrops(pWound);

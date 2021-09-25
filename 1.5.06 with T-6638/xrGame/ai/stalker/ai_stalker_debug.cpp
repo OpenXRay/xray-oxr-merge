@@ -10,7 +10,6 @@
 
 #ifdef DEBUG
 #include "ai_stalker.h"
-#include "../../hudmanager.h"
 #include "../../memory_manager.h"
 #include "../../visual_memory_manager.h"
 #include "../../sound_memory_manager.h"
@@ -55,6 +54,8 @@
 #include "../../aimers_weapon.h"
 #include "../../aimers_bone.h"
 #include "../../smart_cover_planner_target_selector.h"
+#include "../../ui_base.h"
+#include "../../doors_actor.h"
 
 CActor *g_debug_actor = 0;
 
@@ -345,7 +346,7 @@ void CAI_Stalker::debug_text			()
 			}
 
 		if (g_Alive()) {
-			if (!g_mt_config.test(mtAiVision))
+			if ( true || !g_mt_config.test(mtAiVision) )
 				VERIFY						(!memory().visual().visible_now(memory().enemy().selected()) || (fuzzy > 0.f));
 			DBG_OutText("%s%s%svisible   : %s %f",indent,indent,indent,memory().visual().visible_now(memory().enemy().selected()) ? "+" : "-",fuzzy);
 		}
@@ -963,11 +964,11 @@ void CAI_Stalker::dbg_draw_vision	()
 
 	CNotYetVisibleObject		*object = memory().visual().not_yet_visible_object(smart_cast<CGameObject*>(Level().CurrentEntity()));
 	string64					out_text;
-	sprintf_s						(out_text,"%.2f",object ? object->m_value : 0.f);
+	xr_sprintf						(out_text,"%.2f",object ? object->m_value : 0.f);
 
-	HUD().Font().pFontMedium->SetColor	(D3DCOLOR_RGBA(255,0,0,95));
-	HUD().Font().pFontMedium->OutSet	(x,y);
-	HUD().Font().pFontMedium->OutNext	(out_text);
+	UI().Font().pFontMedium->SetColor	(D3DCOLOR_RGBA(255,0,0,95));
+	UI().Font().pFontMedium->OutSet	(x,y);
+	UI().Font().pFontMedium->OutNext	(out_text);
 }
 
 typedef xr_vector<Fvector>	COLLIDE_POINTS;
@@ -1093,7 +1094,7 @@ void CAI_Stalker::dbg_draw_visibility_rays	()
 	if (!g_Alive())
 		return;
 
-	const CEntityAlive		*enemy = memory().enemy().selected();
+	const CEntityAlive		*enemy = memory().enemy().selected() ? memory().enemy().selected() : Actor();
 	if (enemy) {
 		if (memory().visual().visible_now(enemy)) {
 			collide::rq_results	rq_storage;
@@ -1300,7 +1301,7 @@ struct callback_param {
 	u16				bone_id;
 };
 
-static void test_callback			(CBoneInstance *B)
+static void	_BCL test_callback			(CBoneInstance *B)
 {
 	VERIFY								(B);
 
@@ -1820,6 +1821,9 @@ void CAI_Stalker::OnRender				()
 			}
 		}
 	}
+
+	if ( g_Alive() )
+		movement().get_doors_actor().render();
 
 	if (m_throw_picks.size() < 2)
 		return;

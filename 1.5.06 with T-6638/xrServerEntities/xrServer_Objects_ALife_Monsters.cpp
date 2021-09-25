@@ -137,8 +137,8 @@ CSE_ALifeTraderAbstract::CSE_ALifeTraderAbstract(LPCSTR caSection)
 CSE_Abstract *CSE_ALifeTraderAbstract::init	()
 {
 	string4096					S;
-	//sprintf_s						(S,"%s\r\n[game_info]\r\nname_id = default\r\n",!*base()->m_ini_string ? "" : *base()->m_ini_string);
-	sprintf_s						(S,"%s\r\n[game_info]\r\n",!*base()->m_ini_string ? "" : *base()->m_ini_string);
+	//xr_sprintf				(S,"%s\r\n[game_info]\r\nname_id = default\r\n",!*base()->m_ini_string ? "" : *base()->m_ini_string);
+	xr_sprintf					(S,"%s\r\n[game_info]\r\n",!*base()->m_ini_string ? "" : *base()->m_ini_string);
 	base()->m_ini_string		= S;
 
 	return						(base());
@@ -1136,8 +1136,8 @@ CSE_ALifeMonsterAbstract::CSE_ALifeMonsterAbstract(LPCSTR caSection)	: CSE_ALife
 		for ( ; I != E; ++I)
 		{
 			//			*I					= READ_IF_EXISTS(pSettings,r_float,imm_section,strcat(strcpy(S,ALife::g_cafHitType2String(ALife::EHitType(I - B))),"_immunity"),1.f);
-			strcpy_s(S, ALife::g_cafHitType2String(ALife::EHitType(I - B)));
-			strcat(S,"_immunity");
+			xr_strcpy			(S, ALife::g_cafHitType2String(ALife::EHitType(I - B)));
+			xr_strcat			(S,"_immunity");
 			*I					= READ_IF_EXISTS(pSettings,r_float,imm_section,S,1.f);
 		}
 	}
@@ -1291,6 +1291,26 @@ bool CSE_ALifeMonsterAbstract::need_update	(CSE_ALifeDynamicObject *object)
 {
 	return						(CSE_ALifeSchedulable::need_update(object) && (get_health() > EPS_L));
 }
+#ifdef XRGAME_EXPORTS
+void CSE_ALifeMonsterAbstract::kill						()
+{
+	if (m_group_id != 0xffff)
+		ai().alife().groups().object(m_group_id).unregister_member	(ID);
+	set_health(0.f);
+
+}
+bool CSE_ALifeMonsterAbstract::has_detector	()
+{
+	OBJECT_IT			I = this->children.begin();
+	OBJECT_IT			E = this->children.end();
+	for ( ; I != E; ++I){
+		CSE_ALifeItemDetector* detector = smart_cast<CSE_ALifeItemDetector*>(ai().alife().objects().object(*I));
+		if (detector) return true;
+	};
+	return false;
+}
+
+#endif // #ifdef XRGAME_EXPORTS
 
 ////////////////////////////////////////////////////////////////////////////
 // CSE_ALifeCreatureActor

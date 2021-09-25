@@ -49,7 +49,7 @@ ALife::_OBJECT_ID smart_terrain_id	(CSE_ALifeMonsterAbstract *monster)
 	THROW						(monster);
 	return						(monster->m_smart_terrain_id);
 }
-
+#ifdef XRGAME_EXPORTS
 float travel_speed					(CSE_ALifeMonsterAbstract *self)
 {
 	return						(self->m_fGoingSpeed);
@@ -70,6 +70,14 @@ void current_level_travel_speed2	(CSE_ALifeMonsterAbstract *self, float travel_s
 	self->m_fCurrentLevelGoingSpeed	= travel_speed;
 }
 
+void ForceSetGoodwill(CSE_ALifeMonsterAbstract *self, int goodwill, ALife::_OBJECT_ID pWhoToSet)
+{
+	RELATION_REGISTRY().ForceSetGoodwill(self->ID, pWhoToSet, goodwill);
+}
+
+
+
+#endif // #ifdef XRGAME_EXPORTS
 #pragma optimize("s",on)
 void CSE_ALifeMonsterAbstract::script_register(lua_State *L)
 {
@@ -81,16 +89,23 @@ void CSE_ALifeMonsterAbstract::script_register(lua_State *L)
 			CSE_ALifeSchedulable
 		)
 		.def("smart_terrain_id",				&smart_terrain_id)
+		.def_readonly("group_id",				&CSE_ALifeMonsterAbstract::m_group_id)
 		.def_readwrite("m_smart_terrain_id",	&CSE_ALifeMonsterAbstract::m_smart_terrain_id)
 		.def("clear_smart_terrain",				&clear_smart_terrain)
 		.def("brain",							&monster_brain)
 		.def("rank",							&CSE_ALifeMonsterAbstract::Rank)
 		.def("smart_terrain_task_activate",		&smart_terrain_task_activate)
 		.def("smart_terrain_task_deactivate",	&smart_terrain_task_deactivate)
+#ifdef XRGAME_EXPORTS
 		.def("travel_speed",					&travel_speed)
 		.def("travel_speed",					&travel_speed2)
 		.def("current_level_travel_speed",		&current_level_travel_speed)
 		.def("current_level_travel_speed",		&current_level_travel_speed2)
+		.def("kill",							&CSE_ALifeMonsterAbstract::kill)
+		.def("has_detector",					&CSE_ALifeMonsterAbstract::has_detector)
+
+		.def("force_set_goodwill",				&ForceSetGoodwill)
+#endif // #ifdef XRGAME_EXPORTS
 	];
 }
 

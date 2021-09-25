@@ -217,13 +217,13 @@ void CAI_Stalker::Hit(SHit* pHDS)
 	
 	float hit_power = HDS.power * m_fRankImmunity;
 
-	if(m_boneHitProtection && HDS.hit_type == ALife::eHitTypeFireWound)
+	if ( m_boneHitProtection && HDS.hit_type == ALife::eHitTypeFireWound )
 	{
-		float BoneArmor = m_boneHitProtection->getBoneArmor(HDS.bone());
+		float BoneArmor = m_boneHitProtection->getBoneArmor( HDS.bone() );
 		float ap = HDS.armor_piercing;
-		if(!fis_zero(BoneArmor, EPS))
+		if ( !fis_zero(BoneArmor, EPS) )
 		{
-			if(ap > BoneArmor)
+			if ( ap > BoneArmor )
 			{
 				float d_hit_power = (ap - BoneArmor) / ap;
 				if(d_hit_power < m_boneHitProtection->m_fHitFracNpc)
@@ -908,6 +908,7 @@ bool CAI_Stalker::use_throw_randomness		()
 float CAI_Stalker::missile_throw_force		() 
 {
 	update_throw_params		();
+
 	return					(m_throw_velocity.magnitude());
 }
 
@@ -969,7 +970,7 @@ void CAI_Stalker::check_throw_trajectory	(const float &throw_time)
 #ifdef DEBUG
 	trajectory_picks				=	& m_throw_picks;
 	collide_tris					=	& m_throw_collide_tris;
-#endif // #ifdef DEBUG
+#endif
 
 	Fvector box_size				=	{ 0.f, 0.f , 0.f };
 	//Fvector box_size				=	{ 0.1f, 0.1f , 0.1f };

@@ -120,7 +120,8 @@ void CScriptGameObject::SetVisualMemoryEnabled	(bool enabled)
 CScriptGameObject *CScriptGameObject::GetEnemy() const
 {
 	CCustomMonster		*l_tpCustomMonster = smart_cast<CCustomMonster*>(&object());
-	if (l_tpCustomMonster && l_tpCustomMonster->g_Alive() ) {
+	if (l_tpCustomMonster && l_tpCustomMonster->g_Alive())
+	{
 		if (l_tpCustomMonster->GetCurrentEnemy() && !l_tpCustomMonster->GetCurrentEnemy()->getDestroy()) return (l_tpCustomMonster->GetCurrentEnemy()->lua_game_object());
 		else return (0);
 	} else {
@@ -647,7 +648,8 @@ void CScriptGameObject::set_sight		(SightManager::ESightType sight_type, Fvector
 	CAI_Stalker					*stalker = smart_cast<CAI_Stalker*>(&object());
 	if (!stalker)
 		ai().script_engine().script_log					(ScriptStorage::eLuaMessageTypeError,"CSightManager : cannot access class member set_sight!");
-	else {
+	else
+	{
 		if ( (sight_type == SightManager::eSightTypeDirection) && vector3d && (_abs(vector3d->magnitude() - 1.f) > .01f) ) {
 			VERIFY2				( false, make_string("non-normalized direction passed [%f][%f][%f]", VPUSH(*vector3d)) );
 			vector3d->normalize	( );
@@ -671,7 +673,8 @@ void CScriptGameObject::set_sight		(SightManager::ESightType sight_type, Fvector
 	CAI_Stalker					*stalker = smart_cast<CAI_Stalker*>(&object());
 	if (!stalker)
 		ai().script_engine().script_log					(ScriptStorage::eLuaMessageTypeError,"CSightManager : cannot access class member set_sight!");
-	else {
+	else
+	{
 		if ( (sight_type == SightManager::eSightTypeDirection) && (_abs(vector3d.magnitude() - 1.f) > .01f) ) {
 			VERIFY2				( false, make_string("non-normalized direction passed [%f][%f][%f]", VPUSH(vector3d)) );
 			vector3d.normalize	( );
@@ -686,7 +689,8 @@ void CScriptGameObject::set_sight		(SightManager::ESightType sight_type, Fvector
 	CAI_Stalker					*stalker = smart_cast<CAI_Stalker*>(&object());
 	if (!stalker)
 		ai().script_engine().script_log					(ScriptStorage::eLuaMessageTypeError,"CSightManager : cannot access class member set_sight!");
-	else {
+	else
+	{
 		if ( (sight_type == SightManager::eSightTypeDirection) && vector3d && (_abs(vector3d->magnitude() - 1.f) > .01f) ) {
 			VERIFY2				( false, make_string("non-normalized direction passed [%f][%f][%f]", VPUSH(*vector3d)) );
 			vector3d->normalize	( );

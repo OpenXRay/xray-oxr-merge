@@ -86,7 +86,7 @@ void CBuild::xrPhase_MergeLM()
 	{
 		VERIFY( lc_global_data() );
 		string512	phase_name;
-		sprintf		(phase_name,"Building lightmap %d...", lc_global_data()->lightmaps().size());
+		xr_sprintf		(phase_name,"Building lightmap %d...", lc_global_data()->lightmaps().size());
 		Phase		(phase_name);
 
 		// Sort layer by similarity (state changes)

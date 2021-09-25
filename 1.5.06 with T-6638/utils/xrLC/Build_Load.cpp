@@ -338,7 +338,7 @@ void CBuild::Load	(const b_params& Params, const IReader& _in_FS)
 				BT.bHasAlpha= BT.THM.HasAlphaChannel();
 				if (!bLOD) 
 				{
-					if (BT.bHasAlpha || BT.THM.flags.test(STextureParams::flImplicitLighted) || b_radiosity)
+					if (BT.bHasAlpha || BT.THM.flags.test(STextureParams::flImplicitLighted) || g_build_options.b_radiosity)
 					{
 						clMsg		("- loading: %s",N);
 						u32			w=0, h=0;

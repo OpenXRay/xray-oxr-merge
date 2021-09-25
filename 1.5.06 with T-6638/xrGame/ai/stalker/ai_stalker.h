@@ -205,6 +205,7 @@ public:
 
 	virtual void						OnEvent								(NET_Packet& P, u16 type);
 	virtual void						feel_touch_new						(CObject* O);
+	virtual void						feel_touch_delete					(CObject* O);
 			void						on_ownership_reject					( CObject*O, bool just_before_destroy );
 	virtual void						renderable_Render					();
 	virtual void						Exec_Look							(float dt);
@@ -260,7 +261,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 public:
 	virtual void						OnItemTake				(CInventoryItem *inventory_item);
-	virtual void						OnItemDrop				(CInventoryItem *inventory_item);
+	virtual void						OnItemDrop				(CInventoryItem *inventory_item, bool just_before_destroy);
 			bool						item_to_kill			();
 			bool						item_can_kill			();
 			bool						remember_item_to_kill	();
@@ -268,7 +269,9 @@ public:
 			bool						ready_to_kill			();
 			bool						ready_to_detour			();
 			void						update_best_item_info	();
+			void						update_best_item_info_impl();
 	virtual float						GetWeaponAccuracy		() const;
+	virtual bool						unlimited_ammo			();
 	virtual	void						spawn_supplies			();
 	IC		CAgentManager				&agent_manager			() const;
 	
@@ -335,6 +338,11 @@ private:
 	xr_vector<CTradeItem>				m_temp_items;
 	u32									m_total_money;
 	bool								m_sell_info_actuality;
+	bool								m_can_select_weapon;
+public:
+	bool								can_select_weapon				() {return m_can_select_weapon;};
+	void								can_select_weapon				(bool can) {m_can_select_weapon = can;};
+			bool						can_take						(CInventoryItem const * item);
 
 protected:
 			u32							fill_items						(CInventory &inventory, CGameObject *old_owner, ALife::_OBJECT_ID new_owner_id);
@@ -353,7 +361,6 @@ protected:
 			void						update_sell_info				();
 			bool						tradable_item					(CInventoryItem *inventory_item, const u16 &current_owner_id);
 			bool						can_sell						(CInventoryItem* item);
-			bool						can_take						(CInventoryItem const * item);
 
 			bool						non_conflicted					(const CInventoryItem *item, const CWeapon *new_weapon) const;
 			bool						enough_ammo						(const CWeapon *new_weapon) const;
@@ -361,7 +368,7 @@ protected:
 			void						update_conflicted				(CInventoryItem *item, const CWeapon *new_weapon);
 			void						remove_personal_only_ammo		(const CInventoryItem *item);
 			void						on_after_take					(const CGameObject *object);
-	virtual bool						AllowItemToTrade 				(CInventoryItem const * item, EItemPlace place) const;
+	virtual bool						AllowItemToTrade 				(CInventoryItem const * item, const SInvItemPlace& place) const;
 public:
 	IC		CStalkerAnimationManager	&animation						() const;
 	IC		CStalkerPlanner				&brain							() const;
@@ -416,37 +423,202 @@ public:
 #endif
 
 private:
-	u32				m_min_queue_size_far;
-	u32				m_max_queue_size_far;
-	u32				m_min_queue_interval_far;
-	u32				m_max_queue_interval_far;
+	u32				m_pstl_min_queue_size_far;
+	u32				m_pstl_max_queue_size_far;
+	u32				m_pstl_min_queue_interval_far;
+	u32				m_pstl_max_queue_interval_far;
 
-	u32				m_min_queue_size_medium;
-	u32				m_max_queue_size_medium;
-	u32				m_min_queue_interval_medium;
-	u32				m_max_queue_interval_medium;
+	u32				m_pstl_min_queue_size_medium;
+	u32				m_pstl_max_queue_size_medium;
+	u32				m_pstl_min_queue_interval_medium;
+	u32				m_pstl_max_queue_interval_medium;
 
-	u32				m_min_queue_size_close;
-	u32				m_max_queue_size_close;
-	u32				m_min_queue_interval_close;
-	u32				m_max_queue_interval_close;
+	u32				m_pstl_min_queue_size_close;
+	u32				m_pstl_max_queue_size_close;
+	u32				m_pstl_min_queue_interval_close;
+	u32				m_pstl_max_queue_interval_close;
 
+
+	u32				m_shtg_min_queue_size_far;
+	u32				m_shtg_max_queue_size_far;
+	u32				m_shtg_min_queue_interval_far;
+	u32				m_shtg_max_queue_interval_far;
+
+	u32				m_shtg_min_queue_size_medium;
+	u32				m_shtg_max_queue_size_medium;
+	u32				m_shtg_min_queue_interval_medium;
+	u32				m_shtg_max_queue_interval_medium;
+
+	u32				m_shtg_min_queue_size_close;
+	u32				m_shtg_max_queue_size_close;
+	u32				m_shtg_min_queue_interval_close;
+	u32				m_shtg_max_queue_interval_close;
+
+
+	u32				m_snp_min_queue_size_far;
+	u32				m_snp_max_queue_size_far;
+	u32				m_snp_min_queue_interval_far;
+	u32				m_snp_max_queue_interval_far;
+
+	u32				m_snp_min_queue_size_medium;
+	u32				m_snp_max_queue_size_medium;
+	u32				m_snp_min_queue_interval_medium;
+	u32				m_snp_max_queue_interval_medium;
+
+	u32				m_snp_min_queue_size_close;
+	u32				m_snp_max_queue_size_close;
+	u32				m_snp_min_queue_interval_close;
+	u32				m_snp_max_queue_interval_close;
+
+
+	u32				m_mchg_min_queue_size_far;
+	u32				m_mchg_max_queue_size_far;
+	u32				m_mchg_min_queue_interval_far;
+	u32				m_mchg_max_queue_interval_far;
+
+	u32				m_mchg_min_queue_size_medium;
+	u32				m_mchg_max_queue_size_medium;
+	u32				m_mchg_min_queue_interval_medium;
+	u32				m_mchg_max_queue_interval_medium;
+
+	u32				m_mchg_min_queue_size_close;
+	u32				m_mchg_max_queue_size_close;
+	u32				m_mchg_min_queue_interval_close;
+	u32				m_mchg_max_queue_interval_close;
+
+
+	u32				m_auto_min_queue_size_far;
+	u32				m_auto_max_queue_size_far;
+	u32				m_auto_min_queue_interval_far;
+	u32				m_auto_max_queue_interval_far;
+
+	u32				m_auto_min_queue_size_medium;
+	u32				m_auto_max_queue_size_medium;
+	u32				m_auto_min_queue_interval_medium;
+	u32				m_auto_max_queue_interval_medium;
+
+	u32				m_auto_min_queue_size_close;
+	u32				m_auto_max_queue_size_close;
+	u32				m_auto_min_queue_interval_close;
+	u32				m_auto_max_queue_interval_close;
+
+//	float			m_pstl_queue_fire_dist_close;
+	float			m_pstl_queue_fire_dist_med;
+	float			m_pstl_queue_fire_dist_far;
+
+//	float			m_shtg_queue_fire_dist_close;
+	float			m_shtg_queue_fire_dist_med;
+	float			m_shtg_queue_fire_dist_far;
+
+//	float			m_snp_queue_fire_dist_close;
+	float			m_snp_queue_fire_dist_med;
+	float			m_snp_queue_fire_dist_far;
+
+//	float			m_mchg_queue_fire_dist_close;
+	float			m_mchg_queue_fire_dist_med;
+	float			m_mchg_queue_fire_dist_far;
+
+//	float			m_auto_queue_fire_dist_close;
+	float			m_auto_queue_fire_dist_med;
+	float			m_auto_queue_fire_dist_far;
 public:
-	IC		u32							min_queue_size_far				() const;
-	IC		u32							max_queue_size_far				() const;
-	IC		u32							min_queue_interval_far			() const;
-	IC		u32							max_queue_interval_far			() const;
+	IC		u32							pstl_min_queue_size_far			() const;
+	IC		u32							pstl_max_queue_size_far			() const;
+	IC		u32							pstl_min_queue_interval_far		() const;
+	IC		u32							pstl_max_queue_interval_far		() const;
 
-	IC		u32							min_queue_size_medium			() const;
-	IC		u32							max_queue_size_medium			() const;
-	IC		u32							min_queue_interval_medium		() const;
-	IC		u32							max_queue_interval_medium		() const;
+	IC		u32							pstl_min_queue_size_medium		() const;
+	IC		u32							pstl_max_queue_size_medium		() const;
+	IC		u32							pstl_min_queue_interval_medium	() const;
+	IC		u32							pstl_max_queue_interval_medium	() const;
 
-	IC		u32							min_queue_size_close			() const;
-	IC		u32							max_queue_size_close			() const;
-	IC		u32							min_queue_interval_close		() const;
-	IC		u32							max_queue_interval_close		() const;
+	IC		u32							pstl_min_queue_size_close		() const;
+	IC		u32							pstl_max_queue_size_close		() const;
+	IC		u32							pstl_min_queue_interval_close	() const;
+	IC		u32							pstl_max_queue_interval_close	() const;
 
+
+	IC		u32							shtg_min_queue_size_far			() const;
+	IC		u32							shtg_max_queue_size_far			() const;
+	IC		u32							shtg_min_queue_interval_far		() const;
+	IC		u32							shtg_max_queue_interval_far		() const;
+
+	IC		u32							shtg_min_queue_size_medium		() const;
+	IC		u32							shtg_max_queue_size_medium		() const;
+	IC		u32							shtg_min_queue_interval_medium	() const;
+	IC		u32							shtg_max_queue_interval_medium	() const;
+
+	IC		u32							shtg_min_queue_size_close		() const;
+	IC		u32							shtg_max_queue_size_close		() const;
+	IC		u32							shtg_min_queue_interval_close	() const;
+	IC		u32							shtg_max_queue_interval_close	() const;
+
+
+	IC		u32							snp_min_queue_size_far			() const;
+	IC		u32							snp_max_queue_size_far			() const;
+	IC		u32							snp_min_queue_interval_far		() const;
+	IC		u32							snp_max_queue_interval_far		() const;
+
+	IC		u32							snp_min_queue_size_medium		() const;
+	IC		u32							snp_max_queue_size_medium		() const;
+	IC		u32							snp_min_queue_interval_medium	() const;
+	IC		u32							snp_max_queue_interval_medium	() const;
+
+	IC		u32							snp_min_queue_size_close		() const;
+	IC		u32							snp_max_queue_size_close		() const;
+	IC		u32							snp_min_queue_interval_close	() const;
+	IC		u32							snp_max_queue_interval_close	() const;
+
+	IC		u32							mchg_min_queue_size_far			() const;
+	IC		u32							mchg_max_queue_size_far			() const;
+	IC		u32							mchg_min_queue_interval_far		() const;
+	IC		u32							mchg_max_queue_interval_far		() const;
+
+	IC		u32							mchg_min_queue_size_medium		() const;
+	IC		u32							mchg_max_queue_size_medium		() const;
+	IC		u32							mchg_min_queue_interval_medium	() const;
+	IC		u32							mchg_max_queue_interval_medium	() const;
+
+	IC		u32							mchg_min_queue_size_close		() const;
+	IC		u32							mchg_max_queue_size_close		() const;
+	IC		u32							mchg_min_queue_interval_close	() const;
+	IC		u32							mchg_max_queue_interval_close	() const;
+
+
+	IC		u32							auto_min_queue_size_far			() const;
+	IC		u32							auto_max_queue_size_far			() const;
+	IC		u32							auto_min_queue_interval_far		() const;
+	IC		u32							auto_max_queue_interval_far		() const;
+
+	IC		u32							auto_min_queue_size_medium		() const;
+	IC		u32							auto_max_queue_size_medium		() const;
+	IC		u32							auto_min_queue_interval_medium	() const;
+	IC		u32							auto_max_queue_interval_medium	() const;
+
+	IC		u32							auto_min_queue_size_close		() const;
+	IC		u32							auto_max_queue_size_close		() const;
+	IC		u32							auto_min_queue_interval_close	() const;
+	IC		u32							auto_max_queue_interval_close	() const;
+
+//	IC		float						pstl_queue_fire_dist_close		() const;
+	IC		float						pstl_queue_fire_dist_med		() const;
+	IC		float						pstl_queue_fire_dist_far		() const;
+
+//	IC		float						shtg_queue_fire_dist_close		() const;
+	IC		float						shtg_queue_fire_dist_med		() const;
+	IC		float						shtg_queue_fire_dist_far		() const;
+
+//	IC		float						snp_queue_fire_dist_close		() const;
+	IC		float						snp_queue_fire_dist_med			() const;
+	IC		float						snp_queue_fire_dist_far			() const;
+
+//	IC		float						mchg_queue_fire_dist_close		() const;
+	IC		float						mchg_queue_fire_dist_med			() const;
+	IC		float						mchg_queue_fire_dist_far			() const;
+
+//	IC		float						auto_queue_fire_dist_close		() const;
+	IC		float						auto_queue_fire_dist_med		() const;
+	IC		float						auto_queue_fire_dist_far		() const;
 public:
 	typedef fastdelegate::FastDelegate<void (const CCoverPoint *, const CCoverPoint *)>	on_best_cover_changed_delegate;
 	typedef	fastdelegate::FastDelegate<bool (SHit const*)>								HitCallback;
@@ -500,7 +672,7 @@ private:
 	Fvector								m_computed_object_position;
 	Fvector								m_computed_object_direction;
 	// target parameters
-	Fvector								m_throw_target;
+	Fvector								m_throw_target_position;
 	CObject								*m_throw_ignore_object;
 	// computed
 	Fvector								m_throw_position;
@@ -535,12 +707,15 @@ private:
 											const Fvector &gravity
 										);
 			void						check_throw_trajectory				(const float &throw_time);
+			void						throw_target_impl					(const Fvector &position, CObject *throw_ignore_object );
+			void						compute_throw_miss					( u32 const vertex_id );
 
 public:
 	virtual	bool						use_default_throw_force				();
 	virtual	float						missile_throw_force					(); 
 	virtual	bool						use_throw_randomness				();
-			void						throw_target						(const Fvector &position, CObject *throw_ignore_object); 
+			void						throw_target						(const Fvector &position, CObject *throw_ignore_object );
+			void						throw_target						(const Fvector &position, u32 const vertex_id, CObject *throw_ignore_object );
 	IC		const Fvector				&throw_target						() const;
 			void						update_throw_params					(); 
 			void						on_throw_completed					();
@@ -647,8 +822,25 @@ public:
 	IC		void						take_items_enabled							(bool value);
 	IC		bool						take_items_enabled							() const;
 
+	IC		void						death_sound_enabled							(bool value);
+	IC		bool						death_sound_enabled							() const;
+
 private:
 	bool								m_take_items_enabled;
+	bool								m_death_sound_enabled;
+
+public:
+	smart_cover::cover const*			get_current_smart_cover						( );
+	smart_cover::loophole const*		get_current_loophole						( );
+	bool								can_fire_right_now							( );
+
+public:
+	typedef xr_vector<CObject*>			ignored_touched_objects_type;
+	inline	ignored_touched_objects_type& ignored_touched_objects					() { return m_ignored_touched_objects; }
+			void						generate_take_event							( CObject const* const object ) const;
+
+private:
+	ignored_touched_objects_type		m_ignored_touched_objects;
 
 public:
 	DECLARE_SCRIPT_REGISTER_FUNCTION

@@ -153,13 +153,13 @@ void __stdcall xrSkin3W_x86(vertRender*		D,
         M2.transform_tiny(P2,S->P); P2.mul(1.0f-S->w[0]-S->w[1]);
         M2.transform_dir (N2,S->N); N2.mul(1.0f-S->w[0]-S->w[1]);
 
-		P0.add(P1);
-		P0.add(P2);
+		P0.add			(P1);
+		P0.add			(P2);
 
 		D->P			= P0;
 
-		N0.add(N1);
-		N0.add(N2);
+		N0.add			(N1);
+		N0.add			(N2);
 
 		D->N			= N0;
 		
@@ -204,15 +204,15 @@ void __stdcall xrSkin4W_x86(vertRender*		D,
 	M3.transform_tiny(P3,S->P); P3.mul(1.0f-S->w[0]-S->w[1]-S->w[2]);
         M3.transform_dir (N3,S->N); N3.mul(1.0f-S->w[0]-S->w[1]-S->w[2]);
 
-		P0.add(P1);
-		P0.add(P2);
-		P0.add(P3);
+		P0.add			(P1);
+		P0.add			(P2);
+		P0.add			(P3);
 
 		D->P			= P0;
 		
-		N0.add(N1);
-		N0.add(N2);
-		N0.add(N3);
+		N0.add			(N1);
+		N0.add			(N2);
+		N0.add			(N3);
 
 		D->N			= N0;
 		

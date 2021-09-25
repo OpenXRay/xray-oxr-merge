@@ -156,7 +156,8 @@ void	CSoundRender_Core::statistic			(CSound_stats*  dest, CSound_stats_ext*  ext
 		cache.stats_clear	();
 	}
 	if (ext){
-		for (u32 it=0; it<s_emitters.size(); it++){
+		for (u32 it=0; it<s_emitters.size(); it++)
+		{
 			CSoundRender_Emitter*	_E = s_emitters[it];	
 			CSound_stats_ext::SItem _I;
 			_I._3D					= !_E->b2D;

@@ -68,7 +68,8 @@ CDemoRecord::CDemoRecord(const char *name,float life_time) : CEffectorCam(cefDem
 
 CDemoRecord::~CDemoRecord()
 {
-	if (file) {
+	if (file)
+	{
 		IR_Release	();	// release input
 		FS.w_close	(file);
 	}
@@ -137,7 +138,8 @@ void GetLM_BBox(Fbox &bb, INT Step)
 
 void CDemoRecord::MakeLevelMapProcess()
 {
-	switch (m_Stage){
+	switch (m_Stage)
+	{
 	case 0: 
 		s_dev_flags			= psDeviceFlags;
 		psDeviceFlags.zero	();

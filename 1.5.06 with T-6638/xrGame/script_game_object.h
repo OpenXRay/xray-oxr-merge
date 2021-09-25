@@ -259,6 +259,7 @@ public:
 
 	// CProjector
 			Fvector				GetCurrentDirection		();
+
 			bool				IsInvBoxEmpty			();
 	//передача порции информации InventoryOwner
 			bool				GiveInfoPortion		(LPCSTR info_id);
@@ -322,6 +323,7 @@ public:
 
 			int					GetGoodwill			(CScriptGameObject* pToWho);
 			void				SetGoodwill			(int goodwill, CScriptGameObject* pWhoToSet);
+			void				ForceSetGoodwill	(int goodwill, CScriptGameObject* pWhoToSet);
 			void				ChangeGoodwill		(int delta_goodwill, CScriptGameObject* pWhoToSet);
 
 

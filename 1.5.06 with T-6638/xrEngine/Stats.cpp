@@ -2,7 +2,7 @@
 #include "GameFont.h"
 #pragma hdrstop
 
-#include "ISpatial.h"
+#include "../xrcdb/ISpatial.h"
 #include "IGame_Persistent.h"
 #include "render.h"
 #include "xr_object.h"
@@ -120,6 +120,9 @@ void CStats::Show()
 		netClient1.FrameEnd			();
 		netClient2.FrameEnd			();
 		netServer.FrameEnd			();
+		
+		netClientCompressor.FrameEnd();
+		netServerCompressor.FrameEnd();
 		
 		TEST0.FrameEnd				();
 		TEST1.FrameEnd				();
@@ -245,7 +248,7 @@ void CStats::Show()
 		F.OutNext	("  Wait-L:    %2.2fms",RenderDUMP_Wait.result);	
 		F.OutNext	("  Wait-S:    %2.2fms",RenderDUMP_Wait_S.result);	
 		F.OutNext	("  Skinning:  %2.2fms",RenderDUMP_SKIN.result);	
-		F.OutNext	("  DT_Vis/Cnt:%2.2fms",RenderDUMP_DT_VIS.result,RenderDUMP_DT_Count);	
+		F.OutNext	("  DT_Vis/Cnt:%2.2fms/%d",RenderDUMP_DT_VIS.result,RenderDUMP_DT_Count);	
 		F.OutNext	("  DT_Render: %2.2fms",RenderDUMP_DT_Render.result);	
 		F.OutNext	("  DT_Cache:  %2.2fms",RenderDUMP_DT_Cache.result);	
 		F.OutNext	("  Wallmarks: %2.2fms, %d/%d - %d",RenderDUMP_WM.result,RenderDUMP_WMS_Count,RenderDUMP_WMD_Count,RenderDUMP_WMT_Count);
@@ -269,6 +272,9 @@ void CStats::Show()
 		F.OutNext	("netClientRecv:   %2.2fms, %d",	netClient1.result,netClient1.count);
 		F.OutNext	("netClientSend:   %2.2fms, %d",	netClient2.result,netClient2.count);
 		F.OutNext	("netServer:   %2.2fms, %d",		netServer.result,netServer.count);
+		F.OutNext	("netClientCompressor:   %2.2fms",	netClientCompressor.result);
+		F.OutNext	("netServerCompressor:   %2.2fms",	netServerCompressor.result);
+		
 		F.OutSkip	();
 
 		F.OutSkip	();
@@ -414,6 +420,8 @@ void CStats::Show()
 		netClient1.FrameStart		();
 		netClient2.FrameStart		();
 		netServer.FrameStart		();
+		netClientCompressor.FrameStart();
+		netServerCompressor.FrameStart();
 
 		TEST0.FrameStart			();
 		TEST1.FrameStart			();
@@ -489,7 +497,8 @@ void CStats::OnRender				()
 				if (g_stats_flags.is(st_sound_max_dist))
 					DU->DrawSphere		(Fidentity, item.params.position, item.params.max_distance, 0x4000FF00,	0xFF008000, true, true);
 				xr_string out_txt		= (g_stats_flags.is(st_sound_info_name))?item.name.c_str():"";
-				if (item.game_object){
+				if (item.game_object)
+				{
 					if (g_stats_flags.is(st_sound_ai_dist))
 						DU->DrawSphere	(Fidentity, item.params.position, item.params.max_ai_distance, 0x80FF0000,0xFF800000,true,true);
 					if (g_stats_flags.is(st_sound_info_object)){

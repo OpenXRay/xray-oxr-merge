@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "build.h"
 #include "ogf_face.h"
-#include "std_classes.h"
+//#include "std_classes.h"
 #include "../../xrcore/fs.h"
 #include "../../xrEngine/fmesh.h"
 
@@ -138,7 +138,7 @@ void OGF::Save			(IWriter &fs)
 	for (u32 i=0; i<textures.size(); i++)	{
 		if (!Tname.empty()) Tname += ',';
 		string256		t;
-		strcpy_s			(t,*textures[i].name);
+		xr_strcpy			(t,*textures[i].name);
 		if (strchr(t,'.')) *strchr(t,'.')=0;
 		Tname			+= t;
 	}
@@ -189,7 +189,7 @@ void OGF_Reference::Save	(IWriter &fs)
 	{
 		if (!Tname.empty()) Tname += ',';
 		string256		t;
-		strcpy_s			(t,*textures[i].name);
+		xr_strcpy			(t,*textures[i].name);
 		if (strchr(t,'.')) *strchr(t,'.')=0;
 		Tname			+= t;
 	}

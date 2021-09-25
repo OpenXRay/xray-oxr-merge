@@ -7,7 +7,7 @@
 #include "resource.h"
 #include "dbghelp.h"
  
-#include "dxerr9.h"
+#include "dxerr.h"
 
 #ifdef __BORLANDC__
 	#include "d3d9.h"
@@ -24,7 +24,7 @@
 #else
 #define DEBUG_INVOKE	__asm		{ int 3 }
 #ifndef __BORLANDC__
-	#pragma comment			(lib,"dxerr9.lib")
+	#pragma comment			(lib,"dxerr.lib")
 #endif
 #endif
 
@@ -79,16 +79,16 @@ void xrDebug::backend(const char* reason, const char* expression, const char *ar
 
 	// Log
 	string1024			tmp;
-	sprintf				(tmp,"***STOP*** file '%s', line %d.\n***Reason***: %s\n %s",file,line,reason,expression);
+	xr_sprintf				(tmp,"***STOP*** file '%s', line %d.\n***Reason***: %s\n %s",file,line,reason,expression);
 	Msg					(tmp);
 	FlushLog			();
 	if (handler)		handler	();
 
 	// Call the dialog
 	dlgExpr				= reason;
-    sprintf             ()
+    xr_sprintf             ()
 	dlgFile				= file;
-	sprintf				(dlgLine,"%d",line);
+	xr_sprintf				(dlgLine,"%d",line);
 	INT_PTR res			= -1;
 #ifdef XRCORE_STATIC
 	MessageBox			(NULL,tmp,"X-Ray error",MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
@@ -123,7 +123,7 @@ LPCSTR xrDebug::error2string	(long code)
 
 #ifdef _M_AMD64
 #else
-	result				= DXGetErrorDescription9	(code);
+	result				= DXGetErrorDescription	(code);
 #endif
 	if (0==result) 
 	{
@@ -217,7 +217,7 @@ LONG WINAPI UnhandledFilter	( struct _EXCEPTION_POINTERS *pExceptionInfo )
 		char *pSlash = strchr( szDbgHelpPath, '\\' );
 		if (pSlash)
 		{
-			strcpy_s	(pSlash+1, "DBGHELP.DLL" );
+			xr_strcpy	(pSlash+1, "DBGHELP.DLL" );
 			hDll = ::LoadLibrary( szDbgHelpPath );
 		}
 	}
@@ -241,13 +241,13 @@ LONG WINAPI UnhandledFilter	( struct _EXCEPTION_POINTERS *pExceptionInfo )
 
 			// work out a good place for the dump file
 			timestamp	(t_stemp);
-			strcpy_s		( szDumpPath, "logs\\"				);
-			strcat		( szDumpPath, Core.ApplicationName	);
-			strcat		( szDumpPath, "_"					);
-			strcat		( szDumpPath, Core.UserName			);
-			strcat		( szDumpPath, "_"					);
-			strcat		( szDumpPath, t_stemp				);
-			strcat		( szDumpPath, ".mdmp"				);
+			xr_strcpy		( szDumpPath, "logs\\"				);
+			xr_strcat		( szDumpPath, Core.ApplicationName	);
+			xr_strcat		( szDumpPath, "_"					);
+			xr_strcat		( szDumpPath, Core.UserName			);
+			xr_strcat		( szDumpPath, "_"					);
+			xr_strcat		( szDumpPath, t_stemp				);
+			xr_strcat		( szDumpPath, ".mdmp"				);
 
 			// create the file
 			HANDLE hFile = ::CreateFile( szDumpPath, GENERIC_WRITE, FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
@@ -271,20 +271,20 @@ LONG WINAPI UnhandledFilter	( struct _EXCEPTION_POINTERS *pExceptionInfo )
 				BOOL bOK = pDump( GetCurrentProcess(), GetCurrentProcessId(), hFile, dump_flags, &ExInfo, NULL, NULL );
 				if (bOK)
 				{
-					sprintf( szScratch, "Saved dump file to '%s'", szDumpPath );
+					xr_sprintf( szScratch, "Saved dump file to '%s'", szDumpPath );
 					szResult = szScratch;
 					retval = EXCEPTION_EXECUTE_HANDLER;
 				}
 				else
 				{
-					sprintf( szScratch, "Failed to save dump file to '%s' (error %d)", szDumpPath, GetLastError() );
+					xr_sprintf( szScratch, "Failed to save dump file to '%s' (error %d)", szDumpPath, GetLastError() );
 					szResult = szScratch;
 				}
 				::CloseHandle(hFile);
 			}
 			else
 			{
-				sprintf( szScratch, "Failed to create dump file '%s' (error %d)", szDumpPath, GetLastError() );
+				xr_sprintf( szScratch, "Failed to create dump file '%s' (error %d)", szDumpPath, GetLastError() );
 				szResult = szScratch;
 			}
 		}
@@ -299,7 +299,7 @@ LONG WINAPI UnhandledFilter	( struct _EXCEPTION_POINTERS *pExceptionInfo )
 	}
 
 	string1024		reason;
-	sprintf			(reason,"*** Internal Error ***\n%s",szResult);
+	xr_sprintf			(reason,"*** Internal Error ***\n%s",szResult);
     bool ref		= false;
 	Debug.backend	(reason,0,0,0,0,0,0,ref);
 

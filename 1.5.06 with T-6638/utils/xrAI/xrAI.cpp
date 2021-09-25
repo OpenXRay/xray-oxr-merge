@@ -77,7 +77,7 @@ void execute	(LPSTR cmd)
 					sscanf	(strstr(cmd,"-verify")+xr_strlen("-verify"),"%s",name);
 
 	if (xr_strlen(name))
-		strcat			(name,"\\");
+		xr_strcat			(name,"\\");
 
 	string_path			prjName;
 	prjName				[0] = 0;
@@ -141,7 +141,7 @@ void Startup(LPSTR     lpCmdLine)
 	string4096 cmd;
 	BOOL bModifyOptions		= FALSE;
 
-	strcpy_s(cmd,lpCmdLine);
+	xr_strcpy(cmd,lpCmdLine);
 	strlwr(cmd);
 	if (strstr(cmd,"-?") || strstr(cmd,"-h"))			{ Help(); return; }
 	if ((strstr(cmd,"-f")==0) && (strstr(cmd,"-g")==0) && (strstr(cmd,"-m")==0) && (strstr(cmd,"-s")==0) && (strstr(cmd,"-t")==0) && (strstr(cmd,"-c")==0) && (strstr(cmd,"-verify")==0) && (strstr(cmd,"-patch")==0))	{ Help(); return; }
@@ -160,7 +160,7 @@ void Startup(LPSTR     lpCmdLine)
 	extern				std::string make_time(u32 sec);
 	extern				HWND logWindow;
 	u32					dwEndTime = timeGetTime();
-	sprintf				(stats,"Time elapsed: %s",make_time((dwEndTime-dwStartupTime)/1000).c_str());
+	xr_sprintf				(stats,"Time elapsed: %s",make_time((dwEndTime-dwStartupTime)/1000).c_str());
 	MessageBox			(logWindow,stats,"Congratulation!",MB_OK|MB_ICONINFORMATION);
 
 	bClose				= TRUE;

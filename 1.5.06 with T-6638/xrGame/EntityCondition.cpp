@@ -10,6 +10,7 @@
 #include "../Include/xrRender/KinematicsAnimated.h"
 #include "../Include/xrRender/Kinematics.h"
 #include "object_broker.h"
+#include "ActorHelmet.h"
 
 #define MAX_HEALTH 1.0f
 #define MIN_HEALTH -0.01f
@@ -135,38 +136,38 @@ void CEntityCondition::reinit	()
 
 }
 
-void CEntityCondition::ChangeHealth(float value)
+void CEntityCondition::ChangeHealth(const float value)
 {
 	VERIFY(_valid(value));	
 	m_fDeltaHealth += (CanBeHarmed() || (value > 0)) ? value : 0;
 }
 
-void CEntityCondition::ChangePower(float value)
+void CEntityCondition::ChangePower(const float value)
 {
 	m_fDeltaPower += value;
 }
 
-void CEntityCondition::ChangeRadiation(float value)
+void CEntityCondition::ChangeRadiation(const float value)
 {
 	m_fDeltaRadiation += value;
 }
 
-void CEntityCondition::ChangePsyHealth(float value)
+void CEntityCondition::ChangePsyHealth(const float value)
 {
 	m_fDeltaPsyHealth += value;
 }
 
-void CEntityCondition::ChangeCircumspection(float value)
+void CEntityCondition::ChangeCircumspection(const float value)
 {
 	m_fDeltaCircumspection += value;
 }
-void CEntityCondition::ChangeEntityMorale(float value)
+void CEntityCondition::ChangeEntityMorale(const float value)
 {
 	m_fDeltaEntityMorale += value;
 }
 
 
-void CEntityCondition::ChangeBleeding(float percent)
+void CEntityCondition::ChangeBleeding(const float percent)
 {
 	//затянуть раны
 	for(WOUND_VECTOR_IT it = m_WoundVector.begin(); m_WoundVector.end() != it; ++it)

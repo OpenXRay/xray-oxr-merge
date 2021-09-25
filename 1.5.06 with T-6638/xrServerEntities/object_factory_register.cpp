@@ -344,6 +344,7 @@ void CObjectFactory::register_classes	()
 	ADD(CStalkerOutfit			,CSE_ALifeItemCustomOutfit		,CLSID_EQUIPMENT_STALKER		,"equ_stalker");
 	ADD(CMilitaryOutfit			,CSE_ALifeItemCustomOutfit		,CLSID_EQUIPMENT_MILITARY		,"equ_military");
 	ADD(CExoOutfit				,CSE_ALifeItemCustomOutfit		,CLSID_EQUIPMENT_EXO			,"equ_exo");
+	ADD(CHelmet					,CSE_ALifeItem					,CLSID_EQUIPMENT_HELMET			,"helmet");
 
 	// Grenades
 	ADD(CF1						,CSE_ALifeItemGrenade			,CLSID_GRENADE_F1				,"wpn_grenade_f1");
@@ -380,6 +381,7 @@ void CObjectFactory::register_classes	()
 	ADD(CSimpleDetector			,CSE_ALifeItemDetector			,CLSID_DETECTOR_SIMPLE			,"device_detector_simple");
 	ADD(CAdvancedDetector		,CSE_ALifeItemDetector			,CLSID_DETECTOR_ADVANCED		,"device_detector_advanced");
 	ADD(CEliteDetector			,CSE_ALifeItemDetector			,CLSID_DETECTOR_ELITE			,"device_detector_elite");
+	ADD(CScientificDetector		,CSE_ALifeItemDetector			,CLSID_DETECTOR_SCIENTIFIC		,"device_detector_scientific");
 
 	// Devices
 	ADD(CTorch					,CSE_ALifeItemTorch				,CLSID_DEVICE_TORCH				,"device_torch");
@@ -400,7 +402,7 @@ void CObjectFactory::register_classes	()
 	ADD(CPhysicsSkeletonObject	,CSE_ALifePHSkeletonObject		,CLSID_PH_SKELETON_OBJECT		,"obj_phskeleton");
 	ADD(CDestroyablePhysicsObject,CSE_ALifeObjectPhysic			,CLSID_PHYSICS_DESTROYABLE		,"obj_phys_destroyable");
 
-	ADD(CInventoryBox			,CSE_InventoryBox				,CLSID_INVENTORY_BOX			,"inventory_box");
+	ADD(CInventoryBox			,CSE_ALifeInventoryBox			,CLSID_INVENTORY_BOX			,"inventory_box");
 #ifndef NO_SINGLE
 	ADD(smart_cover::object		,CSE_SmartCover					,TEXT2CLSID("SMRTCOVR")			,"smart_cover");
 #endif // #ifndef NO_SINGLE

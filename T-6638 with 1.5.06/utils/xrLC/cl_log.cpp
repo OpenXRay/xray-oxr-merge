@@ -81,8 +81,6 @@ void __cdecl Status	(const char *format, ...)
 	csLog.Leave			();
 }
 
-
-
 void Progress		(const float F)
 {
 	// No critical section usage

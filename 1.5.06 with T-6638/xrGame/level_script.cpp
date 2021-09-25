@@ -27,7 +27,7 @@
 #include "map_manager.h"
 #include "map_spot.h"
 #include "map_location.h"
-#include "phworld.h"
+#include "physics_world_scripted.h"
 #include "alife_simulator.h"
 #include "alife_time_manager.h"
 
@@ -41,6 +41,12 @@ bool IsDynamicMusic()
 {
 	return !!psActorFlags.test(AF_DYNAMIC_MUSIC);
 }
+
+bool IsImportantSave()
+{
+	return !!psActorFlags.test(AF_IMPORTANT_SAVE);
+}
+
 #ifdef DEBUG
 void check_object(CScriptGameObject *object)
 {
@@ -115,9 +121,31 @@ bool set_weather_fx	(LPCSTR weather_name)
 #endif // #ifdef INGAME_EDITOR
 }
 
+bool start_weather_fx_from_time	(LPCSTR weather_name, float time)
+{
+#ifdef INGAME_EDITOR
+	if (!Device.editor())
+#endif // #ifdef INGAME_EDITOR
+		return		(g_pGamePersistent->Environment().StartWeatherFXFromTime(weather_name, time));
+	
+#ifdef INGAME_EDITOR
+	return			(false);
+#endif // #ifdef INGAME_EDITOR
+}
+
 bool is_wfx_playing	()
 {
 	return			(g_pGamePersistent->Environment().IsWFXPlaying());
+}
+
+float get_wfx_time	()
+{
+	return			(g_pGamePersistent->Environment().wfx_time);
+}
+
+void stop_weather_fx()
+{
+	g_pGamePersistent->Environment().StopWFX();
 }
 
 void set_time_factor(float time_factor)
@@ -168,6 +196,19 @@ u32 get_time_minutes()
 	u32 year = 0, month = 0, day = 0, hours = 0, mins = 0, secs = 0, milisecs = 0;
 	split_time((g_pGameLevel && Level().game) ? Level().GetGameTime() : ai().alife().time_manager().game_time(), year, month, day, hours, mins, secs, milisecs);
 	return			mins;
+}
+
+void change_game_time(u32 days, u32 hours, u32 mins)
+{
+	game_sv_Single	*tpGame = smart_cast<game_sv_Single *>(Level().Server->game);
+	if(tpGame && ai().get_alife())
+	{
+		u32 value		= days*86400+hours*3600+mins*60;
+		float fValue	= static_cast<float> (value);
+		value			*= 1000;//msec		
+		g_pGamePersistent->Environment().ChangeGameTime(fValue);
+		tpGame->alife().time_manager().change_game_time(value);
+	}
 }
 
 float high_cover_in_direction(u32 level_vertex_id, const Fvector &direction)
@@ -290,18 +331,20 @@ CClientSpawnManager	&get_client_spawn_manager()
 
 void start_stop_menu(CUIDialogWnd* pDialog, bool bDoHideIndicators)
 {
-	HUD().GetUI()->StartStopMenu(pDialog,bDoHideIndicators);
+	if(pDialog->IsShown())
+		pDialog->HideDialog();
+	else
+		pDialog->ShowDialog(bDoHideIndicators);
 }
-
 
 void add_dialog_to_render(CUIDialogWnd* pDialog)
 {
-	HUD().GetUI()->AddDialogToRender(pDialog);
+	CurrentGameUI()->AddDialogToRender(pDialog);
 }
 
 void remove_dialog_to_render(CUIDialogWnd* pDialog)
 {
-	HUD().GetUI()->RemoveDialogToRender(pDialog);
+	CurrentGameUI()->RemoveDialogToRender(pDialog);
 }
 
 CUIDialogWnd* main_input_receiver()
@@ -311,33 +354,33 @@ CUIDialogWnd* main_input_receiver()
 #include "UIGameCustom.h"
 void hide_indicators()
 {
-	if(HUD().GetUI())
+	if(CurrentGameUI())
 	{
-		HUD().GetUI()->UIGame()->HideShownDialogs();
-		HUD().GetUI()->ShowGameIndicators(false);
-		HUD().GetUI()->ShowCrosshair(false);
+		CurrentGameUI()->HideShownDialogs();
+		CurrentGameUI()->ShowGameIndicators(false);
+		CurrentGameUI()->ShowCrosshair(false);
 	}
 	psActorFlags.set(AF_GODMODE_RT, TRUE);
 }
 
 void hide_indicators_safe()
 {
-	if(HUD().GetUI())
+	if(CurrentGameUI())
 	{
-		HUD().GetUI()->ShowGameIndicators(false);
-		HUD().GetUI()->ShowCrosshair(false);
+		CurrentGameUI()->ShowGameIndicators(false);
+		CurrentGameUI()->ShowCrosshair(false);
 
-		HUD().GetUI()->OnExternalHideIndicators();
+		CurrentGameUI()->OnExternalHideIndicators();
 	}
 	psActorFlags.set(AF_GODMODE_RT, TRUE);
 }
 
 void show_indicators()
 {
-	if(HUD().GetUI())
+	if(CurrentGameUI())
 	{
-		HUD().GetUI()->ShowGameIndicators(true);
-		HUD().GetUI()->ShowCrosshair(true);
+		CurrentGameUI()->ShowGameIndicators(true);
+		CurrentGameUI()->ShowCrosshair(true);
 	}
 	psActorFlags.set(AF_GODMODE_RT, FALSE);
 }
@@ -413,9 +456,9 @@ void remove_calls_for_object(const luabind::object &lua_object)
 	Level().ph_commander_scripts().remove_calls(&c);
 }
 
-CPHWorld* physics_world()
+cphysics_world_scripted* physics_world_scripted()
 {
-	return	ph_world;
+	return	get_script_wrapper<cphysics_world_scripted>(*physics_world());
 }
 CEnvironment *environment()
 {
@@ -464,7 +507,7 @@ void iterate_sounds					(LPCSTR prefix, u32 max_count, const CScriptCallbackEx<v
 		for (u32 i=0; i<max_count; ++i)
 		{
 			string_path					name;
-			sprintf_s					(name,"%s%d",S,i);
+			xr_sprintf					(name,"%s%d",S,i);
 			if (FS.exist(fn,"$game_sounds$",name,".ogg"))
 				callback			(name);
 		}
@@ -496,10 +539,11 @@ float add_cam_effector(LPCSTR fn, int id, bool cyclic, LPCSTR cb_func)
 	return						e->GetAnimatorLength();
 }
 
-float add_cam_effector2(LPCSTR fn, int id, bool cyclic, LPCSTR cb_func)
+float add_cam_effector2(LPCSTR fn, int id, bool cyclic, LPCSTR cb_func, float cam_fov)
 {
 	CAnimatorCamEffectorScriptCB* e		= xr_new<CAnimatorCamEffectorScriptCB>(cb_func);
 	e->m_bAbsolutePositioning	= true;
+	e->m_fov					= cam_fov;
 	e->SetType					((ECamEffectorType)id);
 	e->SetCyclic				(cyclic);
 	e->Start					(fn);
@@ -586,7 +630,7 @@ void set_pp_effector_factor2(int id, float f)
 
 #include "relation_registry.h"
 
- int g_community_goodwill(LPCSTR _community, int _entity_id)
+int g_community_goodwill(LPCSTR _community, int _entity_id)
  {
 	 CHARACTER_COMMUNITY c;
 	 c.set					(_community);
@@ -628,6 +672,23 @@ void g_set_community_relation( LPCSTR comm_from, LPCSTR comm_to, int value )
 	RELATION_REGISTRY().SetCommunityRelation( community_from.index(), community_to.index(), value );
 }
 
+int g_get_general_goodwill_between ( u16 from, u16 to)
+{
+	CHARACTER_GOODWILL presonal_goodwill		= RELATION_REGISTRY().GetGoodwill(from, to); VERIFY(presonal_goodwill != NO_GOODWILL);
+
+	CSE_ALifeTraderAbstract* from_obj	= smart_cast<CSE_ALifeTraderAbstract*>(ai().alife().objects().object(from));
+	CSE_ALifeTraderAbstract* to_obj		= smart_cast<CSE_ALifeTraderAbstract*>(ai().alife().objects().object(to));
+
+	if (!from_obj||!to_obj){
+		ai().script_engine().script_log		(ScriptStorage::eLuaMessageTypeError,"RELATION_REGISTRY::get_general_goodwill_between  : cannot convert obj to CSE_ALifeTraderAbstract!");
+		return (0);
+	}	
+	CHARACTER_GOODWILL community_to_obj_goodwill		= RELATION_REGISTRY().GetCommunityGoodwill	(from_obj->Community(), to					);
+	CHARACTER_GOODWILL community_to_community_goodwill	= RELATION_REGISTRY().GetCommunityRelation	(from_obj->Community(), to_obj->Community()	);
+	
+	return presonal_goodwill + community_to_obj_goodwill + community_to_community_goodwill;
+}
+
 u32 vertex_id	(Fvector position)
 {
 	return	(ai().level_graph().vertex_id(position));
@@ -637,6 +698,40 @@ u32 render_get_dx_level()
 {
 	return ::Render->get_dx_level();
 }
+
+CUISequencer* g_tutorial = NULL;
+CUISequencer* g_tutorial2 = NULL;
+
+void start_tutorial(LPCSTR name)
+{
+	if(g_tutorial){
+		VERIFY				(!g_tutorial2);
+		g_tutorial2			= g_tutorial;
+	};
+
+	g_tutorial							= xr_new<CUISequencer>();
+	g_tutorial->Start					(name);
+	if(g_tutorial2)
+		g_tutorial->m_pStoredInputReceiver = g_tutorial2->m_pStoredInputReceiver;
+
+}
+
+void stop_tutorial()
+{
+	if(g_tutorial)
+		g_tutorial->Stop();	
+}
+
+LPCSTR translate_string(LPCSTR str)
+{
+	return *CStringTable().translate(str);
+}
+
+bool has_active_tutotial()
+{
+	return (g_tutorial!=NULL);
+}
+
 #pragma optimize("s",on)
 void CLevel::script_register(lua_State *L)
 {
@@ -660,7 +755,10 @@ void CLevel::script_register(lua_State *L)
 		def("get_weather",						get_weather),
 		def("set_weather",						set_weather),
 		def("set_weather_fx",					set_weather_fx),
+		def("start_weather_fx_from_time",		start_weather_fx_from_time),
 		def("is_wfx_playing",					is_wfx_playing),
+		def("get_wfx_time",						get_wfx_time),
+		def("stop_weather_fx",					stop_weather_fx),
 
 		def("environment",						environment),
 		
@@ -673,6 +771,7 @@ void CLevel::script_register(lua_State *L)
 		def("get_time_days",					get_time_days),
 		def("get_time_hours",					get_time_hours),
 		def("get_time_minutes",					get_time_minutes),
+		def("change_game_time",					change_game_time),
 
 		def("high_cover_in_direction",			high_cover_in_direction),
 		def("low_cover_in_direction",			low_cover_in_direction),
@@ -751,7 +850,8 @@ void CLevel::script_register(lua_State *L)
 		def("command_line",						&command_line),
 		def("IsGameTypeSingle",					&IsGameTypeSingle),
 		def("IsDynamicMusic",					&IsDynamicMusic),
-		def("render_get_dx_level",				&render_get_dx_level)
+		def("render_get_dx_level",				&render_get_dx_level),
+		def("IsImportantSave",					&IsImportantSave)
 	];
 
 	module(L,"relation_registry")
@@ -761,6 +861,7 @@ void CLevel::script_register(lua_State *L)
 		def("change_community_goodwill",		&g_change_community_goodwill),
 		
 		def("community_relation",				&g_get_community_relation),
-		def("set_community_relation",			&g_set_community_relation)
+		def("set_community_relation",			&g_set_community_relation),
+		def("get_general_goodwill_between",		&g_get_general_goodwill_between)
 	];
 }

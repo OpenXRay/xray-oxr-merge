@@ -270,12 +270,14 @@ void CBuild::xrPhase_MergeGeometry	()
 
 	Status("Processing...");
 	validate_splits		();
-	for (u32 split=0; split<g_XSplit.size(); split++) {
+	for (u32 split=0; split<g_XSplit.size(); split++)
+	{
 		vecFace&	subdiv	= *(g_XSplit[split]);
 		bool		bb_base_orig_inited = false;
 		Fbox		bb_base_orig;
 		Fbox		bb_base;
-		while (NeedMerge(subdiv,bb_base)) {
+		while (NeedMerge(subdiv,bb_base))
+		{
 			//	Save original AABB for later tests
 			if (!bb_base_orig_inited)
 			{
@@ -287,7 +289,8 @@ void CBuild::xrPhase_MergeGeometry	()
 			u32	selected		= split;
 			float	selected_volume	= flt_max;
 
-			if ( ( g_XSplit.size() - split ) < 200 ) { // may need adjustment
+			if ( ( g_XSplit.size() - split ) < 200 ) // may need adjustment
+			{
 				// single thread
 				FindBestMergeCandidate( &selected  , &selected_volume , split + 1 , g_XSplit.size() , &subdiv , &bb_base_orig , &bb_base );
 			} else {

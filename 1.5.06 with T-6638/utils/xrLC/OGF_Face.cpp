@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "build.h"
 #include "ogf_face.h"
-#include "std_classes.h"
+//#include "std_classes.h"
 #include "../../xrcore/fs.h"
 #include "../../xrEngine/fmesh.h"
 #include "xrOcclusion.h"
@@ -13,7 +13,7 @@ void set_status(char* N, int id, int f, int v)
 {
 	string1024 status_str;
 
-	sprintf	(status_str,"Model #%4d [F:%5d, V:%5d]: %s...",id,f,v,N);
+	xr_sprintf	(status_str,"Model #%4d [F:%5d, V:%5d]: %s...",id,f,v,N);
 	Status	(status_str);
 	clMsg	(status_str);
 }
@@ -29,7 +29,7 @@ BOOL OGF_Vertex::similar(OGF* ogf, OGF_Vertex& V)
 	R_ASSERT(UV.size()==V.UV.size());
 	for (u32 i=0; i<V.UV.size(); i++) {
 		OGF_Texture *T = &*ogf->textures.begin()+i;
-		b_texture	*B = T->pSurface;
+		b_texture	*B = T->pBuildSurface;
 		float		eu = 1.f/float(B->dwWidth );
 		float		ev = 1.f/float(B->dwHeight);
 		if (!UV[i].similar(V.UV[i],eu,ev)) return FALSE;

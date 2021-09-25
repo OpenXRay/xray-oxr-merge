@@ -264,7 +264,7 @@ void CEntityAlive::HitImpulse	(float /**amount/**/, Fvector& /**vWorldDir/**/, F
 	//	m_PhysicMovementControl->vExternalImpulse.mad	(vWorldDir,Q);
 }
 
-void	CEntityAlive::Hit(SHit* pHDS)
+void	CEntityAlive::Hit	(SHit* pHDS)
 {
 	SHit HDS = *pHDS;
 	//-------------------------------------------------------------------

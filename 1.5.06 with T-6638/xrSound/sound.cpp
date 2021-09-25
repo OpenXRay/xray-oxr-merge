@@ -33,4 +33,3 @@ void CSound_manager_interface::_destroy	()
     xr_delete			(SoundRender);
     Sound				= 0;
 }
-

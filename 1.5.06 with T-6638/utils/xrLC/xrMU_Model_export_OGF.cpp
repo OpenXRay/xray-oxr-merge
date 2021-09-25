@@ -28,7 +28,7 @@ void export_ogf( xrMU_Reference& mu_reference )
 			// Collect textures
 			OGF_Texture				T;
 			TRY(T.name		= pBuild->textures()[M->surfidx].name);
-			TRY(T.pSurface	= &(pBuild->textures()[M->surfidx]));
+			TRY(T.pBuildSurface	= &(pBuild->textures()[M->surfidx]));
 			TRY(pOGF->textures.push_back(T));
 
 			// Special

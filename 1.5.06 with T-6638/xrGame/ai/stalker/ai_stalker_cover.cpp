@@ -174,7 +174,7 @@ void CAI_Stalker::update_best_cover_actuality		(const Fvector &position_to_cover
 	if (m_best_cover->m_is_smart_cover) {
 		float							value;
 		smart_cover::cover const		*cover = static_cast<smart_cover::cover const*>(m_best_cover);
-		smart_cover::loophole			*loophole = cover->best_loophole(position_to_cover_from, value, false);
+		smart_cover::loophole			*loophole = cover->best_loophole(position_to_cover_from, value, false, movement().current_params().cover() == m_best_cover );
 		if (!loophole) {
 			m_ce_best->invalidate		();
 			m_best_cover_actual			= false;

@@ -129,6 +129,18 @@ bool  CScriptGameObject::DontHasInfo			(LPCSTR info_id)
 	return !pInventoryOwner->HasInfo(info_id);
 }
 
+xrTime CScriptGameObject::GetInfoTime			(LPCSTR info_id)
+{
+	CInventoryOwner* pInventoryOwner = smart_cast<CInventoryOwner*>(&object());
+	if(!pInventoryOwner) return xrTime(0);
+
+	INFO_DATA info_data;
+	if(pInventoryOwner->GetInfo(info_id, info_data))
+		return xrTime(info_data.receive_time);
+	else
+		return xrTime(0);
+}
+
 bool CScriptGameObject::IsTalking()
 {
 	CInventoryOwner* pInventoryOwner = smart_cast<CInventoryOwner*>(&object());
@@ -899,7 +911,6 @@ void CScriptGameObject::enable_attachable_item	(bool value)
 	}
 	attachable_item->enable					(value);
 }
-
 
 bool CScriptGameObject::attachable_item_enabled	() const
 {

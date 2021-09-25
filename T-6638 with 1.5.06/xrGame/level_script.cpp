@@ -307,7 +307,7 @@ CClientSpawnManager	&get_client_spawn_manager()
 {
 	return		(Level().client_spawn_manager());
 }
-/*
+
 void start_stop_menu(CUIDialogWnd* pDialog, bool bDoHideIndicators)
 {
 	if(pDialog->IsShown())
@@ -315,7 +315,6 @@ void start_stop_menu(CUIDialogWnd* pDialog, bool bDoHideIndicators)
 	else
 		pDialog->ShowDialog(bDoHideIndicators);
 }
-*/
 
 void add_dialog_to_render(CUIDialogWnd* pDialog)
 {
@@ -327,6 +326,11 @@ void remove_dialog_to_render(CUIDialogWnd* pDialog)
 	CurrentGameUI()->RemoveDialogToRender(pDialog);
 }
 
+CUIDialogWnd* main_input_receiver()
+{
+	return HUD().GetUI()->MainInputReceiver();
+}
+#include "UIGameCustom.h"
 void hide_indicators()
 {
 	if(CurrentGameUI())
@@ -556,6 +560,9 @@ int get_actor_points(LPCSTR sect)
 {
 	return Actor()->StatisticMgr().GetSectionPoints(sect);
 }
+extern int get_actor_ranking();
+extern void add_human_to_top_list		(u16 id);
+extern void remove_human_from_top_list	(u16 id);
 
 
 
@@ -704,8 +711,6 @@ bool has_active_tutotial()
 	return (g_tutorial!=NULL);
 }
 
-
-
 #pragma optimize("s",on)
 void CLevel::script_register(lua_State *L)
 {
@@ -765,8 +770,10 @@ void CLevel::script_register(lua_State *L)
 		def("map_has_object_spot",				map_has_object_spot),
 		def("map_change_spot_hint",				map_change_spot_hint),
 
+		def("start_stop_menu",					start_stop_menu),
 		def("add_dialog_to_render",				add_dialog_to_render),
 		def("remove_dialog_to_render",			remove_dialog_to_render),
+		def("main_input_receiver",				main_input_receiver),
 		def("hide_indicators",					hide_indicators),
 		def("hide_indicators_safe",				hide_indicators_safe),
 
@@ -788,7 +795,7 @@ void CLevel::script_register(lua_State *L)
 
 		def("iterate_sounds",					&iterate_sounds1),
 		def("iterate_sounds",					&iterate_sounds2),
-		def("physics_world",					&physics_world_scripted),
+		def("physics_world",					&physics_world),
 		def("get_snd_volume",					&get_snd_volume),
 		def("set_snd_volume",					&set_snd_volume),
 		def("add_cam_effector",					&add_cam_effector),
@@ -811,7 +818,10 @@ void CLevel::script_register(lua_State *L)
 	[
 		def("add_points",						&add_actor_points),
 		def("add_points_str",					&add_actor_points_str),
-		def("get_points",						&get_actor_points)
+		def("get_points",						&get_actor_points),
+		def("add_to_ranking",					&add_human_to_top_list),
+		def("remove_from_ranking",				&remove_human_from_top_list),
+		def("get_actor_ranking",				&get_actor_ranking)
 	];
 
 	module(L)

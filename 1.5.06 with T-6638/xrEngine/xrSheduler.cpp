@@ -343,8 +343,9 @@ void CSheduler::ProcessStep			()
 		TNext.dwTimeOfLastExecute	= dwTime;
 		TNext.Object				= T.Object;
 		TNext.scheduled_name		= T.Object->shedule_Name();
-
 		ItemsProcessed.push_back	(TNext);
+
+
 #ifdef DEBUG
 //		u32	execTime				= eTimer.GetElapsed_ms		();
 		// VERIFY3					(T.Object->dbg_update_shedule == T.Object->dbg_startframe, "Broken sequence of calls to 'shedule_Update'", _obj_name );

@@ -39,13 +39,14 @@ public:
 	float 					CalcTotalWeight		();
 
 	void					Take				(CGameObject *pObj, bool bNotActivate, bool strict_placement);
-	bool					DropItem			(CGameObject *pObj);
+	//if just_before_destroy is true, then activate will be forced (because deactivate message will not deliver)
+	bool					DropItem			(CGameObject *pObj, bool just_before_destroy);
 	void					Clear				();
 
 	
-	bool					Slot				(PIItem pIItem, bool bNotActivate = false);	
-	bool					Belt				(PIItem pIItem);
-	bool					Ruck				(PIItem pIItem);
+	bool					Slot				(PIItem pIItem, bool bNotActivate = false, bool strict_placement=false);	
+	bool					Belt				(PIItem pIItem, bool strict_placement=false);
+	bool					Ruck				(PIItem pIItem, bool strict_placement=false);
 
 	bool 					InSlot				(PIItem pIItem) const;
 	bool 					InBelt				(PIItem pIItem) const;

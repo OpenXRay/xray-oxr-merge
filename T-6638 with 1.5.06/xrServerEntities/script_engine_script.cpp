@@ -203,7 +203,7 @@ static bool is_enough_address_space_available_impl()
 	ENGINE_API bool is_enough_address_space_available();
 	return is_enough_address_space_available( );
 }
-#endif // #ifdef XRGAME_EXPORTS
+#endif
 
 #pragma optimize("s",on)
 void CScriptEngine::script_register(lua_State *L)
@@ -236,5 +236,5 @@ void CScriptEngine::script_register(lua_State *L)
 #ifdef XRGAME_EXPORTS
 	function	(L,	"device",							get_device);
 	function	(L,	"is_enough_address_space_available",is_enough_address_space_available_impl);
-#endif // #ifdef XRGAME_EXPORTS
+#endif
 }

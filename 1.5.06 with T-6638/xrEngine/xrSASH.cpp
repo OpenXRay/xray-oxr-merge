@@ -36,7 +36,7 @@ bool xrSASH::Init(const char* pszParam)
 	else
 	{
 		m_bInited = true;
-		strcpy_s( m_strBenchCfgName, pszParam);
+		xr_strcpy( m_strBenchCfgName, pszParam);
 		Msg("oa:: Failed to init.");
 		Msg("oa:: Running native path.");
 		return false;
@@ -133,10 +133,10 @@ void xrSASH::LoopNative()
 		for(int i=0;i<test_count;++i)
 		{
 			ini.r_line( "benchmark", i, &test_name, &t);
-			//strcpy_s(g_sBenchmarkName, test_name);
+			//xr_strcpy(g_sBenchmarkName, test_name);
 
 			test_command = ini.r_string_wb("benchmark",test_name);
-			strcpy_s( Core.Params, *test_command );
+			xr_strcpy( Core.Params, *test_command );
 			_strlwr_s( Core.Params );
 
 			RunBenchmark(test_name);
@@ -154,7 +154,7 @@ void xrSASH::LoopNative()
 void xrSASH::ReportNative( LPCSTR pszTestName )
 {
 	string_path			fname;
-	sprintf_s( fname, sizeof(fname), "%s.result", pszTestName );
+	xr_sprintf( fname, sizeof(fname), "%s.result", pszTestName );
 	FS.update_path( fname, "$app_data_root$", fname );
 	CInifile	res( fname, FALSE, FALSE, TRUE );
 
@@ -197,7 +197,7 @@ void xrSASH::ReportNative( LPCSTR pszTestName )
 	for (u32	it=0; it<m_aFrimeTimes.size(); it++)
 	{
 		string32		id;
-		sprintf_s		(id,sizeof(id),"%07d",it);
+		xr_sprintf		(id,sizeof(id),"%07d",it);
 		res.w_float		("per_frame_stats",	id, 1.f / m_aFrimeTimes[it]);
 		fTotal += m_aFrimeTimes[it];
 		fNumFrames += 1;
@@ -310,6 +310,9 @@ void xrSASH::GetAllOptions()
 	{
 		DescribeOption("r2_sun_shafts",			Option.Dependency);
 		DescribeOption("r2_ssao",				Option.Dependency);
+		DescribeOption("r2_ssao_opt_data",		Option.Dependency);
+		DescribeOption("r2_ssao_half_data",		Option.Dependency);
+		DescribeOption("r2_ssao_hbao",			Option.Dependency);
 		DescribeOption("r2_soft_water",			Option.Dependency);
 		DescribeOption("r2_soft_particles",		Option.Dependency);
 		DescribeOption("r2_dof_enable",			Option.Dependency);
@@ -373,6 +376,9 @@ void xrSASH::GetCurrentOptions()
 	//	>=r2.5
 	GetOption("r2_sun_shafts");
 	GetOption("r2_ssao");
+	GetOption("r2_ssao_opt_data");
+	GetOption("r2_ssao_half_data");
+	GetOption("r2_ssao_hbao");
 	GetOption("r2_soft_water");
 	GetOption("r2_soft_particles");
 	GetOption("r2_dof_enable");
@@ -446,12 +452,12 @@ void xrSASH::TryInitEngine( bool bNoRun)
 		Console->Initialize();
 	}
 
-	strcpy_s						(Console->ConfigFile,"user.ltx");
+	xr_strcpy						(Console->ConfigFile,"user.ltx");
 	if (strstr(Core.Params,"-ltx ")) 
 	{
 		string64				c_name;
 		sscanf					(strstr(Core.Params,"-ltx ")+5,"%[^ ] ",c_name);
-		strcpy_s				(Console->ConfigFile,c_name);
+		xr_strcpy				(Console->ConfigFile,c_name);
 	}
 
 	if(strstr(Core.Params,"-r2a"))	
@@ -481,7 +487,7 @@ void xrSASH::TryInitEngine( bool bNoRun)
 	if (m_bOpenAutomate)
 	{
 		//	Overwrite setting using SASH.ltx if has any.
-		strcpy_s(Console->ConfigFile,"SASH.ltx");
+		xr_strcpy(Console->ConfigFile,"SASH.ltx");
 		Console->ExecuteScript		(Console->ConfigFile);
 	}
 
@@ -674,19 +680,19 @@ void xrSASH::SetOption(oaNamedOption *pOption)
 
 	if (pMask)
 	{
-		sprintf_s( CmdBuf, "%s %s", pOption->Name, (pOption->Value.Bool?"1":"0"));
+		xr_sprintf( CmdBuf, "%s %s", pOption->Name, (pOption->Value.Bool?"1":"0"));
 	}
 	else if (pToken)
 	{
-		sprintf_s( CmdBuf, "%s %s", pOption->Name, pOption->Value.Enum);
+		xr_sprintf( CmdBuf, "%s %s", pOption->Name, pOption->Value.Enum);
 	}
 	else if (pFloat)
 	{
-		sprintf_s( CmdBuf, "%s %f", pOption->Name, pOption->Value.Float);
+		xr_sprintf( CmdBuf, "%s %f", pOption->Name, pOption->Value.Float);
 	}
 	else if (pInt)
 	{
-		sprintf_s( CmdBuf, "%s %d", pOption->Name, pOption->Value.Int);
+		xr_sprintf( CmdBuf, "%s %d", pOption->Name, pOption->Value.Int);
 	}
 	else
 	{

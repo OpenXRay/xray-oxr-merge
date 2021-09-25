@@ -627,7 +627,7 @@ void CGamePersistent::OnEvent(EVENT E, u64 P1, u64 P2)
 	{
 		string256			cmd;
 		LPCSTR				demo	= LPCSTR(P1);
-		sprintf_s				(cmd,"demo_play %s",demo);
+		xr_sprintf				(cmd,"demo_play %s",demo);
 		Console->Execute	(cmd);
 		xr_free				(demo);
 		uTime2Change		= Device.TimerAsync() + u32(P2)*1000;

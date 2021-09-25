@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="9.00"
 	Name="xrCore"
 	ProjectGUID="{A0F7D1FB-59A7-4717-A7E4-96F37E91998E}"
 	RootNamespace="xrCore"
 	Keyword="Win32Proj"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -44,9 +45,6 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				EnableIntrinsicFunctions="false"
-				FavorSizeOrSpeed="0"
-				EnableFiberSafeOptimizations="true"
 				AdditionalIncludeDirectories="../../sdk/include/stlport;../../sdk/include/"
 				PreprocessorDefinitions="WIN32;DEBUG;_WINDOWS;_USRDLL;XRCORE_EXPORTS;_SECURE_SCL=0"
 				StringPooling="false"
@@ -81,7 +79,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				IgnoreImportLibrary="true"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\..\sdk\libraries;..\..\..\libraries"
@@ -91,8 +88,10 @@
 				MapExports="false"
 				SubSystem="2"
 				LargeAddressAware="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="..\..\..\libraries\$(ProjectName).lib"
-				TargetMachine="0"
+				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -111,9 +110,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -196,6 +192,8 @@
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				LinkTimeCodeGeneration="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="..\..\..\libraries\$(ProjectName).lib"
 				TargetMachine="0"
 			/>
@@ -216,9 +214,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -293,6 +288,8 @@
 				MapFileName="$(OutDir)/$(ProjectName).map"
 				SubSystem="2"
 				LargeAddressAware="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="..\..\..\libraries\$(ProjectName).lib"
 				TargetMachine="0"
 			/>
@@ -313,9 +310,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -789,6 +783,14 @@
 			</File>
 			<File
 				RelativePath="_vector4.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dump_string.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\dump_string.h"
 				>
 			</File>
 			<File
@@ -1293,6 +1295,93 @@
 				RelativePath="xrMemory_subst_msvc.h"
 				>
 			</File>
+			<Filter
+				Name="dlmalloc"
+				>
+				<Filter
+					Name="allocator"
+					>
+					<File
+						RelativePath=".\ptmalloc3\malloc-2.8.3.h"
+						>
+					</File>
+					<File
+						RelativePath=".\ptmalloc3\malloc.c"
+						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								UsePrecompiledHeader="0"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								UsePrecompiledHeader="0"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Mixed|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								UsePrecompiledHeader="0"
+							/>
+						</FileConfiguration>
+					</File>
+					<File
+						RelativePath=".\ptmalloc3\sysdeps\win32\win32.c"
+						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								UsePrecompiledHeader="0"
+								Detect64BitPortabilityProblems="false"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								UsePrecompiledHeader="0"
+								Detect64BitPortabilityProblems="false"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Mixed|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								UsePrecompiledHeader="0"
+								Detect64BitPortabilityProblems="false"
+							/>
+						</FileConfiguration>
+					</File>
+				</Filter>
+				<Filter
+					Name="wrapper"
+					>
+					<File
+						RelativePath=".\doug_lea_allocator.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\doug_lea_allocator.h"
+						>
+					</File>
+					<File
+						RelativePath=".\memory_allocator_options.h"
+						>
+					</File>
+				</Filter>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Debug core"
@@ -2136,6 +2225,14 @@
 			<Filter
 				Name="lzo"
 				>
+				<File
+					RelativePath=".\lzo_compressor.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\lzo_compressor.h"
+					>
+				</File>
 				<File
 					RelativePath=".\rt_config1x.h"
 					>

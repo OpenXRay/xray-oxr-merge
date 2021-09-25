@@ -261,12 +261,12 @@ void CHelicopter::PHHit(SHit &H)
 #include "team_hierarchy_holder.h"
 #include "squad_hierarchy_holder.h"
 
-#include "extendedgeom.h"
+#include "../xrphysics/extendedgeom.h"
 void CollisionCallbackDead(bool& do_colide,bool bo1,dContact& c,SGameMtl* material_1,SGameMtl* material_2)
 {	
 	do_colide=true; 
 
-	CHelicopter *l_this		= bo1 ? smart_cast<CHelicopter*>(retrieveGeomUserData(c.geom.g1)->ph_ref_object) : smart_cast<CHelicopter*>(retrieveGeomUserData(c.geom.g2)->ph_ref_object);
+	CHelicopter *l_this		= bo1 ? smart_cast<CHelicopter*>(PHRetrieveGeomUserData(c.geom.g1)->ph_ref_object) : smart_cast<CHelicopter*>(PHRetrieveGeomUserData(c.geom.g2)->ph_ref_object);
 
 	if(l_this&& !l_this->m_exploded)
 		l_this->m_ready_explode=true;

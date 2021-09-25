@@ -85,7 +85,8 @@ public:
 	virtual void			reinit					();
 	virtual void			reload					(LPCSTR section);
 
-	static	void			BoneCallback			(CBoneInstance *B);
+	static	void	_BCL	BoneCallback			(CBoneInstance *B);
+
 	void			LookAtActor				(CBoneInstance *B);
 
 	void			OnStartTrade			();
@@ -126,9 +127,10 @@ public:
 		VERIFY				(m_sound_player);
 		return				(*m_sound_player);
 	}
+	virtual bool			unlimited_ammo			()	{return false;};
 	virtual bool			natural_weapon			() const {return false;}
 	virtual bool			natural_detector		() const {return false;}
-	virtual bool			AllowItemToTrade 		(CInventoryItem const * item, EItemPlace place) const;
+	virtual bool			AllowItemToTrade 		(CInventoryItem const * item, const SInvItemPlace& place) const;
 
 			void			dialog_sound_start		(LPCSTR phrase);
 			void			dialog_sound_stop		();

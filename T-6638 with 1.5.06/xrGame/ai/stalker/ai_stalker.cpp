@@ -534,14 +534,6 @@ BOOL CAI_Stalker::net_Spawn			(CSE_Abstract* DC)
 	CSE_Abstract					*e	= (CSE_Abstract*)(DC);
 	CSE_ALifeHumanStalker			*tpHuman = smart_cast<CSE_ALifeHumanStalker*>(e);
 	R_ASSERT						(tpHuman);
-
-
-	//static bool first_time			= true;
-	//if ( first_time ) {
-	//	tpHuman->o_Position.z		-= 3.f;
-	//	first_time					= false;
-	//}
-
 	m_group_behaviour				= !!tpHuman->m_flags.test(CSE_ALifeObject::flGroupBehaviour);
 
 	if (!CObjectHandler::net_Spawn(DC) || !inherited::net_Spawn(DC))
@@ -1326,7 +1318,7 @@ shared_str const &CAI_Stalker::aim_bone_id		() const
 
 void aim_target							(shared_str const& aim_bone_id, Fvector &result, const CGameObject *object)
 {
-	IKinematics				*kinematics = smart_cast<IKinematics*>(object->Visual());
+    IKinematics				*kinematics = smart_cast<IKinematics*>(object->Visual());
 	VERIFY					(kinematics);
 
 	u16						bone_id = kinematics->LL_BoneID(aim_bone_id);

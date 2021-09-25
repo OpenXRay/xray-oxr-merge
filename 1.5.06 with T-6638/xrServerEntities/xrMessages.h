@@ -75,6 +75,8 @@ enum {
 	M_MAKE_SCREENSHOT,
 	M_SECURE_KEY_SYNC,
 	M_SECURE_MESSAGE,
+	M_CREATE_PLAYER_STATE,
+	M_COMPRESSED_UPDATE_OBJECTS,
 
 	MSG_FORCEDWORD				= u32(-1)
 };
@@ -114,6 +116,8 @@ enum {
 	
 	GE_GRENADE_EXPLODE,
 	GE_INV_ACTION,				//a action beign taken on inventory
+	GE_INV_BOX_STATUS,
+	GE_INV_OWNER_STATUS,
 
 	GE_ZONE_STATE_CHANGE,
 
@@ -152,6 +156,9 @@ enum {
 
 	GE_FREEZE_OBJECT,
 	GE_LAUNCH_ROCKET,
+
+	GEG_PLAYER_USE_BOOSTER,
+	GE_REQUEST_PLAYERS_INFO,
 
 	GE_FORCEDWORD				= u32(-1)
 };
@@ -216,6 +223,9 @@ enum EGameMessages {  //game_cl <----> game_sv messages
 
 	GAME_EVENT_PLAYER_STARTED,
 	GAME_EVENT_MAKE_DATA,
+	GAME_EVENT_RECEIVE_SERVER_LOGO,
+	GAME_EVENT_CREATE_PLAYER_STATE,
+	GAME_EVENT_PLAYERS_INFO_REPLY,
 
 	//-----------------------------------------
 	GAME_EVENT_SCRIPT_BEGINS_FROM,		// don't add messages after this
@@ -235,5 +245,15 @@ enum
 
 	M_SPAWN_OBJECT_FORCEDWORD	= u32(-1)
 };
+
+enum enum_connection_results
+{
+	ecr_data_verification_failed		=	0x00,
+	ecr_cdkey_validation_failed,
+	ecr_password_verification_failed,
+	ecr_have_been_banned,
+	ecr_profile_error,
+};//enum enum_connection_results
+
 
 #endif /*_INCDEF_XRMESSAGES_H_*/

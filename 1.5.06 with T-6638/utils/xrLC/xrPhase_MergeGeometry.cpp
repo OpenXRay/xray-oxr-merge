@@ -48,7 +48,7 @@ float	Cuboid			(Fbox& BB)
 	return  powf(volume_cube / volume, 1.f/7.f);
 }
 
-IC void	MakeCube		(Fbox& BB_dest, Fbox& BB_src)
+IC void	MakeCube		(Fbox& BB_dest, const Fbox& BB_src)
 {
 	Fvector C,D;
 	BB_src.get_CD		(C,D);
@@ -70,7 +70,7 @@ IC BOOL ValidateMergeLinearSize( const Fvector & merged, const Fvector & orig1, 
 		return TRUE;
 }
 
-IC BOOL	ValidateMerge	(u32 f1, Fbox& bb_base, const Fbox& bb_base_orig, u32 f2, Fbox& bb, float& volume)
+IC BOOL	ValidateMerge	(u32 f1, const Fbox& bb_base, const Fbox& bb_base_orig, u32 f2, const Fbox& bb, float& volume)
 {
 	// Polygons
 	if ((f1+f2) > u32(4*c_SS_HighVertLimit/3))		return FALSE;	// Don't exceed limits (4/3 max POLY)	
@@ -131,11 +131,13 @@ void CBuild::xrPhase_MergeGeometry	()
 				if (!NeedMerge(TEST,bb))											continue;
 				if (!ValidateMerge(subdiv.size(),bb_base, bb_base_orig, TEST.size(),bb,volume))	continue;
 
-				if (volume<selected_volume)	{
+				if (volume<selected_volume)
+				{
 					selected		= test;
 					selected_volume	= volume;
 				}
 			}
+
 			if (selected == split)	break;	// No candidates for merge
 
 			// **OK**. Perform merge

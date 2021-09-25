@@ -2,7 +2,7 @@
 #include "build.h"
 #include "OGF_Face.h"
 #include "vbm.h"
-#include "std_classes.h"
+//#include "std_classes.h"
 #include "../xrlc_light/lightmap.h"
 #include "../xrlc_light/xrface.h"
 
@@ -92,7 +92,7 @@ void CBuild::Flex2OGF()
 			//pOGF->shader_xrlc	= &F->Shader();
 			
 			TRY(T.name		= textures()[M->surfidx].name);
-			TRY(T.pSurface	= &(textures()[M->surfidx]));
+			TRY(T.pBuildSurface	= &(textures()[M->surfidx]));
 			TRY(pOGF->textures.push_back(T));
 			
 			try {
@@ -102,7 +102,7 @@ void CBuild::Flex2OGF()
 					string_path		tn;
 					strconcat		(sizeof(tn),tn,*T.name,"_lm.dds");
 					T.name			= tn;
-					T.pSurface		= T.pSurface;	// Leave surface intact
+					T.pBuildSurface		= T.pBuildSurface;	// Leave surface intact
 					R_ASSERT		(pOGF);
 					pOGF->textures.push_back(T);
 				} else {
@@ -110,13 +110,13 @@ void CBuild::Flex2OGF()
 					CLightmap*	LM	= F->lmap_layer;
 					if (LM)		{
 						string_path	fn;
-						sprintf_s		(fn,"%s_1",LM->lm_texture.name); 
+						xr_sprintf		(fn,"%s_1",LM->lm_texture.name); 
 						T.name		= fn;
-						T.pSurface	= &(LM->lm_texture);
-						R_ASSERT	(T.pSurface);
+						T.pBuildSurface	= &(LM->lm_texture);
+						R_ASSERT	(T.pBuildSurface);
 						R_ASSERT	(pOGF);
 						pOGF->textures.push_back(T);					//.
-						sprintf		(fn,"%s_2",LM->lm_texture.name); 
+						xr_sprintf		(fn,"%s_2",LM->lm_texture.name); 
 						T.name		= fn;
 						pOGF->textures.push_back(T);
 					}
@@ -141,7 +141,7 @@ void CBuild::Flex2OGF()
 			clMsg		("%3d: cb  : v(%d)-f(%d)",	MODEL_ID,pOGF->data.vertices.size(),pOGF->data.faces.size());
 			pOGF->CalcBounds					();
 			clMsg		("%3d: prog: v(%d)-f(%d)",	MODEL_ID,pOGF->data.vertices.size(),pOGF->data.faces.size());
-			if (!b_noise) pOGF->MakeProgressive	(c_PM_MetricLimit_static);
+			if (!g_build_options.b_noise) pOGF->MakeProgressive	(c_PM_MetricLimit_static);
 			clMsg		("%3d: strp: v(%d)-f(%d)",	MODEL_ID,pOGF->data.vertices.size(),pOGF->data.faces.size());
 			pOGF->Stripify						();
 		} catch (...)	{

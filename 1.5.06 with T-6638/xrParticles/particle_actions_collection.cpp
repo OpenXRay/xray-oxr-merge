@@ -1659,5 +1659,3 @@ void PATurbulence::Execute(ParticleEffect *effect, const float dt, float& tm_max
 }
 void PATurbulence::Transform(const Fmatrix& m){}
 //-------------------------------------------------------------------------------------------------
-
-  

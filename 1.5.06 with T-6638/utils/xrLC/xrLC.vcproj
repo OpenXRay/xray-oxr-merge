@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="9.00"
 	Name="xrLC"
 	ProjectGUID="{A4ABD75E-825B-4D09-B3B2-2709682E40C8}"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -48,7 +49,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/Gs "
-				Optimization="2"
+				Optimization="3"
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
@@ -105,6 +106,8 @@
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				LinkTimeCodeGeneration="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="..\..\..\libraries\$(ProjectName).lib"
 				TargetMachine="0"
 			/>
@@ -125,9 +128,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -209,6 +209,8 @@
 				MapFileName=""
 				SubSystem="2"
 				LargeAddressAware="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="..\..\..\..\libraries\$(ProjectName).lib"
 				TargetMachine="0"
 			/>
@@ -229,9 +231,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -322,6 +321,8 @@
 				SubSystem="2"
 				LargeAddressAware="2"
 				TerminalServerAware="0"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="..\..\..\libraries\$(ProjectName).lib"
 				TargetMachine="0"
 			/>
@@ -342,9 +343,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -1011,6 +1009,14 @@
 			<File
 				RelativePath=".\xrPhase_MergeLM_Surface.cpp"
 				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AssemblerOutput="2"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\xrPhase_ResolveMaterials.cpp"

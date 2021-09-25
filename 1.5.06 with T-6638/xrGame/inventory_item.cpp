@@ -11,7 +11,7 @@
 #include "inventory_item.h"
 #include "inventory_item_impl.h"
 #include "inventory.h"
-#include "Physics.h"
+//#include "Physics.h"
 #include "physicsshellholder.h"
 #include "entity_alive.h"
 #include "Level.h"
@@ -136,7 +136,7 @@ void	CInventoryItem::Hit					(SHit* pHDS)
 	if( !m_flags.test(FUsingCondition) ) return;
 
 	float hit_power = pHDS->damage();
-	hit_power *= m_HitTypeK[pHDS->hit_type];
+	hit_power *= GetHitImmunity(pHDS->hit_type);
 
 	ChangeCondition(-hit_power);
 }
@@ -159,12 +159,12 @@ LPCSTR CInventoryItem::NameComplex()
 
 	if( m_flags.test(FUsingCondition) ){
 		string32		cond;
-		if(GetCondition()<0.33)		strcpy_s		(cond,	"[poor]");
-		else if(GetCondition()<0.66)strcpy_s		(cond,	"[bad]"	);
-		else						strcpy_s		(cond,	"[good]");
+		if(GetCondition()<0.33)		xr_strcpy		(cond,	"[poor]");
+		else if(GetCondition()<0.66)xr_strcpy		(cond,	"[bad]"	);
+		else						xr_strcpy		(cond,	"[good]");
 		string256		temp;
 		strconcat		(temp,*m_nameComplex," ",cond)	;
-		// sprintf			(temp,"%s %s",*m_nameComplex,cond);
+		// xr_sprintf			(temp,"%s %s",*m_nameComplex,cond);
 		m_nameComplex	= temp;
 	}
 

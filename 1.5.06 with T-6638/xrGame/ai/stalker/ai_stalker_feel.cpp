@@ -58,7 +58,7 @@ bool CAI_Stalker::bfCheckForNodeVisibility(u32 dwNodeID, bool bIfRayPick)
 
 BOOL CAI_Stalker::feel_touch_contact	(CObject *O)
 {
-	if (!m_take_items_enabled)
+	if ( !m_take_items_enabled )
 		return						(FALSE);
 
 	if (O == this)

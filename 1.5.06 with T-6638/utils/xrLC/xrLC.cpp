@@ -56,14 +56,14 @@ void Startup(LPSTR     lpCmdLine)
 	char cmd[512],name[256];
 	BOOL bModifyOptions		= FALSE;
 
-	strcpy_s(cmd,lpCmdLine);
+	xr_strcpy(cmd,lpCmdLine);
 	strlwr(cmd);
 	if (strstr(cmd,"-?") || strstr(cmd,"-h"))			{ Help(); return; }
 	if (strstr(cmd,"-f")==0)							{ Help(); return; }
 	if (strstr(cmd,"-o"))								bModifyOptions	= TRUE;
-	if (strstr(cmd,"-gi"))								b_radiosity		= TRUE;
-	if (strstr(cmd,"-noise"))							b_noise			= TRUE;
-	if (strstr(cmd,"-net"))								b_net_light		= TRUE;
+	if (strstr(cmd,"-gi"))								g_build_options.b_radiosity		= TRUE;
+	if (strstr(cmd,"-noise"))							g_build_options.b_noise			= TRUE;
+	if (strstr(cmd,"-net"))								g_build_options.b_net_light		= TRUE;
 	VERIFY( lc_global_data() );
 	lc_global_data()->b_nosun_set						( !!strstr(cmd,"-nosun") );
 	//if (strstr(cmd,"-nosun"))							b_nosun			= TRUE;
@@ -91,7 +91,7 @@ void Startup(LPSTR     lpCmdLine)
 
 	extern  HWND logWindow;
 	string256				temp;
-	sprintf_s				(temp, "%s - Levels Compiler", name);
+	xr_sprintf				(temp, "%s - Levels Compiler", name);
 	SetWindowText			(logWindow, temp);
 
 	string_path				prjName;
@@ -102,7 +102,7 @@ void Startup(LPSTR     lpCmdLine)
 	string256 inf;
 	IReader*	F			= FS.r_open(prjName);
 	if (NULL==F){
-		sprintf				(inf,"Build failed!\nCan't find level: '%s'",name);
+		xr_sprintf				(inf,"Build failed!\nCan't find level: '%s'",name);
 		clMsg				(inf);
 		MessageBox			(logWindow,inf,"Error!",MB_OK|MB_ICONERROR);
 		return;
@@ -148,7 +148,7 @@ void Startup(LPSTR     lpCmdLine)
 	// Show statistic
 	extern	std::string make_time(u32 sec);
 	u32	dwEndTime			= dwStartupTime.GetElapsed_ms();
-	sprintf					(inf,"Time elapsed: %s",make_time(dwEndTime/1000).c_str());
+	xr_sprintf					(inf,"Time elapsed: %s",make_time(dwEndTime/1000).c_str());
 	clMsg					("Build succesful!\n%s",inf);
 
 	if (!strstr(cmd,"-silent"))

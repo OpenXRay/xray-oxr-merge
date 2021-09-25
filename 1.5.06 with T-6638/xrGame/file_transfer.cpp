@@ -3,245 +3,22 @@
 #include "file_transfer.h"
 #include "Level.h"
 #include "xrServer.h"
-#include "hudmanager.h"
+#include "ui_base.h"
 
-#define MAX_FT_WAIT_TIME (2000 * 3)	/*3 max pings*/
-#define MAX_START_WAIT_TIME (2000 * 14) /* 10 max pings*/
 
-using namespace file_transfer;
+#define MAX_FT_WAIT_TIME (2000 * 3)		/*3 max pings*/
+#define MAX_START_WAIT_TIME (2000 * 14) /*10 max pings*/
 
-filetransfer_node::filetransfer_node(shared_str const & file_name, 
-									 u32 const chunk_size, 
-									 sending_state_callback_t const & callback) :
-	m_writer_as_src(NULL),
-	m_file_name(file_name),
-	m_is_reader_memory(false),
-	m_writer_max_size(0),
-	m_chunk_size(chunk_size),
-	m_last_peak_throughput(0),
-	m_last_chunksize_update_time(0),
-	m_user_param(0),
-	m_process_callback(callback)
+namespace file_transfer
 {
-	m_reader = FS.r_open(file_name.c_str());
-}
 
-filetransfer_node::filetransfer_node(u8* data,
-									 u32 const data_size,
-									 u32 const chunk_size,
-									 sending_state_callback_t const & callback,
-									 u32 user_param) :
-	m_writer_as_src(NULL),
-	m_is_reader_memory(true),
-	m_writer_max_size(0),
-	m_chunk_size(chunk_size),
-	m_last_peak_throughput(0),
-	m_last_chunksize_update_time(0),
-	m_user_param(user_param),
-	m_process_callback(callback)
-{
-	m_reader = xr_new<IReader>(static_cast<void*>(data), static_cast<int>(data_size));
-}
-filetransfer_node::filetransfer_node(CMemoryWriter* m_src_writer,
-									 u32 const max_size,
-									 u32 const chunk_size,
-									 sending_state_callback_t const & callback,
-									 u32 user_param) :
-	m_reader(NULL),
-	m_writer_as_src(m_src_writer),
-	m_writer_max_size(max_size),
-	m_is_reader_memory(true),
-	m_chunk_size(chunk_size),
-	m_last_peak_throughput(0),
-	m_last_chunksize_update_time(0),
-	m_user_param(user_param),
-	m_process_callback(callback)
-{
-	m_writer_pointer = 0;
-}
-
-filetransfer_node::~filetransfer_node()
-{
-	if (m_reader)
-	{
-		if(m_is_reader_memory)
-		{
-			xr_delete(m_reader);
-		} else
-		{
-			FS.r_close(m_reader);
-		}
-	}
-}
-
-void filetransfer_node::calculate_chunk_size(u32 peak_throughput, u32 current_throughput)
-{
-	if ((Device.dwTimeGlobal - m_last_chunksize_update_time) < 1000)
-		return;
-
-	if (m_last_peak_throughput < peak_throughput)		//peak throughput is increasing, so we can increase upload size :)
-	{
-		m_chunk_size += data_min_chunk_size;
-#ifdef MP_LOGGING
-		Msg("* peak throughout is not reached - increasing upload rate : (m_chunk_size: %d)", m_chunk_size);
-#endif
-	} else //peak is reached
-	{
-		if (OnServer())
-		{
-			m_chunk_size = data_max_chunk_size;
-			return;
-		}
-		if ((Device.dwTimeGlobal - m_last_chunksize_update_time) < 3000)
-			return;
-
-		m_chunk_size = static_cast<u32>(
-			Random.randI(data_min_chunk_size, data_max_chunk_size));
-#ifdef MP_LOGGING
-		Msg("* peak throughout is reached, (current_throughput: %d), (peak_throughput: %d), (m_chunk_size: %d)",
-			current_throughput, peak_throughput, m_chunk_size);
-#endif
-	}
-	clamp(m_chunk_size, data_min_chunk_size, data_max_chunk_size);
-	m_last_peak_throughput			= peak_throughput;
-	m_last_chunksize_update_time	= Device.dwTimeGlobal;
-}
-
-bool filetransfer_node::make_data_packet(NET_Packet & packet)
-{
-	bool finished = false;
-	void* pointer;
-	u32 size_to_write;
-	if (m_reader)
-	{
-		size_to_write = (static_cast<u32>(m_reader->elapsed()) >= m_chunk_size) ? 
-			m_chunk_size : m_reader->elapsed();
-		if (size_to_write)
-		{
-			pointer = _alloca(size_to_write);
-				
-			R_ASSERT(size_to_write < (NET_PacketSizeLimit - packet.w_tell()));
-
-			if (!m_reader->tell())
-			{
-				packet.w_u32(m_reader->length());
-				packet.w_u32(m_user_param);
-			}
-			m_reader->r(pointer, size_to_write);
-			packet.w(pointer, size_to_write);
-		}
-		finished = m_reader->eof() ? true : false;
-	} else
-	{
-		u32 elapsed = m_writer_as_src->size() - m_writer_pointer;
-		size_to_write = (elapsed >= m_chunk_size) ? m_chunk_size : elapsed;
-		pointer = m_writer_as_src->pointer() + m_writer_pointer;
-		
-		R_ASSERT(size_to_write < (NET_PacketSizeLimit - packet.w_tell()));
-
-		if (!m_writer_pointer)
-		{
-			packet.w_u32(m_writer_max_size);
-			packet.w_u32(m_user_param);
-		}
-
-		m_writer_pointer += size_to_write;
-		packet.w(pointer, size_to_write);
-		finished = (m_writer_pointer == m_writer_max_size);
-	}
-	return finished;
-}
-
-void filetransfer_node::signal_callback(sending_status_t status)
-{
-	if (m_reader)
-	{
-		m_process_callback(status, m_reader->tell(), m_reader->length());
-	} else
-	{
-		m_process_callback(status, m_writer_pointer, m_writer_max_size);
-	}
-}
-
-bool filetransfer_node::is_complete()
-{
-	if (m_reader)
-		return m_reader->eof() ? true : false;
-	if (m_writer_as_src)
-		return (m_writer_pointer == m_writer_max_size);
-
-	return false;
-}
-
-bool filetransfer_node::is_ready_to_send()
-{
-	if (is_complete())
-		return false;
-	
-	if (m_writer_as_src)
-		return (m_writer_pointer < m_writer_as_src->size());
-
-	return true;
-}
-
-filereceiver_node::filereceiver_node(shared_str const & file_name,
-									 receiving_state_callback_t const & callback) :
-	m_file_name(file_name),
-	m_is_writer_memory(false),
-	m_process_callback(callback),
-	m_last_read_time(0)
-{
-	m_writer = FS.w_open(file_name.c_str());
-}
-
-filereceiver_node::filereceiver_node(CMemoryWriter* mem_writer,
-									 receiving_state_callback_t const & callback) :
-	m_is_writer_memory(true),
-	m_process_callback(callback),
-	m_last_read_time(0)
-{
-	m_writer = static_cast<IWriter*>(mem_writer);
-}
-
-filereceiver_node::~filereceiver_node()
-{
-	if (m_writer && !m_is_writer_memory)
-		FS.w_close(m_writer);
-}
-
-bool filereceiver_node::receive_packet(NET_Packet & packet)
-{
-	if (!m_writer->tell())
-	{
-		packet.r_u32(m_data_size_to_receive);
-		packet.r_u32(m_user_param);
-	}
-	u32 size_to_write = packet.B.count - packet.r_tell();
-	void* pointer = static_cast<void*>(packet.B.data + packet.r_tell());
-	m_writer->w(pointer, size_to_write);
-	m_last_read_time = Device.dwTimeGlobal;
-	return (m_writer->tell() == m_data_size_to_receive);
-}
-
-void filereceiver_node::signal_callback(receiving_status_t status)
-{
-	m_process_callback(status, m_writer->tell(), m_data_size_to_receive);
-}
-
-bool filereceiver_node::is_complete()
-{
-	if (m_writer)
-		return (m_writer->tell() == m_data_size_to_receive);
-	return false;
-}
-
-void file_transfer::make_reject_packet(NET_Packet& packet, ClientID const & client)
+void make_reject_packet(NET_Packet& packet, ClientID const & client)
 {
 	packet.w_begin(M_FILE_TRANSFER);
 	packet.w_u8(static_cast<u8>(receive_rejected));
 	packet.w_u32(client.value());
 }
-void file_transfer::make_abort_packet(NET_Packet& packet, ClientID const & client)
+void make_abort_packet(NET_Packet& packet, ClientID const & client)
 {
 	packet.w_begin(M_FILE_TRANSFER);
 	packet.w_u8(static_cast<u8>(abort_receive));
@@ -429,7 +206,7 @@ void server_site::start_transfer_file(shared_str const & file_name,
 		tstate_callback);
 	dst_src_pair_t tkey = std::make_pair(to_client, from_client);
 	m_transfers.insert(std::make_pair(tkey, ftnode));
-	if (!ftnode->get_reader())
+	if (!ftnode->opened())
 	{
 		Msg("! ERROR: SV: failed to open file [%s]", file_name.c_str());
 		stop_transfer_file(tkey);
@@ -453,6 +230,57 @@ void server_site::start_transfer_file(CMemoryWriter& mem_writer,
 		mem_writer_max_size,
 		data_max_chunk_size,
 		tstate_callback, user_param);
+	m_transfers.insert(
+		std::make_pair(
+			std::make_pair(to_client, from_client),
+			ftnode
+		)
+	);
+}
+
+void server_site::start_transfer_file(u8* data_ptr,
+										u32 const data_size,
+										ClientID const & to_client,
+										ClientID const & from_client,
+										sending_state_callback_t & tstate_callback,
+										u32 const user_param)
+{
+	if (is_transfer_active(to_client, from_client))
+	{
+		Msg("! ERROR: SV: transfering file to client [%d] already active.", to_client);
+		return;
+	}
+	filetransfer_node* ftnode = xr_new<filetransfer_node>(
+		data_ptr,
+		data_size,
+		data_max_chunk_size,
+		tstate_callback,
+		user_param
+	);
+	m_transfers.insert(
+		std::make_pair(
+			std::make_pair(to_client, from_client),
+			ftnode
+		)
+	);
+}
+void server_site::start_transfer_file(buffer_vector<mutable_buffer_t> & vector_of_buffers,
+										ClientID const & to_client,
+										ClientID const & from_client,
+										sending_state_callback_t & tstate_callback,
+										u32 const user_param)
+{
+	if (is_transfer_active(to_client, from_client))
+	{
+		Msg("! ERROR: SV: transfering file to client [%d] already active.", to_client);
+		return;
+	}
+	filetransfer_node* ftnode = xr_new<filetransfer_node>(
+		&vector_of_buffers,
+		data_max_chunk_size,
+		tstate_callback,
+		user_param
+	);
 	m_transfers.insert(
 		std::make_pair(
 			std::make_pair(to_client, from_client),
@@ -671,7 +499,7 @@ void client_site::start_transfer_file(shared_str const & file_name,
 		return;
 	}
 	m_transfering = xr_new<filetransfer_node>(file_name, data_min_chunk_size, tstate_callback);
-	if (!m_transfering->get_reader())
+	if (!m_transfering->opened())
 	{
 		Msg("! ERROR: CL: failed to open file [%s]", file_name.c_str());
 		stop_transfer_file();
@@ -812,7 +640,7 @@ void client_site::stop_obsolete_receivers()
 #ifdef DEBUG
 void client_site::dbg_init_statgraph()
 {
-	CGameFont* F = HUD().Font().pFontDI;
+	CGameFont* F = UI().Font().pFontDI;
 	F->SetHeightI(0.015f);
 	F->OutSet	(360.f, 700.f);
 	F->SetColor	(D3DCOLOR_XRGB(0,255,0));
@@ -845,3 +673,5 @@ void client_site::dbg_update_statgraph()
 	}
 }
 #endif
+
+} //namespace file_transfer

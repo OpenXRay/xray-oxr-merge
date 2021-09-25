@@ -90,7 +90,7 @@ void _rect_register(_rect &R, CDeflector* D, BOOL bRotate)
 // Test of per-pixel intersection (surface test)
 bool Place_Perpixel(_rect& R, CDeflector* D, BOOL bRotate)
 {
-	LPDWORD lm			= D->lm.pSurface ;
+	LPDWORD lm			= D->lm.pSurface;
 	u32	s_x			= D->lm.dwWidth	+2*BORDER;
 	u32	s_y			= D->lm.dwHeight+2*BORDER;
 	

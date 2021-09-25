@@ -75,6 +75,7 @@
 #define CLSID_OBJECT_W_FORT			MK_CLSID('W','_','F','O','R','T',' ',' ')
 #define CLSID_OBJECT_W_BINOCULAR	MK_CLSID('W','_','B','I','N','O','C',' ')
 #define CLSID_OBJECT_W_SHOTGUN		MK_CLSID('W','_','S','H','O','T','G','N')
+#define CLSID_OBJECT_W_ASHOTGUN		MK_CLSID('W','_','A','S','H','T','G','N')
 //  [8/15/2006]
 #define CLSID_OBJECT_W_MAGAZINED	MK_CLSID('W','_','W','M','A','G','A','Z')
 //  [8/15/2006]
@@ -159,6 +160,7 @@
 #define CLSID_DETECTOR_SIMPLE		MK_CLSID('D','_','S','I','M','D','E','T')
 #define CLSID_DETECTOR_ADVANCED		MK_CLSID('D','_','A','D','V','A','N','C')
 #define CLSID_DETECTOR_ELITE		MK_CLSID('D','_','E','L','I','T','E',' ')
+#define CLSID_DETECTOR_SCIENTIFIC	MK_CLSID('D','_','S','C','I','E','N','T')
 
 // PDA
 #define CLSID_DEVICE_PDA			MK_CLSID('D','_','P','D','A',' ',' ',' ')
@@ -200,6 +202,7 @@
 #define CLSID_EQUIPMENT_STALKER		MK_CLSID('E','Q','U','_','S','T','L','K')
 #define CLSID_EQUIPMENT_MILITARY	MK_CLSID('E','Q','U','_','M','L','T','R')
 #define CLSID_EQUIPMENT_EXO			MK_CLSID('E','Q','U','_','E','X','O',' ')
+#define CLSID_EQUIPMENT_HELMET		MK_CLSID('E','Q','_','H','L','M','E','T')
 
 // Game types
 #define CLSID_SV_GAME_SINGLE			MK_CLSID('S','V','_','S','I','N','G','L')

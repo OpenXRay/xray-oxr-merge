@@ -65,6 +65,7 @@ void CSE_ALifeItemWeapon::script_register(lua_State *L)
 			"cse_alife_item_weapon",
 			CSE_ALifeItem
 		)
+		.def("clone_addons",						&CSE_ALifeItemWeapon::clone_addons)
 	];
 }
 
@@ -74,6 +75,17 @@ void CSE_ALifeItemWeaponShotGun::script_register(lua_State *L)
 		luabind_class_item1(
 			CSE_ALifeItemWeaponShotGun,
 			"cse_alife_item_weapon_shotgun",
+			CSE_ALifeItemWeapon
+			)
+	];
+}
+
+void CSE_ALifeItemWeaponAutoShotGun::script_register(lua_State *L)
+{
+	module(L)[
+		luabind_class_item1(
+			CSE_ALifeItemWeaponAutoShotGun,
+			"cse_alife_item_weapon_auto_shotgun",
 			CSE_ALifeItemWeapon
 			)
 	];

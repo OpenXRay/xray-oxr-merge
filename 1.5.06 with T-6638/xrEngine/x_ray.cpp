@@ -19,7 +19,7 @@
 #include "GameFont.h"
 #include "resource.h"
 #include "LightAnimLibrary.h"
-#include "ispatial.h"
+#include "../xrcdb/ispatial.h"
 #include "CopyProtection.h"
 #include "Text_Console.h"
 #include <process.h>
@@ -65,7 +65,7 @@ void compute_build_id	()
 	int					years;
 	string16			month;
 	string256			buffer;
-	strcpy_s				(buffer,__DATE__);
+	xr_strcpy				(buffer,__DATE__);
 	sscanf				(buffer,"%s %d %d",month,&days,&years);
 
 	for (int i=0; i<12; i++) {
@@ -90,7 +90,7 @@ void compute_build_id	()
 //////////////////////////////////////////////////////////////////////////
 struct _SoundProcessor	: public pureFrame
 {
-	virtual void OnFrame	( )
+	virtual void	_BCL	OnFrame	( )
 	{
 		//Msg							("------------- sound: %d [%3.2f,%3.2f,%3.2f]",u32(Device.dwFrame),VPUSH(Device.vCameraPosition));
 		Device.Statistic->Sound.Begin();
@@ -151,11 +151,11 @@ PROTECT_API void InitConsole	()
 #endif
 	Console->Initialize			( );
 
-	strcpy_s						(Console->ConfigFile,"user.ltx");
+	xr_strcpy						(Console->ConfigFile,"user.ltx");
 	if (strstr(Core.Params,"-ltx ")) {
 		string64				c_name;
 		sscanf					(strstr(Core.Params,"-ltx ")+5,"%[^ ] ",c_name);
-		strcpy_s					(Console->ConfigFile,c_name);
+		xr_strcpy					(Console->ConfigFile,c_name);
 	}
 }
 
@@ -184,17 +184,20 @@ void destroySound	()
 {
 	CSound_manager_interface::_destroy				( );
 }
+
 void destroySettings()
 {
 	xr_delete					( pSettings		);
 	xr_delete					( pGameIni		);
 }
+
 void destroyConsole	()
 {
 	Console->Execute			("cfg_save");
 	Console->Destroy			();
 	xr_delete					(Console);
 }
+
 void destroyEngine	()
 {
 	Device.Destroy				( );
@@ -208,6 +211,7 @@ void execUserScript				( )
 	Console->Execute			("unbindall");
 	Console->ExecuteScript		(Console->ConfigFile);
 }
+
 void slowdownthread	( void* )
 {
 //	Sleep		(30*1000);
@@ -679,12 +683,13 @@ int APIENTRY WinMain_impl(HINSTANCE hInstance,
 	
 	compute_build_id			();
 	Core._initialize			("xray",NULL, TRUE, fsgame[0] ? fsgame : NULL);
+
 	InitSettings				();
 
 	// Adjust player & computer name for Asian
 	if ( pSettings->line_exist( "string_table" , "no_native_input" ) ) {
-			strcpy_s( Core.UserName , sizeof( Core.UserName ) , "Player" );
-			strcpy_s( Core.CompName , sizeof( Core.CompName ) , "Computer" );
+			xr_strcpy( Core.UserName , sizeof( Core.UserName ) , "Player" );
+			xr_strcpy( Core.CompName , sizeof( Core.CompName ) , "Computer" );
 	}
 
 #ifndef DEDICATED_SERVER
@@ -1292,10 +1297,10 @@ void doBenchmark(LPCSTR name)
 	shared_str test_command;
 	for(int i=0;i<test_count;++i){
 		ini.r_line			( "benchmark", i, &test_name, &t);
-		strcpy_s				(g_sBenchmarkName, test_name);
+		xr_strcpy				(g_sBenchmarkName, test_name);
 		
 		test_command		= ini.r_string_wb("benchmark",test_name);
-		strcpy_s			(Core.Params,*test_command);
+		xr_strcpy			(Core.Params,*test_command);
 		_strlwr_s				(Core.Params);
 		
 		InitInput					();
@@ -1309,11 +1314,11 @@ void doBenchmark(LPCSTR name)
 
 		Engine.External.Initialize	( );
 
-		strcpy_s						(Console->ConfigFile,"user.ltx");
+		xr_strcpy						(Console->ConfigFile,"user.ltx");
 		if (strstr(Core.Params,"-ltx ")) {
 			string64				c_name;
 			sscanf					(strstr(Core.Params,"-ltx ")+5,"%[^ ] ",c_name);
-			strcpy_s				(Console->ConfigFile,c_name);
+			xr_strcpy				(Console->ConfigFile,c_name);
 		}
 
 		Startup	 				();

@@ -6,7 +6,7 @@
 
 #include "explosive.h"
 
-#include "PhysicsShell.h"
+#include "../xrphysics/PhysicsShell.h"
 #include "entity.h"
 //#include "PSObject.h"
 #include "ParticlesObject.h"
@@ -26,10 +26,11 @@
 #	include "PHDebug.h"
 #endif
 
-#include "Physics.h"
-#include "MathUtils.h"
-#include "phvalidevalues.h"
-#include "PHActivationShape.h"
+//#include "Physics.h"
+#include "../xrphysics/MathUtils.h"
+//#include "../xrphysics/phvalidevalues.h"
+#include "../xrphysics/iActivationShape.h"
+#include "../xrphysics/iphworld.h"
 #include "game_base_space.h"
 #include "profiler.h"
 
@@ -46,7 +47,6 @@ CExplosive::CExplosive(void)
 	m_iFragsNum				= 20;
 	m_fFragsRadius			= 30.0f;
 	m_fFragHit				= 50.0f;
-	m_fFragHitCritical		= 0.0f;
 	m_fUpThrowFactor		= 0.f;
 
 
@@ -92,7 +92,7 @@ void CExplosive::Load(LPCSTR section)
 	Load				(pSettings,section);
 }
 
-void CExplosive::Load(CInifile *ini,LPCSTR section)
+void CExplosive::Load(CInifile const *ini,LPCSTR section)
 {
 	m_fBlastHit			= ini->r_float(section,"blast");
 	m_fBlastRadius		= ini->r_float(section,"blast_r");
@@ -101,7 +101,6 @@ void CExplosive::Load(CInifile *ini,LPCSTR section)
 	m_iFragsNum			= ini->r_s32(section,"frags");
 	m_fFragsRadius		= ini->r_float(section,"frags_r");
 	m_fFragHit			= ini->r_float(section,"frag_hit");
-	m_fFragHitCritical	= ini->r_float(section,"frag_hit_critical");
 	m_fFragHitImpulse	= ini->r_float(section,"frag_hit_impulse");
 
 	m_eHitTypeBlast		= ALife::g_tfString2HitType(ini->r_string(section, "hit_type_blast"));
@@ -316,7 +315,7 @@ void CExplosive::Explode()
 {
 	VERIFY(0xffff != Initiator());
 	VERIFY(m_explosion_flags.test(flReadyToExplode));//m_bReadyToExplode
-	VERIFY(!ph_world->Processing());
+	VERIFY(!physics_world()->Processing());
 	//m_bExploding = true;
 	m_explosion_flags.set(flExploding,TRUE);
 	cast_game_object()->processing_activate();
@@ -376,7 +375,6 @@ void CExplosive::Explode()
 		CCartridge cartridge;
 		cartridge.param_s.kDist				= 1.f;
 		cartridge.param_s.kHit				= 1.f;
-		cartridge.param_s.kCritical			= 1.f;
 		cartridge.param_s.kImpulse			= 1.f;
 		cartridge.param_s.kAP				= 1.f;
 		cartridge.param_s.fWallmarkSize		= fWallmarkSize;
@@ -384,9 +382,9 @@ void CExplosive::Explode()
 		cartridge.m_flags.set				(CCartridge::cfTracer,FALSE);
 
 		Level().BulletManager().AddBullet(	pos, frag_dir, m_fFragmentSpeed,
-											m_fFragHit, m_fFragHitCritical, m_fFragHitImpulse, Initiator(),
+											m_fFragHit, m_fFragHitImpulse, Initiator(),
 											cast_game_object()->ID(), m_eHitTypeFrag, m_fFragsRadius, 
-											cartridge, SendHits );
+											cartridge, 1.f, SendHits );
 	}	
 
 	if (cast_game_object()->Remote()) return;
@@ -466,7 +464,7 @@ void CExplosive::GetExplVelocity(Fvector &v)
 void CExplosive::UpdateCL() 
 {
 	//VERIFY(!this->getDestroy());
-	VERIFY(!ph_world->Processing());
+	VERIFY(!physics_world()->Processing());
 	if(!m_explosion_flags.test(flExploding)) return;// !m_bExploding
 	if(m_explosion_flags.test(flExploded))
 	{
@@ -628,7 +626,7 @@ void CExplosive::FindNormal(Fvector& normal)
 void CExplosive::StartLight	()
 {
 
-	VERIFY(!ph_world->Processing());
+	VERIFY(!physics_world()->Processing());
 	if(m_fLightTime>0)
 	{
 		
@@ -644,7 +642,7 @@ void CExplosive::StartLight	()
 void CExplosive::StopLight		()
 {
 	if	(m_pLight){
-		VERIFY						(!ph_world->Processing());
+		VERIFY						(!physics_world()->Processing());
 		m_pLight->set_active		(false);
 		LightDestroy				();
 	}
@@ -747,13 +745,7 @@ void CExplosive::ActivateExplosionBox(const Fvector &size,Fvector &in_out_pos)
 	CPhysicsShellHolder		*self_obj=smart_cast<CPhysicsShellHolder*>(cast_game_object());
 	CPhysicsShell* self_shell=self_obj->PPhysicsShell();
 	if(self_shell&&self_shell->isActive())self_shell->DisableCollision();
-	CPHActivationShape activation_shape;//Fvector start_box;m_PhysicMovementControl.Box().getsize(start_box);
-	activation_shape.Create(in_out_pos,size,self_obj);
-	dBodySetGravityMode(activation_shape.ODEBody(),0);
-	activation_shape.Activate(size,1,1.f,M_PI/8.f);
-	in_out_pos.set(activation_shape.Position());
-	activation_shape.Size(m_vExplodeSize);
-	activation_shape.Destroy();
+	ActivateShapeExplosive( self_obj, size, m_vExplodeSize, in_out_pos );
 	if(self_shell&&self_shell->isActive())self_shell->EnableCollision();
 }
 void CExplosive::net_Relcase(CObject* O)

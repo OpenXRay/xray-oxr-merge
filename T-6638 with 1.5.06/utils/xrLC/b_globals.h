@@ -19,8 +19,6 @@ BOOL	exact_normalize					(float*		a);
 //#include "vbm.h"
 //#include "OGF_Face.h"
 
-
-
 struct SBuildOptions
 {
 	BOOL						b_radiosity;
@@ -32,9 +30,3 @@ struct SBuildOptions
 	}
 };
 extern SBuildOptions g_build_options;
-
-
-
-
-
-

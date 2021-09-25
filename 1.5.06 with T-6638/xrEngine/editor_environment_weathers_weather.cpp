@@ -23,7 +23,7 @@ using editor::environment::weathers::time;
 template <>
 void property_collection<weather::container_type, weather>::display_name	(u32 const& item_index, LPSTR const& buffer, u32 const& buffer_size)
 {
-	strcpy_s			(buffer, buffer_size, m_container[item_index]->id().c_str());
+	xr_strcpy			(buffer, buffer_size, m_container[item_index]->id().c_str());
 }
 
 template <>
@@ -62,7 +62,7 @@ void weather::load			()
 {
 	string_path			file_name;
 	FS.update_path		(file_name, "$game_weathers$", m_id.c_str());
-	strcat_s			(file_name, ".ltx");
+	xr_strcat			(file_name, ".ltx");
 	CInifile*			config = CInifile::Create(file_name);
 
 	m_manager.WeatherCycles[m_id].clear	();
@@ -87,7 +87,7 @@ void weather::save			()
 {
 	string_path			file_name;
 	FS.update_path		(file_name, "$game_weathers$", m_id.c_str());
-	strcat_s			(file_name, ".ltx");
+	xr_strcat			(file_name, ".ltx");
 	CInifile*			config = xr_new<CInifile>(file_name, FALSE, FALSE, TRUE);
 
 	container_type::iterator	i = m_times.begin();
@@ -197,7 +197,7 @@ bool weather::try_hours					(u32& hours, u32& minutes, u32& seconds, shared_str&
 {
 	for (u32 i=hours + 1; i<24; ++i) {
 		string16		temp;
-		sprintf_s		(temp, "%02d:%02d:%02d", i, minutes, seconds);
+		xr_sprintf		(temp, "%02d:%02d:%02d", i, minutes, seconds);
 		if (!m_collection->unique_id(temp))
 			continue;
 
@@ -212,7 +212,7 @@ bool weather::try_minutes				(u32& hours, u32& minutes, u32& seconds, shared_str
 {
 	for (u32 i=minutes + 1; i<60; ++i) {
 		string16		temp;
-		sprintf_s		(temp, "%02d:%02d:%02d", hours, i, seconds);
+		xr_sprintf		(temp, "%02d:%02d:%02d", hours, i, seconds);
 		if (!m_collection->unique_id(temp))
 			continue;
 
@@ -229,7 +229,7 @@ shared_str weather::try_all				(u32& hours_, u32& minutes_, u32& seconds_) const
 		for (u32 minutes = minutes_; minutes<60; ++minutes)
 			for (u32 seconds = seconds_ + 1; seconds<60; ++seconds) {
 				string16	temp;
-				sprintf_s	(temp, "%02d:%02d:%02d", hours, minutes, seconds);
+				xr_sprintf	(temp, "%02d:%02d:%02d", hours, minutes, seconds);
 				if (!m_collection->unique_id(temp))
 					continue;
 
@@ -241,7 +241,7 @@ shared_str weather::try_all				(u32& hours_, u32& minutes_, u32& seconds_) const
 shared_str weather::generate_unique_id	(shared_str const& start) const
 {
 	string16			id;
-	strcpy_s			(id, start.c_str());
+	xr_strcpy			(id, start.c_str());
 
 	VERIFY				(xr_strlen(id) == 8);
 	VERIFY				(is_digit(id[0]));
@@ -362,7 +362,7 @@ void weather::reload_time_frame	(shared_str const& frame_id)
 {
 	string_path			file_name;
 	FS.update_path		(file_name, "$game_weathers$", m_id.c_str());
-	strcat_s			(file_name, ".ltx");
+	xr_strcat			(file_name, ".ltx");
 	CInifile*			config = CInifile::Create(file_name);
 
 	container_type::iterator	i = m_times.begin();

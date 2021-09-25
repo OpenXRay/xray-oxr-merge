@@ -1246,8 +1246,10 @@ void CApplication::LoadStage()
 		max_load_stage			= 17;
 	else
 		max_load_stage			= 14;
+
 	LoadDraw					();
 }
+
 void CApplication::LoadSwitch	()
 {
 }

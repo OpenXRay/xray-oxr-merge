@@ -111,7 +111,8 @@ void CScriptGameObject::ChangeTeam(u8 team, u8 squad, u8 group)
 CScriptGameObject *CScriptGameObject::GetEnemy() const
 {
 	CCustomMonster		*l_tpCustomMonster = smart_cast<CCustomMonster*>(&object());
-	if (l_tpCustomMonster) {
+	if (l_tpCustomMonster)
+	{
 		if (l_tpCustomMonster->GetCurrentEnemy() && !l_tpCustomMonster->GetCurrentEnemy()->getDestroy()) return (l_tpCustomMonster->GetCurrentEnemy()->lua_game_object());
 		else return (0);
 	} else {
@@ -545,7 +546,9 @@ void CScriptGameObject::set_sight		(SightManager::ESightType sight_type, const F
 	if (!stalker)
 		ai().script_engine().script_log					(ScriptStorage::eLuaMessageTypeError,"CSightManager : cannot access class member set_sight!");
 	else
+	{
 		stalker->sight().setup	(sight_type,vector3d);
+	}
 }
 
 void CScriptGameObject::set_sight		(SightManager::ESightType sight_type, bool torso_look, bool path)
@@ -563,7 +566,9 @@ void CScriptGameObject::set_sight		(SightManager::ESightType sight_type, const F
 	if (!stalker)
 		ai().script_engine().script_log					(ScriptStorage::eLuaMessageTypeError,"CSightManager : cannot access class member set_sight!");
 	else
+	{
 		stalker->sight().setup	(sight_type,vector3d,torso_look);
+	}
 }
 
 void CScriptGameObject::set_sight		(SightManager::ESightType sight_type, const Fvector *vector3d)
@@ -572,7 +577,9 @@ void CScriptGameObject::set_sight		(SightManager::ESightType sight_type, const F
 	if (!stalker)
 		ai().script_engine().script_log					(ScriptStorage::eLuaMessageTypeError,"CSightManager : cannot access class member set_sight!");
 	else
+	{
 		stalker->sight().setup	(sight_type,vector3d);
+	}
 }
 
 void CScriptGameObject::set_sight		(CScriptGameObject *object_to_look)

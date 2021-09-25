@@ -22,7 +22,7 @@ using editor::environment::sound_channels::manager;
 template <>
 void property_collection<channel::sound_container_type, channel>::display_name	(u32 const& item_index, LPSTR const& buffer, u32 const& buffer_size)
 {
-	strcpy_s				(buffer, buffer_size, m_container[item_index]->id());
+	xr_strcpy				(buffer, buffer_size, m_container[item_index]->id());
 }
 
 template <>
@@ -88,12 +88,12 @@ void channel::save			(CInifile& config)
 	*temp				= 0;
 	for (i = b; i != e; ++i) {
 		if (i == b) {
-			strcpy_s	(temp, count, (*i)->id());
+			xr_strcpy	(temp, count, (*i)->id());
 			continue;
 		}
 
-		strcat_s		(temp, count, ", ");
-		strcat_s		(temp, count, (*i)->id());
+		xr_strcat		(temp, count, ", ");
+		xr_strcat		(temp, count, (*i)->id());
 	}
 
 	config.w_string		(m_load_section.c_str(),	"sounds", temp);

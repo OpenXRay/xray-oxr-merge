@@ -146,8 +146,8 @@ CSE_ALifeTraderAbstract::CSE_ALifeTraderAbstract(LPCSTR caSection)
 CSE_Abstract *CSE_ALifeTraderAbstract::init	()
 {
 	string4096					S;
-	//xr_sprintf						(S,"%s\r\n[game_info]\r\nname_id = default\r\n",!*base()->m_ini_string ? "" : *base()->m_ini_string);
-	xr_sprintf						(S,"%s\r\n[game_info]\r\n",!*base()->m_ini_string ? "" : *base()->m_ini_string);
+	//xr_sprintf				(S,"%s\r\n[game_info]\r\nname_id = default\r\n",!*base()->m_ini_string ? "" : *base()->m_ini_string);
+	xr_sprintf					(S,"%s\r\n[game_info]\r\n",!*base()->m_ini_string ? "" : *base()->m_ini_string);
 	base()->m_ini_string		= S;
 
 	return						(base());
@@ -1161,7 +1161,7 @@ CSE_ALifeMonsterAbstract::CSE_ALifeMonsterAbstract(LPCSTR caSection)	: CSE_ALife
 		for ( ; I != E; ++I)
 		{
 			xr_strcpy			(S, ALife::g_cafHitType2String(ALife::EHitType(I - B)));
-			xr_strcat				(S,"_immunity");
+			xr_strcat			(S,"_immunity");
 			*I					= READ_IF_EXISTS(pSettings,r_float,imm_section,S,1.f);
 		}
 	}

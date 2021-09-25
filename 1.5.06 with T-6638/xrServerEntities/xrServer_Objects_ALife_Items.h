@@ -193,6 +193,7 @@ SERVER_ENTITY_DECLARE_BEGIN(CSE_ALifeItemWeapon,CSE_ALifeItem)
 	u16								get_ammo_total		();
 	u16								get_ammo_elapsed	();
 	u16								get_ammo_magsize	();
+	void							clone_addons		(CSE_ALifeItemWeapon* parent);
 
 	virtual BOOL					Net_Relevant		();
 
@@ -231,6 +232,14 @@ SERVER_ENTITY_DECLARE_END
 add_to_type_list(CSE_ALifeItemWeaponShotGun)
 #define script_type_list save_type_list(CSE_ALifeItemWeaponShotGun)
 
+SERVER_ENTITY_DECLARE_BEGIN(CSE_ALifeItemWeaponAutoShotGun,CSE_ALifeItemWeaponShotGun)
+								CSE_ALifeItemWeaponAutoShotGun(LPCSTR caSection);
+virtual							~CSE_ALifeItemWeaponAutoShotGun();
+
+virtual CSE_ALifeItemWeapon		*cast_item_weapon	() {return this;}
+SERVER_ENTITY_DECLARE_END
+add_to_type_list(CSE_ALifeItemWeaponAutoShotGun)
+#define script_type_list save_type_list(CSE_ALifeItemWeaponAutoShotGun)
 
 SERVER_ENTITY_DECLARE_BEGIN(CSE_ALifeItemDetector,CSE_ALifeItem)
 	u32								m_ef_detector_type;
@@ -307,6 +316,14 @@ SERVER_ENTITY_DECLARE_BEGIN(CSE_ALifeItemCustomOutfit,CSE_ALifeItem)
 SERVER_ENTITY_DECLARE_END
 add_to_type_list(CSE_ALifeItemCustomOutfit)
 #define script_type_list save_type_list(CSE_ALifeItemCustomOutfit)
+
+SERVER_ENTITY_DECLARE_BEGIN(CSE_ALifeItemHelmet,CSE_ALifeItem)
+									CSE_ALifeItemHelmet	(LPCSTR caSection);
+	virtual							~CSE_ALifeItemHelmet	();
+	virtual BOOL					Net_Relevant			();
+SERVER_ENTITY_DECLARE_END
+add_to_type_list(CSE_ALifeItemHelmet)
+#define script_type_list save_type_list(CSE_ALifeItemHelmet)
 
 #pragma warning(pop)
 

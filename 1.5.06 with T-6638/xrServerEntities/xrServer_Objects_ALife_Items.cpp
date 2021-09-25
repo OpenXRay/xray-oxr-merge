@@ -531,6 +531,11 @@ void CSE_ALifeItemWeapon::UPDATE_Read(NET_Packet	&tNetPacket)
 	tNetPacket.r_u8				(m_bZoom);
 }
 
+void CSE_ALifeItemWeapon::clone_addons(CSE_ALifeItemWeapon* parent)
+{
+	m_addon_flags = parent->m_addon_flags;
+}
+
 void CSE_ALifeItemWeapon::UPDATE_Write(NET_Packet	&tNetPacket)
 {
 	inherited::UPDATE_Write		(tNetPacket);
@@ -692,7 +697,39 @@ void CSE_ALifeItemWeaponShotGun::FillProps			(LPCSTR pref, PropItemVec& items)
 	inherited::FillProps			(pref, items);
 }
 #endif // #ifndef XRGAME_EXPORTS
+////////////////////////////////////////////////////////////////////////////
+// CSE_ALifeItemWeaponAutoShotGun
+////////////////////////////////////////////////////////////////////////////
+CSE_ALifeItemWeaponAutoShotGun::CSE_ALifeItemWeaponAutoShotGun	(LPCSTR caSection) : CSE_ALifeItemWeaponShotGun(caSection)
+{
+}
 
+CSE_ALifeItemWeaponAutoShotGun::~CSE_ALifeItemWeaponAutoShotGun	()
+{
+}
+
+void CSE_ALifeItemWeaponAutoShotGun::UPDATE_Read	(NET_Packet& P)
+{
+	inherited::UPDATE_Read(P);
+}
+void CSE_ALifeItemWeaponAutoShotGun::UPDATE_Write	(NET_Packet& P)
+{
+	inherited::UPDATE_Write(P);
+}
+void CSE_ALifeItemWeaponAutoShotGun::STATE_Read		(NET_Packet& P, u16 size)
+{
+	inherited::STATE_Read(P, size);
+}
+void CSE_ALifeItemWeaponAutoShotGun::STATE_Write	(NET_Packet& P)
+{
+	inherited::STATE_Write(P);
+}
+#ifndef XRGAME_EXPORTS
+void CSE_ALifeItemWeaponAutoShotGun::FillProps		(LPCSTR pref, PropItemVec& items)
+{
+	inherited::FillProps(pref, items);
+}
+#endif // #ifndef XRGAME_EXPORTS
 ////////////////////////////////////////////////////////////////////////////
 // CSE_ALifeItemWeaponMagazined
 ////////////////////////////////////////////////////////////////////////////
@@ -1226,6 +1263,51 @@ void CSE_ALifeItemCustomOutfit::FillProps			(LPCSTR pref, PropItemVec& items)
 #endif // #ifndef XRGAME_EXPORTS
 
 BOOL CSE_ALifeItemCustomOutfit::Net_Relevant		()
+{
+	return							(true);
+}
+
+////////////////////////////////////////////////////////////////////////////
+// CSE_ALifeItemHelmet
+////////////////////////////////////////////////////////////////////////////
+CSE_ALifeItemHelmet::CSE_ALifeItemHelmet	(LPCSTR caSection): CSE_ALifeItem(caSection)
+{
+}
+
+CSE_ALifeItemHelmet::~CSE_ALifeItemHelmet	()
+{
+}
+
+void CSE_ALifeItemHelmet::STATE_Read		(NET_Packet	&tNetPacket, u16 size)
+{
+	inherited::STATE_Read		(tNetPacket,size);
+}
+
+void CSE_ALifeItemHelmet::STATE_Write		(NET_Packet	&tNetPacket)
+{
+	inherited::STATE_Write		(tNetPacket);
+}
+
+void CSE_ALifeItemHelmet::UPDATE_Read		(NET_Packet	&tNetPacket)
+{
+	inherited::UPDATE_Read			(tNetPacket);
+	tNetPacket.r_float_q8			(m_fCondition,0.0f,1.0f);
+}
+
+void CSE_ALifeItemHelmet::UPDATE_Write		(NET_Packet	&tNetPacket)
+{
+	inherited::UPDATE_Write			(tNetPacket);
+	tNetPacket.w_float_q8			(m_fCondition,0.0f,1.0f);
+}
+
+#ifndef XRGAME_EXPORTS
+void CSE_ALifeItemHelmet::FillProps			(LPCSTR pref, PropItemVec& items)
+{
+	inherited::FillProps			(pref,items);
+}
+#endif // #ifndef XRGAME_EXPORTS
+
+BOOL CSE_ALifeItemHelmet::Net_Relevant		()
 {
 	return							(true);
 }

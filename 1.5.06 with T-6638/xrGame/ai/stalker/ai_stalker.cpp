@@ -23,7 +23,6 @@
 #include "../../cover_evaluators.h"
 #include "../../xrserver.h"
 #include "../../xr_level_controller.h"
-#include "../../hudmanager.h"
 #include "../../../Include/xrRender/Kinematics.h"
 #include "../../../xrServerEntities/character_info.h"
 #include "../../actor.h"
@@ -77,7 +76,8 @@ extern int g_AI_inactive_time;
 CAI_Stalker::CAI_Stalker			() :
 	m_sniper_update_rate			(false),
 	m_sniper_fire_mode				(false),
-	m_take_items_enabled			(true)
+	m_take_items_enabled			(true),
+	m_death_sound_enabled			(true)
 {
 	m_sound_user_data_visitor		= 0;
 	m_movement_manager				= 0;
@@ -165,7 +165,7 @@ void CAI_Stalker::reinit			()
 	m_computed_object_position		= Fvector().set(flt_max,flt_max,flt_max);
 	m_computed_object_direction		= Fvector().set(flt_max,flt_max,flt_max);
 
-	m_throw_target					= Fvector().set(flt_max,flt_max,flt_max);
+	m_throw_target_position			= Fvector().set(flt_max,flt_max,flt_max);
 	m_throw_ignore_object			= 0;
 
 	m_throw_position				= Fvector().set(flt_max,flt_max,flt_max);
@@ -205,6 +205,7 @@ void CAI_Stalker::LoadSounds		(LPCSTR section)
 	sound().add						(pSettings->r_string(section,"sound_grenade_alarm"),				100, SOUND_TYPE_MONSTER_TALKING,	3, u32(eStalkerSoundMaskGrenadeAlarm),				eStalkerSoundGrenadeAlarm,				head_bone_name, xr_new<CStalkerSoundData>(this));
 	sound().add						(pSettings->r_string(section,"sound_friendly_grenade_alarm"),		100, SOUND_TYPE_MONSTER_TALKING,	3, u32(eStalkerSoundMaskFriendlyGrenadeAlarm),		eStalkerSoundFriendlyGrenadeAlarm,		head_bone_name, xr_new<CStalkerSoundData>(this));
 	sound().add						(pSettings->r_string(section,"sound_tolls"),						100, SOUND_TYPE_MONSTER_TALKING,	4, u32(eStalkerSoundMaskTolls),						eStalkerSoundTolls,						head_bone_name, xr_new<CStalkerSoundData>(this));
+	sound().add						(pSettings->r_string(section,"sound_wounded"),						100, SOUND_TYPE_MONSTER_TALKING,	4, u32(eStalkerSoundMaskWounded),					eStalkerSoundWounded,					head_bone_name, xr_new<CStalkerSoundData>(this));
 	sound().add						(pSettings->r_string(section,"sound_alarm"),						100, SOUND_TYPE_MONSTER_TALKING,	5, u32(eStalkerSoundMaskAlarm),						eStalkerSoundAlarm,						head_bone_name, xr_new<CStalkerSoundData>(this));
 	sound().add						(pSettings->r_string(section,"sound_attack_no_allies"),				100, SOUND_TYPE_MONSTER_TALKING,	5, u32(eStalkerSoundMaskAttackNoAllies),			eStalkerSoundAttackNoAllies,			head_bone_name, xr_new<CStalkerSoundData>(this));
 	sound().add						(pSettings->r_string(section,"sound_attack_allies_single_enemy"),	100, SOUND_TYPE_MONSTER_TALKING,	5, u32(eStalkerSoundMaskAttackAlliesSingleEnemy),	eStalkerSoundAttackAlliesSingleEnemy,	head_bone_name, xr_new<CStalkerSoundData>(this));
@@ -213,6 +214,8 @@ void CAI_Stalker::LoadSounds		(LPCSTR section)
 	sound().add						(pSettings->r_string(section,"sound_detour"),						100, SOUND_TYPE_MONSTER_TALKING,	5, u32(eStalkerSoundMaskDetour),					eStalkerSoundDetour,					head_bone_name, xr_new<CStalkerSoundData>(this));
 	sound().add						(pSettings->r_string(section,"sound_search1_no_allies"),			100, SOUND_TYPE_MONSTER_TALKING,	5, u32(eStalkerSoundMaskSearch1NoAllies),			eStalkerSoundSearch1NoAllies,			head_bone_name, xr_new<CStalkerSoundData>(this));
 	sound().add						(pSettings->r_string(section,"sound_search1_with_allies"),			100, SOUND_TYPE_MONSTER_TALKING,	5, u32(eStalkerSoundMaskSearch1WithAllies),			eStalkerSoundSearch1WithAllies,			head_bone_name, xr_new<CStalkerSoundData>(this));
+	sound().add						(pSettings->r_string(section,"sound_enemy_lost_no_allies"),			100, SOUND_TYPE_MONSTER_TALKING,	5, u32(eStalkerSoundMaskEnemyLostNoAllies),			eStalkerSoundEnemyLostNoAllies,			head_bone_name, xr_new<CStalkerSoundData>(this));
+	sound().add						(pSettings->r_string(section,"sound_enemy_lost_with_allies"),		100, SOUND_TYPE_MONSTER_TALKING,	5, u32(eStalkerSoundMaskEnemyLostWithAllies),		eStalkerSoundEnemyLostWithAllies,		head_bone_name, xr_new<CStalkerSoundData>(this));
 	sound().add						(pSettings->r_string(section,"sound_humming"),						100, SOUND_TYPE_MONSTER_TALKING,	6, u32(eStalkerSoundMaskHumming),					eStalkerSoundHumming,					head_bone_name, 0);
 	sound().add						(pSettings->r_string(section,"sound_need_backup"),					100, SOUND_TYPE_MONSTER_TALKING,	4, u32(eStalkerSoundMaskNeedBackup),				eStalkerSoundNeedBackup,				head_bone_name, xr_new<CStalkerSoundData>(this));
 	sound().add						(pSettings->r_string(section,"sound_running_in_danger"),			100, SOUND_TYPE_MONSTER_TALKING,	6, u32(eStalkerSoundMaskMovingInDanger),			eStalkerSoundRunningInDanger,			head_bone_name, xr_new<CStalkerSoundData>(this));
@@ -245,8 +248,6 @@ void CAI_Stalker::reload			(LPCSTR section)
 //	if (!already_dead())
 		CObjectHandler::reload		(section);
 
-//	inventory().m_slots[OUTFIT_SLOT].m_bUsable = false;
-
 	if (!already_dead())
 		sight().reload				(section);
 
@@ -262,35 +263,184 @@ void CAI_Stalker::reload			(LPCSTR section)
 	m_disp_stand_stand_zoom			= pSettings->r_float(section,"disp_stand_stand_zoom");
 	m_disp_stand_crouch_zoom		= pSettings->r_float(section,"disp_stand_crouch_zoom");
 
-	m_min_queue_size_far			= pSettings->r_u32(*cNameSect(),"weapon_min_queue_size_far");			// 1;
-	m_max_queue_size_far			= pSettings->r_u32(*cNameSect(),"weapon_max_queue_size_far");			// 6;
-	m_min_queue_interval_far		= pSettings->r_u32(*cNameSect(),"weapon_min_queue_interval_far");		// 500;
-	m_max_queue_interval_far		= pSettings->r_u32(*cNameSect(),"weapon_max_queue_interval_far");		// 1000;
+	m_can_select_weapon				= true;
 
-	m_min_queue_size_medium			= pSettings->r_u32(*cNameSect(),"weapon_min_queue_size_medium");		// 4;
-	m_max_queue_size_medium			= pSettings->r_u32(*cNameSect(),"weapon_max_queue_size_medium");		// 6;
-	m_min_queue_interval_medium		= pSettings->r_u32(*cNameSect(),"weapon_min_queue_interval_medium");	// 500;
-	m_max_queue_interval_medium		= pSettings->r_u32(*cNameSect(),"weapon_max_queue_interval_medium");	// 750;
-
-	m_min_queue_size_close			= pSettings->r_u32(*cNameSect(),"weapon_min_queue_size_close");		// 4;
-	m_max_queue_size_close			= pSettings->r_u32(*cNameSect(),"weapon_max_queue_size_close");		// 10;
-	m_min_queue_interval_close		= pSettings->r_u32(*cNameSect(),"weapon_min_queue_interval_close");	// 300;
-	m_max_queue_interval_close		= pSettings->r_u32(*cNameSect(),"weapon_max_queue_interval_close");	// 500;
-
+	LPCSTR queue_sect				= pSettings->r_string(*cNameSect(),"fire_queue_section");
+	if(xr_strcmp(queue_sect, "") && pSettings->section_exist(queue_sect))
+	{
+		m_pstl_min_queue_size_far			= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"pstl_min_queue_size_far", 1);
+		m_pstl_max_queue_size_far			= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"pstl_max_queue_size_far", 1);
+		m_pstl_min_queue_interval_far		= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"pstl_min_queue_interval_far", 1000);
+		m_pstl_max_queue_interval_far		= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"pstl_max_queue_interval_far", 1250);
+		m_pstl_min_queue_size_medium		= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"pstl_min_queue_size_medium", 2);
+		m_pstl_max_queue_size_medium		= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"pstl_max_queue_size_medium", 4);
+		m_pstl_min_queue_interval_medium	= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"pstl_min_queue_interval_medium", 750);
+		m_pstl_max_queue_interval_medium	= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"pstl_max_queue_interval_medium", 1000);
+		m_pstl_min_queue_size_close			= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"pstl_min_queue_size_close", 3);
+		m_pstl_max_queue_size_close			= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"pstl_max_queue_size_close", 5);
+		m_pstl_min_queue_interval_close		= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"pstl_min_queue_interval_close", 500);
+		m_pstl_max_queue_interval_close		= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"pstl_max_queue_interval_close", 750);
+		m_shtg_min_queue_size_far			= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"shtg_min_queue_size_far", 1);
+		m_shtg_max_queue_size_far			= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"shtg_max_queue_size_far", 1);
+		m_shtg_min_queue_interval_far		= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"shtg_min_queue_interval_far", 1250);
+		m_shtg_max_queue_interval_far		= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"shtg_max_queue_interval_far", 1500);
+		m_shtg_min_queue_size_medium		= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"shtg_min_queue_size_medium", 1);
+		m_shtg_max_queue_size_medium		= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"shtg_max_queue_size_medium", 1);
+		m_shtg_min_queue_interval_medium	= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"shtg_min_queue_interval_medium", 750);
+		m_shtg_max_queue_interval_medium	= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"shtg_max_queue_interval_medium", 1250);
+		m_shtg_min_queue_size_close			= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"shtg_min_queue_size_close", 1);
+		m_shtg_max_queue_size_close			= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"shtg_max_queue_size_close", 1);
+		m_shtg_min_queue_interval_close		= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"shtg_min_queue_interval_close", 500);
+		m_shtg_max_queue_interval_close		= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"shtg_max_queue_interval_close", 1000);
+		m_snp_min_queue_size_far			= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"snp_min_queue_size_far", 1);
+		m_snp_max_queue_size_far			= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"snp_max_queue_size_far", 1);
+		m_snp_min_queue_interval_far		= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"snp_min_queue_interval_far", 3000);
+		m_snp_max_queue_interval_far		= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"snp_max_queue_interval_far", 4000);
+		m_snp_min_queue_size_medium			= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"snp_min_queue_size_medium", 1);
+		m_snp_max_queue_size_medium			= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"snp_max_queue_size_medium", 1);
+		m_snp_min_queue_interval_medium		= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"snp_min_queue_interval_medium", 3000);
+		m_snp_max_queue_interval_medium		= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"snp_max_queue_interval_medium", 4000);
+		m_snp_min_queue_size_close			= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"snp_min_queue_size_close", 1);
+		m_snp_max_queue_size_close			= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"snp_max_queue_size_close", 1);
+		m_snp_min_queue_interval_close		= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"snp_min_queue_interval_close", 3000);
+		m_snp_max_queue_interval_close		= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"snp_max_queue_interval_close", 4000);
+		m_mchg_min_queue_size_far			= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"mchg_min_queue_size_far", 1);
+		m_mchg_max_queue_size_far			= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"mchg_max_queue_size_far", 6);
+		m_mchg_min_queue_interval_far		= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"mchg_min_queue_interval_far", 500);
+		m_mchg_max_queue_interval_far		= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"mchg_max_queue_interval_far", 1000);
+		m_mchg_min_queue_size_medium		= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"mchg_min_queue_size_medium", 4);
+		m_mchg_max_queue_size_medium		= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"mchg_max_queue_size_medium", 6);
+		m_mchg_min_queue_interval_medium	= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"mchg_min_queue_interval_medium", 500);
+		m_mchg_max_queue_interval_medium	= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"mchg_max_queue_interval_medium", 750);
+		m_mchg_min_queue_size_close			= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"mchg_min_queue_size_close", 4);
+		m_mchg_max_queue_size_close			= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"mchg_max_queue_size_close", 10);
+		m_mchg_min_queue_interval_close		= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"mchg_min_queue_interval_close", 300);
+		m_mchg_max_queue_interval_close		= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"mchg_max_queue_interval_close", 500);
+		m_auto_min_queue_size_far			= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"auto_min_queue_size_far", 1);
+		m_auto_max_queue_size_far			= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"auto_max_queue_size_far", 6);
+		m_auto_min_queue_interval_far		= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"auto_min_queue_interval_far", 500);
+		m_auto_max_queue_interval_far		= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"auto_max_queue_interval_far", 1000);
+		m_auto_min_queue_size_medium		= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"auto_min_queue_size_medium", 4);
+		m_auto_max_queue_size_medium		= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"auto_max_queue_size_medium", 6);
+		m_auto_min_queue_interval_medium	= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"auto_min_queue_interval_medium", 500);
+		m_auto_max_queue_interval_medium	= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"auto_max_queue_interval_medium", 750);
+		m_auto_min_queue_size_close			= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"auto_min_queue_size_close", 4);
+		m_auto_max_queue_size_close			= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"auto_max_queue_size_close", 10);
+		m_auto_min_queue_interval_close		= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"auto_min_queue_interval_close", 300);
+		m_auto_max_queue_interval_close		= READ_IF_EXISTS(pSettings,r_u32,queue_sect,"auto_max_queue_interval_close", 500);
+//		m_pstl_queue_fire_dist_close		= READ_IF_EXISTS(pSettings,r_float,queue_sect,"pstl_queue_fire_dist_close", 15.0f);
+		m_pstl_queue_fire_dist_med			= READ_IF_EXISTS(pSettings,r_float,queue_sect,"pstl_queue_fire_dist_med", 15.0f);
+		m_pstl_queue_fire_dist_far			= READ_IF_EXISTS(pSettings,r_float,queue_sect,"pstl_queue_fire_dist_far", 30.0f);
+//		m_shtg_queue_fire_dist_close		= READ_IF_EXISTS(pSettings,r_float,queue_sect,"shtg_queue_fire_dist_close", 15.0f);
+		m_shtg_queue_fire_dist_med			= READ_IF_EXISTS(pSettings,r_float,queue_sect,"shtg_queue_fire_dist_med", 15.0f);
+		m_shtg_queue_fire_dist_far			= READ_IF_EXISTS(pSettings,r_float,queue_sect,"shtg_queue_fire_dist_far", 30.0f);
+//		m_snp_queue_fire_dist_close			= READ_IF_EXISTS(pSettings,r_float,queue_sect,"snp_queue_fire_dist_close", 15.0f);
+		m_snp_queue_fire_dist_med			= READ_IF_EXISTS(pSettings,r_float,queue_sect,"snp_queue_fire_dist_med", 15.0f);
+		m_snp_queue_fire_dist_far			= READ_IF_EXISTS(pSettings,r_float,queue_sect,"snp_queue_fire_dist_far", 30.0f);
+//		m_mchg_queue_fire_dist_close			= READ_IF_EXISTS(pSettings,r_float,queue_sect,"mchg_queue_fire_dist_close", 15.0f);
+		m_mchg_queue_fire_dist_med			= READ_IF_EXISTS(pSettings,r_float,queue_sect,"mchg_queue_fire_dist_med", 15.0f);
+		m_mchg_queue_fire_dist_far			= READ_IF_EXISTS(pSettings,r_float,queue_sect,"mchg_queue_fire_dist_far", 30.0f);
+//		m_auto_queue_fire_dist_close		= READ_IF_EXISTS(pSettings,r_float,queue_sect,"auto_queue_fire_dist_close", 15.0f);
+		m_auto_queue_fire_dist_med			= READ_IF_EXISTS(pSettings,r_float,queue_sect,"auto_queue_fire_dist_med", 15.0f);
+		m_auto_queue_fire_dist_far			= READ_IF_EXISTS(pSettings,r_float,queue_sect,"auto_queue_fire_dist_far", 30.0f);
+	}
+	else
+	{
+		m_pstl_min_queue_size_far			= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"pstl_min_queue_size_far", 1);
+		m_pstl_max_queue_size_far			= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"pstl_max_queue_size_far", 1);
+		m_pstl_min_queue_interval_far		= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"pstl_min_queue_interval_far", 1000);
+		m_pstl_max_queue_interval_far		= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"pstl_max_queue_interval_far", 1250);
+		m_pstl_min_queue_size_medium		= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"pstl_min_queue_size_medium", 2);
+		m_pstl_max_queue_size_medium		= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"pstl_max_queue_size_medium", 4);
+		m_pstl_min_queue_interval_medium	= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"pstl_min_queue_interval_medium", 750);
+		m_pstl_max_queue_interval_medium	= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"pstl_max_queue_interval_medium", 1000);
+		m_pstl_min_queue_size_close			= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"pstl_min_queue_size_close", 3);
+		m_pstl_max_queue_size_close			= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"pstl_max_queue_size_close", 5);
+		m_pstl_min_queue_interval_close		= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"pstl_min_queue_interval_close", 500);
+		m_pstl_max_queue_interval_close		= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"pstl_max_queue_interval_close", 750);
+		m_shtg_min_queue_size_far			= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"shtg_min_queue_size_far", 1);
+		m_shtg_max_queue_size_far			= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"shtg_max_queue_size_far", 1);
+		m_shtg_min_queue_interval_far		= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"shtg_min_queue_interval_far", 1250);
+		m_shtg_max_queue_interval_far		= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"shtg_max_queue_interval_far", 1500);
+		m_shtg_min_queue_size_medium		= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"shtg_min_queue_size_medium", 1);
+		m_shtg_max_queue_size_medium		= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"shtg_max_queue_size_medium", 1);
+		m_shtg_min_queue_interval_medium	= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"shtg_min_queue_interval_medium", 750);
+		m_shtg_max_queue_interval_medium	= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"shtg_max_queue_interval_medium", 1250);
+		m_shtg_min_queue_size_close			= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"shtg_min_queue_size_close", 1);
+		m_shtg_max_queue_size_close			= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"shtg_max_queue_size_close", 1);
+		m_shtg_min_queue_interval_close		= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"shtg_min_queue_interval_close", 500);
+		m_shtg_max_queue_interval_close		= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"shtg_max_queue_interval_close", 1000);
+		m_snp_min_queue_size_far			= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"snp_min_queue_size_far", 1);
+		m_snp_max_queue_size_far			= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"snp_max_queue_size_far", 1);
+		m_snp_min_queue_interval_far		= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"snp_min_queue_interval_far", 3000);
+		m_snp_max_queue_interval_far		= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"snp_max_queue_interval_far", 4000);
+		m_snp_min_queue_size_medium			= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"snp_min_queue_size_medium", 1);
+		m_snp_max_queue_size_medium			= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"snp_max_queue_size_medium", 1);
+		m_snp_min_queue_interval_medium		= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"snp_min_queue_interval_medium", 3000);
+		m_snp_max_queue_interval_medium		= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"snp_max_queue_interval_medium", 4000);
+		m_snp_min_queue_size_close			= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"snp_min_queue_size_close", 1);
+		m_snp_max_queue_size_close			= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"snp_max_queue_size_close", 1);
+		m_snp_min_queue_interval_close		= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"snp_min_queue_interval_close", 3000);
+		m_snp_max_queue_interval_close		= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"snp_max_queue_interval_close", 4000);
+		m_mchg_min_queue_size_far			= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"mchg_min_queue_size_far", 1);
+		m_mchg_max_queue_size_far			= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"mchg_max_queue_size_far", 6);
+		m_mchg_min_queue_interval_far		= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"mchg_min_queue_interval_far", 500);
+		m_mchg_max_queue_interval_far		= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"mchg_max_queue_interval_far", 1000);
+		m_mchg_min_queue_size_medium		= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"mchg_min_queue_size_medium", 4);
+		m_mchg_max_queue_size_medium		= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"mchg_max_queue_size_medium", 6);
+		m_mchg_min_queue_interval_medium	= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"mchg_min_queue_interval_medium", 500);
+		m_mchg_max_queue_interval_medium	= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"mchg_max_queue_interval_medium", 750);
+		m_mchg_min_queue_size_close			= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"mchg_min_queue_size_close", 4);
+		m_mchg_max_queue_size_close			= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"mchg_max_queue_size_close", 10);
+		m_mchg_min_queue_interval_close		= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"mchg_min_queue_interval_close", 300);
+		m_mchg_max_queue_interval_close		= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"mchg_max_queue_interval_close", 500);
+		m_auto_min_queue_size_far			= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"auto_min_queue_size_far", 1);
+		m_auto_max_queue_size_far			= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"auto_max_queue_size_far", 6);
+		m_auto_min_queue_interval_far		= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"auto_min_queue_interval_far", 500);
+		m_auto_max_queue_interval_far		= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"auto_max_queue_interval_far", 1000);
+		m_auto_min_queue_size_medium		= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"auto_min_queue_size_medium", 4);
+		m_auto_max_queue_size_medium		= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"auto_max_queue_size_medium", 6);
+		m_auto_min_queue_interval_medium	= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"auto_min_queue_interval_medium", 500);
+		m_auto_max_queue_interval_medium	= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"auto_max_queue_interval_medium", 750);
+		m_auto_min_queue_size_close			= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"auto_min_queue_size_close", 4);
+		m_auto_max_queue_size_close			= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"auto_max_queue_size_close", 10);
+		m_auto_min_queue_interval_close		= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"auto_min_queue_interval_close", 300);
+		m_auto_max_queue_interval_close		= READ_IF_EXISTS(pSettings,r_u32,*cNameSect(),"auto_max_queue_interval_close", 500);
+//		m_pstl_queue_fire_dist_close		= READ_IF_EXISTS(pSettings,r_float,*cNameSect(),"pstl_queue_fire_dist_close", 15.0f);
+		m_pstl_queue_fire_dist_med			= READ_IF_EXISTS(pSettings,r_float,*cNameSect(),"pstl_queue_fire_dist_med", 15.0f);
+		m_pstl_queue_fire_dist_far			= READ_IF_EXISTS(pSettings,r_float,*cNameSect(),"pstl_queue_fire_dist_far", 30.0f);
+//		m_shtg_queue_fire_dist_close		= READ_IF_EXISTS(pSettings,r_float,*cNameSect(),"shtg_queue_fire_dist_close", 15.0f);
+		m_shtg_queue_fire_dist_med			= READ_IF_EXISTS(pSettings,r_float,*cNameSect(),"shtg_queue_fire_dist_med", 15.0f);
+		m_shtg_queue_fire_dist_far			= READ_IF_EXISTS(pSettings,r_float,*cNameSect(),"shtg_queue_fire_dist_far", 30.0f);
+//		m_snp_queue_fire_dist_close			= READ_IF_EXISTS(pSettings,r_float,*cNameSect(),"snp_queue_fire_dist_close", 15.0f);
+		m_snp_queue_fire_dist_med			= READ_IF_EXISTS(pSettings,r_float,*cNameSect(),"snp_queue_fire_dist_med", 15.0f);
+		m_snp_queue_fire_dist_far			= READ_IF_EXISTS(pSettings,r_float,*cNameSect(),"snp_queue_fire_dist_far", 30.0f);
+//		m_mchg_queue_fire_dist_close			= READ_IF_EXISTS(pSettings,r_float,*cNameSect(),"mchg_queue_fire_dist_close", 15.0f);
+		m_mchg_queue_fire_dist_med			= READ_IF_EXISTS(pSettings,r_float,*cNameSect(),"mchg_queue_fire_dist_med", 15.0f);
+		m_mchg_queue_fire_dist_far			= READ_IF_EXISTS(pSettings,r_float,*cNameSect(),"mchg_queue_fire_dist_far", 30.0f);
+//		m_auto_queue_fire_dist_close		= READ_IF_EXISTS(pSettings,r_float,**cNameSect(),"auto_queue_fire_dist_close", 15.0f);
+		m_auto_queue_fire_dist_med			= READ_IF_EXISTS(pSettings,r_float,*cNameSect(),"auto_queue_fire_dist_med", 15.0f);
+		m_auto_queue_fire_dist_far			= READ_IF_EXISTS(pSettings,r_float,*cNameSect(),"auto_queue_fire_dist_far", 30.0f);
+	}
 	m_power_fx_factor				= pSettings->r_float(section,"power_fx_factor");
 }
 
 void CAI_Stalker::Die				(CObject* who)
 {
+	movement().on_death				( );
+
 	notify_on_wounded_or_killed		(who);
 
 	SelectAnimation					(XFORM().k,movement().detail().direction(),movement().speed());
 
-	sound().set_sound_mask			(0);
+	if(m_death_sound_enabled)
+	{
+		sound().set_sound_mask		((u32)eStalkerSoundMaskDie);
 	if (is_special_killer(who))
 		sound().play				(eStalkerSoundDieInAnomaly);
 	else
 		sound().play				(eStalkerSoundDie);
+	}
 	
 	m_hammer_is_clutched			= m_clutched_hammer_enabled && !CObjectHandler::planner().m_storage.property(ObjectHandlerSpace::eWorldPropertyStrapped) && !::Random.randI(0,2);
 
@@ -299,10 +449,10 @@ void CAI_Stalker::Die				(CObject* who)
 	//запретить использование слотов в инвенторе
 	inventory().SetSlotsUseful		(false);
 
-	if (inventory().GetActiveSlot() >= inventory().m_slots.size())
+	if (inventory().GetActiveSlot() == NO_ACTIVE_SLOT)
 		return;
 
-	CInventoryItem					*active_item = inventory().m_slots[inventory().GetActiveSlot()].m_pIItem;
+	CInventoryItem					*active_item = inventory().ActiveItem();
 	if (!active_item)
 		return;
 
@@ -712,7 +862,7 @@ void CAI_Stalker::UpdateCL()
 		STOP_PROFILE
 
 		START_PROFILE("stalker/client_update/step_manager")
-		CStepManager::update		();
+		CStepManager::update		(false);
 		STOP_PROFILE
 
 		START_PROFILE("stalker/client_update/weapon_shot_effector")
@@ -774,7 +924,7 @@ void CAI_Stalker::shedule_Update		( u32 DT )
 #if 0//def DEBUG
 		memory().visual().check_visibles();
 #endif
-		if (g_mt_config.test(mtAiVision))
+		if ( false && g_mt_config.test(mtAiVision) )
 			Device.seqParallel.push_back(fastdelegate::FastDelegate0<>(this,&CCustomMonster::Exec_Visibility));
 		else {
 			START_PROFILE("stalker/schedule_update/vision")
@@ -1129,20 +1279,65 @@ shared_str const &CAI_Stalker::aim_bone_id		() const
 	return					(m_aim_bone_id);
 }
 
-void CAI_Stalker::aim_target					(Fvector &result, const CGameObject *object)
+void aim_target							(shared_str const& aim_bone_id, Fvector &result, const CGameObject *object)
 {
-	VERIFY					(m_aim_bone_id.size());
-
 	IKinematics				*kinematics = smart_cast<IKinematics*>(object->Visual());
 	VERIFY					(kinematics);
 
-	u16						bone_id = kinematics->LL_BoneID(m_aim_bone_id);
+	u16						bone_id = kinematics->LL_BoneID(aim_bone_id);
 	VERIFY2					(bone_id != BI_NONE, make_string("Cannot find bone %s",bone_id));
 
 	Fmatrix const			&bone_matrix = kinematics->LL_GetTransform(bone_id);
 	Fmatrix					final;
 	final.mul_43			(object->XFORM(), bone_matrix);
 	result					= final.c;
+}
+
+void CAI_Stalker::aim_target					(Fvector &result, const CGameObject *object)
+{
+	VERIFY					(m_aim_bone_id.size());
+
+	::aim_target			( m_aim_bone_id, result, object );
+}
+
+BOOL	CAI_Stalker::AlwaysTheCrow	()
+{
+	VERIFY					( character_physics_support	()	);
+	return					(character_physics_support()->interactive_motion());
+}
+
+smart_cover::cover const* CAI_Stalker::get_current_smart_cover	( )
+{
+	if ( movement().current_params().cover_id() != movement().target_params().cover_id() )
+		return				0;
+
+	return					movement().current_params().cover();
+}
+
+smart_cover::loophole const* CAI_Stalker::get_current_loophole	( )
+{
+	if ( movement().current_params().cover_id() != movement().target_params().cover_id() )
+		return				0;
+
+	if ( movement().current_params().cover_loophole_id() != movement().target_params().cover_loophole_id() )
+		return				0;
+
+	return					movement().current_params().cover_loophole();
+}
+
+bool CAI_Stalker::can_fire_right_now							( )
+{
+	if (!ready_to_kill())
+		return				(false);
+
+	VERIFY					(best_weapon());
+	CWeapon&				best_weapon = smart_cast<CWeapon&>(*this->best_weapon());
+	return					best_weapon.GetAmmoElapsed() > 0;
+}
+
+bool CAI_Stalker::unlimited_ammo()
+{
+	return infinite_ammo() && CObjectHandler::planner().object().g_Alive();
 }
 
 void CAI_Stalker::eye_pp_s0						()
@@ -1158,10 +1353,4 @@ void CAI_Stalker::eye_pp_s0						()
 void CAI_Stalker::eye_matrix_callback			(EyeMatrixCallback const& callback)
 {
 	m_eye_matrix_callback	= callback;
-}
-
-BOOL	CAI_Stalker::AlwaysTheCrow	()
-{
-	VERIFY					( character_physics_support	()	);
-	return					(character_physics_support()->interactive_motion());
 }

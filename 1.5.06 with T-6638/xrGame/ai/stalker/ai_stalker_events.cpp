@@ -99,7 +99,7 @@ void CAI_Stalker::on_ownership_reject	( CObject*O, bool just_before_destroy )
 	CGameObject* const game_object			= smart_cast<CGameObject*>(O);
 	VERIFY									(game_object);
 	
-	if ( !inventory().DropItem(game_object, just_before_destroy) )
+	if ( !inventory().DropItem(game_object, just_before_destroy, just_before_destroy) )
 		return;
 
 	if ( O->getDestroy() )
@@ -108,28 +108,15 @@ void CAI_Stalker::on_ownership_reject	( CObject*O, bool just_before_destroy )
 	feel_touch_deny							(O,2000);
 }
 
-void CAI_Stalker::feel_touch_new				(CObject* O)
+void CAI_Stalker::generate_take_event			( CObject const* const object ) const
 {
-//	Msg					("FEEL_TOUCH::NEW : %s",*O->cName());
-	if (!g_Alive())		return;
-	if (Remote())		return;
-	if ((O->spatial.type | STYPE_VISIBLEFORAI) != O->spatial.type) return;
-
-	// Now, test for game specific logical objects to minimize traffic
-	CInventoryItem		*I	= smart_cast<CInventoryItem*>	(O);
-
-	if (!wounded() && !critically_wounded() && I && I->useful_for_NPC() && can_take(I)) {
-#ifndef SILENCE
-		Msg("Taking item %s (%d)!",*I->cName(),I->ID());
-#endif
-		NET_Packet		P;
-		u_EventGen		(P,GE_OWNERSHIP_TAKE,ID());
-		P.w_u16			(u16(I->object().ID()));
-		u_EventSend		(P);
-	}
+	NET_Packet		packet;
+	u_EventGen		( packet, GE_OWNERSHIP_TAKE, ID() );
+	packet.w_u16	( object->ID() );
+	u_EventSend		( packet );
 }
 
-void CAI_Stalker::DropItemSendMessage(CObject *O)
+void CAI_Stalker::DropItemSendMessage	(CObject *O)
 {
 	if (!O || !O->H_Parent() || (this != O->H_Parent()))
 		return;
@@ -144,34 +131,32 @@ void CAI_Stalker::DropItemSendMessage(CObject *O)
 	u_EventSend				(P);
 }
 
-/////////////////////////
-//PDA functions
-/////////////////////////
-/*
-void CAI_Stalker::ReceivePdaMessage(u16 who, EPdaMsg msg, shared_str info_id)
-{
-	CInventoryOwner::ReceivePdaMessage(who, msg, info_id);
-}*/
-
-
 void CAI_Stalker::UpdateAvailableDialogs(CPhraseDialogManager* partner)
 {
-/*	m_AvailableDialogs.clear();
-	m_CheckedDialogs.clear();
-
-	if(CInventoryOwner::m_known_info_registry->registry().objects_ptr())
-	{
-		for(KNOWN_INFO_VECTOR::const_iterator it = CInventoryOwner::m_known_info_registry->registry().objects_ptr()->begin();
-			CInventoryOwner::m_known_info_registry->registry().objects_ptr()->end() != it; ++it)
-		{
-			//подгрузить кусочек информации с которым мы работаем
-			CInfoPortion info_portion;
-			info_portion.Load((*it).id);
-
-			for(u32 i = 0; i<info_portion.DialogNames().size(); i++)
-				AddAvailableDialog(*info_portion.DialogNames()[i], partner);
-		}
-	}
-*/
 	CAI_PhraseDialogManager::UpdateAvailableDialogs(partner);
+}
+
+void CAI_Stalker::feel_touch_new				(CObject* O)
+{
+//	Msg					("FEEL_TOUCH::NEW : %s",*O->cName());
+	if (!g_Alive())		return;
+	if (Remote())		return;
+	if ((O->spatial.type | STYPE_VISIBLEFORAI) != O->spatial.type) return;
+
+	// Now, test for game specific logical objects to minimize traffic
+	CInventoryItem		*I	= smart_cast<CInventoryItem*>	(O);
+
+	if (!wounded() && !critically_wounded() && I && I->useful_for_NPC() && can_take(I)) {
+#ifndef SILENCE
+		Msg("Taking item %s (%d)!",I->object().cName().c_str(),I->object().ID());
+#endif
+		generate_take_event	( O );
+		return;
+	}
+
+	VERIFY2				(
+		std::find(m_ignored_touched_objects.begin(), m_ignored_touched_objects.end(), O) == m_ignored_touched_objects.end(),
+		make_string("object %s is already in ignroed touched objects list", O->cName().c_str())
+	);
+	m_ignored_touched_objects.push_back	( O );
 }

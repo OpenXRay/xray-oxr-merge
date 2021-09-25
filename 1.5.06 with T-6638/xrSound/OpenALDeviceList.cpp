@@ -130,10 +130,14 @@ void ALDeviceList::Enumerate()
 					}
 					alcDestroyContext(context);
 				}else
+				{
 					Msg("SOUND: OpenAL: cant create context for %s",device);
+				}
 				alcCloseDevice(device);
 			}else
+			{
 				Msg("SOUND: OpenAL: cant open device %s",devices);
+			}
 
 			devices		+= xr_strlen(devices) + 1;
 		}

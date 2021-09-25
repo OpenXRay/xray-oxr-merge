@@ -144,7 +144,8 @@ BOOL CHangingLamp::net_Spawn(CSE_Abstract* DC)
 	if (lamp->flags.is(CSE_ALifeObjectHangingLamp::flPhysic)&&!Visual())
 		Msg("! WARNING: lamp, obj name [%s],flag physics set, but has no visual",*cName());
 //.	if (lamp->flags.is(CSE_ALifeObjectHangingLamp::flPhysic)&&Visual()&&!guid_physic_bone)	fHealth=0.f;
-	if (Alive())			TurnOn	();
+	if (Alive())
+		TurnOn	();
 	else{
 		processing_activate		();	// temporal enable
 		TurnOff					();	// -> and here is disable :)
@@ -251,9 +252,16 @@ void CHangingLamp::UpdateCL	()
 void CHangingLamp::TurnOn	()
 {
 	light_render->set_active						(true);
-	if (glow_render)	glow_render->set_active		(true);
-	if (light_ambient)	light_ambient->set_active	(true);
-	if (Visual()){
+	if (glow_render)
+	{
+		glow_render->set_active		(true);
+	}
+	if (light_ambient)
+	{
+		light_ambient->set_active	(true);
+	}
+	if (Visual())
+	{
 		IKinematics* K				= smart_cast<IKinematics*>(Visual());
 		K->LL_SetBoneVisible		(light_bone, TRUE, TRUE);
 		K->CalculateBones_Invalidate();

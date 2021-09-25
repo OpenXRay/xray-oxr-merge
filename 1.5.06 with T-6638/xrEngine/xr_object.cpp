@@ -2,7 +2,7 @@
 #include "igame_level.h"
 
 #include "xr_object.h"
-#include "xr_area.h"
+#include "../xrcdb/xr_area.h"
 #include "render.h"
 #include "xrLevel.h"
 //#include "fbasicvisual.h"
@@ -185,7 +185,7 @@ void CObject::Load				(LPCSTR section )
 	// Visual and light-track
 	if (pSettings->line_exist(section,"visual")){
 		string_path					tmp;
-		strcpy_s					(tmp, pSettings->r_string(section,"visual"));
+		xr_strcpy					(tmp, pSettings->r_string(section,"visual"));
 		if(strext(tmp)) 
 			*strext(tmp)			=0;
 		xr_strlwr					(tmp);
@@ -307,9 +307,14 @@ void CObject::UpdateCL			()
 	spatial_update				(base_spu_epsP*5,base_spu_epsR*5);
 
 	// crow
-	if (Parent == g_pGameLevel->CurrentViewEntity())										MakeMeCrow	();
-	else if (AlwaysTheCrow())																MakeMeCrow	();
-	else if (Device.vCameraPosition.distance_to_sqr(Position()) < CROW_RADIUS*CROW_RADIUS)	MakeMeCrow	();
+	if (Parent == g_pGameLevel->CurrentViewEntity())
+		MakeMeCrow	();
+	else if (AlwaysTheCrow())
+		MakeMeCrow	();
+	else if (Device.vCameraPosition.distance_to_sqr(Position()) < CROW_RADIUS*CROW_RADIUS)
+	{
+		MakeMeCrow	();
+	}
 }
 
 void CObject::shedule_Update	( u32 T )

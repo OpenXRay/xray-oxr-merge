@@ -19,12 +19,14 @@ BOOL	exact_normalize					(float*		a);
 //#include "vbm.h"
 //#include "OGF_Face.h"
 
+struct SBuildOptions
+{
+	BOOL						b_radiosity;
+	BOOL						b_noise;
+	BOOL						b_net_light;
+	SBuildOptions				():b_radiosity(FALSE), b_noise(FALSE), b_net_light(FALSE) 
+	{
 
-
-
-
-
-extern BOOL						b_radiosity;
-extern BOOL						b_noise;
-extern BOOL						b_net_light;
-
+	}
+};
+extern SBuildOptions g_build_options;

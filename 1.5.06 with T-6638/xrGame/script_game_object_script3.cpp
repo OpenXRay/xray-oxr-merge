@@ -21,7 +21,7 @@
 #include "script_monster_hit_info.h"
 #include "script_entity_action.h"
 #include "action_planner.h"
-#include "PhysicsShell.h"
+#include "physics_shell_scripted.h"
 #include "helicopter.h"
 #include "HangingLamp.h"
 #include "holder_custom.h"
@@ -40,6 +40,7 @@ class_<CScriptGameObject> &script_register_game_object2(class_<CScriptGameObject
 	instance
 		.def("add_sound",					(u32 (CScriptGameObject::*)(LPCSTR,u32,ESoundTypes,u32,u32,u32))(&CScriptGameObject::add_sound))
 		.def("add_sound",					(u32 (CScriptGameObject::*)(LPCSTR,u32,ESoundTypes,u32,u32,u32,LPCSTR))(&CScriptGameObject::add_sound))
+		.def("add_combat_sound",			(u32 (CScriptGameObject::*)(LPCSTR,u32,ESoundTypes,u32,u32,u32,LPCSTR))(&CScriptGameObject::add_combat_sound))
 		.def("remove_sound",				&CScriptGameObject::remove_sound)
 		.def("set_sound_mask",				&CScriptGameObject::set_sound_mask)
 		.def("play_sound",					(void (CScriptGameObject::*)(u32))(&CScriptGameObject::play_sound))
@@ -108,6 +109,11 @@ class_<CScriptGameObject> &script_register_game_object2(class_<CScriptGameObject
 		//////////////////////////////////////////////////////////////////////////
 		.def("enable_attachable_item",		&CScriptGameObject::enable_attachable_item)
 		.def("attachable_item_enabled",		&CScriptGameObject::attachable_item_enabled)
+		.def("enable_night_vision",			&CScriptGameObject::enable_night_vision)
+		.def("night_vision_enabled",		&CScriptGameObject::night_vision_enabled)
+		.def("enable_torch",				&CScriptGameObject::enable_torch)
+		.def("torch_enabled",				&CScriptGameObject::torch_enabled)
+		.def("attachable_item_load_attach", &CScriptGameObject::attachable_item_load_attach)
 		.def("weapon_strapped",				&CScriptGameObject::weapon_strapped)
 		.def("weapon_unstrapped",			&CScriptGameObject::weapon_unstrapped)
 
@@ -137,6 +143,8 @@ class_<CScriptGameObject> &script_register_game_object2(class_<CScriptGameObject
 		.def("get_task_state",				&CScriptGameObject::GetGameTaskState)
 		.def("set_task_state",				&CScriptGameObject::SetGameTaskState)
 		.def("give_task",					&CScriptGameObject::GiveTaskToActor,		adopt(_2))
+		.def("set_active_task",				&CScriptGameObject::SetActiveTask)
+		.def("is_active_task",				&CScriptGameObject::IsActiveTask)
 		.def("get_task",					&CScriptGameObject::GetTask)
 
 		.def("is_talking",					&CScriptGameObject::IsTalking)
@@ -152,6 +160,7 @@ class_<CScriptGameObject> &script_register_game_object2(class_<CScriptGameObject
 		.def("disable_inv_upgrade",			&CScriptGameObject::DisableInvUpgrade)
 		.def("is_inv_upgrade_enabled",		&CScriptGameObject::IsInvUpgradeEnabled)
 
+		.def("disable_show_hide_sounds",	&CScriptGameObject::SetPlayShHdRldSounds)
 		.def("inventory_for_each",			&CScriptGameObject::ForEachInventoryItems)
 		.def("drop_item",					&CScriptGameObject::DropItem)
 		.def("drop_item_and_teleport",		&CScriptGameObject::DropItemAndTeleport)
@@ -186,6 +195,7 @@ class_<CScriptGameObject> &script_register_game_object2(class_<CScriptGameObject
 
 		.def("goodwill",					&CScriptGameObject::GetGoodwill)
 		.def("set_goodwill",				&CScriptGameObject::SetGoodwill)
+		.def("force_set_goodwill",			&CScriptGameObject::ForceSetGoodwill)
 		.def("change_goodwill",				&CScriptGameObject::ChangeGoodwill)
 
 		.def("general_goodwill",			&CScriptGameObject::GetAttitude)
@@ -235,6 +245,7 @@ class_<CScriptGameObject> &script_register_game_object2(class_<CScriptGameObject
 		.def("get_helicopter",              &CScriptGameObject::get_helicopter)
 		.def("get_car",						&CScriptGameObject::get_car)
 		.def("get_hanging_lamp",            &CScriptGameObject::get_hanging_lamp)
+		.def("get_bone_id",					&CScriptGameObject::get_bone_id)
 		.def("get_physics_shell",			&CScriptGameObject::get_physics_shell)
 		.def("get_holder_class",			&CScriptGameObject::get_custom_holder)
 		.def("get_current_holder",			&CScriptGameObject::get_current_holder)
@@ -251,7 +262,14 @@ class_<CScriptGameObject> &script_register_game_object2(class_<CScriptGameObject
 		.def("set_const_force",				&CScriptGameObject::set_const_force)
 		.def("info_add",					&CScriptGameObject::info_add)
 		.def("info_clear",					&CScriptGameObject::info_clear)
+
+		// inv box
 		.def("is_inv_box_empty",			&CScriptGameObject::IsInvBoxEmpty)
+		.def("inv_box_closed",				&CScriptGameObject::inv_box_closed)
+		.def("inv_box_closed_status",		&CScriptGameObject::inv_box_closed_status)
+		.def("inv_box_can_take",			&CScriptGameObject::inv_box_can_take)
+		.def("inv_box_can_take_status",		&CScriptGameObject::inv_box_can_take_status)
+
 		// monster jumper
 		.def("jump",						&CScriptGameObject::jump)
 
@@ -263,11 +281,13 @@ class_<CScriptGameObject> &script_register_game_object2(class_<CScriptGameObject
 		.def("sell_condition",				(void (CScriptGameObject::*)(CScriptIniFile*,LPCSTR))(&CScriptGameObject::sell_condition))
 		.def("sell_condition",				(void (CScriptGameObject::*)(float,float))(&CScriptGameObject::sell_condition))
 		.def("buy_supplies",				&CScriptGameObject::buy_supplies)
+		.def("buy_item_condition_factor",	&CScriptGameObject::buy_item_condition_factor)
 
 		.def("sound_prefix",				(LPCSTR (CScriptGameObject::*)() const)(&CScriptGameObject::sound_prefix))
 		.def("sound_prefix",				(void (CScriptGameObject::*)(LPCSTR))(&CScriptGameObject::sound_prefix))
 
 		.def("location_on_path",			&CScriptGameObject::location_on_path)
+		.def("is_there_items_to_pickup",	&CScriptGameObject::is_there_items_to_pickup)
 
 		.def("wounded",						(bool (CScriptGameObject::*)() const)(&CScriptGameObject::wounded))
 		.def("wounded",						(void (CScriptGameObject::*)(bool))(&CScriptGameObject::wounded))

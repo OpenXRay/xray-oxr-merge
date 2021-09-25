@@ -2,12 +2,12 @@
 #include "GameObject.h"
 //#include "../Include/xrRender/RenderVisual.h"
 #include "../Include/xrRender/RenderVisual.h"
-#include "PhysicsShell.h"
+#include "../xrphysics/PhysicsShell.h"
 #include "ai_space.h"
 #include "CustomMonster.h" 
 #include "physicobject.h"
 #include "HangingLamp.h"
-#include "PhysicsShell.h"
+#include "../xrphysics/PhysicsShell.h"
 #include "game_sv_single.h"
 #include "level_graph.h"
 #include "ph_shell_interface.h"
@@ -23,13 +23,15 @@
 #include "../xrEngine/igame_level.h"
 #include "level.h"
 #include "script_callback_ex.h"
-#include "MathUtils.h"
+#include "../xrphysics/MathUtils.h"
 #include "game_cl_base_weapon_usage_statistic.h"
+#include "game_cl_mp.h"
+#include "reward_event_generator.h"
 #include "game_level_cross_table.h"
 #include "ai_obstacle.h"
 #include "magic_box3.h"
 #include "animation_movement_controller.h"
-
+#include "../xrengine/xr_collide_form.h"
 extern MagicBox3 MagicMinBox (int iQuantity, const Fvector* akPoint);
 
 #pragma warning(push)
@@ -193,6 +195,10 @@ void CGameObject::OnEvent		(NET_Packet& P, u16 type)
 			CObject*	Hitter = Level().Objects.net_Find(HDS.whoID);
 			CObject*	Weapon = Level().Objects.net_Find(HDS.weaponID);
 			HDS.who		= Hitter;
+			if (!HDS.who)
+			{
+				Msg("! ERROR: hitter object [%d] is NULL on client.", HDS.whoID);
+			}
 			//-------------------------------------------------------
 			switch (HDS.PACKET_TYPE)
 			{
@@ -209,7 +215,12 @@ void CGameObject::OnEvent		(NET_Packet& P, u16 type)
 			Hit				(&HDS);
 			//---------------------------------------------------------------------------
 			if (GameID() != eGameIDSingle)
+			{
 				Game().m_WeaponUsageStatistic->OnBullet_Check_Result(false);
+				game_cl_mp*	mp_game = smart_cast<game_cl_mp*>(&Game());
+				if (mp_game->get_reward_generator())
+					mp_game->get_reward_generator()->OnBullet_Hit(Hitter, this, Weapon, HDS.boneID);
+			}
 			//---------------------------------------------------------------------------
 		}
 		break;
@@ -560,8 +571,15 @@ void CGameObject::setup_parent_ai_locations(bool assign_position)
 	VERIFY					(l_tpGameObject);
 
 	// get parent's position
-	if (assign_position && use_parent_ai_locations())
+	if ( assign_position && use_parent_ai_locations() )
 		Position().set		(l_tpGameObject->Position());
+
+	//if ( assign_position && 
+	//		( use_parent_ai_locations() &&
+	//		!( cast_attachable_item() && cast_attachable_item()->enabled() )
+	//		 ) 
+	//	)
+	//	Position().set		(l_tpGameObject->Position());
 
 	// setup its ai locations
 	if (!UsedAI_Locations())
@@ -675,6 +693,7 @@ void CGameObject::renderable_Render	()
 	inherited::renderable_Render();
 	::Render->set_Transform		(&XFORM());
 	::Render->add_Visual		(Visual());
+	Visual()->getVisData().hom_frame = Device.dwFrame;
 }
 
 /*

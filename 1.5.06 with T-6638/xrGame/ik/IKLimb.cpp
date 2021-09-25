@@ -10,9 +10,9 @@
 #include "../game_object_space.h"
 #include "../ik_anim_state.h"
 
-#include "../ode_include.h"
-#include "../MathUtils.h"
-#include "../matrix_utils.h"
+//#include "../ode_include.h"
+#include "../../xrphysics/MathUtils.h"
+#include "../../xrphysics/matrix_utils.h"
 #include "../pose_extrapolation.h"
 #ifdef DEBUG
 #include "../PHDebug.h"
@@ -1004,11 +1004,11 @@ float	CIKLimb::ObjShiftDown( float current_shift, const SCalculateData& cd )  co
 
 float	CIKLimb::get_time_to_step_begin	( const CBlend& B )	const 
 {
-	float time = dInfinity;
+	float time = phInfinity;
 	if( anim_state.time_step_begin( KinematicsAnimated(), B, m_id, time ) )
 		return time;
 	else
-		return dInfinity;
+		return phInfinity;
 }
 
 struct ssaved_callback :
@@ -1031,7 +1031,7 @@ struct ssaved_callback :
 	const u32				callback_type;
 	CBoneInstance			&_bi;
 };
-static void get_matrix( CBoneInstance* P )
+static void	_BCL get_matrix( CBoneInstance* P )
 {
 	VERIFY( _valid(  P->mTransform ) );
 	*((Fmatrix*)P->callback_param()) = P->mTransform;
@@ -1084,7 +1084,7 @@ void	CIKLimb::step_predict( CGameObject *O, const CBlend *b, ik_limb_state_predi
 	if( !b )
 		return;
 	state.time_to_footstep = get_time_to_step_begin( *b );
-	if( state.time_to_footstep == dInfinity )
+	if( state.time_to_footstep == phInfinity )
 		return;
 	float footstep_time = Device.fTimeGlobal + state.time_to_footstep;
 	

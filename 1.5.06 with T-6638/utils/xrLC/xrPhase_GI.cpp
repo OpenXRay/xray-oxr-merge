@@ -40,7 +40,8 @@ Fvector		GetPixel_7x7		(CDB::RESULT& rpinf)
 
 	b_material& M	= pBuild->materials()			[F->dwMaterial];
 	b_texture&	T	= pBuild->textures()			[M.surfidx];
-	if (0==T.pSurface)									return R;
+	if (0==T.pSurface)
+		return R;
 
 	// barycentric coords
 	// note: W,U,V order

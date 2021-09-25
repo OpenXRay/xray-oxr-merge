@@ -15,7 +15,7 @@
 struct OGF_Texture
 {
 	shared_str			name;
-	b_texture*			pSurface;
+	b_texture*			pBuildSurface;
 };
 typedef svector<OGF_Texture,3>		vecOGF_T;
 typedef vecOGF_T::iterator			itOGF_T;

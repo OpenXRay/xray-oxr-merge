@@ -16,11 +16,11 @@ class CLevelPathBuilder : public CDetailPathBuilder {
 private:
 	typedef CDetailPathBuilder	inherited;
 private:
+	Fvector						m_temp;
 	u32							m_start_vertex_id;
 	u32							m_dest_vertex_id;
-	bool						m_extrapolate_path;
-	Fvector						m_temp;
 	const Fvector				*m_precise_position;
+	bool						m_extrapolate_path;
 
 public:
 	IC						CLevelPathBuilder	(CMovementManager *object)
