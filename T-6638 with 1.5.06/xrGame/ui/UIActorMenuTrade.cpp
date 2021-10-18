@@ -45,6 +45,7 @@ void CUIActorMenu::InitTradeMode()
 
 	m_PartnerBottomInfo->Show		(true);
 	m_PartnerWeight->Show			(true);
+	m_trade_button->Show			(true);
 	m_trade_buy_button->Show		(true);
 	m_trade_sell_button->Show		(true);
 
@@ -143,6 +144,7 @@ void CUIActorMenu::DeInitTradeMode()
 
 	m_PartnerBottomInfo->Show		(false);
 	m_PartnerWeight->Show			(false);
+	m_trade_button->Show			(false);
 	m_trade_buy_button->Show		(false);
 	m_trade_sell_button->Show		(false);
 
@@ -274,11 +276,13 @@ float CUIActorMenu::CalcItemsWeight(CUIDragDropListEx* pList)
 u32 CUIActorMenu::CalcItemsPrice(CUIDragDropListEx* pList, CTrade* pTrade, bool bBuying)
 {
 	u32 res = 0;
+	
 	for( u32 i = 0; i < pList->ItemsCount(); ++i )
 	{
 		CUICellItem* itm	= pList->GetItemIdx(i);
 		PIItem iitem		= (PIItem)itm->m_pData;
 		res					+= pTrade->GetItemPrice(iitem, bBuying);
+
 		for( u32 j = 0; j < itm->ChildsCount(); ++j )
 		{
 			PIItem jitem	= (PIItem)itm->Child(j)->m_pData;
@@ -300,7 +304,7 @@ bool CUIActorMenu::CanMoveToPartner(PIItem pItem)
 		return false;
 	}
 
-	if(pItem->GetCondition()<m_pPartnerInvOwner->trade_parameters().buy_item_condition_factor)
+	if (pItem->GetCondition()<m_pPartnerInvOwner->trade_parameters().buy_item_condition_factor)
 		return false;
 
 	float r1				= CalcItemsWeight( m_pTradeActorList );		// actor

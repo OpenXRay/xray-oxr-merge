@@ -1,7 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////
 //	Module 		: UIInventoryUpgradeWnd.cpp
 //	Created 	: 06.10.2007
-//	Author		: Evgeniy Sokolov
+//  Modified 	: 13.03.2009
+//	Author		: Evgeniy Sokolov, Prishchepa Sergey
 //	Description : inventory upgrade UI window class implementation
 ////////////////////////////////////////////////////////////////////////////
 
@@ -23,11 +24,17 @@
 #include "inventory_upgrade.h"
 #include "inventory_upgrade_property.h"
 
+#include "UIInventoryUtilities.h"
 #include "UIActorMenu.h"
 #include "UIItemInfo.h"
 #include "UIFrameLineWnd.h"
 #include "UI3tButton.h"
 #include "UIHelper.h"
+#include "../ui_defs.h"
+#include "../Weapon.h"
+#include "../WeaponRPG7.h"
+#include "../CustomOutfit.h"
+#include "../ActorHelmet.h"
 
 // -----
 
@@ -125,7 +132,6 @@ void CUIInventoryUpgradeWnd::Show( bool status )
 void CUIInventoryUpgradeWnd::Update()
 {
 	inherited::Update();
-//	UpdateAllUpgrades();
 }
 
 void CUIInventoryUpgradeWnd::Reset()
@@ -213,8 +219,15 @@ bool CUIInventoryUpgradeWnd::install_item( CInventoryItem& inv_item, bool can_up
 		
 		Upgrade_type* upgrade_p = get_manager().get_upgrade( upgrade_name );
 		VERIFY( upgrade_p );
-		Property_type* prop_p = get_manager().get_property( upgrade_p->get_property_name() );
+		for(u8 i = 0; i < inventory::upgrade::max_properties_count; i++)
+		{
+			shared_str prop_name = upgrade_p->get_property_name(i);
+			if(prop_name.size())
+			{
+				Property_type* prop_p = get_manager().get_property( prop_name );
 		VERIFY( prop_p );
+			}
+		}
 		
 		ui_item->set_texture( UIUpgrade::LAYER_ITEM,   upgrade_p->icon_name() );
 		ui_item->set_texture( UIUpgrade::LAYER_COLOR,  m_cell_textures[UIUpgrade::STATE_ENABLED].c_str() ); //default
@@ -222,7 +235,7 @@ bool CUIInventoryUpgradeWnd::install_item( CInventoryItem& inv_item, bool can_up
 		ui_item->set_texture( UIUpgrade::LAYER_INK,    m_ink_texture.c_str() );
 	}
 	
-	m_scheme_wnd->Show( true );
+	m_scheme_wnd->Show	( true );
 	
 	UpdateAllUpgrades();
 	return true;
@@ -335,30 +348,3 @@ CUIInventoryUpgradeWnd::Manager_type& CUIInventoryUpgradeWnd::get_manager()
 {
 	return  ai().alife().inventory_upgrade_manager();
 }
-/*
-void CUIInventoryUpgradeWnd::PreUpgradeItem()
-{
-	CWeapon* weapon = smart_cast<CWeapon*>( m_inv_item );
-	if ( weapon )
-	{
-		if ( weapon->ScopeAttachable() && weapon->IsScopeAttached() )
-		{
-			weapon->Detach( weapon->GetScopeName().c_str(), true );
-		}
-		if ( weapon->SilencerAttachable() && weapon->IsSilencerAttached() )
-		{
-			weapon->Detach( weapon->GetSilencerName().c_str(), true );
-		}
-		if ( weapon->GrenadeLauncherAttachable() && weapon->IsGrenadeLauncherAttached() )
-		{
-			weapon->Detach( weapon->GetGrenadeLauncherName().c_str(), true );
-		}
-	}
-	CWeaponMagazined* wm = smart_cast<CWeaponMagazined*>( m_inv_item );
-	if ( wm )
-	{
-		wm->UnloadMagazine();
-		wm->SwitchAmmoType( CMD_START );
-	}
-}
-*/

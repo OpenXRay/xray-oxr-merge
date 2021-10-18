@@ -53,10 +53,6 @@ CUIInventoryUpgradeWnd::Scheme::~Scheme()
 
 CUIInventoryUpgradeWnd::CUIInventoryUpgradeWnd()
 {
-	//m_WeaponIconsShader = xr_new<ui_shader>();
-	//(*m_WeaponIconsShader)->create("hud\\default", "ui\\ui_actor_weapons");
-	//m_OutfitIconsShader = xr_new<ui_shader>();
-	//(*m_OutfitIconsShader)->create("hud\\default", "ui\\ui_actor_armor");
 	m_inv_item       = NULL;
 	m_cur_upgrade_id = NULL;
 	m_current_scheme = NULL;
@@ -66,10 +62,6 @@ CUIInventoryUpgradeWnd::CUIInventoryUpgradeWnd()
 CUIInventoryUpgradeWnd::~CUIInventoryUpgradeWnd()
 {
 	delete_data( m_schemes );
-	//xr_delete(m_WeaponIconsShader);
-	//xr_delete(m_OutfitIconsShader);
-	//m_WeaponIconsShader = 0;
-	//m_OutfitIconsShader = 0;
 }
 
 void CUIInventoryUpgradeWnd::Init()
@@ -110,18 +102,17 @@ void CUIInventoryUpgradeWnd::InitInventory( CInventoryItem* item, bool can_upgra
 	{
 		is_shader = true;
 		m_item->SetShader(InventoryUtilities::GetWeaponUpgradeIconsShader());
-		if(smart_cast<CWeaponRPG7*>(item))
+		if (smart_cast<CWeaponRPG7*>(item))
 			m_item->SetShader(InventoryUtilities::GetOutfitUpgradeIconsShader());
 	}
-	else if(smart_cast<CCustomOutfit*>(item) || smart_cast<CHelmet*>(item))
+	else if (smart_cast<CCustomOutfit*>(item) || smart_cast<CHelmet*>(item))
 	{
 		is_shader = true;
 		m_item->SetShader(InventoryUtilities::GetOutfitUpgradeIconsShader());
 	}
 
-	if(m_item && is_shader)
+	if (m_item && is_shader)
 	{
-
 		Irect item_upgrade_grid_rect = item->GetUpgrIconRect();
 		Frect texture_rect;
 		texture_rect.lt.set			(item_upgrade_grid_rect.x1,	item_upgrade_grid_rect.y1);

@@ -52,25 +52,25 @@ void UIInvUpgradeInfo::init_from_xml( LPCSTR xml_name )
 	m_background->SetAutoDelete( true );
 	xml_init.InitFrameWindow( ui_xml, "background_frame", 0, m_background );
 
-	m_name = xr_new<CUITextWnd>();	 
+	m_name = xr_new<CUIStatic>();	 
 	AttachChild( m_name );		
 	m_name->SetAutoDelete( true );
-	xml_init.InitTextWnd( ui_xml, "info_name", 0, m_name );
+	xml_init.InitStatic( ui_xml, "info_name", 0, m_name );
 
-	m_cost = xr_new<CUITextWnd>();	 
+	m_cost = xr_new<CUIStatic>();	 
 	AttachChild( m_cost );		
 	m_cost->SetAutoDelete( true );
-	xml_init.InitTextWnd( ui_xml, "info_cost", 0, m_cost );
+	xml_init.InitStatic( ui_xml, "info_cost", 0, m_cost );
 
-	m_desc = xr_new<CUITextWnd>();	 
+	m_desc = xr_new<CUIStatic>();	 
 	AttachChild( m_desc );
 	m_desc->SetAutoDelete( true );
-	xml_init.InitTextWnd( ui_xml, "info_desc", 0, m_desc );
+	xml_init.InitStatic( ui_xml, "info_desc", 0, m_desc );
 
-	m_prereq = xr_new<CUITextWnd>();	 
+	m_prereq = xr_new<CUIStatic>();	 
 	AttachChild( m_prereq );
 	m_prereq->SetAutoDelete( true );
-	xml_init.InitTextWnd( ui_xml, "info_prerequisites", 0, m_prereq );
+	xml_init.InitStatic( ui_xml, "info_prerequisites", 0, m_prereq );
 
 	m_properties_wnd = xr_new<UIInvUpgPropertiesWnd>();	 
 	AttachChild( m_properties_wnd );
@@ -176,11 +176,11 @@ bool UIInvUpgradeInfo::init_upgrade( Upgrade_type* upgr, CInventoryItem* inv_ite
 	m_properties_wnd->set_upgrade_info( *m_upgrade );
 
 	// this wnd
-	Fvector2					new_size;
-	new_size.x					= GetWndSize().x;
-	new_size.y					= m_properties_wnd->GetWndPos().y + m_properties_wnd->GetWndSize().y + 10.0f;
-	SetWndSize					(new_size);
-	m_background->SetWndSize	(new_size);
+	Fvector2 new_size;
+	new_size.x = GetWndSize().x;
+	new_size.y = m_properties_wnd->GetWndPos().y + m_properties_wnd->GetWndSize().y + 10.0f;
+	SetWndSize( new_size );
+	m_background->SetWndSize(new_size);
 	
 	return true;
 }

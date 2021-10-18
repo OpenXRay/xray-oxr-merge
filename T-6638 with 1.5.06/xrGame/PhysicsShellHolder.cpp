@@ -108,7 +108,6 @@ BOOL CPhysicsShellHolder::net_Spawn				(CSE_Abstract*	DC)
 		}
 		ApplySpawnIniToPhysicShell(pSettings,PPhysicsShell(),false);
 
-
 		st_enable_state=(u8)stNotDefitnite;
 	}
 	return ret;
@@ -159,7 +158,6 @@ void	CPhysicsShellHolder::on_child_shell_activate ( CPhysicsShellHolder* obj )
 
 }
 
-
 void CPhysicsShellHolder::correct_spawn_pos()
 {
 	VERIFY								(PPhysicsShell());
@@ -203,7 +201,6 @@ void CPhysicsShellHolder::correct_spawn_pos()
 	trans.c.sub							(ap,c);
 	PPhysicsShell()->TransformPosition	(trans, mh_clear );
 	PPhysicsShell()->GetGlobalTransformDynamic(&XFORM());
-
 }
 
 void CPhysicsShellHolder::activate_physic_shell()
@@ -269,7 +266,6 @@ void CPhysicsShellHolder::setup_physic_shell	()
 	ApplySpawnIniToPhysicShell(spawn_ini(),PPhysicsShell(),false);
 	correct_spawn_pos();
 	m_pPhysicsShell->GetGlobalTransformDynamic(&XFORM());
-
 }
 
 void CPhysicsShellHolder::deactivate_physics_shell()

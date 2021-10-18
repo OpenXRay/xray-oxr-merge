@@ -6,10 +6,10 @@
 #include "physicsshellholder.h"
 
 #include "ik_anim_state.h"
-
+#include "../xrphysics/mathutils.h"
 #include "../Include/xrRender/RenderVisual.h"
 #include "../Include/xrRender/Kinematics.h"
-#include "ode_include.h"
+//#include "ode_include.h"
 #include "characterphysicssupport.h"
 #include "../xrEngine/motion.h"
 #ifdef DEBUG
@@ -70,7 +70,7 @@ void	CIKLimbsController::LimbUpdate( CIKLimb &L )
 
 IC void	update_blend (CBlend* &b)
 {
-	if(b && CBlend::eFREE_SLOT == b->blend)
+	if(b && CBlend::eFREE_SLOT == b->blend_state())
 		b = 0;
 }
 
@@ -87,7 +87,7 @@ void	y_shift_bones( IKinematics* K, float shift )
 }
 float	CIKLimbsController::LegLengthShiftLimit			( float current_shift, const SCalculateData cd[max_size] )
 {
-	float shift_down = -dInfinity;
+	float shift_down = -phInfinity;
 	const u16 sz =(u16)_bone_chains.size();
 	for(u16 j = 0; sz > j; ++j )
 		if( cd[j].state.foot_step )

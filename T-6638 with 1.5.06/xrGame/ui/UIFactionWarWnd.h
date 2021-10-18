@@ -6,7 +6,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-/*
+
 #include "UIWindow.h"
 #include "UIWndCallback.h"
 #include "FactionState.h"
@@ -112,4 +112,3 @@ protected:
 			float		get_max_power			();
 
 }; // class CUIFactionWarWnd
-*/

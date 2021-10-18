@@ -192,6 +192,7 @@ void	CInventoryOwner::load	(IReader &input_packet)
 void CInventoryOwner::UpdateInventoryOwner(u32 deltaT)
 {
 	inventory().Update();
+
 	if ( m_pTrade )
 	{
 		m_pTrade->UpdateTrade();
@@ -230,7 +231,7 @@ void CInventoryOwner::UpdateInventoryOwner(u32 deltaT)
 //достать PDA из специального слота инвентаря
 CPda* CInventoryOwner::GetPDA() const
 {
-	return (CPda*)(m_inventory->m_slots[PDA_SLOT].m_pIItem);
+	return (CPda*)(m_inventory->ItemFromSlot(PDA_SLOT));
 }
 
 CTrade* CInventoryOwner::GetTrade() 
@@ -271,13 +272,9 @@ void CInventoryOwner::StartTalk(CInventoryOwner* talk_partner, bool start_trade)
 {
 	m_bTalking = true;
 	m_pTalkPartner = talk_partner;
-
-	//тут же включаем торговлю
-//old		if(start_trade)
-//old			GetTrade()->StartTradeEx(talk_partner);
 }
+
 #include "UIGameSP.h"
-#include "HUDmanager.h"
 #include "ui\UITalkWnd.h"
 
 void CInventoryOwner::StopTalk()
@@ -285,9 +282,7 @@ void CInventoryOwner::StopTalk()
 	m_pTalkPartner			= NULL;
 	m_bTalking				= false;
 
-//old		GetTrade()->StopTrade	();
-
-	CUIGameSP* ui_sp = smart_cast<CUIGameSP*>(HUD().GetUI()->UIGame());
+	CUIGameSP* ui_sp = smart_cast<CUIGameSP*>(CurrentGameUI());
 	if(ui_sp && ui_sp->TalkMenu->IsShown())
 		ui_sp->TalkMenu->Stop();
 }
@@ -306,7 +301,7 @@ void CInventoryOwner::StopTrading()
 {
 	m_bTrading = false;
 
-	CUIGameSP* ui_sp = smart_cast<CUIGameSP*>( HUD().GetUI()->UIGame() );
+	CUIGameSP* ui_sp = smart_cast<CUIGameSP*>( CurrentGameUI() );
 	if ( ui_sp )
 	{
 		ui_sp->HideActorMenu();
@@ -500,7 +495,7 @@ void CInventoryOwner::OnItemSlot	(CInventoryItem *inventory_item, EItemPlace pre
 
 CInventoryItem* CInventoryOwner::GetCurrentOutfit() const
 {
-    return inventory().m_slots[OUTFIT_SLOT].m_pIItem;
+    return inventory().ItemFromSlot(OUTFIT_SLOT);
 }
 
 void CInventoryOwner::on_weapon_shot_start		(CWeapon *weapon)

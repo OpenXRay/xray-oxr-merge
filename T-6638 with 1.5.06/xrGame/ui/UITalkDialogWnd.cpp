@@ -36,41 +36,39 @@ void CUITalkDialogWnd::InitTalkDialogWnd()
 
 	CUIXmlInit::InitWindow		(*m_uiXml, "main", 0, this);
 
-//	CUIXmlInit::InitStatic		(*m_uiXml, "right_character_icon", 0, &UIOurIcon);
+	CUIXmlInit::InitStatic		(*m_uiXml, "right_character_icon", 0, &UIOurIcon);
 
-//	CUIXmlInit::InitStatic		(*m_uiXml, "left_character_icon", 0, &UIOthersIcon);
+	CUIXmlInit::InitStatic		(*m_uiXml, "left_character_icon", 0, &UIOthersIcon);
 
-//	UIOurIcon.AttachChild		(&UICharacterInfoLeft);
-//	UICharacterInfoLeft.InitCharacterInfo(Fvector2().set(0,0), UIOurIcon.GetWndSize(), "talk_character.xml");
+	UIOurIcon.AttachChild		(&UICharacterInfoLeft);
+	UICharacterInfoLeft.InitCharacterInfo(Fvector2().set(0,0), UIOurIcon.GetWndSize(), "talk_character.xml");
 
-//	UIOthersIcon.AttachChild	(&UICharacterInfoRight);
-//	UICharacterInfoRight.InitCharacterInfo(Fvector2().set(0,0), UIOthersIcon.GetWndSize(), "talk_character.xml");
+	UIOthersIcon.AttachChild	(&UICharacterInfoRight);
+	UICharacterInfoRight.InitCharacterInfo(Fvector2().set(0,0), UIOthersIcon.GetWndSize(), "talk_character.xml");
 
-//	AttachChild					(&UIOurIcon);
-//	AttachChild					(&UIOthersIcon);
+	AttachChild					(&UIOurIcon);
+	AttachChild					(&UIOthersIcon);
 
 	// Фрейм с нащими фразами
-//	AttachChild					(&UIDialogFrameBottom);
-//	CUIXmlInit::InitStatic		(*m_uiXml, "frame_bottom", 0, &UIDialogFrameBottom);
+	AttachChild					(&UIDialogFrameBottom);
+	CUIXmlInit::InitStatic		(*m_uiXml, "frame_bottom", 0, &UIDialogFrameBottom);
 
 	//основной фрейм диалога
-//	AttachChild					(&UIDialogFrameTop);
-//	CUIXmlInit::InitStatic		(*m_uiXml, "frame_top", 0, &UIDialogFrameTop);
+	AttachChild					(&UIDialogFrameTop);
+	CUIXmlInit::InitStatic		(*m_uiXml, "frame_top", 0, &UIDialogFrameTop);
 
 
 	//Ответы
 	UIAnswersList				= xr_new<CUIScrollView>();
 	UIAnswersList->SetAutoDelete(true);
-//	UIDialogFrameTop.AttachChild(UIAnswersList);
-	AttachChild(UIAnswersList);
+	UIDialogFrameTop.AttachChild(UIAnswersList);
 	CUIXmlInit::InitScrollView	(*m_uiXml, "answers_list", 0, UIAnswersList);
 	UIAnswersList->SetWindowName("---UIAnswersList");
 
 	//Вопросы
 	UIQuestionsList				= xr_new<CUIScrollView>();
 	UIQuestionsList->SetAutoDelete(true);
-//	UIDialogFrameBottom.AttachChild(UIQuestionsList);
-	AttachChild(UIQuestionsList);
+	UIDialogFrameBottom.AttachChild(UIQuestionsList);
 	CUIXmlInit::InitScrollView	(*m_uiXml, "questions_list", 0, UIQuestionsList);
 	UIQuestionsList->SetWindowName("---UIQuestionsList");
 
@@ -101,7 +99,6 @@ void CUITalkDialogWnd::InitTalkDialogWnd()
 //	AddCallback					(&UIToExitButton,BUTTON_CLICKED,CUIWndCallback::void_function(this, &CUITalkDialogWnd::OnExitClicked));
 }
 
-	
 void CUITalkDialogWnd::Show()
 {
 	InventoryUtilities::SendInfoToActor				("ui_talk_show");
@@ -196,7 +193,6 @@ void CUITalkDialogWnd::AddQuestion(LPCSTR str, LPCSTR value, int number, bool b_
 	Register						(itm);
 }
 
-
 void CUITalkDialogWnd::AddAnswer(LPCSTR SpeakerName, LPCSTR str, bool bActor)
 {
 	CUIAnswerItem* itm				= xr_new<CUIAnswerItem>(m_uiXml,bActor?"actor_answer_item":"other_answer_item");
@@ -241,22 +237,22 @@ void CUITalkDialogWnd::AddIconedAnswer(LPCSTR caption, LPCSTR text, LPCSTR textu
 
 void CUITalkDialogWnd::SetOsoznanieMode(bool b)
 {
-//	UIOurIcon.Show		(!b);
-//	UIOthersIcon.Show	(!b);
+	UIOurIcon.Show		(!b);
+	UIOthersIcon.Show	(!b);
 
 	UIAnswersList->Show	(!b);
-//	UIDialogFrameTop.Show (!b);
+	UIDialogFrameTop.Show (!b);
 
 	UIToTradeButton.Show(!b);
 	if ( mechanic_mode )
 	{
 		UIToTradeButton.m_hint_text = "ui_st_upgrade_hint";
-		UIToTradeButton.TextItemControl()->SetTextST( "ui_st_upgrade" );
+		UIToTradeButton.SetTextST( "ui_st_upgrade" );
 	}
 	else
 	{
 		UIToTradeButton.m_hint_text = "ui_st_trade_hint";
-		UIToTradeButton.TextItemControl()->SetTextST( "ui_st_trade" );
+		UIToTradeButton.SetTextST( "ui_st_trade" );
 	}
 }
 
@@ -270,7 +266,7 @@ void CUIQuestionItem::SendMessage				(CUIWindow* pWnd, s16 msg, void* pData)
 	CUIWndCallback::OnEvent(pWnd, msg, pData);
 }
 
-CUIQuestionItem::CUIQuestionItem(CUIXml* xml_doc, LPCSTR path)
+CUIQuestionItem::CUIQuestionItem			(CUIXml* xml_doc, LPCSTR path)
 {
 	m_text							= xr_new<CUI3tButton>();
 	m_text->SetAutoDelete			(true);
@@ -300,7 +296,7 @@ CUIQuestionItem::CUIQuestionItem(CUIXml* xml_doc, LPCSTR path)
 void CUIQuestionItem::Init			(LPCSTR val, LPCSTR text)
 {
 	m_s_value						= val;
-	m_text->TextItemControl()->SetText(text);
+	m_text->SetText					(text);
 	m_text->AdjustHeightToText		();
 	float new_h						= _max(m_min_height, m_text->GetWndPos().y+m_text->GetHeight());
 	SetHeight						(new_h);

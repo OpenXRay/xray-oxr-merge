@@ -44,13 +44,15 @@ public:
 		
 	virtual void		Show					(bool status);
 	
-	void				Stop					();					//deffered
+	void				Stop					();	// deffered
 	void				StopTalk				();
 
 	void				UpdateQuestions			();
 	void				NeedUpdateQuestions		();
+
 	//инициализации начального диалога собеседника
 	void				InitOthersStartDialog	();
+
 	virtual bool		OnKeyboardAction				(int dik, EUIMessages keyboard_action);
 	void				SwitchToTrade			();
 	void				SwitchToUpgrade			();

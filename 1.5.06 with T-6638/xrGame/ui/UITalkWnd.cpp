@@ -1,12 +1,10 @@
 #include "stdafx.h"
 #include "UITalkWnd.h"
 
-#include "UITradeWnd.h"
 #include "UITalkDialogWnd.h"
 
 #include "../actor.h"
 #include "../trade.h"
-#include "../HUDManager.h"
 #include "../UIGameSP.h"
 #include "../PDA.h"
 #include "../../xrServerEntities/character_info.h"
@@ -35,8 +33,6 @@ CUITalkWnd::CUITalkWnd()
 	ToTopicMode				();
 
 	InitTalkWnd				();
-	Hide					();
-
 	m_bNeedToUpdateQuestions = false;
 	b_disable_break			= false;
 }
@@ -49,8 +45,9 @@ void CUITalkWnd::InitTalkWnd()
 {
 	inherited::SetWndRect(Frect().set(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT));
 
-	UITalkDialogWnd = xr_new<CUITalkDialogWnd>();UITalkDialogWnd->SetAutoDelete(true);
-	AttachChild(UITalkDialogWnd);
+	UITalkDialogWnd			= xr_new<CUITalkDialogWnd>();
+	UITalkDialogWnd->SetAutoDelete(true);
+	AttachChild				(UITalkDialogWnd);
 	UITalkDialogWnd->m_pParent = this;
 	UITalkDialogWnd->InitTalkDialogWnd();
 }
@@ -121,7 +118,9 @@ void CUITalkWnd::UpdateQuestions()
 		for(u32 i=0; i< m_pOurDialogManager->AvailableDialogs().size(); ++i)
 		{
 			const DIALOG_SHARED_PTR& phrase_dialog = m_pOurDialogManager->AvailableDialogs()[i];
-			AddQuestion(phrase_dialog->DialogCaption(), phrase_dialog->GetDialogID());
+			bool bfinalizer = (phrase_dialog->GetPhrase("0"))->IsFinalizer();
+
+			AddQuestion(phrase_dialog->DialogCaption(), phrase_dialog->GetDialogID(), i, bfinalizer);
 		}
 	}
 	else
@@ -138,12 +137,13 @@ void CUITalkWnd::UpdateQuestions()
 			//выбор доступных фраз из активного диалога
 			if( m_pCurrentDialog && !m_pCurrentDialog->allIsDummy() )
 			{			
+				int number = 0;
 				for(PHRASE_VECTOR::const_iterator   it = m_pCurrentDialog->PhraseList().begin();
 					it != m_pCurrentDialog->PhraseList().end();
-					it++)
+					++it, ++number)
 				{
 					CPhrase* phrase = *it;
-					AddQuestion( m_pCurrentDialog->GetPhraseText( phrase->GetID() ), phrase->GetID() );
+					AddQuestion(m_pCurrentDialog->GetPhraseText(phrase->GetID() ), phrase->GetID(), number, phrase->IsFinalizer());
 				}
 			}
 			else
@@ -208,7 +208,7 @@ void CUITalkWnd::Update()
 		CGameObject* pOtherGO = smart_cast<CGameObject*>(m_pOthersInvOwner);
 	
 		if(	NULL==pOurGO || NULL==pOtherGO )
-			Game().StartStopMenu(this,true);
+			HideDialog();
 	}
 
 	if(m_bNeedToUpdateQuestions)
@@ -234,24 +234,27 @@ void CUITalkWnd::Draw()
 	inherited::Draw				();
 }
 
-void CUITalkWnd::Show()
+void CUITalkWnd::Show(bool status)
 {
-	InitTalkDialog				();
-	inherited::Show				();
-}
+	inherited::Show					(status);
+	if(status)
+	{
+		InitTalkDialog				();
+	}else
+	{
+		StopSnd						();
+		UITalkDialogWnd->Hide		();
 
-void CUITalkWnd::Hide()
-{
-	StopSnd						();
-	UITalkDialogWnd->Hide		();
+		if(m_pActor)
+		{
+			ToTopicMode					();
 
-	inherited::Hide				();
-	if(!m_pActor)				return;
-	
-	ToTopicMode					();
+			if (m_pActor->IsTalking()) 
+				m_pActor->StopTalk();
 
-	if (m_pActor->IsTalking()) m_pActor->StopTalk();
-	m_pActor = NULL;
+			m_pActor = NULL;
+		}
+	}
 }
 
 bool  CUITalkWnd::TopicMode			() 
@@ -277,7 +280,7 @@ void CUITalkWnd::AskQuestion()
 		{
 
 			string128	s;
-			sprintf_s		(s,"ID = [%s] of selected question is out of range of available dialogs ",UITalkDialogWnd->m_ClickedQuestionID);
+			xr_sprintf		(s,"ID = [%s] of selected question is out of range of available dialogs ",UITalkDialogWnd->m_ClickedQuestionID);
 			VERIFY2(FALSE, s);
 		}
 
@@ -304,13 +307,12 @@ void CUITalkWnd::SayPhrase(const shared_str& phrase_id)
 	if(m_pCurrentDialog->IsFinished()) ToTopicMode();
 }
 
-void CUITalkWnd::AddQuestion(const shared_str& text, const shared_str& value)
+void CUITalkWnd::AddQuestion(const shared_str& text, const shared_str& value, int number, bool b_finalizer)
 {
 	if(text.size() == 0)
-	{
 		return;
-	}
-	UITalkDialogWnd->AddQuestion(*CStringTable().translate(text),value.c_str());
+
+	UITalkDialogWnd->AddQuestion(CStringTable().translate(text).c_str(), value.c_str(), number, b_finalizer);
 }
 
 void CUITalkWnd::AddAnswer(const shared_str& text, LPCSTR SpeakerName)
@@ -330,13 +332,13 @@ void CUITalkWnd::SwitchToTrade()
 {
 	if ( m_pOurInvOwner->IsTradeEnabled() && m_pOthersInvOwner->IsTradeEnabled() )
 	{
-		CUIGameSP* pGameSP = smart_cast<CUIGameSP*>( HUD().GetUI()->UIGame() );
+		CUIGameSP* pGameSP = smart_cast<CUIGameSP*>( CurrentGameUI() );
 		if ( pGameSP )
 		{
-			if ( pGameSP->MainInputReceiver() )
+/*			if ( pGameSP->MainInputReceiver() )
 			{
-				Game().StartStopMenu( pGameSP->MainInputReceiver(), true );
-			}
+				pGameSP->MainInputReceiver()->HideDialog();
+			}*/
 			pGameSP->StartTrade	(m_pOurInvOwner, m_pOthersInvOwner);
 		} // pGameSP
 	}
@@ -346,43 +348,41 @@ void CUITalkWnd::SwitchToUpgrade()
 {
 	//if ( m_pOurInvOwner->IsInvUpgradeEnabled() && m_pOthersInvOwner->IsInvUpgradeEnabled() )
 	{
-		CUIGameSP* pGameSP = smart_cast<CUIGameSP*>(HUD().GetUI()->UIGame());
+		CUIGameSP* pGameSP = smart_cast<CUIGameSP*>(CurrentGameUI());
 		if ( pGameSP )
 		{
-			if ( pGameSP->MainInputReceiver() )
+/*			if ( pGameSP->MainInputReceiver() )
 			{
-				Game().StartStopMenu(pGameSP->MainInputReceiver(),true);
-			}
+				pGameSP->MainInputReceiver()->HideDialog();
+			}*/
 			pGameSP->StartUpgrade(m_pOurInvOwner, m_pOthersInvOwner);
 		}
 	}
 }
 
-bool CUITalkWnd::IR_OnKeyboardPress(int dik)
+bool CUITalkWnd::OnKeyboardAction(int dik, EUIMessages keyboard_action)
 {
-//.	StopSnd						();
-	EGameActions cmd = get_binded_action(dik);
-	if ( cmd==kUSE || cmd==kQUIT)
+
+	if (keyboard_action==WINDOW_KEY_PRESSED)
+	{
+		if(is_binded(kUSE, dik) || is_binded(kQUIT, dik))
 	{
 		if(!b_disable_break)
-			GetHolder()->StartStopMenu(this, true);
+			{
+				HideDialog();
 		return true;
 	}
-	if ( cmd == kSPRINT_TOGGLE )
-	{
-		if (m_pOthersInvOwner&&m_pOthersInvOwner->NeedOsoznanieMode())
-		{
-			return true;
 		}
-		UITalkDialogWnd->SetTradeMode();
-		return true;
+		else if(is_binded(kSPRINT_TOGGLE, dik))
+		{
+			if(UITalkDialogWnd->mechanic_mode)
+				SwitchToUpgrade();
+			else
+				SwitchToTrade();
+		}
 	}
-	return inherited::IR_OnKeyboardPress(dik);
-}
 
-bool CUITalkWnd::OnKeyboard(int dik, EUIMessages keyboard_action)
-{
-	return inherited::OnKeyboard(dik,keyboard_action);
+	return inherited::OnKeyboardAction(dik,keyboard_action);
 }
 
 void CUITalkWnd::PlaySnd(LPCSTR text)
@@ -439,7 +439,7 @@ void CUITalkWnd::AddIconedMessage(LPCSTR caption, LPCSTR text, LPCSTR texture_na
 
 void CUITalkWnd::StopTalk()
 {
-	Game().StartStopMenu(this,true);
+	HideDialog();
 }
 
 void CUITalkWnd::Stop()

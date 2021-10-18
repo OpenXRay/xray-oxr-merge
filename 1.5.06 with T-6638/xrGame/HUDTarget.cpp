@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "hudtarget.h"
-#include "hudmanager.h"
 #include "../xrEngine/gamemtllib.h"
 
 #include "../xrEngine/Environment.h"
@@ -10,7 +9,7 @@
 #include "game_cl_base.h"
 #include "../xrEngine/igame_persistent.h"
 
-
+#include "ui_base.h"
 #include "InventoryOwner.h"
 #include "relation_registry.h"
 #include "character_info.h"
@@ -155,17 +154,14 @@ void CHUDTarget::Render()
 	// Render cursor
 	u32 C				= C_DEFAULT;
 	
-	//FVF::TL				PT;
 	Fvector				p2;
 	p2.mad				(p1,dir,PP.RQ.range);
 	Fvector4			pt;
 	Device.mFullTransform.transform(pt, p2);
 	pt.y = -pt.y;
-	//PT.transform		(p2,Device.mFullTransform);
-	//float				di_size = C_SIZE/powf(PT.p.w,.2f);
 	float				di_size = C_SIZE/powf(pt.w,.2f);
 
-	CGameFont* F		= HUD().Font().pFontGraffiti19Russian;
+	CGameFont* F		= UI().Font().pFontGraffiti19Russian;
 	F->SetAligment		(CGameFont::alCenter);
 	F->OutSetI			(0.f,0.05f);
 
@@ -267,14 +263,14 @@ void CHUDTarget::Render()
 	{
 		F->OutSetI		(0.f,0.05f);
 		F->SetColor		(C);
-		F->OutNext		("%4.1f - %4.2f - %d",PP.RQ.range, PP.power, PP.pass);
+		F->OutNext		("%4.1f - %4.2f - %d", PP.RQ.range, PP.power, PP.pass);
 	}
 
 	//отрендерить кружочек или крестик
 	if(!m_bShowCrosshair)
 	{
 		
-		UIRender->StartPrimitive	(6, IUIRender::ptTriList, UI()->m_currentPointType);
+		UIRender->StartPrimitive	(6, IUIRender::ptTriList, UI().m_currentPointType);
 		
 		Fvector2		scr_size;
 		scr_size.set	(float(Device.dwWidth) ,float(Device.dwHeight));

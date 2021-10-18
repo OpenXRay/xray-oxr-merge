@@ -1,8 +1,8 @@
 	////////////////////////////////////////////////////////////////////////////
 //	Module 		: UIInvUpgradeInfo.cpp
 //	Created 	: 21.11.2007
-//  Modified 	: 27.11.2007
-//	Author		: Evgeniy Sokolov
+//  Modified 	: 13.03.2009
+//	Author		: Evgeniy Sokolov, Prishchepa Sergey
 //	Description : inventory upgrade UI info window class implementation
 ////////////////////////////////////////////////////////////////////////////
 
@@ -57,6 +57,11 @@ void UIInvUpgradeInfo::init_from_xml( LPCSTR xml_name )
 	m_name->SetAutoDelete( true );
 	xml_init.InitStatic( ui_xml, "info_name", 0, m_name );
 
+	m_cost = xr_new<CUIStatic>();	 
+	AttachChild( m_cost );		
+	m_cost->SetAutoDelete( true );
+	xml_init.InitStatic( ui_xml, "info_cost", 0, m_cost );
+
 	m_desc = xr_new<CUIStatic>();	 
 	AttachChild( m_desc );
 	m_desc->SetAutoDelete( true );
@@ -100,28 +105,45 @@ bool UIInvUpgradeInfo::init_upgrade( Upgrade_type* upgr, CInventoryItem* inv_ite
 	{
 		m_desc->SetText( m_upgrade->description_text() );
 		m_prereq->Show( true );
+		m_properties_wnd->Show( true );
+		luabind::functor<LPCSTR> cost_func;
+		LPCSTR cost_func_str = "inventory_upgrades.get_upgrade_cost";
+		R_ASSERT2(ai().script_engine().functor(cost_func_str, cost_func), "Failed to get cost");
+		m_cost->SetText(cost_func(m_upgrade->section()));
+		m_cost->Show(true);
+
 
 		inventory::upgrade::UpgradeStateResult upg_res = m_upgrade->can_install( *inv_item, false );
-		if ( upg_res == inventory::upgrade::result_ok || upg_res == inventory::upgrade::result_e_precondition_money
-			|| upg_res == inventory::upgrade::result_e_precondition_quest )
+		inventory::upgrade::UpgradeStateResult upg_res_script = m_upgrade->get_preconditions();
+		string512 str_res = "";
+		m_prereq->SetTextColor(color_rgba(255,90,90,255));
+		if(upg_res==inventory::upgrade::result_e_installed)
 		{
-			m_prereq->SetText( m_upgrade->get_prerequisites() );
+			m_prereq->SetTextColor(color_rgba(117,255,123,255));
+			xr_sprintf(str_res, sizeof(str_res), "%s", CStringTable().translate("st_upgr_installed").c_str());
 		}
+		else if(upg_res==inventory::upgrade::result_e_unknown)
+		{
+			xr_sprintf(str_res, sizeof(str_res), "%s:\\n - %s", CStringTable().translate("st_upgr_disable").c_str(), CStringTable().translate("st_upgr_unknown").c_str());
+			m_cost->Show(false);
+		}
+		else if(upg_res==inventory::upgrade::result_e_group)
+			xr_sprintf(str_res, sizeof(str_res), "%s:\\n - %s", CStringTable().translate("st_upgr_disable").c_str(), CStringTable().translate("st_upgr_group").c_str());
+		else if(upg_res_script==inventory::upgrade::result_e_precondition_money)
+			xr_sprintf(str_res, sizeof(str_res), "%s:\\n - %s", CStringTable().translate("st_upgr_disable").c_str(), CStringTable().translate("st_upgr_cant_do").c_str());
 		else
 		{
-			string32 str_res;
-			switch( upg_res )
+			if(upg_res!=inventory::upgrade::result_ok)
 			{
-			case inventory::upgrade::result_e_unknown:		strcpy_s( str_res, sizeof(str_res), "st_upgr_unknown" );		break;
-			case inventory::upgrade::result_e_installed:	strcpy_s( str_res, sizeof(str_res), "st_upgr_installed" );		break;
-			case inventory::upgrade::result_e_parents:		strcpy_s( str_res, sizeof(str_res), "st_upgr_parents" );		break;
-			case inventory::upgrade::result_e_group:		strcpy_s( str_res, sizeof(str_res), "st_upgr_group" );			break;
-			//result_e_precondition:
-			default:										strcpy_s( str_res, sizeof(str_res), "st_upgr_unknown" );		break;
+				xr_sprintf(str_res, sizeof(str_res), "%s:\\n%s", CStringTable().translate("st_upgr_disable").c_str(), m_upgrade->get_prerequisites());
+				if(upg_res==inventory::upgrade::result_e_parents)
+					xr_sprintf(str_res, sizeof(str_res), "%s\\n - %s", str_res, CStringTable().translate("st_upgr_parents").c_str());
+
+				if(upg_res==inventory::upgrade::result_e_precondition_money)
+					xr_sprintf(str_res, sizeof(str_res), "%s:\\n - %s", CStringTable().translate("st_upgr_disable").c_str(), CStringTable().translate("st_upgr_cant_do").c_str());
 			}
-			m_prereq->SetTextST( str_res );
 		}
-		m_properties_wnd->Show( true );
+		m_prereq->SetText(str_res);
 	}
 	else
 	{
@@ -129,11 +151,22 @@ bool UIInvUpgradeInfo::init_upgrade( Upgrade_type* upgr, CInventoryItem* inv_ite
 		m_prereq->Show( false );
 		m_prereq->SetText( "" );
 		m_properties_wnd->Show( false );
+		m_cost->Show(false);
 	}
+	m_name->AdjustHeightToText();
+	m_cost->AdjustHeightToText();
 	m_desc->AdjustHeightToText();
 	m_prereq->AdjustHeightToText();
 
 	Fvector2 new_pos;
+	new_pos.x = m_cost->GetWndPos().x;
+	new_pos.y = m_name->GetWndPos().y + m_name->GetWndSize().y + 5.0f;
+	m_cost->SetWndPos( new_pos );
+
+	new_pos.x = m_desc->GetWndPos().x;
+	new_pos.y = m_cost->GetWndPos().y + m_cost->GetWndSize().y + 5.0f;
+	m_desc->SetWndPos( new_pos );
+
 	new_pos.x = m_prereq->GetWndPos().x;
 	new_pos.y = m_desc->GetWndPos().y + m_desc->GetWndSize().y + 5.0f;
 	m_prereq->SetWndPos( new_pos );
@@ -149,7 +182,7 @@ bool UIInvUpgradeInfo::init_upgrade( Upgrade_type* upgr, CInventoryItem* inv_ite
 	new_size.x = GetWndSize().x;
 	new_size.y = m_properties_wnd->GetWndPos().y + m_properties_wnd->GetWndSize().y + 10.0f;
 	SetWndSize( new_size );
-	m_background->InitFrameWindow( m_background->GetWndPos(), new_size );
+	m_background->SetWndSize(new_size);
 	
 	return true;
 }

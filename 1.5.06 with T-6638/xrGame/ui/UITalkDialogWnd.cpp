@@ -5,9 +5,15 @@
 #include "UIXmlInit.h"
 #include "UIScrollView.h"
 #include "UI3tButton.h"
-#include "../UI.h"
 #include "UITalkWnd.h"
+#include "UIInventoryUtilities.h"
+#include "UIBtnHint.h"
 
+#include "../game_news.h"
+#include "../level.h"
+#include "../actor.h"
+#include "../alife_registry_wrappers.h"
+#include "dinput.h"
 
 #define				TALK_XML				"talk.xml"
 
@@ -95,25 +101,24 @@ void CUITalkDialogWnd::InitTalkDialogWnd()
 	AddCallback					("upgrade_btn",BUTTON_CLICKED,CUIWndCallback::void_function(this, &CUITalkDialogWnd::OnUpgradeClicked));
 	AddCallback					("exit_btn",BUTTON_CLICKED,CUIWndCallback::void_function(this, &CUITalkDialogWnd::OnExitClicked));
 }
-
-#include "UIInventoryUtilities.h"
 	
 void CUITalkDialogWnd::Show()
 {
 	InventoryUtilities::SendInfoToActor				("ui_talk_show");
 	InventoryUtilities::SendInfoToLuaScripts		("ui_talk_show");
-	inherited::Show(true);
-	inherited::Enable(true);
+	inherited::Show									(true);
+	inherited::Enable								(true);
 
-	ResetAll();
+	ResetAll										();
 }
 
 void CUITalkDialogWnd::Hide()
 {
 	InventoryUtilities::SendInfoToActor				("ui_talk_hide");
 	InventoryUtilities::SendInfoToLuaScripts		("ui_talk_hide");
-	inherited::Show(false);
-	inherited::Enable(false);
+	inherited::Show									(false);
+	inherited::Enable								(false);
+	g_btnHint->Discard								();
 }
 
 void CUITalkDialogWnd::OnQuestionClicked(CUIWindow* w, void*)
@@ -176,11 +181,6 @@ void CUITalkDialogWnd::AddQuestion(LPCSTR str, LPCSTR value)
 	UIQuestionsList->AddWindow		(itm, true);
 	Register						(itm);
 }
-
-#include "../game_news.h"
-#include "../level.h"
-#include "../actor.h"
-#include "../alife_registry_wrappers.h"
 
 void CUITalkDialogWnd::AddAnswer(LPCSTR SpeakerName, LPCSTR str, bool bActor)
 {
@@ -270,13 +270,14 @@ void CUIQuestionItem::SendMessage				(CUIWindow* pWnd, s16 msg, void* pData)
 
 CUIQuestionItem::CUIQuestionItem			(CUIXml* xml_doc, LPCSTR path)
 {
-	m_text							= xr_new<CUI3tButtonEx>();m_text->SetAutoDelete(true);
+	m_text							= xr_new<CUI3tButtonEx>();
+	m_text->SetAutoDelete			(true);
 	AttachChild						(m_text);
 
 	string512						str;
 	CUIXmlInit						xml_init;
 
-	strcpy_s							(str,path);
+	xr_strcpy						(str,path);
 	xml_init.InitWindow				(*xml_doc, str, 0, this);
 
 	m_min_height					= xml_doc->ReadAttribFlt(path,0,"min_height",15.0f);
@@ -315,7 +316,7 @@ CUIAnswerItem::CUIAnswerItem			(CUIXml* xml_doc, LPCSTR path)
 	string512						str;
 	CUIXmlInit						xml_init;
 
-	strcpy_s							(str,path);
+	xr_strcpy							(str,path);
 	xml_init.InitWindow				(*xml_doc, str, 0, this);
 
 	m_min_height					= xml_doc->ReadAttribFlt(path,0,"min_height",15.0f);

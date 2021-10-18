@@ -6,7 +6,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-/*
+
 #include "UIWarState.h"
 #include "UIStatic.h"
 #include "UIXmlInit.h"
@@ -85,4 +85,3 @@ void  UIWarState::Draw()
 //		m_static->Draw();
 //	}
 }
-*/

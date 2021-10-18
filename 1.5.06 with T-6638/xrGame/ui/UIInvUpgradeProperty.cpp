@@ -1,8 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////
 //	Module 		: UIInvUpgradeProperty.cpp
 //	Created 	: 22.11.2007
-//  Modified 	: 27.11.2007
-//	Author		: Evgeniy Sokolov
+//  Modified 	: 13.03.2009
+//	Author		: Evgeniy Sokolov, Prishchepa Sergey
 //	Description : inventory upgrade property UIWindow class implementation
 ////////////////////////////////////////////////////////////////////////////
 
@@ -43,8 +43,8 @@ void UIProperty::init_from_xml( CUIXml& ui_xml )
 
 	CUIXmlInit::InitWindow( ui_xml, "properties", 0, this );
 	SetWndPos( Fvector2().set( 0, 0 ) );
-	CUIXmlInit::InitWindow( ui_xml, "properties:icon", 0, m_ui_icon );
-	CUIXmlInit::InitWindow( ui_xml, "properties:text", 0, m_ui_text );
+	CUIXmlInit::InitStatic( ui_xml, "properties:icon", 0, m_ui_icon );
+	CUIXmlInit::InitStatic( ui_xml, "properties:text", 0, m_ui_text );
 }
 
 bool UIProperty::init_property( shared_str const& property_id )
@@ -85,58 +85,6 @@ bool UIProperty::read_value_from_section( LPCSTR section, LPCSTR param, float& r
 	return false;
 }
 
-/*bool UIProperty::compute_value( ItemUpgrades_type const& item_upgrades )
-{
-	string128 result;
-	result[0] = 0;
-
-	bool  not_null = false;
-	float sum = 0.0f;
-
-	if ( !get_property() )
-	{
-		return false;
-	}
-	PropertyFunctorParams_type const&  funct_params  = get_property()->functor_params();
-	
-	PropertyFunctorParams_type::const_iterator ib_funct = funct_params.begin();
-	PropertyFunctorParams_type::const_iterator ie_funct = funct_params.end();
-	for ( ; ib_funct != ie_funct; ++ib_funct )
-	{
-		sum = 0.0f;
-		float i_res = 0.0f;
-		
-		ItemUpgrades_type::const_iterator ib_upg = item_upgrades.begin();
-		ItemUpgrades_type::const_iterator ie_upg = item_upgrades.end();
-		for ( ; ib_upg != ie_upg; ++ib_upg )
-		{
-			Upgrade_type* upgr = ai().alife().inventory_upgrade_manager().get_upgrade( *ib_upg );
-			VERIFY( upgr );
-			LPCSTR section = upgr->section();
-			VERIFY( section );
-
-			read_value_from_section( section, (*ib_funct).c_str(), i_res );
-			sum += i_res;
-		}
-		
-		if ( _abs(sum) > EPS )
-		{
-			not_null = true;
-		}
-		string64 buf;
-		sprintf_s( buf, sizeof(buf), "%f", sum );
-		strcat_s( result, sizeof(result), buf );
-		strcat_s( result, sizeof(result), ", " );
-	} // ib_funct
-
-	if ( not_null )
-	{
-		return show_result( result );
-	}
-	return false;
-}
-*/
-
 bool UIProperty::compute_value( ItemUpgrades_type const& item_upgrades )
 {
 	if ( !get_property() )
@@ -152,15 +100,18 @@ bool UIProperty::compute_value( ItemUpgrades_type const& item_upgrades )
 	{
 		Upgrade_type* upgr = ai().alife().inventory_upgrade_manager().get_upgrade( *ib_upg );
 		VERIFY( upgr );
-		if ( upgr->get_property_name()._get() == m_property_id._get() )
+		for(u8 i = 0; i < inventory::upgrade::max_properties_count; i++)
 		{
-			LPCSTR upgr_section = upgr->section();
-			if ( prop_count > 0 )
+			if ( upgr->get_property_name(i)._get() == m_property_id._get() )
 			{
-				strcat_s( buf, sizeof(buf), ", " );
+				LPCSTR upgr_section = upgr->section();
+				if ( prop_count > 0 )
+				{
+					xr_strcat( buf, sizeof(buf), ", " );
+				}
+				xr_strcat( buf, sizeof(buf), upgr_section );
+				++prop_count;
 			}
-			strcat_s( buf, sizeof(buf), upgr_section );
-			++prop_count;
 		}
 	}
 	if ( prop_count > 0 )
@@ -205,6 +156,11 @@ void UIInvUpgPropertiesWnd::init_from_xml( LPCSTR xml_name )
 
 	CUIXmlInit::InitWindow( ui_xml, "properties", 0, this );
 
+	m_Upgr_line = xr_new<CUIStatic>();	 
+	AttachChild(m_Upgr_line);
+	m_Upgr_line->SetAutoDelete(true);
+	CUIXmlInit::InitStatic(ui_xml, "properties:upgr_line", 0, m_Upgr_line);
+
 	LPCSTR properties_section = "upgrades_properties";
 
 	VERIFY2( pSettings->section_exist( properties_section ), make_string( "Section [%s] does not exist !", properties_section ) );
@@ -236,7 +192,7 @@ void UIInvUpgPropertiesWnd::set_info( ItemUpgrades_type const& item_upgrades )
 {
 	Fvector2 new_size;
 	new_size.x = GetWndSize().x;
-	new_size.y = 0.0f;
+	new_size.y = m_Upgr_line->GetWndSize().y+3.0f;
 	
 	Properties_type::iterator ib = m_properties_ui.begin();
 	Properties_type::iterator ie = m_properties_ui.end();

@@ -105,11 +105,21 @@ void Upgrade::construct( const shared_str& upgrade_id, Group& parental_group, Ma
 
 	m_known = !!READ_IF_EXISTS( pSettings, r_bool, id(), "known", false );
 
-	m_property = pSettings->r_string( id(), "property" );
-	VERIFY2( m_property.size(), make_string( "Upgrade <%s> : property is empty !", id_str() ) );
-	VERIFY2( manager_r.get_property( m_property ),
-		make_string( "Upgrade <%s> : property [%s] is unknown (not found in upgrade manager) !", id_str(), m_property.c_str() ) );
-	
+	shared_str properties = pSettings->r_string( id(), "property" );
+	VERIFY2( properties.size(), make_string( "Upgrade <%s> : property is empty !", id_str() ) );
+
+	string256			buffer;
+	for(u8 i = 0; i < max_properties_count; i++)
+	{
+		shared_str prop	= _GetItem( properties.c_str(), i, buffer);
+		if(prop.size())
+		{
+			m_properties[i] = prop;
+			VERIFY2( manager_r.get_property( prop ),
+				make_string( "Upgrade <%s> : property [%s] is unknown (not found in upgrade manager) !", id_str(), prop.c_str() ) );
+		}
+	}
+
 	m_scheme_index.set( -1, -1 );
 	m_scheme_index = pSettings->r_ivector2( id(), "scheme_index" );
 
@@ -182,6 +192,25 @@ bool Upgrade::check_scheme_index( Ivector2 const& scheme_index )
 LPCSTR Upgrade::get_prerequisites()
 {
 	return m_prerequisites();
+}
+
+UpgradeStateResult Upgrade::get_preconditions()
+{
+	int res_prec = m_preconditions();
+	if ( res_prec == 0 )
+	{
+		return result_ok;
+	}
+	else if ( res_prec == 1 )
+	{
+		return result_e_precondition_money;
+	}
+	else if ( res_prec == 2 )
+	{
+		return result_e_precondition_quest;
+	}
+
+	return result_ok;
 }
 
 void Upgrade::run_effects( bool loading )

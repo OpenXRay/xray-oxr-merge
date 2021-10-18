@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "base_monster.h"
-#include "../../../PhysicsShell.h"
+#include "../../../../xrphysics/PhysicsShell.h"
 #include "../../../hit.h"
 #include "../../../PHDestroyable.h"
 #include "../../../CharacterPhysicsSupport.h"
@@ -18,14 +18,12 @@
 #include "../../../phdestroyable.h"
 #include "../../../../Include/xrRender/KinematicsAnimated.h"
 #include "../../../detail_path_manager.h"
-#include "../../../hudmanager.h"
 #include "../../../memory_manager.h"
 #include "../../../visual_memory_manager.h"
 #include "../monster_velocity_space.h"
 #include "../../../entitycondition.h"
 #include "../../../sound_player.h"
 #include "../../../level.h"
-#include "../../../ui/UIMainIngameWnd.h"
 #include "../state_manager.h"
 #include "../controlled_entity.h"
 #include "../control_animation_base.h"
@@ -42,6 +40,8 @@
 #include "../../../ai_object_location.h"
 #include "../../../ai_space.h"
 #include "../../../../xrServerEntities/script_engine.h"
+
+#include "../anti_aim_ability.h"
 
 // Lain: added 
 #include "../../../level_debug.h"
@@ -60,7 +60,6 @@ CBaseMonster::CBaseMonster()
 	// Components external init 
 	
 	m_control_manager				= xr_new<CControl_Manager>(this);
-
 
 	EnemyMemory.init_external		(this, 20000);
 	SoundMemory.init_external		(this, 20000);
@@ -570,14 +569,16 @@ void CBaseMonster::net_Relcase(CObject *O)
 
 	StateMan->remove_links			(O);
 
+	com_man().remove_links			(O);
+
 	// TODO: do not clear, remove only object O
 	if (g_Alive()) {
 		EnemyMemory.remove_links	(O);
 		SoundMemory.remove_links	(O);
 		HitMemory.remove_hit_info	(O);
 
-		EnemyMan.reinit				();
-		CorpseMan.reinit			();
+		EnemyMan.remove_links		(O);
+		CorpseMan.remove_links		(O);
 
 		UpdateMemory				();
 		
@@ -653,13 +654,22 @@ void CBaseMonster::load_effector(LPCSTR section, LPCSTR line, SAttackEffector &e
 
 bool CBaseMonster::check_start_conditions(ControlCom::EControlType type)
 {
-	if (type == ControlCom::eControlRotationJump) {
+	if ( type == ControlCom::eControlRotationJump )
+	{
 		EMonsterState state = StateMan->get_state_type();
-		if (state != eStateAttack_Run) return false;
-	} if (type == ControlCom::eControlMeleeJump) {
-		EMonsterState state = StateMan->get_state_type();
-		if (!is_state(state, eStateAttack_Run) && !is_state(state, eStateAttack_Melee)) return false;
+
+		if ( state != eStateAttack_Run )
+			return false;
 	}
+	 if ( type == ControlCom::eControlMeleeJump )
+	{
+		EMonsterState state = StateMan->get_state_type();
+
+		if (!is_state(state, eStateAttack_Run) &&
+			!is_state(state, eStateAttack_Melee))
+			return false;
+	}
+
 	return true;
 }
 
@@ -669,7 +679,8 @@ void CBaseMonster::OnEvent(NET_Packet& P, u16 type)
 	CInventoryOwner::OnEvent	(P,type);
 
 	u16			id;
-	switch (type){
+	switch (type)
+	{
 	case GE_TRADE_BUY:
 	case GE_OWNERSHIP_TAKE:
 		{

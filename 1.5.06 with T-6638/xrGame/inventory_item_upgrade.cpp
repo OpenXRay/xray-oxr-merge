@@ -20,6 +20,20 @@
 #include "Level.h"
 #include "WeaponMagazinedWGrenade.h"
 
+bool CInventoryItem::has_upgrade_group( const shared_str& upgrade_group_id )
+{
+	Upgrades_type::iterator it	= m_upgrades.begin();
+	Upgrades_type::iterator it_e	= m_upgrades.end();
+
+	for(; it!=it_e; ++it)
+	{
+		inventory::upgrade::Upgrade* upgrade = ai().alife().inventory_upgrade_manager().get_upgrade( *it );
+		if(upgrade->parent_group_id()==upgrade_group_id)
+			return true;
+	}
+	return false;
+}
+
 bool CInventoryItem::has_upgrade( const shared_str& upgrade_id )
 {
 	if ( m_section_id == upgrade_id )
@@ -60,9 +74,9 @@ bool CInventoryItem::get_upgrades_str( string2048& res ) const
 		LPCSTR upgr_section = upgr->section();
 		if ( prop_count > 0 )
 		{
-			strcat_s( res, sizeof(res), ", " );
+			xr_strcat( res, sizeof(res), ", " );
 		}
-		strcat_s( res, sizeof(res), upgr_section );
+		xr_strcat( res, sizeof(res), upgr_section );
 		++prop_count;
 	}
 	if ( prop_count > 0 )
@@ -152,7 +166,7 @@ bool CInventoryItem::install_upgrade_impl( LPCSTR section, bool test )
 	result |= process_if_exists( section, "inv_weight", &CInifile::r_float, m_weight, test );
 
 	bool result2 = false;
-	if ( m_slot != -1 )
+	if ( BaseSlot() != NO_ACTIVE_SLOT )
 	{
 		BOOL value = m_flags.test( FRuckDefault );
 		result2 = process_if_exists_set( section, "default_to_ruck", &CInifile::r_bool, value, test );
@@ -176,9 +190,12 @@ bool CInventoryItem::install_upgrade_impl( LPCSTR section, bool test )
 	LPCSTR str;
 	result2 = process_if_exists_set( section, "immunities_sect", &CInifile::r_string, str, test );
 	if ( result2 && !test )
-	{
 		CHitImmunity::LoadImmunities( str, pSettings );
-	}
+
+	result2 = process_if_exists_set( section, "immunities_sect_add", &CInifile::r_string, str, test );
+	if ( result2 && !test )
+		CHitImmunity::AddImmunities( str, pSettings );
+
 	return result;
 }
 
@@ -204,7 +221,6 @@ void CInventoryItem::pre_install_upgrade()
 	CWeapon* weapon = smart_cast<CWeapon*>( this );
 	if ( weapon )
 	{
-		//weapon->SwitchAmmoType( CMD_START );
 		if ( weapon->ScopeAttachable() && weapon->IsScopeAttached() )
 		{
 			weapon->Detach( weapon->GetScopeName().c_str(), true );

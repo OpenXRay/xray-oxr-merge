@@ -59,14 +59,14 @@ void CUIActorMenu::Construct()
 	m_pUpgradeWnd->SetAutoDelete		(true);
 	m_pUpgradeWnd->Init					();
 
-	m_ActorCharacterInfo = xr_new<CUICharacterInfo>();
-	m_ActorCharacterInfo->SetAutoDelete( true );
-	AttachChild( m_ActorCharacterInfo );
-	m_ActorCharacterInfo->InitCharacterInfo( &uiXml, "actor_ch_info" );
+	m_ActorCharacterInfo				 = xr_new<CUICharacterInfo>();
+	m_ActorCharacterInfo->SetAutoDelete	(true);
+	AttachChild							(m_ActorCharacterInfo);
+	m_ActorCharacterInfo->InitCharacterInfo(&uiXml, "actor_ch_info");
 
-	m_PartnerCharacterInfo = xr_new<CUICharacterInfo>();
-	m_PartnerCharacterInfo->SetAutoDelete( true );
-	AttachChild( m_PartnerCharacterInfo );
+	m_PartnerCharacterInfo 				= xr_new<CUICharacterInfo>();
+	m_PartnerCharacterInfo->SetAutoDelete(true);
+	AttachChild							(m_PartnerCharacterInfo);
 	m_PartnerCharacterInfo->InitCharacterInfo( &uiXml, "partner_ch_info" );
 	
 	m_RightDelimiter		= UIHelper::CreateStatic(uiXml, "right_delimiter", this);

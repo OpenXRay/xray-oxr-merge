@@ -36,7 +36,7 @@ void CStringTable::Init		()
 //---
 	FS_FileSet fset;
 	string_path			files_mask;
-	sprintf				(files_mask, "text\\%s\\*.xml",pData->m_sLanguage.c_str());
+	xr_sprintf				(files_mask, "text\\%s\\*.xml",pData->m_sLanguage.c_str());
 	FS.file_list		(fset, "$game_config$", FS_ListFiles, files_mask);
 	FS_FileSetIt fit	= fset.begin();
 	FS_FileSetIt fit_e	= fset.end();
@@ -45,7 +45,7 @@ void CStringTable::Init		()
 	{
     	string_path		fn, ext;
         _splitpath		((*fit).name.c_str(), 0, 0, fn, ext);
-		strcat			(fn, ext);
+		xr_strcat			(fn, ext);
 
 		Load			(fn);
 	}
@@ -122,7 +122,7 @@ STRING_VALUE CStringTable::ParseLine(LPCSTR str, LPCSTR skey, bool bFirst)
 
 		int len				= (int)(e-b-LEN);
 
-		strncpy				(srcbuff,b+LEN, len);
+		strncpy_s				(srcbuff,b+LEN, len);
 		srcbuff[len]		= 0;
 		GetActionAllBinding	(srcbuff, buff, sizeof(buff) );
 		res.append			(buff, xr_strlen(buff) );

@@ -39,24 +39,26 @@ public:
 	virtual bool		StopAnyMove				(){return true;}
 	virtual void		SendMessage				(CUIWindow* pWnd, s16 msg, void* pData = NULL);
 
-	virtual void		Draw();
-	virtual void		Update();
+	virtual void		Draw					();
+	virtual void		Update					();
 		
-	virtual void		Show();
-	virtual void		Hide();
+	virtual void		Show					();
+	virtual void		Hide					();
 	
-	void				Stop();					//deffered
-	void				StopTalk();
+	void				Stop					();	// deffered
+	void				StopTalk				();
 
-	void				UpdateQuestions();
-	void				NeedUpdateQuestions();
+	void				UpdateQuestions			();
+	void				NeedUpdateQuestions		();
+
 	//инициализации начального диалога собеседника
-	void				InitOthersStartDialog();
-	virtual bool		IR_OnKeyboardPress(int dik);
-	virtual bool		OnKeyboard(int dik, EUIMessages keyboard_action);
-	void				SwitchToTrade();
-	void				SwitchToUpgrade();
-	void				AddIconedMessage(LPCSTR caption, LPCSTR text, LPCSTR texture_name, LPCSTR templ_name);
+	void				InitOthersStartDialog	();
+
+	virtual bool		IR_OnKeyboardPress		(int dik);
+	virtual bool		OnKeyboardAction		(int dik, EUIMessages keyboard_action);
+	void				SwitchToTrade			();
+	void				SwitchToUpgrade			();
+	void				AddIconedMessage		(LPCSTR caption, LPCSTR text, LPCSTR texture_name, LPCSTR templ_name);
 
 protected:
 	//диалог

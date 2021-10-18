@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "UIDialogHolder.h"
-#include "ui\UIDialogWnd.h"
+#include "ui/UIDialogWnd.h"
 #include "UICursor.h"
 #include "level.h"
 #include "actor.h"
@@ -48,7 +48,7 @@ CDialogHolder::~CDialogHolder()
 }
 #include "HUDManager.h"
 
-void CDialogHolder::StartMenu (CUIDialogWnd* pDialog, bool bDoHideIndicators)
+void CDialogHolder::StartMenu(CUIDialogWnd* pDialog, bool bDoHideIndicators)
 {
 	R_ASSERT						( !pDialog->IsShown() );
 
@@ -60,19 +60,19 @@ void CDialogHolder::StartMenu (CUIDialogWnd* pDialog, bool bDoHideIndicators)
 		bool b							= !!psHUD_Flags.test(HUD_CROSSHAIR_RT);
 		m_input_receivers.back().m_flags.set(recvItem::eCrosshair, b);
 
-		b								= HUD().GetUI()->GameIndicatorsShown();
+		b								= CurrentGameUI()->GameIndicatorsShown();
 		m_input_receivers.back().m_flags.set(recvItem::eIndicators, b);
 		
 		if(bDoHideIndicators){
 			psHUD_Flags.set				(HUD_CROSSHAIR_RT, FALSE);
-			HUD().GetUI					()->ShowGameIndicators(false);
+			CurrentGameUI()->ShowGameIndicators(false);
 		}
 	}
 	pDialog->SetHolder				(this);
 	pDialog->Show					();
 
 	if( pDialog->NeedCursor() )
-		GetUICursor()->Show();
+		GetUICursor().Show();
 
 	if(g_pGameLevel)
 	{
@@ -80,7 +80,6 @@ void CDialogHolder::StartMenu (CUIDialogWnd* pDialog, bool bDoHideIndicators)
 		if ( A && pDialog->StopAnyMove() )
 		{
 			A->StopAnyMove				();
-			A->PickupModeOff			();
 		};
 		if(A)
 		{	
@@ -91,21 +90,21 @@ void CDialogHolder::StartMenu (CUIDialogWnd* pDialog, bool bDoHideIndicators)
 }
 
 
-void CDialogHolder::StopMenu (CUIDialogWnd* pDialog)
+void CDialogHolder::StopMenu(CUIDialogWnd* pDialog)
 {
 	R_ASSERT( pDialog->IsShown() );
 
-	if( MainInputReceiver()==pDialog )
+	if( TopInputReceiver()==pDialog )
 	{
 		if(UseIndicators())
 		{
 			bool b					= !!m_input_receivers.back().m_flags.test(recvItem::eCrosshair);
 			psHUD_Flags.set			(HUD_CROSSHAIR_RT, b);
 			b						= !!m_input_receivers.back().m_flags.test(recvItem::eIndicators);
-			HUD().GetUI()->ShowGameIndicators(b);
+			CurrentGameUI()->ShowGameIndicators(b);
 		}
 		RemoveDialogToRender	(pDialog);
-		SetMainInputReceiver	(NULL,false);
+		SetMainInputReceiver	(NULL, false);
 		pDialog->SetHolder		(NULL);
 		pDialog->Hide			();
 	}else{
@@ -115,8 +114,8 @@ void CDialogHolder::StopMenu (CUIDialogWnd* pDialog)
 		pDialog->Hide			();
 	}
 
-	if(!MainInputReceiver() || !MainInputReceiver()->NeedCursor() )
-		GetUICursor()->Hide();
+	if(!TopInputReceiver() || !TopInputReceiver()->NeedCursor() )
+		GetUICursor().Hide();
 }
 
 void CDialogHolder::AddDialogToRender(CUIWindow* pDialog)
@@ -174,7 +173,7 @@ void  CDialogHolder::OnExternalHideIndicators()
 	}
 }
 
-CUIDialogWnd* CDialogHolder::MainInputReceiver()
+CUIDialogWnd* CDialogHolder::TopInputReceiver()
 { 
 	if ( !m_input_receivers.empty() ) 
 		return m_input_receivers.back().m_item; 
@@ -183,7 +182,7 @@ CUIDialogWnd* CDialogHolder::MainInputReceiver()
 
 void CDialogHolder::SetMainInputReceiver	(CUIDialogWnd* ir, bool _find_remove)	
 { 
-	if( MainInputReceiver() == ir ) return;
+	if( TopInputReceiver() == ir ) return;
 
 	if(!ir || _find_remove){
 		if(m_input_receivers.empty())	return;
@@ -223,10 +222,10 @@ void CDialogHolder::StartStopMenu(CUIDialogWnd* pDialog, bool bDoHideIndicators)
 	
 }
 
-void CDialogHolder::OnFrame	()
+void CDialogHolder::OnFrame()
 {
 	m_b_in_update = true;
-	CUIDialogWnd* wnd = MainInputReceiver();
+	CUIDialogWnd* wnd = TopInputReceiver();
 	if ( wnd && wnd->IsEnabled() )
 	{
 		wnd->Update();
@@ -240,7 +239,7 @@ void CDialogHolder::OnFrame	()
 	}
 
 	m_b_in_update = false;
-	if(m_dialogsToRender_new.size())
+	if(!m_dialogsToRender_new.empty())
 	{
 		m_dialogsToRender.insert	(m_dialogsToRender.end(),m_dialogsToRender_new.begin(),m_dialogsToRender_new.end());
 		m_dialogsToRender_new.clear	();

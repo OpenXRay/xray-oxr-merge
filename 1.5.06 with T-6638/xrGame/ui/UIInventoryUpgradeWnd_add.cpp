@@ -1,7 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////
 //	Module 		: UIInventoryUpgradeWnd_add.cpp
 //	Created 	: 08.11.2007
-//	Author		: Evgeniy Sokolov
+//  Modified 	: 13.03.2009
+//	Author		: Evgeniy Sokolov, Prishchepa Sergey
 //	Description : inventory upgrade UI window (additional) class implementation
 ////////////////////////////////////////////////////////////////////////////
 
@@ -12,7 +13,6 @@
 #include "xrUIXmlParser.h"
 #include "UIXmlInit.h"
 #include "../string_table.h"
-
 
 void CUIInventoryUpgradeWnd::LoadCellsBacks( CUIXml& uiXml )
 {
@@ -28,8 +28,9 @@ void CUIInventoryUpgradeWnd::LoadCellsBacks( CUIXml& uiXml )
 
 		LPCSTR type  = uiXml.Read( "type", 0, "" );
 		LPCSTR txr   = uiXml.Read( "back_texture", 0, NULL );
+		LPCSTR txr2  = uiXml.Read( "point_texture", 0, NULL );
 		u32    color = CUIXmlInit::GetColor( uiXml, "item_color", 0, 0 );
-		LoadCellStates( type, txr, color );
+		LoadCellStates( type, txr, txr2, color );
 
 		uiXml.SetLocalRoot( node );
 	}
@@ -37,7 +38,7 @@ void CUIInventoryUpgradeWnd::LoadCellsBacks( CUIXml& uiXml )
 //	VERIFY2( VerirfyCells(), "Not all UI upgrade states are filled up !" );
 }
 
-void CUIInventoryUpgradeWnd::LoadCellStates( LPCSTR state_str, LPCSTR texture_name, u32 color )
+void CUIInventoryUpgradeWnd::LoadCellStates( LPCSTR state_str, LPCSTR texture_name, LPCSTR texture_name2, u32 color )
 {
 	VERIFY( state_str    && xr_strcmp( state_str, "" ) );
 //	VERIFY( texture_name && xr_strcmp( texture_name, "" ) );
@@ -45,8 +46,12 @@ void CUIInventoryUpgradeWnd::LoadCellStates( LPCSTR state_str, LPCSTR texture_na
 	{
 		texture_name = NULL;
 	}
+	if ( texture_name2 && !xr_strcmp( texture_name2, "" ) )
+	{
+		texture_name2 = NULL;
+	}
 
-	SetCellState( SelectCellState( state_str ), texture_name, color );
+	SetCellState( SelectCellState( state_str ), texture_name, texture_name2, color );
 }
 
 UIUpgrade::ViewState CUIInventoryUpgradeWnd::SelectCellState( LPCSTR state_str )

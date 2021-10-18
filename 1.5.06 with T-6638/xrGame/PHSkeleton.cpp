@@ -3,17 +3,18 @@
 #include "PhysicsShellHolder.h"
 #include "xrServer_Objects_ALife.h"
 #include "Level.h"
-#include "PHDefs.h"
-#include "PhysicsShell.h"
+#include "../xrphysics/PHDefs.h"
+#include "../xrphysics/PhysicsShell.h"
 #include "PHSynchronize.h"
-#include "MathUtils.h"
+#include "../xrphysics/MathUtils.h"
 #include "../Include/xrRender/Kinematics.h"
-#include "PHObject.h"
-#include "PHCollideValidator.h"
+//#include "PHObject.h"
+//#include "../xrphysics/PHCollideValidator.h"
 #include "ai_object_location.h"
 #include "ai_space.h"
 #include "game_graph.h"
 #include "PHDestroyable.h"
+
 #define F_MAX         3.402823466e+38F
 
 u32 CPHSkeleton::existence_time=5000;
@@ -241,7 +242,9 @@ void CPHSkeleton::LoadNetState(NET_Packet& P)
 }
 void CPHSkeleton::RestoreNetState(CSE_PHSkeleton* po)
 {
-	if(!po->_flags.test(CSE_PHSkeleton::flSavedData))return;
+	VERIFY( po );
+	if(!po->_flags.test(CSE_PHSkeleton::flSavedData))
+		return;
 	CPhysicsShellHolder* obj=PPhysicsShellHolder();
 	PHNETSTATE_VECTOR& saved_bones=po->saved_bones.bones;
 	PHNETSTATE_I i=saved_bones.begin(),e=saved_bones.end();
@@ -249,7 +252,7 @@ void CPHSkeleton::RestoreNetState(CSE_PHSkeleton* po)
 	{
 		obj->PPhysicsShell()->Disable();
 	}
-	for(u16 bone=0;e!=i;i++,bone++)
+	for( u16 bone=0; e!=i; i++, bone++ )
 	{
 		R_ASSERT(bone<obj->PHGetSyncItemsNumber());
 		obj->PHGetSyncItem(bone)->set_State(*i);

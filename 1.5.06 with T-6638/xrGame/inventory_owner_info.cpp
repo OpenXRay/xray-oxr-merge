@@ -112,7 +112,7 @@ void CInventoryOwner::OnDisableInfo(shared_str info_id) const
 	
 #ifdef DEBUG
 	if(psAI_Flags.test(aiInfoPortion))
-		Msg("[%s] Disabled Info [%s]", Name(), *info_id);
+		Msg("[%s] Disabled Info [%s]", Name(), info_id.c_str());
 #endif
 
 	KNOWN_INFO_VECTOR& known_info = m_known_info_registry->registry().objects();

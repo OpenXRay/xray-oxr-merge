@@ -5,6 +5,7 @@
 #include "UIInvUpgradeInfo.h"
 
 #include "UIDragDropListEx.h"
+#include "UIDragDropReferenceList.h"
 #include "UICharacterInfo.h"
 
 #include "../inventory_item.h"
@@ -13,16 +14,17 @@
 #include "../Inventory.h"
 #include "../actor.h"
 #include "../uigamesp.h"
-#include "../hudmanager.h"
 #include "UI3tButton.h"
 
 #include "inventory_upgrade.h"
+#include "UITalkWnd.h"
 
 void CUIActorMenu::InitUpgradeMode()
 {
 	m_PartnerCharacterInfo->Show( true );
 	m_PartnerMoney->Show( false );
 	m_pUpgradeWnd->Show( true );
+	m_pQuickSlot->Show(true);
 	
 	InitInventoryContents( m_pInventoryBagList );
 	VERIFY( m_pPartnerInvOwner );

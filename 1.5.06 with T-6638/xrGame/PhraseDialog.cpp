@@ -163,12 +163,17 @@ bool CPhraseDialog::SayPhrase (DIALOG_SHARED_PTR& phrase_dialog, const shared_st
 	return phrase_dialog?!phrase_dialog->m_bFinished:true;
 }
 
-LPCSTR CPhraseDialog::GetPhraseText	(const shared_str& phrase_id, bool current_speaking)
+CPhrase* CPhraseDialog::GetPhrase(const shared_str& phrase_id)
 {
 	CPhraseGraph::CVertex* phrase_vertex = data()->m_PhraseGraph.vertex(phrase_id);
 	THROW(phrase_vertex);
 	
-	CPhrase*	ph = phrase_vertex->data();
+	return phrase_vertex->data();
+}
+
+LPCSTR CPhraseDialog::GetPhraseText	(const shared_str& phrase_id, bool current_speaking)
+{
+	CPhrase*	ph = GetPhrase(phrase_id);
 
 	CGameObject*	pSpeakerGO1 = (current_speaking)?smart_cast<CGameObject*>(FirstSpeaker()):NULL;
 	CGameObject*	pSpeakerGO2 = (current_speaking)?smart_cast<CGameObject*>(SecondSpeaker()):NULL;
@@ -304,6 +309,8 @@ void CPhraseDialog::AddPhrase	(CUIXml* pXml, XML_NODE* phrase_node, const shared
 	CPhrase* ph			= AddPhrase			(sText, phrase_id, prev_phrase_id, gw);
 	if(!ph)				return;
 	
+	int fin					= pXml->ReadInt		(phrase_node, "is_final", 0, 0);
+	ph->SetFinalizer		(fin==1);
 	ph->m_script_text_id	= pXml->Read		(phrase_node, "script_text", 0, "");
 	
 	ph->GetScriptHelper()->Load				(pXml, phrase_node);
@@ -315,8 +322,6 @@ void CPhraseDialog::AddPhrase	(CUIXml* pXml, XML_NODE* phrase_node, const shared
 		LPCSTR next_phrase_id_str		= pXml->Read(phrase_node, "next", i, "");
 		XML_NODE* next_phrase_node		= pXml->NavigateToNodeWithAttribute("phrase", "id", next_phrase_id_str);
 		R_ASSERT2						(next_phrase_node, next_phrase_id_str );
-//.		int next_phrase_id				= atoi(next_phrase_id_str);
-
 		AddPhrase						(pXml, next_phrase_node, next_phrase_id_str, phrase_id);
 	}
 }

@@ -41,6 +41,7 @@ protected:
 	//чтоб фразу можно было сказать
 	int				m_iGoodwillLevel;
 	bool			m_b_finalizer;
+
 	//для вызова скриптовых функций
 	CDialogScriptHelper	m_ScriptHelper;
 };

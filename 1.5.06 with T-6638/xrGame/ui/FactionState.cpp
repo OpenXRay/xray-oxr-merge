@@ -112,4 +112,3 @@ void FactionState::update_info()
 	R_ASSERT( ai().script_engine().functor( "pda.fill_faction_state", m_functor ) );
 	m_functor( this );
 }
-

@@ -20,18 +20,17 @@ public:
 
 	void				SetID		(const shared_str& id)			{m_ID = id;}
 	const shared_str&	GetID		()	const						{return m_ID;}
-
+	bool					IsFinalizer		()	const				{return m_b_finalizer;}
+	void					SetFinalizer	(bool b)				{m_b_finalizer=b;}
 	int				GoodwillLevel	()	const			{return m_iGoodwillLevel;}
 
 	bool			IsDummy			()	const;
 	CDialogScriptHelper* GetScriptHelper	()			{return &m_ScriptHelper;};
 
-	int				GetGoodwillLevel	() const		{return m_iGoodwillLevel;}
-	void			SetGoodwillLevel	(int v)			{m_iGoodwillLevel = v;}
+	int				GetGoodwillLevel() const		{return m_iGoodwillLevel;}
+	void			SetGoodwillLevel(int v)			{m_iGoodwillLevel = v;}
+
 protected:
-
-//	LPCSTR			GetScriptText	(const CGameObject* pSpeaker1, const CGameObject* pSpeaker2, LPCSTR dialog_id, int phrase_num) const;
-
 	//уникальный индекс в списке фраз диалога
 	shared_str		m_ID;
 	//текстовое представление фразы
@@ -41,6 +40,7 @@ protected:
 	//минимальный уровень благосклоггости, необходимый для того
 	//чтоб фразу можно было сказать
 	int				m_iGoodwillLevel;
+	bool			m_b_finalizer;
 	
 	//для вызова скриптовых функций
 	CDialogScriptHelper	m_ScriptHelper;

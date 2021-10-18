@@ -11,7 +11,6 @@
 #include "../../../actor.h"
 #include "../../../ActorEffector.h"
 #include "../ai_monster_effector.h"
-#include "../../../hudmanager.h"
 #include "../../../../Include/xrRender/KinematicsAnimated.h"
 #include "../../../sound_player.h"
 #include "../../../level.h"
@@ -177,7 +176,7 @@ void CBaseMonster::HitEntity(const CEntity *pEntity, float fDamage, float impuls
 					
 					string64				sect_name;
 
-					sprintf_s					(sect_name,"%s_%d",eff_sect.c_str(), id);
+					xr_sprintf					(sect_name,"%s_%d",eff_sect.c_str(), id);
 					AddEffector				(Actor(), effBigMonsterHit, sect_name, fDamage);
 				}
 			}

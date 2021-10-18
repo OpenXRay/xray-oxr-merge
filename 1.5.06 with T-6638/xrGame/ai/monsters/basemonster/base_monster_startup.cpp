@@ -43,8 +43,13 @@ namespace base_monster
 
 void CBaseMonster::Load(LPCSTR section)
 {
+	m_section						= section;
 	// load parameters from ".ltx" file
 	inherited::Load					(section);
+
+	m_head_bone_name				= READ_IF_EXISTS(pSettings,r_string,section, "bone_head", "bip01_head");
+	m_left_eye_bone_name			= READ_IF_EXISTS(pSettings,r_string,section, "bone_eye_left", 0);
+	m_right_eye_bone_name			= READ_IF_EXISTS(pSettings,r_string,section, "bone_eye_right", 0);
 
 	m_corpse_cover_evaluator		= xr_new<CMonsterCorpseCoverEvaluator>	(&movement().restrictions());
 	m_enemy_cover_evaluator			= xr_new<CCoverEvaluatorFarFromEnemy>	(&movement().restrictions());
@@ -111,7 +116,7 @@ steering_behaviour::manager*   CBaseMonster::get_steer_manager ()
 // if sound is absent just do not load that one
 #define LOAD_SOUND(sound_name,_type,_prior,_mask,_int_type)		\
 	if (pSettings->line_exist(section,sound_name))						\
-		sound().add(pSettings->r_string(section,sound_name), DEFAULT_SAMPLE_COUNT,_type,_prior,u32(_mask),_int_type,"bip01_head");
+		sound().add(pSettings->r_string(section,sound_name), DEFAULT_SAMPLE_COUNT,_type,_prior,u32(_mask),_int_type,m_head_bone_name);
 
 void CBaseMonster::reload	(LPCSTR section)
 {
@@ -203,9 +208,8 @@ void CBaseMonster::reinit()
 #ifdef DEBUG
 	m_show_debug_info				= 0;
 #endif 
-	
-}
 
+}
 
 BOOL CBaseMonster::net_Spawn (CSE_Abstract* DC) 
 {
@@ -287,7 +291,7 @@ void CBaseMonster::net_Destroy()
 	else if (ltx->line_exist(section,name)) var = ltx->method(section,name);\
 }
 
-void CBaseMonster::settings_read(CInifile *ini, LPCSTR section, SMonsterSettings &data)
+void CBaseMonster::settings_read(CInifile const * ini, LPCSTR section, SMonsterSettings &data)
 {
 	READ_SETTINGS(data.m_fSoundThreshold, "SoundThreshold", r_float, ini, section);
 
@@ -423,4 +427,3 @@ void CBaseMonster::fill_bones_body_parts	(LPCSTR body_part, CriticalWoundType wo
 			)
 		);
 }
-

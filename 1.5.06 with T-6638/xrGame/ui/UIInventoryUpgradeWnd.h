@@ -1,7 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////
 //	Module 		: UIInventoryUpgradeWnd.h
 //	Created 	: 06.10.2007
-//	Author		: Evgeniy Sokolov
+//  Modified 	: 13.03.2009
+//	Author		: Evgeniy Sokolov, Prishchepa Sergey
 //	Description : inventory upgrade UI window class
 ////////////////////////////////////////////////////////////////////////////
 
@@ -24,7 +25,7 @@ class UIUpgrade;
 class CInventoryItem;
 class CUIItemInfo;
 class CUIFrameLineWnd;
-class CUI3tButtonEx;
+class CUI3tButton;
 
 class CUIInventoryUpgradeWnd : public CUIWindow
 {
@@ -47,7 +48,7 @@ private: // sub-classes
 	};
 	typedef xr_vector<Scheme*>	SCHEMES;
 
-public: // func
+public:
 							CUIInventoryUpgradeWnd();
 	virtual					~CUIInventoryUpgradeWnd();
 
@@ -85,7 +86,7 @@ private:
 			bool			install_item( CInventoryItem& inv_item, bool can_upgrade );
 			Manager_type&	get_manager();
 public:
-	CUI3tButtonEx*			m_btn_repair;
+	CUI3tButton*			m_btn_repair;
 
 protected:
 	CUIStatic*				m_background;
@@ -103,6 +104,9 @@ protected:
 	Scheme*					m_current_scheme;
 	LPCSTR					m_cur_upgrade_id;
 	CUIWindow*				m_scheme_wnd;
+public:
+	ui_shader*				m_WeaponIconsShader;
+	ui_shader*				m_OutfitIconsShader;
 
 }; // class CUIInventoryUpgradeWnd
 

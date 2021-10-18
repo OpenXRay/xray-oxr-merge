@@ -173,12 +173,12 @@ void CUICharacterInfo::InitCharacter(u16 id)
 	shared_str const& comm_id = chInfo.Community().id();
 	LPCSTR   community0 = comm_id.c_str();
 	string64 community1;
-	strcpy_s( community1, sizeof(community1), community0 );
-	strcat_s( community1, sizeof(community1), "_icon" );
+	xr_strcpy( community1, sizeof(community1), community0 );
+	xr_strcat( community1, sizeof(community1), "_icon" );
 
 	string64 community2;
-	strcpy_s( community2, sizeof(community2), community0 );
-	strcat_s( community2, sizeof(community2), "_wide" );
+	xr_strcpy( community2, sizeof(community2), community0 );
+	xr_strcat( community2, sizeof(community2), "_wide" );
 
 	m_bForceUpdate	= true;
 	for ( int i = eIcon; i < eMaxCaption; ++i )
@@ -190,7 +190,7 @@ void CUICharacterInfo::InitCharacter(u16 id)
 	}
 
 	//	m_icons[eIcon]->SetStretchTexture		(true);
-	m_texture_name._set( chInfo.IconName() );
+	m_texture_name				= chInfo.IconName();
 	if ( m_icons[eIcon            ] ) { m_icons[eIcon            ]->InitTexture( m_texture_name.c_str()     ); }
 	if ( m_icons[eRankIcon        ] ) { m_icons[eRankIcon        ]->InitTexture( chInfo.Rank().id().c_str() ); }
 	
@@ -206,11 +206,11 @@ void CUICharacterInfo::InitCharacter(u16 id)
 	{
 		if ( xr_strcmp( our_comm, "actor" ) ) // !=
 		{
-			strcpy_s( community1, sizeof(community1), our_comm.c_str() );
-			strcat_s( community1, sizeof(community1), "_icon" );
+			xr_strcpy( community1, sizeof(community1), our_comm.c_str() );
+			xr_strcat( community1, sizeof(community1), "_icon" );
 
-			strcpy_s( community2, sizeof(community2), our_comm.c_str() );
-			strcat_s( community2, sizeof(community2), "_wide" );
+			xr_strcpy( community2, sizeof(community2), our_comm.c_str() );
+			xr_strcat( community2, sizeof(community2), "_wide" );
 
 			if ( m_icons[eCommunityIcon   ] ) { m_icons[eCommunityIcon   ]->InitTexture( community1 ); }
 			if ( m_icons[eCommunityBigIcon] ) { m_icons[eCommunityBigIcon]->InitTexture( community2 ); }
@@ -321,7 +321,7 @@ void CUICharacterInfo::Update()
 			CSE_ALifeCreatureAbstract*		pCreature = smart_cast<CSE_ALifeCreatureAbstract*>(T);
 			if ( pCreature && !pCreature->g_Alive() )
 			{
-				m_icons[eIcon]->SetColor	(color_argb(255,255,160,160));
+				m_icons[eIcon]->SetTextureColor(color_argb(255,255,160,160));
 			}
 		}
 	}
@@ -330,14 +330,6 @@ void CUICharacterInfo::Update()
 void CUICharacterInfo::ClearInfo()
 {
 	ResetAllStrings	();
-	
-	/*if ( m_icons[eIcon] )
-	{
-		m_icons[eIcon]->GetUIStaticItem().SetOriginalRect(	8*ICON_GRID_WIDTH,0,
-			float(CHAR_ICON_WIDTH*ICON_GRID_WIDTH),
-			float(CHAR_ICON_HEIGHT*ICON_GRID_HEIGHT)
-			);
-	}*/
 
 	for ( int i = eIcon; i < eMaxCaption; ++i )
 	{
@@ -364,8 +356,8 @@ bool CUICharacterInfo::get_actor_community( shared_str* our, shared_str* enemy )
 	u32   size_temp   = (xr_strlen(vs_teams) + 1) * sizeof(char);
 	PSTR  our_fract   = (PSTR)_alloca( size_temp );
 	PSTR  enemy_fract = (PSTR)_alloca( size_temp );
-	_GetItem( vs_teams, 0, our_fract );
-	_GetItem( vs_teams, 1, enemy_fract );
+	_GetItem( vs_teams, 0, our_fract, size_temp );
+	_GetItem( vs_teams, 1, enemy_fract, size_temp );
 
 	if ( xr_strlen(our_fract) == 0 || xr_strlen(enemy_fract) == 0 )
 	{

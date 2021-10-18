@@ -1,8 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////
 //	Module 		: UIInvUpgrade.h
 //	Created 	: 08.11.2007
-//  Modified 	: 27.11.2007
-//	Author		: Evgeniy Sokolov
+//  Modified 	: 13.03.2009
+//	Author		: Evgeniy Sokolov, Prishchepa Sergey
 //	Description : inventory upgrade UI class
 ////////////////////////////////////////////////////////////////////////////
 
@@ -85,7 +85,6 @@ private:
 protected:
 	Ivector2		m_scheme_index; // [column,row]
 
-//	bool			m_bButtonClicked;
 	ButtonState		m_button_state;
 
 	ViewState		m_state;
@@ -111,7 +110,7 @@ public:
 			void		update_mask();
 			void		update_item( CInventoryItem* inv_item );
 
-	virtual bool		OnMouse( float x, float y, EUIMessages mouse_action );
+	virtual bool		OnMouseAction( float x, float y, EUIMessages mouse_action );
 	virtual void		OnFocusReceive();
 	virtual void		OnFocusLost();
 	virtual void		OnClick();

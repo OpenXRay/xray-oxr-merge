@@ -273,8 +273,8 @@ void CInventoryOwner::StartTalk(CInventoryOwner* talk_partner, bool start_trade)
 {
 	m_bTalking = true;
 	m_pTalkPartner = talk_partner;
-
 }
+
 #include "UIGameSP.h"
 #include "ui\UITalkWnd.h"
 

@@ -6,7 +6,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #include "pch_script.h"
-/*
+
 #include "FactionState.h"
 
 #include "../actor.h"
@@ -52,10 +52,10 @@ void FactionState::ResetStates()
 		m_war_state_str[i]._set( NULL );
 		m_war_state_hint_str[i]._set( NULL );
 	}
-	//for ( int i = 0; i < bonuses_count ; ++i )
-	//{
-	//bonuses_vs[i]._set( NULL );
-	//}
+	/*for ( int i = 0; i < bonuses_count ; ++i )
+	{
+	bonuses_vs[i]._set( NULL );
+	}*/
 }
 
 #pragma optimize("s",on)
@@ -113,5 +113,3 @@ void FactionState::update_info()
 	R_ASSERT( ai().script_engine().functor( "pda.fill_faction_state", m_functor ) );
 	m_functor( this );
 }
-
-*/

@@ -121,7 +121,9 @@ void UIUpgrade::set_texture( Layer layer, LPCSTR texture )
 void UIUpgrade::Draw()
 {
 	if ( get_upgrade() )
+	{
 		inherited::Draw();
+	}
 }
 
 void UIUpgrade::Update()

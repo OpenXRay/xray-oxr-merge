@@ -23,8 +23,9 @@
 #include "../control_manager_custom.h"
 #include "../ai_monster_shared_data.h"
 #include "../monster_sound_defs.h"
-
 #include "../monster_aura.h"
+
+#include "../../../inventoryowner.h"
 
 class CCharacterPhysicsSupport;
 class CMonsterCorpseCoverEvaluator;
@@ -55,7 +56,7 @@ namespace debug { class text_tree; }
 
 class anti_aim_ability;
 
-class CBaseMonster : public CCustomMonster, public CStepManager
+class CBaseMonster : public CCustomMonster, public CStepManager, public CInventoryOwner 
 {
 	typedef	CCustomMonster								inherited;
 	
@@ -76,6 +77,7 @@ public:
 	virtual CScriptEntity*				cast_script_entity			()	{return this;}
 	virtual CBaseMonster*				cast_base_monster			()	{return this;}
 
+	virtual CInventoryOwner*			cast_inventory_owner		() {return this;}
 	virtual CGameObject*				cast_game_object			() {return this;}
 
 public:
@@ -456,7 +458,6 @@ protected:
 
 	//////////////////////////////////////////////////////////////////////////
 public:
-
 	virtual	char*			get_monster_class_name () = 0;
 
 //////////////////////////////////////////////////////////////////////////

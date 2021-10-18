@@ -37,6 +37,7 @@
 #include "weaponmagazined.h"
 #include "stalker_animation_manager.h"
 #include "hit_memory_manager.h"
+#include "level_path_manager.h"
 
 #define DISABLE_COVER_BEFORE_DETOUR
 
@@ -832,10 +833,11 @@ void CStalkerActionPostCombatWait::initialize		()
 	if (object().inventory().ActiveItem() && object().best_weapon() && (object().inventory().ActiveItem()->object().ID() == object().best_weapon()->object().ID()))
 		object().set_goal	(action,object().best_weapon());
 	else {
-		if (object().inventory().m_slots[1].m_pIItem) {
-			CWeaponMagazined				*temp = smart_cast<CWeaponMagazined*>(object().inventory().m_slots[1].m_pIItem);
+		if (object().inventory().ItemFromSlot(INV_SLOT_2))
+		{
+			CWeaponMagazined				*temp = smart_cast<CWeaponMagazined*>(object().inventory().ItemFromSlot(INV_SLOT_2));
 			if (object().inventory().ActiveItem() && temp && (object().inventory().ActiveItem()->object().ID() == temp->ID()))
-				object().set_goal			(action,object().inventory().m_slots[1].m_pIItem);
+				object().set_goal			(action,object().inventory().ItemFromSlot(INV_SLOT_2));
 		}
 	}
 
@@ -1151,7 +1153,7 @@ void CStalkerCombatActionThrowGrenade::initialize			()
 
 	object().movement().set_mental_state	(eMentalStateDanger);
 
-	const CInventoryItem					*grenade = object().inventory().m_slots[3].m_pIItem;
+	const CInventoryItem					*grenade = object().inventory().ItemFromSlot(GRENADE_SLOT);
 	VERIFY									(grenade);
 	m_grenade_id							= grenade->object().ID();
 
@@ -1172,7 +1174,7 @@ void CStalkerCombatActionThrowGrenade::execute				()
 {
 	inherited::execute						();
 
-	const CInventoryItem					*grenade = object().inventory().m_slots[3].m_pIItem;
+	const CInventoryItem					*grenade = object().inventory().ItemFromSlot(GRENADE_SLOT);
 	if (!grenade || grenade->object().ID() != m_grenade_id) {
 		object().on_throw_completed			();
 		m_storage->set_property				(eWorldPropertyStartedToThrowGrenade, false);

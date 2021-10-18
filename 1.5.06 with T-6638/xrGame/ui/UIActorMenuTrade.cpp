@@ -27,6 +27,7 @@ void CUIActorMenu::InitTradeMode()
 	m_pInventoryBagList->Show		(false);
 	m_PartnerCharacterInfo->Show	(true);
 	m_PartnerMoney->Show			(true);
+	m_pQuickSlot->Show				(true);
 
 	m_pTradeActorBagList->Show		(true);
 	m_pTradeActorList->Show			(true);
@@ -40,6 +41,8 @@ void CUIActorMenu::InitTradeMode()
 	m_PartnerBottomInfo->Show		(true);
 	m_PartnerWeight->Show			(true);
 	m_trade_button->Show			(true);
+	m_trade_buy_button->Show		(true);
+	m_trade_sell_button->Show		(true);
 
 	VERIFY							( m_pPartnerInvOwner );
 	m_pPartnerInvOwner->StartTrading();
@@ -79,11 +82,11 @@ void CUIActorMenu::ColorizeItem(CUICellItem* itm, bool colorize)
 {
 	if( colorize )
 	{
-		itm->SetColor( color_rgba(255,100,100,255) );
+		itm->SetTextureColor( color_rgba(255,100,100,255) );
 	}
 	else
 	{
-		itm->SetColor( color_rgba(255,255,255,255) );
+		itm->SetTextureColor( color_rgba(255,255,255,255) );
 	}
 }
 
@@ -118,6 +121,8 @@ void CUIActorMenu::DeInitTradeMode()
 	m_PartnerBottomInfo->Show		(false);
 	m_PartnerWeight->Show			(false);
 	m_trade_button->Show			(false);
+	m_trade_buy_button->Show		(false);
+	m_trade_sell_button->Show		(false);
 }
 
 bool CUIActorMenu::ToActorTrade(CUICellItem* itm, bool b_use_cursor_pos)
@@ -232,7 +237,7 @@ float CUIActorMenu::CalcItemsWeight(CUIDragDropListEx* pList)
 u32 CUIActorMenu::CalcItemsPrice(CUIDragDropListEx* pList, CTrade* pTrade, bool bBuying)
 {
 	u32 res = 0;
-
+	
 	for( u32 i = 0; i < pList->ItemsCount(); ++i )
 	{
 		CUICellItem* itm	= pList->GetItemIdx(i);
@@ -245,6 +250,7 @@ u32 CUIActorMenu::CalcItemsPrice(CUIDragDropListEx* pList, CTrade* pTrade, bool 
 			res				+= pTrade->GetItemPrice(jitem, bBuying);
 		}
 	}
+
 	return res;
 }
 
@@ -277,7 +283,7 @@ void CUIActorMenu::UpdateActor()
 	if ( IsGameTypeSingle() )
 	{
 		string64 buf;
-		sprintf_s( buf, "%d RU", m_pActorInvOwner->get_money() );
+		xr_sprintf( buf, "%d RU", m_pActorInvOwner->get_money() );
 		m_ActorMoney->SetText( buf );
 	}
 	else
@@ -323,13 +329,13 @@ void CUIActorMenu::UpdatePartnerBag()
 	}
 	else
 	{
-		sprintf_s( buf, "%d RU", m_pPartnerInvOwner->get_money() );
+		xr_sprintf( buf, "%d RU", m_pPartnerInvOwner->get_money() );
 		m_PartnerMoney->SetText( buf );
 	}	
 
 	LPCSTR kg_str = CStringTable().translate( "st_kg" ).c_str();
 	float total	= CalcItemsWeight( m_pTradePartnerBagList );
-	sprintf_s( buf, "%.1f %s", total, kg_str );
+	xr_sprintf( buf, "%.1f %s", total, kg_str );
 	m_PartnerWeight->SetText( buf );
 	m_PartnerWeight->AdjustWidthToText();
 
@@ -350,14 +356,14 @@ void CUIActorMenu::UpdatePrices()
 	u32 partner_price = CalcItemsPrice( m_pTradePartnerList, m_partner_trade, false );
 
 	string64 buf;
-	sprintf_s( buf, "%d RU", actor_price );		m_ActorTradePrice->SetText( buf );		m_ActorTradePrice->AdjustWidthToText();
-	sprintf_s( buf, "%d RU", partner_price );	m_PartnerTradePrice->SetText( buf );	m_PartnerTradePrice->AdjustWidthToText();
+	xr_sprintf( buf, "%d RU", actor_price );		m_ActorTradePrice->SetText( buf );	m_ActorTradePrice->AdjustWidthToText();
+	xr_sprintf( buf, "%d RU", partner_price );	m_PartnerTradePrice->SetText( buf );	m_PartnerTradePrice->AdjustWidthToText();
 
 	float actor_weight   = CalcItemsWeight( m_pTradeActorList );
 	float partner_weight = CalcItemsWeight( m_pTradePartnerList );
 
-	sprintf_s( buf, "(%.1f %s)", actor_weight, kg_str );		m_ActorTradeWeightMax->SetText( buf );
-	sprintf_s( buf, "(%.1f %s)", partner_weight, kg_str );	m_PartnerTradeWeightMax->SetText( buf );
+	xr_sprintf( buf, "(%.1f %s)", actor_weight, kg_str );	m_ActorTradeWeightMax->SetText( buf );
+	xr_sprintf( buf, "(%.1f %s)", partner_weight, kg_str );	m_PartnerTradeWeightMax->SetText( buf );
 
 	Fvector2 pos = m_ActorTradePrice->GetWndPos();
 	pos.x = m_ActorTradeWeightMax->GetWndPos().x - m_ActorTradePrice->GetWndSize().x - 5.0f;

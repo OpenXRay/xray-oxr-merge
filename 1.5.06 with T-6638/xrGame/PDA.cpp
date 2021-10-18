@@ -1,7 +1,6 @@
-#include "stdafx.h"
+#include "pch_script.h"
 #include "pda.h"
-#include "hudmanager.h"
-#include "PhysicsShell.h"
+#include "../xrphysics/PhysicsShell.h"
 #include "Entity.h"
 #include "actor.h"
 
@@ -11,6 +10,7 @@
 
 #include "specific_character.h"
 #include "alife_registry_wrappers.h"
+#include "../xrServerEntities/script_engine.h"
 
 
 CPda::CPda(void)						
@@ -48,6 +48,7 @@ void CPda::Load(LPCSTR section)
 	inherited::Load(section);
 
 	m_fRadius = pSettings->r_float(section,"radius");
+	m_functor_str = READ_IF_EXISTS(pSettings,r_string,section,"play_function",""); 
 }
 
 void CPda::shedule_Update(u32 dt)	
@@ -77,8 +78,10 @@ void CPda::UpdateActiveContacts	()
 	xr_vector<CObject*>::iterator it= feel_touch.begin();
 	for(;it!=feel_touch.end();++it){
 		CEntityAlive* pEA = smart_cast<CEntityAlive*>(*it);
-		if(!!pEA->g_Alive())
+		if(!!pEA->g_Alive() && !pEA->cast_base_monster())
+		{
 			m_active_contacts.push_back(*it);
+		}
 	}
 }
 
@@ -101,12 +104,18 @@ void CPda::feel_touch_delete(CObject* O)
 
 BOOL CPda::feel_touch_contact(CObject* O) 
 {
-	CInventoryOwner* pInvOwner = smart_cast<CInventoryOwner*>(O);
-	if(pInvOwner){
+	CEntityAlive* entity_alive = smart_cast<CEntityAlive*>(O);
+
+	if ( entity_alive && entity_alive->cast_base_monster() )
+	{
+		return TRUE;
+	}
+	else if ( CInventoryOwner* pInvOwner = smart_cast<CInventoryOwner*>(O) )
+	{
 		if( this!=pInvOwner->GetPDA() )
 		{
 			CEntityAlive* pEntityAlive = smart_cast<CEntityAlive*>(O);
-			if(pEntityAlive && !pEntityAlive->cast_base_monster() )
+			if(pEntityAlive)
 				return TRUE;
 		}else
 		return FALSE;
@@ -203,4 +212,14 @@ LPCSTR		CPda::Name				()
 CPda* CPda::GetPdaFromOwner(CObject* owner)
 {
 	return smart_cast<CInventoryOwner*>(owner)->GetPDA			();
+}
+
+void CPda::PlayScriptFunction()
+{
+	if(xr_strcmp(m_functor_str, ""))
+	{
+		luabind::functor<void> m_functor;
+		R_ASSERT(ai().script_engine().functor(m_functor_str.c_str(), m_functor));
+		m_functor();
+	}
 }

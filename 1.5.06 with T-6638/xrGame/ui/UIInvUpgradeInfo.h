@@ -46,6 +46,7 @@ protected:
 	UIInvUpgPropertiesWnd*	m_properties_wnd;
 
 	CUIStatic*			m_name;
+	CUIStatic*			m_cost;
 	CUIStatic*			m_desc;
 	CUIStatic*			m_prereq;
 	

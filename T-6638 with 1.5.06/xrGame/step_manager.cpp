@@ -313,7 +313,8 @@ void CStepManager::material_sound::play_next(SGameMtlPair* mtl_pair, CEntityAliv
 	{
 		m_last_step_sound_played	= u8( Random.randI(mtl_pair->StepSounds.size()) );
 		last_mtl_pair				= mtl_pair; 
-	} else 
+	}
+	else 
 	{
 		
 		u8 new_played = u8 ( ( m_last_step_sound_played + 1 +  Random.randI(mtl_pair->StepSounds.size()-1) ) % mtl_pair->StepSounds.size() );

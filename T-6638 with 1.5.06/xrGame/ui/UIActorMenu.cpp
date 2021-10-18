@@ -63,14 +63,27 @@ void CUIActorMenu::SetPartner(CInventoryOwner* io)
 	m_pPartnerInvOwner	= io;
 	if ( m_pPartnerInvOwner )
 	{
-		if (m_pPartnerInvOwner->use_simplified_visual() ) 
+		CBaseMonster* monster = smart_cast<CBaseMonster*>( m_pPartnerInvOwner );
+		if ( monster || m_pPartnerInvOwner->use_simplified_visual() ) 
+		{
 			m_PartnerCharacterInfo->ClearInfo();
+			if ( monster )
+			{
+				shared_str monster_tex_name = pSettings->r_string( monster->cNameSect(), "icon" );
+				m_PartnerCharacterInfo->UIIcon().InitTexture( monster_tex_name.c_str() );
+				m_PartnerCharacterInfo->UIIcon().SetStretchTexture( true );
+			}
+		}
 		else 
+		{
 			m_PartnerCharacterInfo->InitCharacter( m_pPartnerInvOwner->object_id() );
-
+		}
 		SetInvBox( NULL );
-	}else
+	}
+	else
+	{
 		m_PartnerCharacterInfo->ClearInfo();
+	}
 }
 
 void CUIActorMenu::SetInvBox(CInventoryBox* box)
@@ -213,7 +226,7 @@ void CUIActorMenu::Update()
 		break;
 	case mmInventory:
 		{
-//			m_clock_value->TextItemControl()->SetText( InventoryUtilities::GetGameTimeAsString( InventoryUtilities::etpTimeToMinutes ).c_str() );
+//			m_clock_value->SetText( InventoryUtilities::GetGameTimeAsString( InventoryUtilities::etpTimeToMinutes ).c_str() );
 			CurrentGameUI()->UIMainIngameWnd->UpdateZoneMap();
 			break;
 		}

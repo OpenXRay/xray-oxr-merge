@@ -1,6 +1,6 @@
 #include "pch_script.h"
 #include "PhysicsShellHolder.h"
-#include "PhysicsShell.h"
+#include "../xrphysics/PhysicsShell.h"
 #include "xrMessages.h"
 #include "ph_shell_interface.h"
 #include "../Include/xrRender/Kinematics.h"
@@ -10,15 +10,19 @@
 #include "PHScriptCall.h"
 #include "CustomRocket.h"
 #include "Grenade.h"
-#include "phworld.h"
-#include "phactivationshape.h"
-#include "phvalide.h"
+
+//#include "phactivationshape.h"
+#include "../xrphysics/iphworld.h"
+#include "../xrphysics/iActivationShape.h"
+//#include "../xrphysics/phvalide.h"
 #include "characterphysicssupport.h"
 #include "phmovementcontrol.h"
 #include "physics_shell_animated.h"
-
+#include "phcollisiondamagereceiver.h"
 #include "../xrEngine/iphysicsshell.h"
-
+#ifdef	DEBUG
+#include "../xrengine/objectdump.h"
+#endif
 CPhysicsShellHolder::CPhysicsShellHolder()
 {
 	init();
@@ -63,6 +67,7 @@ void CPhysicsShellHolder::net_Destroy()
 	CParticlesPlayer::net_DestroyParticles		();
 	inherited::net_Destroy						();
 	b_sheduled									=	false;
+
 	deactivate_physics_shell						();
 	xr_delete									(m_pPhysicsShell);
 }
@@ -92,6 +97,7 @@ BOOL CPhysicsShellHolder::net_Spawn				(CSE_Abstract*	DC)
 		case stNotDefitnite	:								;break;
 		}
 		ApplySpawnIniToPhysicShell(pSettings,PPhysicsShell(),false);
+		
 		st_enable_state=(u8)stNotDefitnite;
 	}
 	return ret;
@@ -99,7 +105,7 @@ BOOL CPhysicsShellHolder::net_Spawn				(CSE_Abstract*	DC)
 
 void	CPhysicsShellHolder::PHHit( SHit &H )
 {
-	if(H.phys_impulse() >0)
+	if ( H.phys_impulse() >0 )
 		if(m_pPhysicsShell) m_pPhysicsShell->applyHit(H.bone_space_position(),H.direction(),H.phys_impulse(),H.bone(),H.type());
 }
 
@@ -136,6 +142,7 @@ void	CPhysicsShellHolder::on_child_shell_activate ( CPhysicsShellHolder* obj )
 		character_physics_support()->on_child_shell_activate ( obj );
 
 }
+
 void CPhysicsShellHolder::correct_spawn_pos()
 {
 	VERIFY								(PPhysicsShell());
@@ -313,6 +320,7 @@ void	CPhysicsShellHolder::PHFreeze()
 void CPhysicsShellHolder::OnChangeVisual()
 {
 	inherited::OnChangeVisual();
+
 	if (0==renderable.visual) 
 	{
 		if(m_pPhysicsShell)m_pPhysicsShell->Deactivate();
@@ -329,7 +337,7 @@ void CPhysicsShellHolder::UpdateCL	()
 }
 float CPhysicsShellHolder::EffectiveGravity()
 {
-	return ph_world->Gravity();
+	return physics_world()->Gravity();
 }
 
 void		CPhysicsShellHolder::	save				(NET_Packet &output_packet)

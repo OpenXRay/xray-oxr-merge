@@ -120,7 +120,6 @@ void Upgrade::construct( const shared_str& upgrade_id, Group& parental_group, Ma
 		}
 	}
 
-	
 	m_scheme_index.set( -1, -1 );
 	m_scheme_index = pSettings->r_ivector2( id(), "scheme_index" );
 

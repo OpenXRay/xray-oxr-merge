@@ -1,7 +1,6 @@
 #include "pch_script.h"
 #include "xml_str_id_loader.h"
 #include "object_broker.h"
-/*
 #include "InfoPortion.h"
 #include "gameobject.h"
 #include "encyclopedia_article.h"
@@ -116,7 +115,7 @@ void   CInfoPortion::InitXmlIdToIndex()
 	if(!id_to_index::file_str)
 		id_to_index::file_str = pSettings->r_string("info_portions", "files");
 }
-*/
+
 void _destroy_item_data_vector_cont(T_VECTOR* vec)
 {
 	T_VECTOR::iterator it		= vec->begin();

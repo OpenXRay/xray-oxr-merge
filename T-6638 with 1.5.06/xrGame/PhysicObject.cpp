@@ -18,6 +18,7 @@
 #include "../xrengine/objectdump.h"
 #endif
 BOOL dbg_draw_doors = false;
+
 CPhysicObject::CPhysicObject(void): 
 m_anim_blend( 0 ),
 m_type( epotBox ),
@@ -77,16 +78,15 @@ BOOL CPhysicObject::net_Spawn(CSE_Abstract* DC)
 	}
 	//processing_activate();
 #ifdef	DEBUG
-if(dbg_draw_doors)
-{
-	DBG_OpenCashedDraw( );
-	Fvector closed, open; 
-	get_door_vectors( closed, open );
-	DBG_ClosedCashedDraw( 50000000 );
-}
+	if (dbg_draw_doors)
+	{
+		DBG_OpenCashedDraw( );
+		Fvector closed, open; 
+		get_door_vectors( closed, open );
+		DBG_ClosedCashedDraw( 50000000 );
+	}
 #endif	
 	return TRUE;
-
 }
 void CPhysicObject::create_collision_model			( )
 {
@@ -158,7 +158,6 @@ static CPhysicsShellHolder* retrive_collide_object( bool bo1, dContact& c )
 }
 static void  door_ignore( bool& do_collide, bool bo1, dContact& c, SGameMtl * /*material_1*/, SGameMtl * /*material_2*/)
 {
-	
 	CPhysicsShellHolder* collide_obj = retrive_collide_object( bo1, c );
 	if( !collide_obj || collide_obj->cast_actor()  )
 		return;
@@ -175,8 +174,6 @@ static void  door_ignore( bool& do_collide, bool bo1, dContact& c, SGameMtl * /*
 		return;
 
 	do_collide = false;
-
-	
 }
 
 
@@ -188,6 +185,7 @@ void	CPhysicObject::set_door_ignore_dynamics		( )
 	PPhysicsShell()->add_ObjectContactCallback( door_ignore );
 	//PPhysicsShell()->
 }
+
 void	CPhysicObject::unset_door_ignore_dynamics		( )
 {
 	R_ASSERT(PPhysicsShell());
@@ -200,8 +198,6 @@ void	CPhysicObject::SpawnInitPhysics	(CSE_Abstract* D)
 	RunStartupAnim(D);
 
 }
-
-
 
 void CPhysicObject::RunStartupAnim(CSE_Abstract *D)
 {
@@ -329,11 +325,11 @@ void CPhysicObject::shedule_Update		(u32 dt)
 	inherited::shedule_Update(dt);
 	CPHSkeleton::Update(dt);
 #ifdef	DEBUG
-if(dbg_draw_doors)
-{
-	Fvector c,o;
-	get_door_vectors( c, o );
-}
+	if (dbg_draw_doors)
+	{
+		Fvector c,o;
+		get_door_vectors( c, o );
+	}
 #endif
 }
 
@@ -357,18 +353,18 @@ void CPhysicObject::UpdateCL()
 	PHObjectPositionUpdate();
 
 #ifdef	DEBUG
-if(dbg_draw_doors)
-{
-	Fvector c,o;
-	get_door_vectors( c, o );
-}
+	if (dbg_draw_doors)
+	{
+		Fvector c,o;
+		get_door_vectors( c, o );
+	}
 #endif
 
 	if( !is_active( bones_snd_player ) )
 		return;
 	bones_snd_player->update( Device.fTimeDelta, *this );
-
 }
+
 void CPhysicObject::PHObjectPositionUpdate	()
 {
 	
@@ -501,10 +497,12 @@ void CPhysicObject::InitServerObject(CSE_Abstract * D)
 	if(!l_tpALifePhysicObject)return;
 	l_tpALifePhysicObject->type			= u32(m_type);
 }
+
 ICollisionHitCallback*	CPhysicObject::	get_collision_hit_callback ()	
 {
 	return m_collision_hit_callback;
 }
+
 void	CPhysicObject::	set_collision_hit_callback	(ICollisionHitCallback *cc)	
 {
 	xr_delete( m_collision_hit_callback );
@@ -949,22 +947,22 @@ bool	CPhysicObject::get_door_vectors	( Fvector& closed, Fvector& open ) const
 	//DBG_OpenCashedDraw( );
 
 #ifdef	DEBUG
-if(dbg_draw_doors)
-{
-	DBG_DrawMatrix( Fidentity, 10.0f );
+	if (dbg_draw_doors)
+	{
+		DBG_DrawMatrix( Fidentity, 10.0f );
 
-	DBG_DrawMatrix( XFORM(), .5f, 100 );
+		DBG_DrawMatrix( XFORM(), .5f, 100 );
 
-	DBG_DrawMatrix( start_pos, 0.2f,100 );
+		DBG_DrawMatrix( start_pos, 0.2f,100 );
 
-	const Fvector pos = start_pos.c.add( Fvector().set(0,0.2f,0) );
-	const Fvector pos1 = start_pos.c.add( Fvector().set(0,0.3f,0) );
+		const Fvector pos = start_pos.c.add( Fvector().set(0,0.2f,0) );
+		const Fvector pos1 = start_pos.c.add( Fvector().set(0,0.3f,0) );
 
-	DBG_DrawLine( pos, Fvector( ).add( pos, open ), D3DCOLOR_XRGB( 0, 255, 0 ) );
-	DBG_DrawLine( pos, Fvector( ).add( pos, closed ), D3DCOLOR_XRGB( 255, 0, 0 ) );
+		DBG_DrawLine( pos, Fvector( ).add( pos, open ), D3DCOLOR_XRGB( 0, 255, 0 ) );
+		DBG_DrawLine( pos, Fvector( ).add( pos, closed ), D3DCOLOR_XRGB( 255, 0, 0 ) );
 
-	DBG_DrawLine( pos1, Fvector( ).add( pos1, det_vector ), D3DCOLOR_XRGB( 255, 255, 0 ) );
-}
+		DBG_DrawLine( pos1, Fvector( ).add( pos1, det_vector ), D3DCOLOR_XRGB( 255, 255, 0 ) );
+	}
 #endif
 	//DBG_ClosedCashedDraw( 50000000 );
 

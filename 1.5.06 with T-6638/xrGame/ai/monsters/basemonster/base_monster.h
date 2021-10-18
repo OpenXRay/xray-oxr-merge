@@ -23,6 +23,8 @@
 #include "../control_manager_custom.h"
 #include "../ai_monster_shared_data.h"
 #include "../monster_sound_defs.h"
+#include "../monster_aura.h"
+
 #include "../../../inventoryowner.h"
 
 class CCharacterPhysicsSupport;
@@ -52,6 +54,8 @@ class squad_grouping_behaviour;
 namespace debug { class text_tree; }
 #endif
 
+class anti_aim_ability;
+
 class CBaseMonster : public CCustomMonster, public CStepManager, public CInventoryOwner 
 {
 	typedef	CCustomMonster								inherited;
@@ -73,7 +77,7 @@ public:
 	virtual CScriptEntity*				cast_script_entity			()	{return this;}
 	virtual CBaseMonster*				cast_base_monster			()	{return this;}
 
-	virtual CInventoryOwner				*cast_inventory_owner		() {return this;}
+	virtual CInventoryOwner*			cast_inventory_owner		() {return this;}
 	virtual CGameObject*				cast_game_object			() {return this;}
 
 public:
@@ -86,6 +90,10 @@ public:
 	virtual void			SelectAnimation					(const Fvector& _view, const Fvector& _move, float speed );
 
 	virtual void			Load							(LPCSTR section);
+
+	// must be called at the end of most derived's Load
+	virtual void			PostLoad						(LPCSTR section);
+
 	virtual DLL_Pure		*_construct						();
 
 	virtual BOOL			net_Spawn						(CSE_Abstract* DC);
@@ -437,10 +445,7 @@ protected:
 	LPCSTR					m_critical_wound_anim_legs;
 
 	//////////////////////////////////////////////////////////////////////////
-	
-
 public:	
-
 
 //////////////////////////////////////////////////////////////////////////
 // DEBUG stuff

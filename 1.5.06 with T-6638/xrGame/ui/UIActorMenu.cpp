@@ -3,7 +3,6 @@
 #include "UIActorStateInfo.h"
 #include "../actor.h"
 #include "../uigamesp.h"
-#include "../hudmanager.h"
 #include "../inventory.h"
 #include "../inventory_item.h"
 #include "../InventoryBox.h"
@@ -77,7 +76,7 @@ void CUIActorMenu::SetInvBox(CInventoryBox* box)
 	m_pInvBox = box;
 	if ( box )
 	{
-		m_pInvBox->m_in_use = true;
+		m_pInvBox->set_in_use( true );
 		SetPartner( NULL );
 	}
 }
@@ -86,9 +85,6 @@ void CUIActorMenu::SetMenuMode(EMenuMode mode)
 {
 	SetCurrentItem( NULL );
 	m_hint_wnd->set_text( NULL );
-	
-	CActor* actor = smart_cast<CActor*>( m_pActorInvOwner );
-	if ( actor )	{	actor->PickupModeOff();	}
 	
 	if ( mode != m_currMenuMode )
 	{
@@ -113,7 +109,7 @@ void CUIActorMenu::SetMenuMode(EMenuMode mode)
 			break;
 		}
 
-		HUD().GetUI()->UIMainIngameWnd->ShowZoneMap(false);
+		CurrentGameUI()->UIMainIngameWnd->ShowZoneMap(false);
 
 		m_currMenuMode = mode;
 		switch(mode)
@@ -152,6 +148,7 @@ void CUIActorMenu::SetMenuMode(EMenuMode mode)
 			R_ASSERT(0);
 			break;
 		}
+		UpdateConditionProgressBars();
 		CurModeToScript();
 	}//if
 
@@ -174,27 +171,28 @@ void CUIActorMenu::SendMessage(CUIWindow* pWnd, s16 msg, void* pData)
 	CUIWndCallback::OnEvent		(pWnd, msg, pData);
 }
 
-void CUIActorMenu::Show()
+void CUIActorMenu::Show(bool status)
 {
-	SetMenuMode							(m_currMenuMode);
-	inherited::Show						();
-	PlaySnd								(eSndOpen);
-	m_ActorStateInfo->Show				(true);
-	m_ActorStateInfo->UpdateActorInfo	(m_pActorInvOwner);
-}
-
-void CUIActorMenu::Hide()
-{
-	inherited::Hide						();
-	PlaySnd								(eSndClose);
-	SetMenuMode							(mmUndefined);
-	m_ActorStateInfo->Show				(false);
+	inherited::Show							(status);
+	if(status)
+	{
+		SetMenuMode							(m_currMenuMode);
+		PlaySnd								(eSndOpen);
+		m_ActorStateInfo->UpdateActorInfo	(m_pActorInvOwner);
+	}else
+	{
+		PlaySnd								(eSndClose);
+		SetMenuMode							(mmUndefined);
+	}
+	m_ActorStateInfo->Show					(status);
 }
 
 void CUIActorMenu::Draw()
 {
-	inherited::Draw();
-	HUD().GetUI()->UIMainIngameWnd->DrawZoneMap();
+	CurrentGameUI()->UIMainIngameWnd->DrawZoneMap();
+	CurrentGameUI()->UIMainIngameWnd->DrawMainIndicatorsForInventory();
+
+	inherited::Draw	();
 	m_ItemInfo->Draw();
 	m_hint_wnd->Draw();
 }
@@ -212,8 +210,8 @@ void CUIActorMenu::Update()
 		break;
 	case mmInventory:
 		{
-			m_clock_value->SetText( InventoryUtilities::GetGameTimeAsString( InventoryUtilities::etpTimeToMinutes ).c_str() );
-			HUD().GetUI()->UIMainIngameWnd->UpdateZoneMap();
+//			m_clock_value->SetText( InventoryUtilities::GetGameTimeAsString( InventoryUtilities::etpTimeToMinutes ).c_str() );
+			CurrentGameUI()->UIMainIngameWnd->UpdateZoneMap();
 			break;
 		}
 	case mmTrade:
@@ -241,6 +239,7 @@ void CUIActorMenu::Update()
 	m_ItemInfo->Update();
 	m_hint_wnd->Update();
 }
+
 bool CUIActorMenu::StopAnyMove()  // true = актёр не идёт при открытом меню
 {
 	switch ( m_currMenuMode )
@@ -268,7 +267,8 @@ void CUIActorMenu::CheckDistance()
 		if ( ( pActorGO->Position().distance_to( pPartnerGO->Position() ) > 3.0f ) &&
 			!m_pPartnerInvOwner->NeedOsoznanieMode() )
 		{
-			GetHolder()->StartStopMenu( this, true ); // hide actor menu
+			g_btnHint->Discard();
+			HideDialog();
 		}
 	}
 	else //pBoxGO
@@ -276,7 +276,8 @@ void CUIActorMenu::CheckDistance()
 		VERIFY( pBoxGO );
 		if ( pActorGO->Position().distance_to( pBoxGO->Position() ) > 3.0f )
 		{
-			GetHolder()->StartStopMenu( this, true ); // hide actor menu
+			g_btnHint->Discard();
+			HideDialog();
 		}
 	}
 }
@@ -289,14 +290,17 @@ EDDListType CUIActorMenu::GetListType(CUIDragDropListEx* l)
 	if(l==m_pInventoryAutomaticList)	return iActorSlot;
 	if(l==m_pInventoryPistolList)		return iActorSlot;
 	if(l==m_pInventoryOutfitList)		return iActorSlot;
+	if(l==m_pInventoryHelmetList)		return iActorSlot;
 	if(l==m_pInventoryDetectorList)		return iActorSlot;
 	
-
 	if(l==m_pTradeActorBagList)			return iActorBag;
 	if(l==m_pTradeActorList)			return iActorTrade;
 	if(l==m_pTradePartnerBagList)		return iPartnerTradeBag;
 	if(l==m_pTradePartnerList)			return iPartnerTrade;
 	if(l==m_pDeadBodyBagList)			return iDeadBodyBag;
+
+	if(l==m_pQuickSlot)					return iQuickSlot;
+	if(l==m_pTrashList)					return iTrashSlot;
 
 	R_ASSERT(0);
 	
@@ -313,6 +317,14 @@ CUIDragDropListEx* CUIActorMenu::GetListByType(EDDListType t)
 					return m_pTradeActorBagList;
 				else
 					return m_pInventoryBagList;
+			}break;
+		case iDeadBodyBag:
+			{
+				return m_pDeadBodyBagList;
+			}break;
+		case iActorBelt:
+			{
+				return m_pInventoryBeltList;
 			}break;
 		default:
 			{
@@ -347,8 +359,6 @@ void CUIActorMenu::SetCurrentItem(CUICellItem* itm)
 		SetupUpgradeItem();
 	}
 }
-
-// ================================================================
 
 void CUIActorMenu::InfoCurItem( CUICellItem* cell_item )
 {

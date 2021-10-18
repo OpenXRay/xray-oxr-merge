@@ -752,6 +752,7 @@ DLL_Pure *CBaseMonster::_construct	()
 	
 	inherited::_construct		();
 	CStepManager::_construct	();
+	CInventoryOwner::_construct	();
 	return						(this);
 }
 
@@ -857,9 +858,7 @@ bool CBaseMonster::check_start_conditions(ControlCom::EControlType type)
 		
 		if ( !is_state(state, eStateAttack_Run) && 
 			 !is_state(state, eStateAttack_RunAttack) ) 
-		{
 			return false;
-		}
 	} 
 	if ( type == ControlCom::eControlMeleeJump ) 
 	{
@@ -868,9 +867,7 @@ bool CBaseMonster::check_start_conditions(ControlCom::EControlType type)
 		if (!is_state(state, eStateAttack_Run) && 
 			!is_state(state, eStateAttack_Melee) &&
 			!is_state(state, eStateAttack_RunAttack) ) 
-		{
 			return				false;
-		}
 	}
 
 	return						true;
@@ -879,6 +876,7 @@ bool CBaseMonster::check_start_conditions(ControlCom::EControlType type)
 void CBaseMonster::OnEvent(NET_Packet& P, u16 type)
 {
 	inherited::OnEvent			(P,type);
+	CInventoryOwner::OnEvent	(P,type);
 
 	u16			id;
 	switch (type)

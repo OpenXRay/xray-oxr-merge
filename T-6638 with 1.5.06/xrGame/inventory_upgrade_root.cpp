@@ -158,7 +158,7 @@ void Root::highlight_hierarchy( shared_str const& upgrade_id )
 	{
 		if ( (*ib)->id()._get() == upgrade_id._get() )
 		{
-//			(*ib)->highlight_up();
+			(*ib)->highlight_up();
 			(*ib)->highlight_down();
 			return;
 		}

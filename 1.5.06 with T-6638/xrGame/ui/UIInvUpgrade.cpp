@@ -1,8 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////
 //	Module 		: UIInvUpgrade.cpp
 //	Created 	: 08.11.2007
-//  Modified 	: 27.11.2007
-//	Author		: Evgeniy Sokolov
+//  Modified 	: 13.03.2009
+//	Author		: Evgeniy Sokolov, Prishchepa Sergey
 //	Description : inventory upgrade UI class implementation
 ////////////////////////////////////////////////////////////////////////////
 
@@ -44,7 +44,6 @@ void UIUpgrade::init_upgrade( LPCSTR upgrade_id, CInventoryItem& item )
 {
 	VERIFY( upgrade_id && xr_strcmp( upgrade_id, "" ) );
 	m_upgrade_id = upgrade_id;
-//-	m_inv_item = &item;
 	
 	m_prev_state = STATE_COUNT; // no defined
 	update_item( &item );
@@ -56,14 +55,6 @@ UIUpgrade::Upgrade_type* UIUpgrade::get_upgrade()
 	VERIFY( res );
 	return res;
 }
-
-/*UIUpgrade::Property_type* UIUpgrade::get_property()
-{
-	Property_type* res = ai().alife().inventory_upgrade_manager().get_property(
-		get_upgrade()->get_property_name() );
-	VERIFY( res );
-	return res;
-}*/
 
 void UIUpgrade::Reset()
 {
@@ -79,9 +70,7 @@ void UIUpgrade::Reset()
 		
 	inherited::Reset();
 }
-
 // -----------------------------------------------------------------------------------
-
 void UIUpgrade::load_from_xml( CUIXml& ui_xml, int i_column, int i_cell, Frect const& t_cell_border, Frect const& t_cell_item )
 {
 	m_scheme_index.x = i_column;
@@ -209,7 +198,6 @@ void UIUpgrade::update_mask()
 
 bool UIUpgrade::OnMouse( float x, float y, EUIMessages mouse_action )
 {
-//	m_bButtonClicked = false;
 	if( CUIWindow::OnMouse( x, y, mouse_action ) )
 	{
 		return true;
@@ -224,7 +212,6 @@ bool UIUpgrade::OnMouse( float x, float y, EUIMessages mouse_action )
 
 	if ( m_bCursorOverWindow )
 	{
-		//if( Device.dwTimeGlobal > ( m_dwFocusReceiveTime + 500 ) )
 		highlight_relation( true );
 		if ( mouse_action == WINDOW_LBUTTON_DOWN )
 		{
@@ -246,7 +233,6 @@ bool UIUpgrade::OnMouse( float x, float y, EUIMessages mouse_action )
 	if ( mouse_action == WINDOW_LBUTTON_UP || mouse_action == WINDOW_RBUTTON_UP )
 	{
 		m_button_state = BUTTON_FREE;
-		//highlight_relation( false );
 		return true;
 	}
 
@@ -257,11 +243,7 @@ void UIUpgrade::OnFocusReceive()
 {
 	inherited::OnFocusReceive();
 	update_mask();
-	//info
-	//	OnFocusFirst();
-
 	highlight_relation( true );
-	//m_parent_wnd->set_info_cur_upgrade( get_upgrade() );
 }
 
 void UIUpgrade::OnFocusLost()
@@ -271,11 +253,6 @@ void UIUpgrade::OnFocusLost()
 
 	m_parent_wnd->set_info_cur_upgrade( NULL );
 	m_button_state = BUTTON_FREE;
-
-	/*if ( m_button_state == BUTTON_DPRESSED )
-	{
-		return;
-	}*/
 }
 
 void UIUpgrade::OnClick()
@@ -286,7 +263,6 @@ void UIUpgrade::OnClick()
 			get_upgrade()->name() ).c_str(), get_upgrade()->id_str() );
 	}
 	m_parent_wnd->set_info_cur_upgrade( NULL );
-	//m_parent_wnd->set_info_cur_upgrade( get_upgrade() );
 	highlight_relation( true );
 
 	m_button_state = BUTTON_PRESSED;
@@ -301,7 +277,6 @@ bool UIUpgrade::OnDbClick()
 
 void UIUpgrade::OnRClick()
 {
-	//m_parent_wnd->set_info_cur_upgrade( get_upgrade() );
 	m_parent_wnd->set_info_cur_upgrade( NULL );
 	highlight_relation( true );
 	m_button_state = BUTTON_PRESSED;
@@ -336,9 +311,6 @@ void UIUpgrade::update_item( CInventoryItem* inv_item )
 	}
 	VERIFY( get_upgrade() );
 	VERIFY( inv_item->m_section_id.size() );
-
-//	m_state = STATE_ENABLED;
-//	m_state_lock = false;
 
 	inventory::upgrade::UpgradeStateResult res = get_upgrade()->can_install( *inv_item, false );
 	m_state_lock = true;

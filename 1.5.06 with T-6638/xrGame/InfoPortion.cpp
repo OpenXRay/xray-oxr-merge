@@ -1,4 +1,6 @@
 #include "pch_script.h"
+#include "xml_str_id_loader.h"
+#include "object_broker.h"
 #include "InfoPortion.h"
 #include "gameobject.h"
 #include "encyclopedia_article.h"
@@ -9,7 +11,6 @@
 #include "xrServer_Objects_ALife.h"
 #include "script_engine.h"
 #include "ui\uixmlinit.h"
-#include "object_broker.h"
 
 void INFO_DATA::load (IReader& stream) 
 {
@@ -125,13 +126,7 @@ void _destroy_item_data_vector_cont(T_VECTOR* vec)
 	{
 		xr_vector<CUIXml*>::iterator it_f = std::find(_tmp.begin(), _tmp.end(), (*it)._xml);
 		if(it_f==_tmp.end())
-//.		{
 			_tmp.push_back	((*it)._xml);
-//.			Msg("%s is unique",(*it)._xml->m_xml_file_name);
-//.		}else
-//.			Msg("%s already in list",(*it)._xml->m_xml_file_name);
-
 	}
-//.	Log("_tmp.size()",_tmp.size());
 	delete_data	(_tmp);
 }

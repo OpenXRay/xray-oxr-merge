@@ -2,14 +2,15 @@
 
 #include "imotion_position.h"
 
-#include "physicsshell.h"
-#include "MathUtils.h"
+#include "../xrphysics/physicsshell.h"
+#include "../xrphysics/MathUtils.h"
+#include "../xrphysics/extendedgeom.h"
 
 #include "../Include/xrRender/Kinematics.h"
 #include <boost/noncopyable.hpp>
 ///////////////////////////////////////////////////////////////////////////////////////
 #include "physicsshellholder.h"
-#include "extendedgeom.h"
+
 #include "game_object_space.h"
 #include "animation_utils.h"
 #ifdef	DEBUG
@@ -68,9 +69,9 @@ static void  get_depth( bool& do_colide, bool bo1, dContact& c, SGameMtl * /*mat
 		return;
 	dxGeomUserData* ud = 0;
 	if( bo1 )
-		ud = retrieveGeomUserData( c.geom.g2 );
+		ud = PHRetrieveGeomUserData( c.geom.g2 );
 	else
-		ud = retrieveGeomUserData( c.geom.g1 );
+		ud = PHRetrieveGeomUserData( c.geom.g1 );
 	if(ud)
 		collide_obj = ud->ph_ref_object;
 	else

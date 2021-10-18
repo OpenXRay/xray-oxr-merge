@@ -7,6 +7,7 @@
 #include "material_manager.h"
 #include "profiler.h"
 #include "IKLimbsController.h"
+
 #ifdef	DEBUG
 BOOL debug_step_info = FALSE;
 BOOL debug_step_info_load = FALSE;
@@ -48,6 +49,7 @@ void CStepManager::reload(LPCSTR section)
 
 	IKinematicsAnimated	*skeleton_animated = smart_cast<IKinematicsAnimated*>(m_object->Visual());
 
+	VERIFY3(skeleton_animated, "object is not animated", m_object->cNameVisual().c_str());
 #ifdef	DEBUG
 		if( debug_step_info_load )
 			Msg( "loading step_params for object :%s, visual: %s, section: %s, step_params section: %s  ", m_object->cName().c_str(), m_object->cNameVisual().c_str(), section, anim_section );
@@ -161,15 +163,17 @@ void CStepManager::update()
 	float cycle_anim_time	= get_blend_time() / step.cycles;
 
 	// пройти по всем ногам и проверить время
-	for (u32 i=0; i<m_legs_count; i++) {
+	for (u32 i=0; i<m_legs_count; i++)
+	{
 
 		// если событие уже обработано для этой ноги, то skip
-		if (m_step_info.activity[i].handled && (m_step_info.activity[i].cycle == m_step_info.cur_cycle)) continue;
+		if (m_step_info.activity[i].handled && (m_step_info.activity[i].cycle == m_step_info.cur_cycle))
+			continue;
 
 		// вычислить смещённое время шага в соответствии с параметрами анимации ходьбы
 		u32 offset_time = m_time_anim_started + u32(1000 * (cycle_anim_time * (m_step_info.cur_cycle-1) + cycle_anim_time * step.step[i].time));
-		if (offset_time <= cur_time){
-
+		if (offset_time <= cur_time)
+		{
 			// Играть звук
 
 			//if (!mtl_pair->StepSounds.empty() && is_on_ground() ) 
@@ -182,7 +186,8 @@ void CStepManager::update()
 				m_step_sound.play_next( mtl_pair, m_object, m_step_info.params.step[i].power );
 
 			// Играть партиклы
-			if (!mtl_pair->CollideParticles.empty())	{
+			if (!mtl_pair->CollideParticles.empty())
+				{
 				LPCSTR ps_name = *mtl_pair->CollideParticles[::Random.randI(0,mtl_pair->CollideParticles.size())];
 
 				//отыграть партиклы столкновения материалов
@@ -212,7 +217,8 @@ void CStepManager::update()
 	}
 
 	// определить текущий цикл
-	if (m_step_info.cur_cycle < step.cycles) m_step_info.cur_cycle = 1 + u8(float(cur_time - m_time_anim_started) / (1000.f * cycle_anim_time));
+	if (m_step_info.cur_cycle < step.cycles)
+		m_step_info.cur_cycle = 1 + u8(float(cur_time - m_time_anim_started) / (1000.f * cycle_anim_time));
 
 	// если анимация циклическая...
 	u32 time_anim_end = m_time_anim_started + u32(get_blend_time() * 1000);		// время завершения работы анимации
@@ -285,13 +291,11 @@ float CStepManager::get_blend_time()
 	return 	(m_blend->timeTotal / m_blend->speed);
 }
 
-
-
-void CStepManager::material_sound::play_next( SGameMtlPair* mtl_pair, CEntityAlive	*object, float volume  )
+void CStepManager::material_sound::play_next(SGameMtlPair* mtl_pair, CEntityAlive* object, float volume)
 {
-	
 	if (mtl_pair->StepSounds.empty() ) 
 		return;
+
 	Fvector sound_pos = object->Position();
 	sound_pos.y += 0.5;
 
@@ -299,7 +303,9 @@ void CStepManager::material_sound::play_next( SGameMtlPair* mtl_pair, CEntityAli
 	{
 		m_last_step_sound_played = u8( Random.randI(mtl_pair->StepSounds.size()) );
 		last_mtl_pair = mtl_pair; 
-	} else {
+	}
+	else
+	{
 		
 		u8 new_played = u8 ( ( m_last_step_sound_played + 1 +  Random.randI(mtl_pair->StepSounds.size()-1) ) % mtl_pair->StepSounds.size() );
 	

@@ -76,7 +76,7 @@ void CUIMapLocationHint::SetInfoStr(LPCSTR text)
 {
 	SetInfoMode				(1);
 	CUIStatic* S			= m_info["simple_text"];
-	S->TextItemControl()->SetTextST			(text);
+	S->SetTextST			(text);
 	S->AdjustHeightToText	();
 	float new_w				= S->GetWndPos().x + S->GetWndSize().x + 20.0f;
 
@@ -104,12 +104,12 @@ void CUIMapLocationHint::SetInfoTask(CGameTask* task)
 	S->SetStretchTexture			(true);
 
 	S								= m_info["t_caption"];
-	S->TextItemControl()->SetTextST					(task->m_Title.c_str());
+	S->SetTextST					(task->m_Title.c_str());
 	S->AdjustHeightToText			();
 	//float new_w						= S->GetWndPos().x + S->GetWndSize().x + 20.0f;
 
 	S					= m_info["t_time"];
-	S->TextItemControl()->SetText		( InventoryUtilities::GetTimeAndDateAsString( task->m_ReceiveTime ).c_str() );
+	S->SetText			( InventoryUtilities::GetTimeAndDateAsString( task->m_ReceiveTime ).c_str() );
 	
 	Fvector2 pos		= S->GetWndPos();
 	pos.y				= m_info["t_caption"]->GetWndPos().y + m_info["t_caption"]->GetWndSize().y + 7;
@@ -124,14 +124,14 @@ void CUIMapLocationHint::SetInfoTask(CGameTask* task)
 		InventoryUtilities::GetTimePeriodAsString(buff, sizeof(buff), Level().GetGameTime(), task->m_TimeToComplete);
 		
 		strconcat		(sizeof(buff2),buff2, CStringTable().translate("ui_st_time_remains").c_str(), " ", buff);
-		S->TextItemControl()->SetText		(buff2);
+		S->SetText		(buff2);
 	}
 	pos				= S->GetWndPos();
 	pos.y			= m_info["t_time"]->GetWndPos().y + m_info["t_time"]->GetWndSize().y + 7;
 	S->SetWndPos	(pos);
 
 	S						= m_info["t_hint_text"];
-	S->TextItemControl()->SetTextST			(task->m_Description.c_str());
+	S->SetTextST			(task->m_Description.c_str());
 	S->AdjustHeightToText	();
 	if ( b_rem )
 	{

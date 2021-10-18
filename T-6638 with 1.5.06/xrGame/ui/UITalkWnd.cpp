@@ -122,7 +122,8 @@ void CUITalkWnd::UpdateQuestions()
 
 			AddQuestion(phrase_dialog->DialogCaption(), phrase_dialog->GetDialogID(), i, bfinalizer);
 		}
-	}else
+	}
+	else
 	{
 		if(m_pCurrentDialog->IsWeSpeaking(m_pOurDialogManager))
 		{

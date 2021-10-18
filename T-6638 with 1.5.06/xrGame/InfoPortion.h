@@ -1,5 +1,5 @@
 #pragma once
-/*
+
 #include "shared_data.h"
 #include "PhraseScript.h"
 
@@ -72,12 +72,4 @@ protected:
 	const SInfoPortionData* info_data				() const { VERIFY(inherited_shared::get_sd()); return inherited_shared::get_sd();}
 
 	static void InitXmlIdToIndex();
-};
-*/
-class CInfoPortion
-{
-	shared_str			m_InfoId;
-public:
-	void				Load	(const shared_str& info_id) {m_InfoId = info_id;}
-	const shared_str&	InfoId	() const					{return m_InfoId;}
 };
