@@ -807,7 +807,7 @@ void CActor::Die	(CObject* who)
 		m_DangerSnd.stop		();		
 	}
 
-	if	(IsGameTypeSingle())
+	if (IsGameTypeSingle())
 	{
 		cam_Set				(eacFreeLook);
 		CurrentGameUI()->HideShownDialogs();
@@ -847,13 +847,10 @@ void CActor::g_Physics			(Fvector& _accel, float jump, float dt)
 
 	accel.mul					(1.f-m_hit_slowmo);
 
-	
-	
-
 	if(g_Alive())
 	{
 		if(mstate_real&mcClimb&&!cameras[eacFirstEye]->bClampYaw)
-				accel.set(0.f,0.f,0.f);
+			accel.set(0.f,0.f,0.f);
 		character_physics_support()->movement()->Calculate			(accel,cameras[cam_active]->vDirection,0,jump,dt,false);
 		bool new_border_state=character_physics_support()->movement()->isOutBorder();
 		if(m_bOutBorder!=new_border_state && Level().CurrentControlEntity() == this)
@@ -871,7 +868,7 @@ void CActor::g_Physics			(Fvector& _accel, float jump, float dt)
 
 	if (Local() && g_Alive()) 
 	{
-		if(character_physics_support()->movement()->gcontact_Was)
+		if (character_physics_support()->movement()->gcontact_Was)
 			Cameras().AddCamEffector		(xr_new<CEffectorFall> (character_physics_support()->movement()->gcontact_Power));
 
 		if (!fis_zero(character_physics_support()->movement()->gcontact_HealthLost))	

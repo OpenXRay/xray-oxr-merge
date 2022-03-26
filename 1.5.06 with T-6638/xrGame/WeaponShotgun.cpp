@@ -30,11 +30,11 @@ void CWeaponShotgun::Load	(LPCSTR section)
 		m_bTriStateReload = !!pSettings->r_bool(section, "tri_state_reload");
 	};
 	if(m_bTriStateReload){
-		m_sounds.LoadSound(section, "snd_open_weapon", "sndOpen", m_eSoundOpen);
+		m_sounds.LoadSound(section, "snd_open_weapon", "sndOpen", false, m_eSoundOpen);
 
-		m_sounds.LoadSound(section, "snd_add_cartridge", "sndAddCartridge", m_eSoundAddCartridge);
+		m_sounds.LoadSound(section, "snd_add_cartridge", "sndAddCartridge", false, m_eSoundAddCartridge);
 
-		m_sounds.LoadSound(section, "snd_close_weapon", "sndClose", m_eSoundClose);
+		m_sounds.LoadSound(section, "snd_close_weapon", "sndClose", false, m_eSoundClose);
 	};
 
 }
@@ -46,7 +46,7 @@ void CWeaponShotgun::switch2_Fire	()
 }
 
 
-bool CWeaponShotgun::Action			(s32 cmd, u32 flags) 
+bool CWeaponShotgun::Action			(u16 cmd, u32 flags) 
 {
 	if(inherited::Action(cmd, flags)) return true;
 
@@ -262,8 +262,8 @@ void	CWeaponShotgun::net_Import	(NET_Packet& P)
 		CCartridge& l_cartridge = *(m_magazine.begin()+i);
 		if (LocalAmmoType == l_cartridge.m_LocalAmmoType) continue;
 #ifdef DEBUG
-		Msg("! %s reload to %s", *l_cartridge.m_ammoSect, *(m_ammoTypes[LocalAmmoType]));
+		Msg("! %s reload to %s", *l_cartridge.m_ammoSect, m_ammoTypes[LocalAmmoType].c_str());
 #endif
-		l_cartridge.Load(*(m_ammoTypes[LocalAmmoType]), LocalAmmoType); 
+		l_cartridge.Load( m_ammoTypes[LocalAmmoType].c_str(), LocalAmmoType );
 	}
 }

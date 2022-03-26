@@ -1002,6 +1002,14 @@ void CStalkerActionSuddenAttack::execute					()
 	else
 		object().movement().set_nearest_accessible_position	(ai().level_graph().vertex_position(mem_object.m_object_params.m_level_vertex_id),mem_object.m_object_params.m_level_vertex_id);
 
+	if ( !visible_now ) {
+		u32 target_vertex_id			= object().movement().level_path().dest_vertex_id();
+		if ( object().ai_location().level_vertex_id() == target_vertex_id ) {
+			m_storage->set_property		(eWorldPropertyUseSuddenness,false);
+			return;
+		}
+	}
+
 	float								distance = object().Position().distance_to(mem_object.m_object_params.m_position);
 	if (distance >= 15.f) {
 		object().movement().set_body_state				(eBodyStateStand);
@@ -1192,14 +1200,16 @@ void CStalkerCombatActionThrowGrenade::execute				()
 		m_storage->set_property				(eWorldPropertyStartedToThrowGrenade, false);
 		return;
 	}
-
+	u32 enemy_vertex_id	;
 	Fvector	enemy_position;
 	if (object().memory().visual().visible_now(enemy)) {
 		enemy_position						= enemy->Position();
+		enemy_vertex_id						= enemy->ai_location().level_vertex_id();
 		object().sight().setup				(CSightAction(enemy,true,true));
 	}
 	else {
 		enemy_position						= mem_object.m_object_params.m_position;
+		enemy_vertex_id						= mem_object.m_object_params.m_level_vertex_id;
 		object().sight().setup				(CSightAction(SightManager::eSightTypePosition,mem_object.m_object_params.m_position,true));
 	}
 
@@ -1210,7 +1220,7 @@ void CStalkerCombatActionThrowGrenade::execute				()
 	if ( _abs(acosf(cos_alpha)) >= PI_DIV_8 )
 		return;
 
-	object().throw_target					(enemy_position, const_cast<CEntityAlive*>(enemy));
+	object().throw_target					(enemy_position, enemy_vertex_id, const_cast<CEntityAlive*>(enemy));
 
 	u32										min_queue_size, max_queue_size, min_queue_interval, max_queue_interval;
 	float									distance = enemy->Position().distance_to(object().Position());

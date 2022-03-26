@@ -68,9 +68,9 @@ void CStalkerActionDead::initialize		()
 
 	object().inventory().Action			(kWPN_FIRE,CMD_START);
 
-	int active_slot						= object().inventory().GetActiveSlot();
-	if (active_slot == 2) {
-		CInventoryItem*					item = object().inventory().m_slots[active_slot].m_pIItem;
+	u16 active_slot						= object().inventory().GetActiveSlot();
+	if (active_slot == INV_SLOT_3) {
+		CInventoryItem*					item = object().inventory().ItemFromSlot(active_slot);
 		if (item) {
 			CWeaponMagazined*			weapon = smart_cast<CWeaponMagazined*>(item);
 			VERIFY						(weapon);
@@ -78,21 +78,19 @@ void CStalkerActionDead::initialize		()
 		}
 	}
 
-	typedef xr_vector<CInventorySlot>	SLOTS;
-
-	SLOTS::iterator						I = object().inventory().m_slots.begin(), B = I;
-	SLOTS::iterator						E = object().inventory().m_slots.end();
-	for ( ; I != E; ++I) {
-		if ((I - B) == (int)object().inventory().GetActiveSlot())
+	u16 I = object().inventory().FirstSlot();
+	u16 E = object().inventory().LastSlot();
+	for ( ; I <= E; ++I) 
+	{
+		if (I==BOLT_SLOT)
 			continue;
 
-		if (!(*I).m_pIItem)
+		if (I == object().inventory().GetActiveSlot())
 			continue;
 
-		if ((*I).m_pIItem->object().CLS_ID == CLSID_IITEM_BOLT)
-			continue;
-
-		object().inventory().Ruck		((*I).m_pIItem);
+		PIItem item = object().inventory().ItemFromSlot(I);
+		if (item)
+			object().inventory().Ruck		(item);
 	}
 }
 
@@ -111,23 +109,23 @@ void CStalkerActionDead::execute		()
 	if (!object().character_physics_support()->can_drop_active_weapon())
 		return;
 
-	typedef xr_vector<CInventorySlot>	SLOTS;
-
-	SLOTS::iterator						I = object().inventory().m_slots.begin(), B = I;
-	SLOTS::iterator						E = object().inventory().m_slots.end();
-	for ( ; I != E; ++I) {
-		if (!(*I).m_pIItem)
+	u16 I = object().inventory().FirstSlot();
+	u16 E = object().inventory().LastSlot();
+	for ( ; I <= E; ++I) 
+	{
+		if (I==BOLT_SLOT)
 			continue;
 		
-		if ((*I).m_pIItem->object().CLS_ID == CLSID_IITEM_BOLT)
+		PIItem item = object().inventory().ItemFromSlot(I);
+		if(!item)
 			continue;
 
-		if ((I - B) == (int)object().inventory().GetActiveSlot()) {
-			(*I).m_pIItem->SetDropManual	(TRUE);
+		if (I == object().inventory().GetActiveSlot())
+		{
+			item->SetDropManual(TRUE);
 			continue;
 		}
-
-		object().inventory().Ruck		((*I).m_pIItem);
+		object().inventory().Ruck		(item);
 	}
 
 	set_property						(eWorldPropertyDead,true);

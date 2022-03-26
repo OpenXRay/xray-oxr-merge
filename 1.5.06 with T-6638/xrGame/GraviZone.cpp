@@ -188,7 +188,7 @@ void CBaseGraviZone::AffectPull(CPhysicsShellHolder* GO,const Fvector& throw_in_
 
 void CBaseGraviZone::AffectPullAlife(CEntityAlive* EA,const Fvector& throw_in_dir,float dist)
 {
-	float rel_power = RelativePower(dist);
+	float rel_power = RelativePower(dist, Radius());
 	float throw_power = m_fThrowInImpulseAlive*rel_power*rel_power*rel_power*rel_power*rel_power;
 
 	Fvector vel;
@@ -206,7 +206,7 @@ void CBaseGraviZone::AffectThrow(SZoneObjectInfo* O, CPhysicsShellHolder* GO,con
 {
 	Fvector position_in_bone_space;
 
-	float power = Power(dist); //Power(GO->Position().distance_to(zone_center));
+	float power = Power(dist, Radius()); //Power(GO->Position().distance_to(zone_center));
 	float impulse = m_fHitImpulseScale*power*GO->GetMass();
 
 	if(power > 0.01f) 

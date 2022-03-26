@@ -113,13 +113,14 @@ BOOL CBreakableObject::UsedAI_Locations()
 
 void CBreakableObject::CreateUnbroken()
 {
-	m_pUnbrokenObject=P_BuildStaticGeomShell(smart_cast<CGameObject*>(this),ObjectContactCallback);
+	m_pUnbrokenObject=P_BuildStaticGeomShell((this),BreakableObjectCollisionCallback);
 }
 void CBreakableObject::DestroyUnbroken()
 {
-	if(!m_pUnbrokenObject) return;
-	m_pUnbrokenObject->Deactivate();
-	xr_delete(m_pUnbrokenObject);
+	//if(!m_pUnbrokenObject) return;
+	//m_pUnbrokenObject->Deactivate();
+	//xr_delete(m_pUnbrokenObject);
+	DestroyStaticGeomShell( m_pUnbrokenObject );
 }
 
 //void CBreakableObject::CreateBroken()
@@ -159,9 +160,11 @@ void CBreakableObject::CreateBroken()
 	m_Shell->set_PhysicsRefObject(this);
 	m_Shell->Build();
 	m_Shell->setMass(m_Shell->getMass()*0.1f*100.f);
-	dMass m;
-	dMassSetBox(&m,m_Shell->getMass()/100.f,1.f,1.f,1.f);
-	m_Shell->addEquelInertiaToEls(m);
+
+	//dMass m;
+	//dMassSetBox(&m,m_Shell->getMass()/100.f,1.f,1.f,1.f);
+	//m_Shell->addEquelInertiaToEls(m);
+	m_Shell->MassAddBox( m_Shell->getMass()/100.f, Fvector().set(1,1,1) );
 	m_Shell->SmoothElementsInertia(0.3f);
 	Fobb b;
 	Visual()->getVisData().box.getradius(b.m_halfsize);

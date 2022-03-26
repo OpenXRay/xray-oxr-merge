@@ -1,4 +1,5 @@
 #include "stdafx.h"
+
 #ifdef DEBUG
 #include "PHDebug.h"
 #include "alife_space.h"
@@ -184,25 +185,4 @@ void CCar::DbgUbdateCl()
 		}
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #endif

@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "weaponammo.h"
-#include "PhysicsShell.h"
+#include "../xrphysics/PhysicsShell.h"
 #include "xrserver_objects_alife_items.h"
 #include "Actor_Flags.h"
 #include "inventory.h"
@@ -28,7 +28,7 @@ void CCartridge::Load(LPCSTR section, u8 LocalAmmoType)
 	param_s.kDist				= pSettings->r_float(section, "k_dist");
 	param_s.kDisp				= pSettings->r_float(section, "k_disp");
 	param_s.kHit				= pSettings->r_float(section, "k_hit");
-	param_s.kCritical			= pSettings->r_float(section, "k_hit_critical");
+//.	param_s.kCritical			= pSettings->r_float(section, "k_hit_critical");
 	param_s.kImpulse			= pSettings->r_float(section, "k_impulse");
 	//m_kPierce				= pSettings->r_float(section, "k_pierce");
 	param_s.kAP					= pSettings->r_float(section, "k_ap");
@@ -45,6 +45,18 @@ void CCartridge::Load(LPCSTR section, u8 LocalAmmoType)
 	param_s.fWallmarkSize		= pSettings->r_float(section, "wm_size");
 
 	m_flags.set					(cfCanBeUnlimited | cfRicochet, TRUE);
+	m_flags.set					(cfMagneticBeam, FALSE);
+
+	if (pSettings->line_exist(section, "allow_ricochet"))
+	{
+		if (!pSettings->r_bool(section, "allow_ricochet"))
+			m_flags.set(cfRicochet, FALSE);
+	}
+	if (pSettings->line_exist(section, "magnetic_beam_shot"))
+	{
+		if (pSettings->r_bool(section, "magnetic_beam_shot"))
+			m_flags.set(cfMagneticBeam, TRUE);
+	}
 
 	if(pSettings->line_exist(section,"can_be_unlimited"))
 		m_flags.set(cfCanBeUnlimited, pSettings->r_bool(section, "can_be_unlimited"));
@@ -73,7 +85,7 @@ void CWeaponAmmo::Load(LPCSTR section)
 	cartridge_param.kDist		= pSettings->r_float(section, "k_dist");
 	cartridge_param.kDisp		= pSettings->r_float(section, "k_disp");
 	cartridge_param.kHit		= pSettings->r_float(section, "k_hit");
-	cartridge_param.kCritical	= pSettings->r_float(section, "k_hit_critical");
+//.	cartridge_param.kCritical	= pSettings->r_float(section, "k_hit_critical");
 	cartridge_param.kImpulse	= pSettings->r_float(section, "k_impulse");
 	//m_kPierce				= pSettings->r_float(section, "k_pierce");
 	cartridge_param.kAP			= pSettings->r_float(section, "k_ap");
@@ -212,11 +224,20 @@ CInventoryItem *CWeaponAmmo::can_make_killing	(const CInventory *inventory) cons
 	return					(0);
 }
 
-float CWeaponAmmo::Weight()
+float CWeaponAmmo::Weight() const
 {
 	float res = inherited::Weight();
 
 	res *= (float)m_boxCurr/(float)m_boxSize;
+
+	return res;
+}
+
+u32 CWeaponAmmo::Cost() const
+{
+	u32 res = inherited::Cost();
+
+	res = iFloor(res*(float)m_boxCurr/(float)m_boxSize+0.5f);
 
 	return res;
 }

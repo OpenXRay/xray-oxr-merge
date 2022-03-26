@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "grenade.h"
-#include "PhysicsShell.h"
+#include "../xrphysics/PhysicsShell.h"
 //.#include "WeaponHUD.h"
 #include "entity.h"
 #include "ParticlesObject.h"
@@ -17,6 +17,7 @@ const float default_grenade_detonation_threshold_hit=100;
 CGrenade::CGrenade(void) 
 {
 
+	m_destroy_callback.clear();
 	m_eSoundCheckout = ESoundTypes(SOUND_TYPE_WEAPON_RECHARGING);
 }
 
@@ -29,7 +30,7 @@ void CGrenade::Load(LPCSTR section)
 	inherited::Load(section);
 	CExplosive::Load(section);
 
-	m_sounds.LoadSound(section,"snd_checkout","sndCheckout",m_eSoundCheckout);
+	m_sounds.LoadSound(section, "snd_checkout", "sndCheckout", false, m_eSoundCheckout);
 
 	//////////////////////////////////////
 	//время убирания оружия с уровня
@@ -65,6 +66,12 @@ BOOL CGrenade::net_Spawn(CSE_Abstract* DC)
 
 void CGrenade::net_Destroy() 
 {
+	if(m_destroy_callback)
+	{
+		m_destroy_callback				(this);
+		m_destroy_callback				= destroy_callback(NULL);
+	}
+
 	inherited::net_Destroy				();
 	CExplosive::net_Destroy				();
 }
@@ -139,7 +146,7 @@ void CGrenade::SendHiddenItem						()
 {
 	if (GetState()==eThrow)
 	{
-		Msg("MotionMarks !!![%d][%d]", ID(), Device.dwFrame);
+//		Msg("MotionMarks !!![%d][%d]", ID(), Device.dwFrame);
 		Throw				();
 	}
 	CActor* pActor = smart_cast<CActor*>( m_pInventory->GetOwner());
@@ -179,6 +186,13 @@ void CGrenade::Destroy()
 {
 	//Generate Expode event
 	Fvector						normal;
+
+	if(m_destroy_callback)
+	{
+		m_destroy_callback		(this);
+		m_destroy_callback	=	destroy_callback(NULL);
+	}
+
 	FindNormal					(normal);
 	CExplosive::GenExplodeEvent	(Position(), normal);
 }
@@ -277,9 +291,9 @@ bool CGrenade::Action(s32 cmd, u32 flags)
 						CGrenade *pGrenade = smart_cast<CGrenade*>(*it);
 						if(pGrenade && xr_strcmp(pGrenade->cNameSect(), cNameSect())) 
 						{
-							m_pInventory->Ruck(this);
-							m_pInventory->SetActiveSlot(NO_ACTIVE_SLOT);
-							m_pInventory->Slot(pGrenade);
+							m_pInventory->Ruck			(this);
+							m_pInventory->SetActiveSlot	(NO_ACTIVE_SLOT);
+							m_pInventory->Slot			(pGrenade->BaseSlot(),pGrenade);
 							return true;
 						}
 					}
@@ -359,7 +373,7 @@ void CGrenade::GetBriefInfo(xr_string& str_name, xr_string& icon_sect_name, xr_s
 	str_name				= NameShort();
 	u32 ThisGrenadeCount	= m_pInventory->dwfGetSameItemCount( *cNameSect(), true );
 	string16				stmp;
-	sprintf_s				( stmp, "%d", ThisGrenadeCount );
+	xr_sprintf				( stmp, "%d", ThisGrenadeCount );
 	str_count				= stmp;
 	icon_sect_name			= *cNameSect();
 }

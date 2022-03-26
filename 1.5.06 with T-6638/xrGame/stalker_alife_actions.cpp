@@ -116,6 +116,7 @@ CStalkerActionGatherItems::CStalkerActionGatherItems	(CAI_Stalker *object, LPCST
 void CStalkerActionGatherItems::initialize	()
 {
 	inherited::initialize			();
+
 	object().movement().set_desired_direction	(0);
 	object().movement().set_path_type			(MovementManager::ePathTypeLevelPath);
 	object().movement().set_detail_path_type	(DetailPathManager::eDetailPathTypeSmooth);

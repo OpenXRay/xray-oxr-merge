@@ -200,13 +200,15 @@ void CWalmarkManager::StartWorkflow()
 void CWalmarkManager::Load (LPCSTR section)
 {
 	//кровавые отметки на стенах
-//	string256	tmp;
+	string256	tmp;
 	LPCSTR wallmarks_name = pSettings->r_string(section, "wallmarks"); 
-	m_wallmarks->AppendMark(wallmarks_name);
+
+	int cnt		=_GetItemCount(wallmarks_name);
+	VERIFY		(cnt);
+
+	for (int k=0; k<cnt; ++k)
+		m_wallmarks->AppendMark(_GetItem(wallmarks_name,k,tmp));
 }
-
-
-
 
 float Distance (const Fvector& rkPoint, const Fvector rkTri[3], float& pfSParam, float& pfTParam, Fvector& closest, Fvector& dir)
 {

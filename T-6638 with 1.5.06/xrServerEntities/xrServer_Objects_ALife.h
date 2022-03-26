@@ -623,6 +623,7 @@ SERVER_ENTITY_DECLARE_BEGIN(CSE_ALifeInventoryBox,CSE_ALifeDynamicObjectVisual)
 	virtual void		add_online				(const bool &update_registries);
 #endif
 SERVER_ENTITY_DECLARE_END
+
 add_to_type_list(CSE_ALifeInventoryBox)
 #define script_type_list save_type_list(CSE_ALifeInventoryBox)
 

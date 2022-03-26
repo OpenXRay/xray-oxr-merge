@@ -102,11 +102,11 @@ void CSightManager::Exec_Look		(float time_delta)
 
 	vfValidateAngleDependency		(body.current.yaw,body.target.yaw,head.current.yaw);
 
-	m_object->angle_lerp_bounds		(body.current.yaw,body.target.yaw,body_speed,time_delta);
-	m_object->angle_lerp_bounds		(body.current.pitch,body.target.pitch,body_speed,time_delta);
+	m_object->angle_lerp_bounds		(body.current.yaw, body.target.yaw, body_speed, time_delta);
+	m_object->angle_lerp_bounds		(body.current.pitch, body.target.pitch, body_speed, time_delta);
 
-	m_object->angle_lerp_bounds		(head.current.yaw,head.target.yaw,head_speed,time_delta);
-	m_object->angle_lerp_bounds		(head.current.pitch,head.target.pitch,head_speed,time_delta);
+	m_object->angle_lerp_bounds		(head.current.yaw, head.target.yaw, head_speed, time_delta);
+	m_object->angle_lerp_bounds		(head.current.pitch, head.target.pitch, head_speed, time_delta);
 
 #ifdef SIGHT_DEBUG
 	// normalizing torso angles

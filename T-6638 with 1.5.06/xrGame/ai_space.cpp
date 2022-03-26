@@ -61,7 +61,6 @@ void CAI_Space::init				()
 
 	VERIFY					(!m_moving_objects);
 	m_moving_objects		= xr_new<::moving_objects>();
-
 #endif //#ifndef NO_SINGLE
 
 	VERIFY					(!m_script_engine);

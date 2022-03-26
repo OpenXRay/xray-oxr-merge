@@ -14,7 +14,6 @@
 #include "level.h"
 #include "date_time.h"
 #include "uigamesp.h"
-#include "hudmanager.h"
 #include "restricted_object.h"
 #include "script_engine.h"
 #include "attachable_item.h"
@@ -27,7 +26,6 @@
 #include "level_graph.h"
 #include "huditem.h"
 #include "ui/UItalkWnd.h"
-#include "ui/UITradeWnd.h"
 #include "inventory.h"
 #include "infoportion.h"
 #include "AI/Monsters/BaseMonster/base_monster.h"
@@ -44,6 +42,11 @@
 #include "ai/stalker/ai_stalker_impl.h"
 #include "smart_cover_object.h"
 #include "smart_cover.h"
+#include "customdetector.h"
+#include "doors_manager.h"
+#include "doors_door.h"
+#include "Torch.h"
+#include "physicobject.h"
 
 bool CScriptGameObject::GiveInfoPortion(LPCSTR info_id)
 {
@@ -345,7 +348,7 @@ void CScriptGameObject::MakeItemActive(CScriptGameObject* pItem)
 {
 	CInventoryOwner* owner			= smart_cast<CInventoryOwner*>(&object());
 	CInventoryItem* item			= smart_cast<CInventoryItem*>(&pItem->object());
-	u32 slot						= item->GetSlot();
+	u16 slot						= item->BaseSlot();
 	
 	CInventoryItem* item_in_slot	= owner->inventory().ItemFromSlot(slot);
 
@@ -358,10 +361,11 @@ void CScriptGameObject::MakeItemActive(CScriptGameObject* pItem)
 	}
 	CGameObject::u_EventGen			(P, GEG_PLAYER_ITEM2SLOT, owner->object_id());
 	P.w_u16							(item->object().ID());
+	P.w_u16							(slot);
 	CGameObject::u_EventSend		(P);
 
 	CGameObject::u_EventGen			(P, GEG_PLAYER_ACTIVATE_SLOT, owner->object_id());
-	P.w_u32							(slot);
+	P.w_u16							(slot);
 	CGameObject::u_EventSend		(P);
 
 }
@@ -445,7 +449,7 @@ void CScriptGameObject::SetGoodwill(int goodwill, CScriptGameObject* pWhoToSet)
 		ai().script_engine().script_log		(ScriptStorage::eLuaMessageTypeError,"SetGoodwill available only for InventoryOwner");
 		return ;
 	}
-	return RELATION_REGISTRY().SetGoodwill(pInventoryOwner->object_id(), pWhoToSet->object().ID(), goodwill);
+	RELATION_REGISTRY().SetGoodwill(pInventoryOwner->object_id(), pWhoToSet->object().ID(), goodwill);
 }
 
 void CScriptGameObject::ForceSetGoodwill(int goodwill, CScriptGameObject* pWhoToSet)
@@ -793,19 +797,7 @@ void CScriptGameObject::add_restrictions		(LPCSTR out, LPCSTR in)
 		return;
 	}
 	
-//	xr_vector<ALife::_OBJECT_ID>			temp0;
-//	xr_vector<ALife::_OBJECT_ID>			temp1;
-
-//	construct_restriction_vector			(out,temp0);
-//	construct_restriction_vector			(in,temp1);
-
-//	if (!xr_strcmp(monster->cName(),"mil_freedom_stalker0004")) {
-//		int i = 0;
-//		if (!xr_strcmp(in,"mil_freedom_wall_restrictor")) {
-//			int j = 0;
-//		}
-//	}
-	
+//	Msg	( "object[%s] add_restrictions( \"%s\", \"%s\" )", monster->cName().c_str(), out, in );
 	monster->movement().restrictions().add_restrictions(out,in);
 }
 
@@ -817,12 +809,7 @@ void CScriptGameObject::remove_restrictions		(LPCSTR out, LPCSTR in)
 		return;
 	}
 
-//	xr_vector<ALife::_OBJECT_ID>			temp0;
-//	xr_vector<ALife::_OBJECT_ID>			temp1;
-
-//	construct_restriction_vector			(out,temp0);
-//	construct_restriction_vector			(in,temp1);
-
+//	Msg	( "object[%s] remove_restrictions( \"%s\", \"%s\" )", monster->cName().c_str(), out, in );
 	monster->movement().restrictions().remove_restrictions(out,in);
 }
 
@@ -833,6 +820,8 @@ void CScriptGameObject::remove_all_restrictions	()
 		ai().script_engine().script_log		(ScriptStorage::eLuaMessageTypeError,"CRestrictedObject : cannot access class member remove_all_restrictions!");
 		return;
 	}
+
+//	Msg	( "object[%s] remove_all_restrictions( )", monster->cName().c_str() );
 	monster->movement().restrictions().remove_all_restrictions	();
 }
 
@@ -933,13 +922,78 @@ bool CScriptGameObject::attachable_item_enabled	() const
 	return									(attachable_item->enabled());
 }
 
+void CScriptGameObject::enable_night_vision	(bool value)
+{
+	CTorch									*torch = smart_cast<CTorch*>(&object());
+	if (!torch) {
+		ai().script_engine().script_log		(ScriptStorage::eLuaMessageTypeError,"CTorch : cannot access class member enable_night_vision!");
+		return;
+	}
+	torch->SwitchNightVision					(value);
+}
+
+bool CScriptGameObject::night_vision_enabled	() const
+{
+	CTorch									*torch = smart_cast<CTorch*>(&object());
+	if (!torch) {
+		ai().script_engine().script_log		(ScriptStorage::eLuaMessageTypeError,"CTorch : cannot access class member enable_night_vision!");
+		return								(false);
+	}
+	return									(torch->GetNightVisionStatus());
+}
+
+void CScriptGameObject::enable_torch	(bool value)
+{
+	CTorch									*torch = smart_cast<CTorch*>(&object());
+	if (!torch) {
+		ai().script_engine().script_log		(ScriptStorage::eLuaMessageTypeError,"CTorch : cannot access class member enable_torch!");
+		return;
+	}
+	torch->Switch							(value);
+}
+
+bool CScriptGameObject::torch_enabled			() const
+{
+	CTorch									*torch = smart_cast<CTorch*>(&object());
+	if (!torch) {
+		ai().script_engine().script_log		(ScriptStorage::eLuaMessageTypeError,"CTorch : cannot access class member torch_enabled!");
+		return								(false);
+	}
+	return									(torch->torch_active());
+}
+
+void CScriptGameObject::attachable_item_load_attach(LPCSTR section)
+{
+	CAttachableItem							*attachable_item = smart_cast<CAttachableItem*>(&object());
+	if (!attachable_item) {
+		ai().script_engine().script_log		(ScriptStorage::eLuaMessageTypeError,"CAttachableItem : cannot access class member attachable_item_load_attach!");
+		return;
+	}
+	attachable_item->load_attach_position	(section);
+	
+	if( attachable_item->object().H_Parent() )
+	{ //reattach
+		CAttachmentOwner* AO = smart_cast<CAttachmentOwner*>(attachable_item->object().H_Parent());
+		if(AO)
+			AO->reattach_items();
+	}
+}
+
 void  CScriptGameObject::RestoreWeapon		()
 {
+#ifdef DEBUG
+	ai().script_engine().script_log		(eLuaMessageTypeMessage,"CScriptGameObject::RestoreWeapon called!!!");
+	ai().script_engine().print_stack();
+#endif //#ifdef DEBUG
 	Actor()->SetWeaponHideState(INV_STATE_BLOCK_ALL,false);
 }
 
 void  CScriptGameObject::HideWeapon			()
 {
+#ifdef DEBUG
+	ai().script_engine().script_log		(eLuaMessageTypeMessage,"CScriptGameObject::HideWeapon called!!!");
+	ai().script_engine().print_stack();
+#endif //#ifdef DEBUG
 	Actor()->SetWeaponHideState(INV_STATE_BLOCK_ALL,true);
 }
 
@@ -1024,6 +1078,23 @@ int	CScriptGameObject::animation_slot			() const
 	return			(hud_item->animation_slot());
 }
 
+CScriptGameObject *CScriptGameObject::active_detector	() const
+{
+	CInventoryOwner	*inventory_owner = smart_cast<CInventoryOwner*>(&object());
+	if (!inventory_owner) {
+		ai().script_engine().script_log			(ScriptStorage::eLuaMessageTypeError,"CInventoryOwner : cannot access class member active_detector!");
+		return		(0);
+	}
+
+	CInventoryItem	*result = inventory_owner->inventory().ItemFromSlot(DETECTOR_SLOT);
+	if (result) {
+		CCustomDetector *detector = smart_cast<CCustomDetector*>(result);
+		VERIFY(detector);
+		return			(detector->IsWorking() ? result->object().lua_game_object() : 0);
+	}
+	return (0);
+}
+
 CScriptGameObject *CScriptGameObject::item_in_slot	(u32 slot_id) const
 {
 	CInventoryOwner	*inventory_owner = smart_cast<CInventoryOwner*>(&object());
@@ -1080,7 +1151,7 @@ void CScriptGameObject::activate_slot	(u32 slot_id)
 		ai().script_engine().script_log			(ScriptStorage::eLuaMessageTypeError,"CInventoryOwner : cannot access class member activate_slot!");
 		return						;
 	}
-	inventory_owner->inventory().Activate(slot_id);
+	inventory_owner->inventory().Activate((u16)slot_id);
 }
 
 void CScriptGameObject::enable_movement	(bool enable)
@@ -1346,18 +1417,18 @@ bool CScriptGameObject::suitable_smart_cover					(CScriptGameObject* object)
 	}
 
 	smart_cover::cover const& cover		= smart_object->cover();
-	if (!cover.is_combat_cover())
+	if (!cover.can_fire())
 		return							(true);
 
 	CInventoryItem const* inventory_item= stalker->inventory().ActiveItem();
 	if (inventory_item)
-		return							(inventory_item->GetSlot() == 2);
+		return							(inventory_item->BaseSlot() == INV_SLOT_3);
 
 	CInventoryItem const* best_weapon	= stalker->best_weapon();
 	if (!best_weapon)
 		return							(false);
 
-	return								(best_weapon->GetSlot() == 2);
+	return								(best_weapon->BaseSlot() == INV_SLOT_3);
 }
 
 void CScriptGameObject::take_items_enabled						(bool const value)
@@ -1380,4 +1451,88 @@ bool CScriptGameObject::take_items_enabled						() const
 	}
 
 	return								( stalker->take_items_enabled() );
+}
+
+void CScriptGameObject::SetPlayShHdRldSounds(bool val)
+{
+	CInventoryOwner* owner = smart_cast<CInventoryOwner*>(&object());
+	if (!owner) 
+	{
+		ai().script_engine().script_log(ScriptStorage::eLuaMessageTypeError,"CInventoryOwner : cannot access class member SetPlayShHdRldSounds!");
+		return;
+	}
+	owner->SetPlayShHdRldSounds(val);
+}
+
+void CScriptGameObject::death_sound_enabled						(bool const value)
+{
+	CAI_Stalker* const					stalker = smart_cast<CAI_Stalker*>(&this->object());
+	if (!stalker) {
+		ai().script_engine().script_log	(ScriptStorage::eLuaMessageTypeError, "CAI_Stalker : cannot access class member death_sound_enabled!");
+		return;
+	}
+
+	stalker->death_sound_enabled			(value);
+}
+
+bool CScriptGameObject::death_sound_enabled						() const
+{
+	CAI_Stalker*						stalker = smart_cast<CAI_Stalker*>(&this->object());
+	if (!stalker) {
+		ai().script_engine().script_log	(ScriptStorage::eLuaMessageTypeError, "CAI_Stalker : cannot access class member death_sound_enabled!");
+		return							( false );
+	}
+
+	return								( stalker->death_sound_enabled() );
+}
+
+void CScriptGameObject::register_door							()
+{
+	VERIFY2								( !m_door, make_string("object %s has been registered as a door already", m_game_object->cName().c_str()) );
+	m_door								= ai().doors().register_door( *smart_cast<CPhysicObject*>(m_game_object) );
+//	Msg									( "registering door 0x%-08x", m_door );
+}
+
+void CScriptGameObject::unregister_door							()
+{
+	VERIFY2								( m_door, make_string("object %s is not a door", m_game_object->cName().c_str()) );
+//	Msg									( "UNregistering door 0x%-08x", m_door );
+	ai().doors().unregister_door		( m_door );
+	m_door								= 0;
+}
+
+void CScriptGameObject::on_door_is_open							()
+{
+	VERIFY2								( m_door, make_string("object %s hasn't been registered as a door already", m_game_object->cName().c_str()) );
+	ai().doors().on_door_is_open		( m_door );
+}
+
+void CScriptGameObject::on_door_is_closed						()
+{
+	VERIFY2								( m_door, make_string("object %s hasn't been registered as a door already", m_game_object->cName().c_str()) );
+	ai().doors().on_door_is_closed		( m_door );
+}
+
+bool CScriptGameObject::is_door_locked_for_npc					() const
+{
+	VERIFY2								( m_door, make_string("object %s hasn't been registered as a door already", m_game_object->cName().c_str()) );
+	return								ai().doors().is_door_locked( m_door );
+}
+
+void CScriptGameObject::lock_door_for_npc						()
+{
+	VERIFY2								( m_door, make_string("object %s hasn't been registered as a door already", m_game_object->cName().c_str()) );
+	ai().doors().lock_door				( m_door );
+}
+
+void CScriptGameObject::unlock_door_for_npc						()
+{
+	VERIFY2								( m_door, make_string("object %s hasn't been registered as a door already", m_game_object->cName().c_str()) );
+	ai().doors().unlock_door			( m_door );
+}
+
+bool CScriptGameObject::is_door_blocked_by_npc					() const
+{
+	VERIFY2								( m_door, make_string("object %s hasn't been registered as a door already", m_game_object->cName().c_str()) );
+	return								ai().doors().is_door_blocked( m_door );
 }

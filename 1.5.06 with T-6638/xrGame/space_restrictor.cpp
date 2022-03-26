@@ -202,7 +202,7 @@ continue_loop:
 #ifdef DEBUG
 
 #include "customzone.h"
-#include "hudmanager.h"
+#include "ui_base.h"
 
 extern	Flags32	dbg_net_Draw_Flags;
 
@@ -277,20 +277,20 @@ void CSpaceRestrictor::OnRender	()
 		float x = (1.f + v_res.x)/2.f * (Device.dwWidth);
 		float y = (1.f - v_res.y)/2.f * (Device.dwHeight) - delta_height;
 
-		HUD().Font().pFontMedium->SetColor	(0xffff0000);
-		HUD().Font().pFontMedium->OutSet	(x, y-=delta_height);
-		HUD().Font().pFontMedium->OutNext	( Name() );
+		UI().Font().pFontMedium->SetColor	(0xffff0000);
+		UI().Font().pFontMedium->OutSet	(x, y-=delta_height);
+		UI().Font().pFontMedium->OutNext	( Name() );
 		CCustomZone* z = smart_cast<CCustomZone*>(this);
 		if(z){
 			string64 str;
 			switch (z->ZoneState()){
-				case CCustomZone::eZoneStateIdle:		strcpy_s(str,"IDLE"); break;
-				case CCustomZone::eZoneStateAwaking:	strcpy_s(str,"AWAKING"); break;
-				case CCustomZone::eZoneStateBlowout:	strcpy_s(str,"BLOWOUT"); break;
-				case CCustomZone::eZoneStateAccumulate: strcpy_s(str,"ACCUMULATE"); break;
-				case CCustomZone::eZoneStateDisabled:	strcpy_s(str,"DISABLED"); break;
+				case CCustomZone::eZoneStateIdle:		xr_strcpy(str,"IDLE"); break;
+				case CCustomZone::eZoneStateAwaking:	xr_strcpy(str,"AWAKING"); break;
+				case CCustomZone::eZoneStateBlowout:	xr_strcpy(str,"BLOWOUT"); break;
+				case CCustomZone::eZoneStateAccumulate: xr_strcpy(str,"ACCUMULATE"); break;
+				case CCustomZone::eZoneStateDisabled:	xr_strcpy(str,"DISABLED"); break;
 			};
-			HUD().Font().pFontMedium->OutNext	( str );
+			UI().Font().pFontMedium->OutNext	( str );
 		}
 	}
 

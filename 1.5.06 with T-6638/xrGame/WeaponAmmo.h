@@ -4,7 +4,7 @@
 
 struct SCartridgeParam
 {
-	float	kDist, kDisp, kHit, kCritical, kImpulse, kAP, kAirRes;
+	float	kDist, kDisp, kHit/*, kCritical*/, kImpulse, kAP, kAirRes;
 	int		buckShot;
 	float	impair;
 	float	fWallmarkSize;
@@ -13,7 +13,7 @@ struct SCartridgeParam
 	IC void Init()
 	{
 		kDist = kDisp = kHit = kImpulse = 1.0f;
-		kCritical = 0.0f;
+//		kCritical = 0.0f;
 		kAP       = 0.0f;
 		kAirRes   = 0.0f;
 		buckShot  = 1;
@@ -35,6 +35,7 @@ public:
 		cfRicochet				= (1<<1),
 		cfCanBeUnlimited		= (1<<2),
 		cfExplosive				= (1<<3),
+		cfMagneticBeam			= (1<<4),
 	};
 	SCartridgeParam param_s;
 
@@ -48,7 +49,8 @@ public:
 	virtual shared_str const 	GetAnticheatSectionName	() const { return m_ammoSect; };
 };
 
-class CWeaponAmmo :	public CInventoryItemObject {
+class CWeaponAmmo :	public CInventoryItemObject
+{
 	typedef CInventoryItemObject		inherited;
 public:
 									CWeaponAmmo			(void);
@@ -66,7 +68,8 @@ public:
 	virtual void					renderable_Render	();
 
 	virtual bool					Useful				() const;
-	virtual float					Weight				();
+	virtual float					Weight				() const;
+	virtual	u32						Cost				() const;
 
 	bool							Get					(CCartridge &cartridge);
 

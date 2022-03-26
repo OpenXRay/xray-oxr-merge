@@ -316,19 +316,15 @@ void CAI_Stalker::Hit(SHit* pHDS)
 		}
 	}
 
-	if ( invulnerable() )
-	{
-		return;
-	}
-
 	if ( g_Alive() && ( !m_hit_callback || m_hit_callback( &HDS ) ) )
 	{
-		memory().hit().add( 100.f * HDS.damage(), HDS.direction(), HDS.who, HDS.boneID );
+		float const damage_factor	= invulnerable() ? 0.f : 100.f;
+		memory().hit().add			( damage_factor*HDS.damage(), HDS.direction(), HDS.who, HDS.boneID );
 	}
 
 	//conditions().health()			= 1.f;
 
-	inherited::Hit( &HDS );
+	inherited::Hit					( &HDS );
 }
 
 void CAI_Stalker::HitSignal				(float amount, Fvector& vLocalDir, CObject* who, s16 element)

@@ -27,7 +27,6 @@ void CALifeSmartTerrainTask::setup_patrol_point				(const shared_str &patrol_pat
 	VERIFY					(m_patrol_point);
 }
 
-
 GameGraph::_GRAPH_ID CALifeSmartTerrainTask::game_vertex_id		() const
 {
 	if (m_game_vertex_id == GameGraph::_GRAPH_ID(-1))	{

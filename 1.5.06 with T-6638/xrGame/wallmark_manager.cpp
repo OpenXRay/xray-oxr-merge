@@ -2,7 +2,7 @@
 #include "wallmark_manager.h"
 #include "Level.h"
 #include "../xrEngine/gamemtllib.h"
-#include "CalculateTriangle.h"
+#include "../xrphysics/CalculateTriangle.h"
 #include "profiler.h"
 #ifdef DEBUG
 #include "phdebug.h"
@@ -177,8 +177,6 @@ void CWalmarkManager::StartWorkflow()
 
 		if(dist <= m_trace_dist )
 		{
-			//ref_shader wallmarkShader = m_wallmarks[::Random.randI( m_wallmarks.size())];
-			//::Render->add_StaticWallmark(wallmarkShader, end_point, m_wallmark_size, _t, V_array);
 			::Render->add_StaticWallmark(&*m_wallmarks, end_point, m_wallmark_size, _t, V_array);
 			++wm_count;
 		}else
@@ -198,19 +196,9 @@ void CWalmarkManager::StartWorkflow()
 	DBG_ClosedCashedDraw	(10000);
 */
 }
-/*
-void CWalmarkManager::PlaceWallmarks(const Fvector& start_pos,CObject* ignore_obj)
-{
-	if(m_wallmarks)
-			PlaceWallmarks(start_pos,m_trace_dist,m_wallmark_size,*m_wallmarks,ignore_obj);
-}
-*/
 
 void CWalmarkManager::Load (LPCSTR section)
 {
-//.	m_trace_dist	= pSettings->r_float(section,"dist");
-//.	m_wallmark_size	= pSettings->r_float(section,"size");
-	
 	//кровавые отметки на стенах
 	string256	tmp;
 	LPCSTR wallmarks_name = pSettings->r_string(section, "wallmarks"); 
@@ -220,19 +208,7 @@ void CWalmarkManager::Load (LPCSTR section)
 
 	for (int k=0; k<cnt; ++k)
 		m_wallmarks->AppendMark(_GetItem(wallmarks_name,k,tmp));
-
-	/*
-	ref_shader	s;
-	for (int k=0; k<cnt; ++k)
-	{
-		s.create ("effects\\wallmark",_GetItem(wallmarks_name,k,tmp));
-		m_wallmarks.push_back	(s);
-	}
-	*/
 }
-
-
-
 
 float Distance (const Fvector& rkPoint, const Fvector rkTri[3], float& pfSParam, float& pfTParam, Fvector& closest, Fvector& dir)
 {

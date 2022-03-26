@@ -94,7 +94,7 @@ void CStalkerActionSolveZonePuzzle::initialize	()
 		object().movement().patrol().set_path		("test_sight",PatrolPathManager::ePatrolStartTypeNearest,PatrolPathManager::ePatrolRouteTypeContinue);
 //		object().movement().set_nearest_accessible_position();
 		object().sight().setup						(CSightAction(SightManager::eSightTypePathDirection));
-		//		object().CObjectHandler::set_goal			(eObjectActionFire1,object().inventory().ItemFromSlot(GRENADE_SLOT),0,1,2500,3000);
+//		object().CObjectHandler::set_goal			(eObjectActionFire1,object().inventory().ItemFromSlot(GRENADE_SLOT),0,1,2500,3000);
 #	endif
 #endif
 }
@@ -127,7 +127,7 @@ void CStalkerActionSolveZonePuzzle::execute		()
 #	if 1
 //		object().throw_target					(g_actor->Position(), g_actor);
 //		if (object().throw_enabled()) {
-	//			object().CObjectHandler::set_goal	(eObjectActionFire1,object().inventory().ItemFromSlot(GRENADE_SLOT));
+//			object().CObjectHandler::set_goal	(eObjectActionFire1,object().inventory().ItemFromSlot(GRENADE_SLOT));
 //			return;
 //		}
 //

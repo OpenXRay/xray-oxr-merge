@@ -137,6 +137,7 @@ void CSE_ALifeOnlineOfflineGroup::unregister_member						(ALife::_OBJECT_ID memb
 
 	graph.update				((*I).second);
 	alife().scheduled().add		((*I).second);
+
 	m_members.erase				(I);
 	
 	if (m_members.empty()) {
@@ -181,6 +182,7 @@ void CSE_ALifeOnlineOfflineGroup::try_switch_online		()
 	    inherited1::try_switch_online	();
 		return;
 	}
+
 	MEMBERS::iterator			I = m_members.begin();
 	MEMBERS::iterator			E = m_members.end();
 	for ( ; I != E; ++I) {

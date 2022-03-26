@@ -49,8 +49,8 @@ public:
 	virtual shared_str const 	GetAnticheatSectionName	() const { return m_ammoSect; };
 };
 
-class CWeaponAmmo :	
-	public CInventoryItemObject {
+class CWeaponAmmo :	public CInventoryItemObject
+{
 	typedef CInventoryItemObject		inherited;
 public:
 									CWeaponAmmo			(void);

@@ -75,6 +75,8 @@ void CShootingObject::Load	(LPCSTR section)
 	LoadLights			(section, "");
 	LoadShellParticles	(section, "");
 	LoadFlameParticles	(section, "");
+
+	m_air_resistance_factor	= READ_IF_EXISTS(pSettings,r_float,section,"air_resistance_factor",1.f);
 }
 
 void CShootingObject::Light_Create		()
@@ -482,33 +484,35 @@ void CShootingObject::FireBullet(const Fvector& pos,
 	m_fPredBulletTime = Device.fTimeGlobal;
 
 	float l_fHitPower = 0.0f;
-	float l_fHitPowerCritical = 0.0f;
 	if (ParentIsActor())//если из оружия стреляет актёр(игрок)
 	{
 		if (GameID() == eGameIDSingle)
 		{
 			l_fHitPower			= fvHitPower[g_SingleGameDifficulty];
-			l_fHitPowerCritical = fvHitPowerCritical[g_SingleGameDifficulty];
 		}
 		else
 		{
 			l_fHitPower			= fvHitPower[egdMaster];
-			l_fHitPowerCritical = fvHitPowerCritical[egdMaster];
 		}
 	}
 	else
 	{
 		l_fHitPower			= fvHitPower[egdMaster];
-		l_fHitPowerCritical = fvHitPowerCritical[egdMaster];
 	}
 
-	Level().BulletManager().AddBullet( pos, dir,
-		m_fStartBulletSpeed * cur_silencer_koef.bullet_speed,
-		l_fHitPower * cur_silencer_koef.hit_power,
-		l_fHitPowerCritical,
-		fHitImpulse * cur_silencer_koef.hit_impulse,
-		parent_id, weapon_id,
-		ALife::eHitTypeFireWound, fireDistance, cartridge, send_hit, aim_bullet);
+	Level().BulletManager().AddBullet( pos,
+										dir,
+										m_fStartBulletSpeed * cur_silencer_koef.bullet_speed,
+										l_fHitPower * cur_silencer_koef.hit_power,
+										fHitImpulse * cur_silencer_koef.hit_impulse,
+										parent_id,
+										weapon_id,
+										ALife::eHitTypeFireWound,
+										fireDistance,
+										cartridge,
+										m_air_resistance_factor,
+										send_hit,
+										aim_bullet);
 }
 
 void CShootingObject::FireStart	()

@@ -108,6 +108,15 @@ void CScriptGameObject::ChangeTeam(u8 team, u8 squad, u8 group)
 		custom_monster->ChangeTeam(team,squad,group);
 }
 
+void CScriptGameObject::SetVisualMemoryEnabled	(bool enabled)
+{
+	CCustomMonster				*custom_monster = smart_cast<CCustomMonster*>(&object());
+	if (!custom_monster)
+		ai().script_engine().script_log					(ScriptStorage::eLuaMessageTypeError,"CCustomMonster: cannot access class member ChangeTeam!");
+	else
+		custom_monster->memory().visual().enable(enabled);
+}
+
 CScriptGameObject *CScriptGameObject::GetEnemy() const
 {
 	CCustomMonster		*l_tpCustomMonster = smart_cast<CCustomMonster*>(&object());
@@ -155,6 +164,69 @@ CScriptGameObject *CScriptGameObject::GetCurrentWeapon() const
 	return			(current_weapon ? current_weapon->lua_game_object() : 0);
 }
 
+void CScriptGameObject::deadbody_closed(bool status)
+{
+	CInventoryOwner		*inventoryOwner = smart_cast<CInventoryOwner*>(&object());
+	if (!inventoryOwner) {
+		ai().script_engine().script_log		(ScriptStorage::eLuaMessageTypeError,"CInventoryOwner : cannot access class member deadbody_closed!");
+		return;
+	}
+	inventoryOwner->deadbody_closed(status);
+}
+
+bool CScriptGameObject::deadbody_closed_status()
+{
+	CInventoryOwner		*inventoryOwner = smart_cast<CInventoryOwner*>(&object());
+	if (!inventoryOwner) {
+		ai().script_engine().script_log		(ScriptStorage::eLuaMessageTypeError,"CInventoryOwner : cannot access class member deadbody_closed_status!");
+		return		(0);
+	}
+	return  inventoryOwner->deadbody_closed_status();
+}
+
+void CScriptGameObject::can_select_weapon(bool status)
+{
+	CAI_Stalker* stalker = smart_cast<CAI_Stalker*>(&object());
+	if(!stalker) 
+	{
+		ai().script_engine().script_log(ScriptStorage::eLuaMessageTypeError,"CAI_Stalker : cannot access class member can_select_weapon!");
+		return;
+	}
+	stalker->can_select_weapon(status);
+}
+
+bool CScriptGameObject::can_select_weapon() const
+{
+	CAI_Stalker* stalker = smart_cast<CAI_Stalker*>(&object());
+	if(!stalker) 
+	{
+		ai().script_engine().script_log(ScriptStorage::eLuaMessageTypeError,"CAI_Stalker : cannot access class member can_select_weapon!");
+		return(0);
+	}
+	return  stalker->can_select_weapon();
+}
+
+void CScriptGameObject::deadbody_can_take(bool status)
+{
+	CInventoryOwner		*inventoryOwner = smart_cast<CInventoryOwner*>(&object());
+	if (!inventoryOwner) {
+		ai().script_engine().script_log		(ScriptStorage::eLuaMessageTypeError,"CInventoryOwner : cannot access class member deadbody_can_take!");
+		return;
+	}
+	inventoryOwner->deadbody_can_take(status);
+}
+
+bool CScriptGameObject::deadbody_can_take_status()
+{
+	CInventoryOwner		*inventoryOwner = smart_cast<CInventoryOwner*>(&object());
+	if (!inventoryOwner) {
+		ai().script_engine().script_log		(ScriptStorage::eLuaMessageTypeError,"CInventoryOwner : cannot access class member deadbody_can_take_status!");
+		return		(0);
+	}
+	return  inventoryOwner->deadbody_can_take_status();
+}
+#include "CustomOutfit.h"
+
 CScriptGameObject *CScriptGameObject::GetCurrentOutfit() const
 {
 	CInventoryOwner		*inventoryOwner = smart_cast<CInventoryOwner*>(&object());
@@ -165,8 +237,6 @@ CScriptGameObject *CScriptGameObject::GetCurrentOutfit() const
 	CGameObject		*current_equipment = inventoryOwner->GetCurrentOutfit() ? &inventoryOwner->GetCurrentOutfit()->object() : 0;
 	return			(current_equipment ? current_equipment->lua_game_object() : 0);
 }
-
-#include "CustomOutfit.h"
 
 float CScriptGameObject::GetCurrentOutfitProtection(int hit_type)
 {
@@ -317,6 +387,15 @@ void CScriptGameObject::set_patrol_path		(LPCSTR path_name, const PatrolPathMana
 		stalker->movement().patrol().set_path		(path_name,patrol_start_type,patrol_route_type,random);
 }
 
+void CScriptGameObject::inactualize_patrol_path		()
+{
+	CAI_Stalker					*stalker = smart_cast<CAI_Stalker*>(&object());
+	if (!stalker)
+		ai().script_engine().script_log					(ScriptStorage::eLuaMessageTypeError,"CAI_Stalker : cannot access class member movement!");
+	else
+		stalker->movement().patrol().make_inactual();
+}
+
 void CScriptGameObject::set_dest_level_vertex_id(u32 level_vertex_id)
 {
 	CAI_Stalker					*stalker = smart_cast<CAI_Stalker*>(&object());
@@ -342,6 +421,30 @@ void CScriptGameObject::set_dest_level_vertex_id(u32 level_vertex_id)
 		}
 		stalker->movement().set_level_dest_vertex	(level_vertex_id);
 	}
+}
+
+void CScriptGameObject::set_dest_game_vertex_id( GameGraph::_GRAPH_ID game_vertex_id)
+{
+	CAI_Stalker					*stalker = smart_cast<CAI_Stalker*>(&object());
+	if (!stalker)
+		ai().script_engine().script_log					(ScriptStorage::eLuaMessageTypeError,"CAI_Stalker : cannot access class member set_dest_game_vertex_id!");
+	else {
+
+		if (!ai().game_graph().valid_vertex_id(game_vertex_id)) {
+#ifdef DEBUG
+			ai().script_engine().script_log				(ScriptStorage::eLuaMessageTypeError,"CAI_Stalker : invalid vertex id being setup by action %s!",stalker->brain().CStalkerPlanner::current_action().m_action_name);
+#endif
+			return;
+		}
+		stalker->movement().set_game_dest_vertex(game_vertex_id);
+	
+	}
+}
+void CScriptGameObject::set_movement_selection_type(ESelectionType selection_type){
+	CAI_Stalker					*stalker = smart_cast<CAI_Stalker*>(&object());
+	if (!stalker)
+		ai().script_engine().script_log					(ScriptStorage::eLuaMessageTypeError,"CAI_Stalker : cannot access class member set_movement_selection_type!");
+	stalker->movement().game_selector().set_selection_type		(selection_type);
 }
 
 CHARACTER_RANK_VALUE CScriptGameObject::GetRank		()
@@ -721,7 +824,10 @@ bool CScriptGameObject::weapon_strapped	() const
 		ai().script_engine().script_log	(ScriptStorage::eLuaMessageTypeError,"CScriptGameObject : cannot access class member weapon_strapped!");
 		return		(false);
 	}
-	return			(stalker->weapon_strapped());
+
+	bool const result	= stalker->weapon_strapped();
+//	Msg					( "[%6d][%s] weapon_strapped = %s", Device.dwTimeGlobal, stalker->cName().c_str(), result ? "true" : "false" );
+	return			(result);
 }
 
 bool CScriptGameObject::weapon_unstrapped	() const
@@ -731,7 +837,9 @@ bool CScriptGameObject::weapon_unstrapped	() const
 		ai().script_engine().script_log	(ScriptStorage::eLuaMessageTypeError,"CScriptGameObject : cannot access class member weapon_unstrapped!");
 		return		(false);
 	}
-	return			(stalker->weapon_unstrapped());
+	bool const result	= stalker->weapon_unstrapped();
+//	Msg					( "[%6d][%s] weapon_unstrapped = %s", Device.dwTimeGlobal, stalker->cName().c_str(), result ? "true" : "false" );
+	return			(result);
 }
 
 bool CScriptGameObject::path_completed	() const
@@ -894,6 +1002,17 @@ void CScriptGameObject::buy_supplies			(CScriptIniFile *ini_file, LPCSTR section
 	);
 }
 
+void CScriptGameObject::buy_item_condition_factor(float factor)
+{
+	CInventoryOwner								*inventory_owner = smart_cast<CInventoryOwner*>(&object());
+	if (!inventory_owner) {
+		ai().script_engine().script_log			(ScriptStorage::eLuaMessageTypeError,"CInventoryOwner : cannot access class member buy_item_condition_factor!");
+		return;
+	}
+
+	inventory_owner->trade_parameters().buy_item_condition_factor = factor;
+}
+
 void sell_condition								(CScriptIniFile *ini_file, LPCSTR section)
 {
 	default_trade_parameters().process	(CTradeParameters::action_sell(0),*ini_file,section);
@@ -951,4 +1070,20 @@ void CScriptGameObject::sound_prefix			(LPCSTR sound_prefix)
 	}
 
 	custom_monster->sound().sound_prefix	(sound_prefix);
+}
+
+bool CScriptGameObject::is_weapon_going_to_be_strapped	( CScriptGameObject const* object ) const
+{
+	if ( !object ) {
+		ai().script_engine().script_log		(ScriptStorage::eLuaMessageTypeError,"CGameObject : cannot access class member is_weapon_going_to_be_strapped (object passed is null)!");
+		return								false;
+	}
+
+	CAI_Stalker const *stalker				= smart_cast<CAI_Stalker const*>( &this->object() );
+	if (!stalker) {
+		ai().script_engine().script_log		(ScriptStorage::eLuaMessageTypeError,"CGameObject : cannot access class member is_weapon_going_to_be_strapped!");
+		return								false;
+	}
+
+	return									stalker->is_weapon_going_to_be_strapped	( &object->object() );
 }

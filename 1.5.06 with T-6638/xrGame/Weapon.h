@@ -1,6 +1,6 @@
 #pragma once
 
-#include "PhysicsShell.h"
+#include "../xrphysics/PhysicsShell.h"
 #include "weaponammo.h"
 #include "PHShellCreator.h"
 
@@ -94,7 +94,7 @@ protected:
 	virtual bool			IsHudModeNow		();
 public:
 	void					signal_HideComplete	();
-	virtual bool			Action(s32 cmd, u32 flags);
+	virtual bool			Action(u16 cmd, u32 flags);
 
 	enum EWeaponStates {
 		eFire		= eLastBaseState+1,

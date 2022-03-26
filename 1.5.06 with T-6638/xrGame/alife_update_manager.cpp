@@ -259,14 +259,15 @@ void CALifeUpdateManager::new_game			(LPCSTR save_name)
 
 void CALifeUpdateManager::load			(LPCSTR game_name, bool no_assert, bool new_only)
 {
-	g_pGamePersistent->LoadTitle		("st_loading_alife_simulator");
+//	g_pGamePersistent->LoadTitle		("st_loading_alife_simulator");
+	g_pGamePersistent->LoadTitle		();
 
 #ifdef DEBUG
 	Memory.mem_compact					();
 	u32									memory_usage = Memory.mem_usage();
 #endif
 
-	strcpy_s								(g_last_saved_game,game_name);
+	xr_strcpy								(g_last_saved_game,game_name);
 
 	if (new_only || !CALifeStorageManager::load(game_name)) {
 		R_ASSERT3						(new_only || no_assert && xr_strlen(game_name),"Cannot find the specified saved game ",game_name);
@@ -279,7 +280,8 @@ void CALifeUpdateManager::load			(LPCSTR game_name, bool no_assert, bool new_onl
 #ifdef DEBUG
 	Msg									("* Loading alife simulator is successfully completed (%7.3f Mb)",float(Memory.mem_usage() - memory_usage)/1048576.0);
 #endif
-	g_pGamePersistent->LoadTitle		("st_server_connecting");
+//	g_pGamePersistent->LoadTitle		("st_server_connecting");
+	g_pGamePersistent->LoadTitle		(true, g_pGameLevel->name());
 }
 
 void CALifeUpdateManager::reload		(LPCSTR section)
@@ -301,7 +303,7 @@ bool CALifeUpdateManager::load_game		(LPCSTR game_name, bool no_assert)
 		}
 	}
 	string512					S,S1;
-	strcpy_s						(S,**m_server_command_line);
+	xr_strcpy						(S,**m_server_command_line);
 	LPSTR						temp = strchr(S,'/');
 	R_ASSERT2					(temp,"Invalid server options!");
 	strconcat					(sizeof(S1),S1,game_name,temp);
@@ -445,7 +447,9 @@ void CALifeUpdateManager::add_restriction	(ALife::_OBJECT_ID id, ALife::_OBJECT_
 		case RestrictionSpace::eRestrictorTypeIn : {
 #ifdef DEBUG
 			if (std::find(creature->m_dynamic_in_restrictions.begin(),creature->m_dynamic_in_restrictions.end(),restriction_id) != creature->m_dynamic_in_restrictions.end()) {
+				LogStackTrace				("cannot add in-restriction stack trace");
 				Msg							("! cannot add in-restriction with id %d, name %s to the entity with id %d, name %s, because it is already added",restriction_id,restrictor->name_replace(),id,creature->name_replace());
+				Msg							("! Please report this log file to Lain");
 				return;
 			}
 #endif

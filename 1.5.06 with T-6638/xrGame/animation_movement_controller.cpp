@@ -3,7 +3,7 @@
 
 #include "../Include/xrRender/Kinematics.h"
 #include "game_object_space.h"
-#include "matrix_utils.h"
+#include "../xrphysics/matrix_utils.h"
 #ifdef	 DEBUG
 #include "phdebug.h"
 #endif
@@ -75,7 +75,7 @@ animation_movement_controller::~animation_movement_controller( )
 
 IC bool is_blending_in( CBlend &b)
 {
-	return b.blend == CBlend::eAccrue && b.blendPower - EPS > b.blendAmount;
+	return b.blend_state() == CBlend::eAccrue && b.blendPower - EPS > b.blendAmount;
 
 }
 
@@ -240,7 +240,6 @@ void animation_movement_controller::OnFrame( )
 	animation_root_position( root_pos );
 
 
-		//Fmatrix obj_pos = Fmatrix().mul_43( m_startObjXForm, root_pos );
 	Fmatrix obj_pos = Fmatrix().mul_43( m_startObjXForm, root_pos);
 
 	InitalPositionBlending( obj_pos );

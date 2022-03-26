@@ -32,7 +32,7 @@
 #	include "date_time.h"
 #endif
 
-void setup_location_types_section(GameGraph::TERRAIN_VECTOR &m_vertex_types, CInifile *ini, LPCSTR section)
+void setup_location_types_section(GameGraph::TERRAIN_VECTOR &m_vertex_types, CInifile const * ini, LPCSTR section)
 {
 	VERIFY3							(ini->section_exist(section),"cannot open section",section);
 	GameGraph::STerrainPlace		terrain_mask;
@@ -88,7 +88,7 @@ void setup_location_types_line(GameGraph::TERRAIN_VECTOR &m_vertex_types, LPCSTR
 	}
 }
 
-void setup_location_types(GameGraph::TERRAIN_VECTOR &m_vertex_types, CInifile *ini, LPCSTR string)
+void setup_location_types(GameGraph::TERRAIN_VECTOR &m_vertex_types, CInifile const * ini, LPCSTR string)
 {
 	m_vertex_types.clear			();
 	if (ini->section_exist(string) && ini->line_count(string))
@@ -1135,7 +1135,6 @@ CSE_ALifeMonsterAbstract::CSE_ALifeMonsterAbstract(LPCSTR caSection)	: CSE_ALife
 			imm_section = pSettings->r_string(caSection, "immunities_sect");
 		for ( ; I != E; ++I)
 		{
-			//			*I					= READ_IF_EXISTS(pSettings,r_float,imm_section,strcat(strcpy(S,ALife::g_cafHitType2String(ALife::EHitType(I - B))),"_immunity"),1.f);
 			xr_strcpy			(S, ALife::g_cafHitType2String(ALife::EHitType(I - B)));
 			xr_strcat			(S,"_immunity");
 			*I					= READ_IF_EXISTS(pSettings,r_float,imm_section,S,1.f);

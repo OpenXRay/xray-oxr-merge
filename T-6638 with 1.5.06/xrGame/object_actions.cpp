@@ -51,7 +51,7 @@ void CObjectActionShow::initialize		()
 	
 	VERIFY							(m_item);
 
-	CInventoryItem					*slot_item = object().inventory().ItemFromSlot(m_item->BaseSlot());
+	CInventoryItem*					slot_item = object().inventory().ItemFromSlot(m_item->BaseSlot());
 	if (slot_item == m_item)
 		return;
 

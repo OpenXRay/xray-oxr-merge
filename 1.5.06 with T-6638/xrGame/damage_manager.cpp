@@ -28,7 +28,7 @@ DLL_Pure *CDamageManager::_construct	()
 	return					(m_object);
 }
 
-void CDamageManager::reload				(LPCSTR section,CInifile* ini)
+void CDamageManager::reload				(LPCSTR section, CInifile const * ini)
 {
 	m_default_hit_factor	= 1.f;
 	m_default_wound_factor	= 1.f;
@@ -54,7 +54,7 @@ void CDamageManager::reload				(LPCSTR section,CInifile* ini)
 	}
 }
 
-void CDamageManager::reload(LPCSTR section,LPCSTR line,CInifile* ini)
+void CDamageManager::reload(LPCSTR section, LPCSTR line, CInifile const * ini)
 {
 	if (ini && ini->section_exist(section) && ini->line_exist(section,line)) 
 		reload(ini->r_string(section,line),ini);	
@@ -62,7 +62,7 @@ void CDamageManager::reload(LPCSTR section,LPCSTR line,CInifile* ini)
 		reload(section,0);
 }
 
-void CDamageManager::init_bones(LPCSTR section,CInifile* ini)
+void CDamageManager::init_bones(LPCSTR section, CInifile const * ini)
 {
 	IKinematics				*kinematics = smart_cast<IKinematics*>(m_object->Visual());
 	VERIFY					(kinematics);
@@ -74,7 +74,7 @@ void CDamageManager::init_bones(LPCSTR section,CInifile* ini)
 		bone_instance.set_param	(2,m_default_wound_factor);
 	}
 }
-void CDamageManager::load_section(LPCSTR section,CInifile* ini)
+void CDamageManager::load_section(LPCSTR section, CInifile const * ini)
 {
 	string32				buffer;
 	IKinematics				*kinematics = smart_cast<IKinematics*>(m_object->Visual());
@@ -98,7 +98,7 @@ void CDamageManager::load_section(LPCSTR section,CInifile* ini)
 			}
 			if(0==bone && (fis_zero(bone_instance.get_param(0)) || fis_zero(bone_instance.get_param(2)) ) ){
 				string256 error_str;
-				sprintf_s(error_str,"hit_scale and wound_scale for root bone cannot be zero. see section [%s]",section);
+				xr_sprintf(error_str,"hit_scale and wound_scale for root bone cannot be zero. see section [%s]",section);
 				R_ASSERT2(0,error_str);
 			}
 		}

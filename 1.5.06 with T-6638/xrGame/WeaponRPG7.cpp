@@ -5,7 +5,7 @@
 #include "entity.h"
 #include "level.h"
 #include "player_hud.h"
-#include "HUDManager.h"
+#include "hudmanager.h"
 
 CWeaponRPG7::CWeaponRPG7()
 {
@@ -23,6 +23,11 @@ void CWeaponRPG7::Load	(LPCSTR section)
 	m_zoom_params.m_fScopeZoomFactor	= pSettings->r_float	(section,"max_zoom_factor");
 
 	m_sRocketSection					= pSettings->r_string	(section,"rocket_class");
+}
+
+bool CWeaponRPG7::AllowBore()
+{
+	return inherited::AllowBore() && 0!=iAmmoElapsed;
 }
 
 void CWeaponRPG7::FireTrace(const Fvector& P, const Fvector& D)
@@ -44,7 +49,7 @@ void CWeaponRPG7::UpdateMissileVisibility()
 
 	IKinematics* pWeaponVisual	= smart_cast<IKinematics*>(Visual()); 
 	VERIFY						(pWeaponVisual);
-	pWeaponVisual->LL_SetBoneVisible(pWeaponVisual->LL_BoneID("grenade"),vis_weap,TRUE);
+	pWeaponVisual->LL_SetBoneVisible(pWeaponVisual->LL_BoneID("grenade"), vis_weap, TRUE);
 }
 
 BOOL CWeaponRPG7::net_Spawn(CSE_Abstract* DC) 
@@ -75,7 +80,7 @@ void CWeaponRPG7::ReloadMagazine()
 	inherited::ReloadMagazine();
 
 	if(iAmmoElapsed && !getRocketCount()) 
-		CRocketLauncher::SpawnRocket(*m_sRocketSection, this);
+		CRocketLauncher::SpawnRocket(m_sRocketSection.c_str(), this);
 }
 
 void CWeaponRPG7::SwitchState(u32 S) 

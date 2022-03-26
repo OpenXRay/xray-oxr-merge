@@ -80,12 +80,17 @@ enum	EGameActions
 	kSPEECH_MENU_4,
 	kSPEECH_MENU_5,
 	kSPEECH_MENU_6,
-	kSPEECH_MENU_7,		
-	kSPEECH_MENU_8,		
+	kSPEECH_MENU_7,
+	kSPEECH_MENU_8,
 	kSPEECH_MENU_9,
-						
+
 	kUSE_BANDAGE,
-	kUSE_MEDKIT,		
+	kUSE_MEDKIT,
+
+	kQUICK_USE_1,
+	kQUICK_USE_2,
+	kQUICK_USE_3,
+	kQUICK_USE_4,
 	
 	kQUICK_SAVE,
 	kQUICK_LOAD,
@@ -142,7 +147,7 @@ struct _binding
 extern _binding g_key_bindings[];
 
 bool				is_binded			(EGameActions action_id, int dik);
-int					get_action_dik		(EGameActions action_id);
+int					get_action_dik		(EGameActions action_id, int idx=-1);
 EGameActions		get_binded_action	(int dik);
 
 extern void		CCC_RegisterInput();

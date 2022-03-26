@@ -255,7 +255,19 @@ void CActor::reload	(LPCSTR section)
 		memory().reload			(section);
 	m_location_manager->reload	(section);
 }
-
+void set_box(LPCSTR section, CPHMovementControl &mc, u32 box_num )
+{
+	Fbox	bb;Fvector	vBOX_center,vBOX_size;
+	// m_PhysicMovementControl: BOX
+	string64 buff, buff1;
+	strconcat( sizeof(buff), buff, "ph_box",itoa( box_num, buff1, 10 ),"_center" );
+	vBOX_center= pSettings->r_fvector3	(section, buff	);
+	strconcat( sizeof(buff), buff, "ph_box",itoa( box_num, buff1, 10 ),"_size" );
+	vBOX_size	= pSettings->r_fvector3	(section, buff);
+	vBOX_size.y += cammera_into_collision_shift/2.f;
+	bb.set	(vBOX_center,vBOX_center); bb.grow(vBOX_size);
+	mc.SetBox		(box_num,bb);
+}
 void CActor::Load	(LPCSTR section )
 {
 	// Msg						("Loading actor: %s",section);
@@ -276,6 +288,9 @@ void CActor::Load	(LPCSTR section )
 
 	// m_PhysicMovementControl: General
 	//m_PhysicMovementControl->SetParent		(this);
+
+
+	/*
 	Fbox	bb;Fvector	vBOX_center,vBOX_size;
 	// m_PhysicMovementControl: BOX
 	vBOX_center= pSettings->r_fvector3	(section,"ph_box2_center"	);
@@ -294,6 +309,13 @@ void CActor::Load	(LPCSTR section )
 	vBOX_size	= pSettings->r_fvector3	(section,"ph_box0_size"		);
 	bb.set	(vBOX_center,vBOX_center); bb.grow(vBOX_size);
 	character_physics_support()->movement()->SetBox		(0,bb);
+	*/
+	
+
+
+	
+	
+	
 
 	//// m_PhysicMovementControl: Foots
 	//Fvector	vFOOT_center= pSettings->r_fvector3	(section,"ph_foot_center"	);
@@ -308,14 +330,16 @@ void CActor::Load	(LPCSTR section )
 	character_physics_support()->movement()->SetCrashSpeeds	(cs_min,cs_max);
 	character_physics_support()->movement()->SetMass		(mass);
 	if(pSettings->line_exist(section,"stalker_restrictor_radius"))
-		character_physics_support()->movement()->SetActorRestrictorRadius(CPHCharacter::rtStalker,pSettings->r_float(section,"stalker_restrictor_radius"));
+		character_physics_support()->movement()->SetActorRestrictorRadius(rtStalker,pSettings->r_float(section,"stalker_restrictor_radius"));
 	if(pSettings->line_exist(section,"stalker_small_restrictor_radius"))
-		character_physics_support()->movement()->SetActorRestrictorRadius(CPHCharacter::rtStalkerSmall,pSettings->r_float(section,"stalker_small_restrictor_radius"));
+		character_physics_support()->movement()->SetActorRestrictorRadius(rtStalkerSmall,pSettings->r_float(section,"stalker_small_restrictor_radius"));
 	if(pSettings->line_exist(section,"medium_monster_restrictor_radius"))
-		character_physics_support()->movement()->SetActorRestrictorRadius(CPHCharacter::rtMonsterMedium,pSettings->r_float(section,"medium_monster_restrictor_radius"));
+		character_physics_support()->movement()->SetActorRestrictorRadius(rtMonsterMedium,pSettings->r_float(section,"medium_monster_restrictor_radius"));
 	character_physics_support()->movement()->Load(section);
 
-	
+	set_box( section, *character_physics_support()->movement(), 2 );
+	set_box( section, *character_physics_support()->movement(), 1 );
+	set_box( section, *character_physics_support()->movement(), 0 );
 
 	m_fWalkAccel				= pSettings->r_float(section,"walk_accel");	
 	m_fJumpSpeed				= pSettings->r_float(section,"jump_speed");
@@ -412,7 +436,6 @@ if(!g_dedicated_server)
 	m_sInventoryBoxUseAction		= "inventory_box_use";
 	//---------------------------------------------------------------------
 	m_sHeadShotParticle	= READ_IF_EXISTS(pSettings,r_string,section,"HeadShotParticle",0);
-
 }
 
 void CActor::PHHit(SHit &H)
@@ -428,15 +451,15 @@ struct playing_pred
 	}
 };
 
-void	CActor::Hit							(SHit* pHDS)
+void	CActor::Hit(SHit* pHDS)
 {
 	pHDS->aim_bullet = false;
 
-	SHit HDS = *pHDS;
+	SHit& HDS	= *pHDS;
 	if( HDS.hit_type<ALife::eHitTypeBurn || HDS.hit_type >= ALife::eHitTypeMax )
 	{
 		string256	err;
-		sprintf		(err, "Unknown/unregistered hit type [%d]", HDS.hit_type);
+		xr_sprintf		(err, "Unknown/unregistered hit type [%d]", HDS.hit_type);
 		R_ASSERT2	(0, err );
 	
 	}
@@ -508,7 +531,7 @@ void	CActor::Hit							(SHit* pHDS)
 			Fvector point		= Position();
 			point.y				+= CameraHeight();
 			S.play_at_pos		(this, point);
-		};
+		}
 	}
 
 	
@@ -521,7 +544,7 @@ void	CActor::Hit							(SHit* pHDS)
 		CObject* pLastHitter			= Level().Objects.net_Find(m_iLastHitterID);
 		CObject* pLastHittingWeapon		= Level().Objects.net_Find(m_iLastHittingWeaponID);
 		HitSector						(pLastHitter, pLastHittingWeapon);
-	};
+	}
 
 	if( (mstate_real&mcSprint) && Level().CurrentControlEntity() == this && conditions().DisableSprint(pHDS) )
 	{
@@ -651,7 +674,7 @@ void CActor::HitMark	(float P,
 		}
 
 		string64 sect_name;
-		sprintf_s( sect_name, "effector_fire_hit_%d", id );
+		xr_sprintf( sect_name, "effector_fire_hit_%d", id );
 		AddEffector( this, effFireHit, sect_name, P * 0.001f );
 
 	}//if hit_type
@@ -766,7 +789,7 @@ void CActor::Die	(CObject* who)
 		m_DangerSnd.stop		();		
 	}
 
-	if(IsGameTypeSingle())
+	if (IsGameTypeSingle())
 	{
 		start_tutorial		("game_over");
 	}
@@ -799,7 +822,8 @@ void CActor::g_Physics			(Fvector& _accel, float jump, float dt)
 	
 	if(g_Alive())
 	{
-	if(mstate_real&mcClimb&&!cameras[eacFirstEye]->bClampYaw)accel.set(0.f,0.f,0.f);
+	if(mstate_real&mcClimb&&!cameras[eacFirstEye]->bClampYaw)
+		accel.set(0.f,0.f,0.f);
 	character_physics_support()->movement()->Calculate			(accel,cameras[cam_active]->vDirection,0,jump,dt,false);
 	bool new_border_state=character_physics_support()->movement()->isOutBorder();
 	if(m_bOutBorder!=new_border_state && Level().CurrentControlEntity() == this)
@@ -810,10 +834,13 @@ void CActor::g_Physics			(Fvector& _accel, float jump, float dt)
 	character_physics_support()->movement()->bSleep				=false;
 	}
 
-	if (Local() && g_Alive()) {
+	if (Local() && g_Alive())
+	{
 		if (character_physics_support()->movement()->gcontact_Was)
 			Cameras().AddCamEffector		(xr_new<CEffectorFall> (character_physics_support()->movement()->gcontact_Power));
-		if (!fis_zero(character_physics_support()->movement()->gcontact_HealthLost))	{
+
+		if (!fis_zero(character_physics_support()->movement()->gcontact_HealthLost))
+		{
 			const ICollisionDamageInfo* di=character_physics_support()->movement()->CollisionDamageInfo();
 			Fvector hdir;di->HitDir(hdir);
 			SetHitInfo(this, NULL, 0, Fvector().set(0, 0, 0), hdir);
@@ -858,6 +885,20 @@ float CActor::currentFOV()
 
 void CActor::UpdateCL	()
 {
+	if(g_Alive() && Level().CurrentViewEntity() == this)
+	{
+		if(CurrentGameUI() && NULL==CurrentGameUI()->TopInputReceiver())
+		{
+			int dik = get_action_dik(kUSE, 0);
+			if(dik && pInput->iGetAsyncKeyState(dik))
+				m_bPickupMode=true;
+			
+			dik = get_action_dik(kUSE, 1);
+			if(dik && pInput->iGetAsyncKeyState(dik))
+				m_bPickupMode=true;
+		}
+	}
+
 	UpdateInventoryOwner			(Device.dwTimeDelta);
 
 	if(m_feel_touch_characters>0)
@@ -986,9 +1027,10 @@ void CActor::UpdateCL	()
 	}else
 		Cameras().camera_Matrix			(trans);
 	
-	
 	if(IsFocused())
 		g_player_hud->update			(trans);
+
+	m_bPickupMode=false;
 }
 
 float	NET_Jump = 0;
@@ -1087,7 +1129,6 @@ void CActor::shedule_Update	(u32 DT)
 		}
 		if (!Level().IsDemoPlay())
 		{		
-		//-----------------------------------------------------
 		mstate_wishful &=~mcAccel;
 		mstate_wishful &=~mcLStrafe;
 		mstate_wishful &=~mcRStrafe;
@@ -1095,10 +1136,8 @@ void CActor::shedule_Update	(u32 DT)
 		mstate_wishful &=~mcRLookout;
 		mstate_wishful &=~mcFwd;
 		mstate_wishful &=~mcBack;
-		extern bool g_bAutoClearCrouch;
-		if (g_bAutoClearCrouch)
+		if( !psActorFlags.test(AF_CROUCH_TOGGLE) )
 			mstate_wishful &=~mcCrouch;
-		//-----------------------------------------------------
 		}
 	}
 	else 
@@ -1538,7 +1577,7 @@ ALife::_TIME_ID	 CActor::TimePassedAfterDeath()	const
 }
 
 
-void CActor::OnItemTake			(CInventoryItem *inventory_item)
+void CActor::OnItemTake(CInventoryItem *inventory_item)
 {
 	CInventoryOwner::OnItemTake(inventory_item);
 	if (OnClient()) return;
@@ -1677,24 +1716,6 @@ float	CActor::HitArtefactsOnBelt(float hit_power, ALife::EHitType hit_type)
 	clamp(hit_power, 0.0f, flt_max);
 
 	return hit_power;
-
-/*
-	float res_hit_power_k		= 1.0f;
-	float _af_count				= 0.0f;
-
-	for(TIItemContainer::iterator it = inventory().m_belt.begin(); 
-		inventory().m_belt.end() != it; ++it) 
-	{
-		CArtefact*	artefact = smart_cast<CArtefact*>(*it);
-		if(artefact){
-			res_hit_power_k	+= artefact->m_ArtefactHitImmunities.AffectHit(1.0f, hit_type);
-			_af_count		+= 1.0f;
-		}
-	}
-	res_hit_power_k			-= _af_count;
-
-	return					res_hit_power_k * hit_power;
-*/
 }
 
 float CActor::GetProtection_ArtefactsOnBelt( ALife::EHitType hit_type )
@@ -1885,7 +1906,7 @@ float CActor::GetRestoreSpeed( ALife::EConditionRestoreType const& type )
 	case ALife::eHealthRestoreSpeed:
 	{
 		res = conditions().change_v().m_fV_HealthRestore;
-		res += conditions().V_SatietyHealth() * ( (conditions().Satiety() > 0.0f) ? 1.0f : -1.0f );
+		res += conditions().V_SatietyHealth() * ( (conditions().GetSatiety() > 0.0f) ? 1.0f : -1.0f );
 
 		TIItemContainer::iterator itb = inventory().m_belt.begin();
 		TIItemContainer::iterator ite = inventory().m_belt.end();
@@ -1946,7 +1967,7 @@ float CActor::GetRestoreSpeed( ALife::EConditionRestoreType const& type )
 	}
 	case ALife::ePowerRestoreSpeed:
 	{
-		res = conditions().V_SatietyPower();
+		res = conditions().GetSatietyPower();
 
 		TIItemContainer::iterator itb = inventory().m_belt.begin();
 		TIItemContainer::iterator ite = inventory().m_belt.end();

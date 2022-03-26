@@ -2,13 +2,161 @@
 #include "script_game_object.h"
 #include "script_game_object_impl.h"
 #include "ai/monsters/bloodsucker/bloodsucker.h"
+#include "ai/monsters/poltergeist/poltergeist.h"
+#include "ai/monsters/burer/burer.h"
 #include "ai/monsters/zombie/zombie.h"
 #include "script_sound_info.h"
 #include "script_monster_hit_info.h"
 #include "ai/monsters/monster_home.h"
+#include "ai/monsters/control_animation_base.h"
+
+//////////////////////////////////////////////////////////////////////////
+// Burer
+
+void   CScriptGameObject::set_force_anti_aim (bool force)
+{
+	CBaseMonster* monster = smart_cast<CBaseMonster*>(&object());
+	if (!monster) {
+		ai().script_engine().script_log		(ScriptStorage::eLuaMessageTypeError,
+			"object is not CBaseMonster to call set_force_anti_aim");
+		return;
+	}
+
+	monster->set_force_anti_aim(force);
+}
+
+bool   CScriptGameObject::get_force_anti_aim ()
+{
+	CBaseMonster* monster = smart_cast<CBaseMonster*>(&object());
+	if (!monster) {
+		ai().script_engine().script_log		(ScriptStorage::eLuaMessageTypeError,
+			"object is not CBaseMonster to call get_force_anti_aim");
+		return false;
+	}
+
+	return	monster->get_force_anti_aim();
+}
+
+void   CScriptGameObject::burer_set_force_gravi_attack (bool force)
+{
+	CBurer *monster = smart_cast<CBurer*>(&object());
+	if (!monster) {
+		ai().script_engine().script_log		(ScriptStorage::eLuaMessageTypeError,
+			"object is not CBurer to call burer_set_force_gravi_attack");
+		return;
+	}
+
+	monster->set_force_gravi_attack (force);
+}
+
+bool   CScriptGameObject::burer_get_force_gravi_attack ()
+{
+	CBurer *monster = smart_cast<CBurer*>(&object());
+	if (!monster) {
+		ai().script_engine().script_log		(ScriptStorage::eLuaMessageTypeError,
+			"object is not CBurer to call burer_set_force_gravi_attack");
+		return false;
+	}
+
+	return	monster->get_force_gravi_attack ();
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Poltergeist
+
+void   CScriptGameObject::poltergeist_set_actor_ignore (bool ignore)
+{
+	CPoltergeist *monster = smart_cast<CPoltergeist*>(&object());
+	if (!monster) {
+		ai().script_engine().script_log		(ScriptStorage::eLuaMessageTypeError,
+			"object is not Poltergeist to call poltergeist_set_actor_ignore");
+		return;
+	}
+
+	monster->set_actor_ignore(ignore);
+}
+
+bool   CScriptGameObject::poltergeist_get_actor_ignore ()
+{
+	CPoltergeist *monster = smart_cast<CPoltergeist*>(&object());
+	if (!monster) {
+		ai().script_engine().script_log		(ScriptStorage::eLuaMessageTypeError,
+			"object is not Poltergeist to call poltergeist_get_actor_ignore");
+		return false;
+	}
+
+	return	monster->get_actor_ignore();
+}
 
 //////////////////////////////////////////////////////////////////////////
 //CAI_Bloodsucker
+
+void   CScriptGameObject::force_visibility_state (int state)
+{
+	CAI_Bloodsucker		*monster = smart_cast<CAI_Bloodsucker*>(&object());
+	if (!monster) {
+		ai().script_engine().script_log		(ScriptStorage::eLuaMessageTypeError,"CAI_Bloodsucker : cannot access class member force_visibility_state!");
+		return;
+	}
+
+	monster->force_visibility_state(state);
+}
+
+int   CScriptGameObject::get_visibility_state ()
+{
+	CAI_Bloodsucker		*monster = smart_cast<CAI_Bloodsucker*>(&object());
+	if (!monster) {
+		ai().script_engine().script_log		(ScriptStorage::eLuaMessageTypeError,"CAI_Bloodsucker : cannot access class member get_visibility_state!");
+		return CAI_Bloodsucker::full_visibility;
+	}
+
+	return monster->get_visibility_state();
+}
+
+void   CScriptGameObject::set_override_animation (pcstr anim_name)
+{
+	CBaseMonster* monster	=	smart_cast<CBaseMonster*>(&object());
+	if (!monster) {
+		ai().script_engine().script_log		(ScriptStorage::eLuaMessageTypeError,"object is not of CBaseMonster class!");
+		return;
+	}
+
+	monster->anim().set_override_animation(anim_name);
+}
+
+void   CScriptGameObject::clear_override_animation ()
+{
+	CBaseMonster* monster	=	smart_cast<CBaseMonster*>(&object());
+	if (!monster) {
+		ai().script_engine().script_log		(ScriptStorage::eLuaMessageTypeError,"object is not of CBaseMonster class!");
+		return;
+	}
+
+	monster->anim().clear_override_animation();
+}
+
+void   CScriptGameObject::force_stand_sleep_animation (u32 index)
+{
+	CAI_Bloodsucker		*monster = smart_cast<CAI_Bloodsucker*>(&object());
+	if (!monster) {
+		ai().script_engine().script_log		(ScriptStorage::eLuaMessageTypeError,"CAI_Bloodsucker : cannot access class member force_stand_sleep_animation!");
+		return;
+	}
+
+	monster->force_stand_sleep_animation(index);
+}
+
+void   CScriptGameObject::release_stand_sleep_animation ()
+{
+	CAI_Bloodsucker		*monster = smart_cast<CAI_Bloodsucker*>(&object());
+	if (!monster) {
+		ai().script_engine().script_log		(ScriptStorage::eLuaMessageTypeError,"CAI_Bloodsucker : cannot access class member release_stand_sleep_animation!");
+		return;
+	}
+
+	monster->release_stand_sleep_animation();
+}
+
 void CScriptGameObject::set_invisible(bool val)
 {
 	CAI_Bloodsucker		*monster = smart_cast<CAI_Bloodsucker*>(&object());
@@ -145,6 +293,11 @@ void CScriptGameObject::set_home(LPCSTR name, float r_min, float r_max, bool agg
 {
 	CBaseMonster *monster = smart_cast<CBaseMonster *>(&object());
 	if (monster) monster->Home->setup(name,r_min,r_max,aggressive, r_mid);
+}
+void CScriptGameObject::set_home(u32 lv_ID, float r_min, float r_max, bool aggressive, float r_mid)
+{
+	CBaseMonster *monster = smart_cast<CBaseMonster *>(&object());
+	if (monster) monster->Home->setup(lv_ID,r_min,r_max,aggressive, r_mid);
 }
 void CScriptGameObject::remove_home()
 {

@@ -34,7 +34,7 @@ CObjectActionCommand::CObjectActionCommand(CInventoryItem *item, CAI_Stalker *ow
 void CObjectActionCommand::initialize	()
 {
 	inherited::initialize();
-	object().inventory().Action(m_command,CMD_START);
+	object().inventory().Action((u16)m_command,CMD_START);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -53,14 +53,14 @@ void CObjectActionShow::initialize		()
 	
 	VERIFY							(m_item);
 
-	CInventoryItem const*			slot_item = object().inventory().m_slots[m_item->GetSlot()].m_pIItem;
+	CInventoryItem*					slot_item = object().inventory().ItemFromSlot(m_item->BaseSlot());
 	if (slot_item == m_item)
 		return;
 
-	if (slot_item && (slot_item != m_item))
-		object().inventory().Ruck	(object().inventory().m_slots[m_item->GetSlot()].m_pIItem);
+	if (slot_item)
+		object().inventory().Ruck	(slot_item);
 
-	object().inventory().Slot		(m_item);
+	object().inventory().Slot		(m_item->BaseSlot(), m_item);
 }
 
 void CObjectActionShow::execute		()
@@ -72,22 +72,22 @@ void CObjectActionShow::execute		()
 
 	CHudItem						*hud_item = smart_cast<CHudItem*>(object().inventory().ActiveItem());
 	if (!hud_item){
-		object().inventory().Slot	(m_item);
-		object().inventory().Activate(m_item->GetSlot());
+		object().inventory().Slot	(m_item->BaseSlot(), m_item);
+		object().inventory().Activate(m_item->BaseSlot());
 		return;
 	}
 
 	if (hud_item->IsPending())
 		return;
 
-	CInventoryItem const*			slot_item = object().inventory().m_slots[m_item->GetSlot()].m_pIItem;
+	CInventoryItem					*slot_item = object().inventory().ItemFromSlot(m_item->BaseSlot());
 	if (slot_item == m_item)
 		return;
 
-	if (slot_item && (slot_item != m_item))
-		object().inventory().Ruck	(object().inventory().m_slots[m_item->GetSlot()].m_pIItem);
+	if (slot_item)
+		object().inventory().Ruck	(slot_item);
 
-	object().inventory().Slot		(m_item);
+	object().inventory().Slot		(m_item->BaseSlot(), m_item);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -356,8 +356,6 @@ void CObjectActionStrapping::on_animation_end	()
 	);
 
 	m_callback_removed			= true;
-
-//	Msg							("[[%6d][%s]][%s] removing callback on callabck CObjectActionStrapping::on_animation_end",Device.dwTimeGlobal,*object().cName());
 }
 
 void CObjectActionStrapping::initialize			()
@@ -378,8 +376,6 @@ void CObjectActionStrapping::initialize			()
 			&CObjectActionStrapping::on_animation_end
 		)
 	);
-
-//	Msg							("[%6d][%s] adding callback CObjectActionStrapping::on_animation_end",Device.dwTimeGlobal,*object().cName());
 }
 
 void CObjectActionStrapping::execute			()
@@ -396,8 +392,6 @@ void CObjectActionStrapping::finalize		()
 	inherited::finalize					();
 
 	if (!m_callback_removed) {
-//		Msg						("[%6d][%s] removing callback from ::finalize CObjectActionStrapping::on_animation_end",Device.dwTimeGlobal,*object().cName());
-
 		object().animation().torso().remove_callback	(
 			CStalkerAnimationPair::CALLBACK_ID(
 				this,
@@ -466,8 +460,6 @@ void CObjectActionStrappingToIdle::on_animation_end	()
 	);
 
 	m_callback_removed			= true;
-
-//	Msg							("[%6d][%s] removing callback on callabck CObjectActionStrappingToIdle::on_animation_end",Device.dwTimeGlobal,*object().cName());
 }
 
 void CObjectActionStrappingToIdle::initialize		()
@@ -486,8 +478,6 @@ void CObjectActionStrappingToIdle::initialize		()
 			&CObjectActionStrappingToIdle::on_animation_end
 		)
 	);
-
-//	Msg							("[%6d][%s] adding callback CObjectActionStrappingToIdle::on_animation_end",Device.dwTimeGlobal,*object().cName());
 }
 
 void CObjectActionStrappingToIdle::execute			()
@@ -512,7 +502,6 @@ void CObjectActionStrappingToIdle::finalize		()
 		);
 
 		m_callback_removed		= true;
-//		Msg						("[%6d][%s] removing callback from ::finalize CObjectActionStrappingToIdle::on_animation_end",Device.dwTimeGlobal,*object().cName());
 	}
 	else {
 		VERIFY					(
@@ -523,7 +512,6 @@ void CObjectActionStrappingToIdle::finalize		()
 				)
 			)
 		);
-//		Msg						("[%6d][%s] callback is already removed, do nothing on ::finalize CObjectActionStrappingToIdle::on_animation_end",Device.dwTimeGlobal,*object().cName());
 	}
 }
 
@@ -573,8 +561,6 @@ void CObjectActionUnstrapping::on_animation_end	()
 	);
 
 	m_callback_removed			= true;
-
-//	Msg							("[%6d][%s] removing callback on callabck CObjectActionUnstrapping::on_animation_end",Device.dwTimeGlobal,*object().cName());
 }
 
 void CObjectActionUnstrapping::initialize		()
@@ -595,8 +581,6 @@ void CObjectActionUnstrapping::initialize		()
 			&CObjectActionUnstrapping::on_animation_end
 		)
 	);
-
-//	Msg							("[%6d][%s] adding callback CObjectActionUnstrapping::on_animation_end",Device.dwTimeGlobal,*object().cName());
 }
 
 void CObjectActionUnstrapping::execute			()
@@ -621,7 +605,6 @@ void CObjectActionUnstrapping::finalize		()
 		);
 
 		m_callback_removed		= true;
-//		Msg						("[%6d][%s] removing callback from ::finalize CObjectActionUnstrapping::on_animation_end",Device.dwTimeGlobal,*object().cName());
 	}
 	else {
 		VERIFY					(
@@ -632,7 +615,6 @@ void CObjectActionUnstrapping::finalize		()
 				)
 			)
 		);
-//		Msg						("[%6d][%s] callback is already removed, do nothing on ::finalize CObjectActionUnstrapping::on_animation_end",Device.dwTimeGlobal,*object().cName());
 	}
 }
 
@@ -682,8 +664,6 @@ void CObjectActionUnstrappingToIdle::on_animation_end	()
 	);
 
 	m_callback_removed			= true;
-
-//	Msg							("[%6d][%s] removing callback on callabck CObjectActionUnstrappingToIdle::on_animation_end",Device.dwTimeGlobal,*object().cName());
 }
 
 void CObjectActionUnstrappingToIdle::initialize		()
@@ -702,8 +682,6 @@ void CObjectActionUnstrappingToIdle::initialize		()
 			&CObjectActionUnstrappingToIdle::on_animation_end
 		)
 	);
-
-//	Msg							("[%6d][%s] adding callback CObjectActionUnstrappingToIdle::on_animation_end",Device.dwTimeGlobal,*object().cName());
 }
 
 void CObjectActionUnstrappingToIdle::execute			()
@@ -728,7 +706,6 @@ void CObjectActionUnstrappingToIdle::finalize		()
 		);
 
 		m_callback_removed		= true;
-//		Msg						("[%6d][%s] removing callback from ::finalize CObjectActionUnstrappingToIdle::on_animation_end",Device.dwTimeGlobal,*object().cName());
 	}
 	else {
 		VERIFY					(
@@ -739,7 +716,6 @@ void CObjectActionUnstrappingToIdle::finalize		()
 				)
 			)
 		);
-//		Msg						("[%6d][%s] callback is already removed, do nothing on ::finalize CObjectActionUnstrappingToIdle::on_animation_end",Device.dwTimeGlobal,*object().cName());
 	}
 }
 

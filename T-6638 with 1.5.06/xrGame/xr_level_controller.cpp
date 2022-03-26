@@ -16,6 +16,7 @@ _action  actions[]		= {
 	{ "down",				kDOWN					,_both},	
 	{ "jump",				kJUMP					,_both},	
 	{ "crouch",				kCROUCH					,_both},	
+	{ "crouch_toggle",		kCROUCH_TOGGLE			,_both},	
 	{ "accel",				kACCEL					,_both},	
 	{ "sprint_toggle",  	kSPRINT_TOGGLE  		,_both},	
 																
@@ -80,6 +81,8 @@ _action  actions[]		= {
 															
 	{ "speech_menu_0",		kSPEECH_MENU_0			,_mp},		
 	{ "speech_menu_1",		kSPEECH_MENU_1			,_mp},		
+	{ "use_bandage",		kUSE_BANDAGE			,_sp},		
+	{ "use_medkit",			kUSE_MEDKIT				,_sp},		
 																
 	{ "quick_use_1",		kQUICK_USE_1			,_both},		
 	{ "quick_use_2",		kQUICK_USE_2			,_both},
@@ -88,7 +91,7 @@ _action  actions[]		= {
 
 	{ "quick_save",			kQUICK_SAVE				,_sp},		
 	{ "quick_load",			kQUICK_LOAD				,_sp},		
-//	{ "alife_command",		kALIFE_CMD				,_sp},		
+	{ "alife_command",		kALIFE_CMD				,_sp},
 	
 																
 	{ NULL, 				kLASTACTION				,_both}		

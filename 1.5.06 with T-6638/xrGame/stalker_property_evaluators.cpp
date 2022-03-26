@@ -212,7 +212,7 @@ _value_type CStalkerPropertyEvaluatorFoundAmmo::evaluate	()
 }
 
 //////////////////////////////////////////////////////////////////////////
-// CStalkerPropertyEvaluatorReadyToKill
+// CStalkerPropertyEvaluatorReadyToKillSmartCover
 //////////////////////////////////////////////////////////////////////////
 
 CStalkerPropertyEvaluatorReadyToKillSmartCover::CStalkerPropertyEvaluatorReadyToKillSmartCover	(CAI_Stalker *object, LPCSTR evaluator_name, u32 min_ammo_count) :
@@ -222,7 +222,7 @@ CStalkerPropertyEvaluatorReadyToKillSmartCover::CStalkerPropertyEvaluatorReadyTo
 
 _value_type CStalkerPropertyEvaluatorReadyToKillSmartCover::evaluate	()
 {
-	if (m_object->movement().current_params().cover() && !m_object->movement().current_params().cover()->is_combat_cover())
+	if (m_object->movement().current_params().cover() && !m_object->movement().current_params().cover()->can_fire())
 		return		(true);
 
 	return			(inherited::evaluate());
@@ -250,12 +250,12 @@ _value_type CStalkerPropertyEvaluatorReadyToKill::evaluate	()
 	CWeapon&		best_weapon = smart_cast<CWeapon&>(*m_object->best_weapon());
 	if (best_weapon.GetAmmoElapsed() <= (int)m_min_ammo_count) {
 		if (best_weapon.GetAmmoMagSize() <= (int)m_min_ammo_count)
-			return	(true);
+			return	(best_weapon.GetState() != CWeapon::eReload);
 		else
 			return	(false);
 	}
 
-	return			(true);
+	return			(best_weapon.GetState() != CWeapon::eReload);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -450,7 +450,7 @@ _value_type CStalkerPropertyEvaluatorShouldThrowGrenade::evaluate	()
 		return					(false);
 
 	// throw grenades only in case when we have them
-	if (object().inventory().m_slots[3].m_pIItem == 0)
+	if (object().inventory().ItemFromSlot(GRENADE_SLOT) == 0)
 		return					(false);
 
 	// do not throw grenades when there is no enemies
@@ -470,6 +470,7 @@ _value_type CStalkerPropertyEvaluatorShouldThrowGrenade::evaluate	()
 		return					(false);
 
 	Fvector const&				position = mem_object.m_object_params.m_position;
+	u32 const&					enemy_vertex_id = mem_object.m_object_params.m_level_vertex_id;
 	if (object().Position().distance_to_sqr(position) < _sqr(10.f))
 		return					(false);
 
@@ -477,11 +478,11 @@ _value_type CStalkerPropertyEvaluatorShouldThrowGrenade::evaluate	()
 		return					(false);
 
 	// setup throw target
-	object().throw_target		(position, const_cast<CEntityAlive*>(enemy));
+	object().throw_target		(position, enemy_vertex_id , const_cast<CEntityAlive*>(enemy));
 
 	// here we should check if we are unable to stop grenade throwing
 	// in this case we should return true
-	if (object().inventory().m_slots[3].m_pIItem == object().inventory().ActiveItem())
+	if (object().inventory().ItemFromSlot(GRENADE_SLOT) == object().inventory().ActiveItem())
 		return					(true);
 
 	// do not throw grenades when throw trajectory is obstructed

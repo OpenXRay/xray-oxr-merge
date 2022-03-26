@@ -140,7 +140,8 @@ bool CALifeStorageManager::load	(LPCSTR save_name_no_check)
 
 	string_path					save;
 	xr_strcpy					(save,m_save_name);
-	if (!save_name) {
+	if (!save_name)
+	{
 		if (!xr_strlen(m_save_name))
 			R_ASSERT2			(false,"There is no file name specified!");
 	}
@@ -148,6 +149,7 @@ bool CALifeStorageManager::load	(LPCSTR save_name_no_check)
 	{
 		strconcat				(sizeof(m_save_name), m_save_name, save_name, SAVE_EXTENSION);
 	}
+
 	string_path					file_name;
 	FS.update_path				(file_name,"$game_saves$",m_save_name);
 

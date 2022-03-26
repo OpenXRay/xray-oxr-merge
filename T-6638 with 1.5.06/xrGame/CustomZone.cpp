@@ -540,8 +540,7 @@ void CCustomZone::shedule_Update(u32 dt)
 
 		// check "fast-mode" border
 		float	cam_distance	= Device.vCameraPosition.distance_to(P)-s.R;
-		
-		if (cam_distance>FASTMODE_DISTANCE && !m_zone_flags.test(eAlwaysFastmode) )	
+		if (cam_distance > FASTMODE_DISTANCE && !m_zone_flags.test(eAlwaysFastmode) )	
 			o_switch_2_slow	();
 		else									
 			o_switch_2_fast	();

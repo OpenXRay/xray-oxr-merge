@@ -649,7 +649,6 @@ void CGamePersistent::OnFrame	()
 
 			Actor()->Cameras().UpdateFromCamera			(C);
 			Actor()->Cameras().ApplyDevice				(VIEWPORT_NEAR);
-
 		}
 #endif // MASTER_GOLD
 	}

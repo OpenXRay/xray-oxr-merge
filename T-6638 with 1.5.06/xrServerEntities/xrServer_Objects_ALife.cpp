@@ -13,7 +13,6 @@
 #include "object_broker.h"
 #include "restriction_space.h"
 
-
 #ifndef AI_COMPILER
 #	include "character_info.h"
 #endif // AI_COMPILER

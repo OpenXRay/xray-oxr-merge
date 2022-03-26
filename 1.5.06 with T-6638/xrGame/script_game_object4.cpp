@@ -22,6 +22,8 @@
 #include "ZoneCampfire.h"
 #include "physicobject.h"
 #include "artefact.h"
+#include "stalker_sound_data.h"
+
 class CWeapon;
 
 //////////////////////////////////////////////////////////////////////////
@@ -38,9 +40,9 @@ bool CScriptGameObject::is_body_turning		() const
 
 	CAI_Stalker			*stalker = smart_cast<CAI_Stalker*>(monster);
 	if (!stalker)
-		return			(!fsimilar(monster->movement().body_orientation().target.yaw,monster->movement().body_orientation().current.yaw));
+		return			(!fis_zero(angle_difference(monster->movement().body_orientation().target.yaw,monster->movement().body_orientation().current.yaw)));
 	else
-		return			(!fsimilar(stalker->movement().head_orientation().target.yaw,stalker->movement().head_orientation().current.yaw) || !fsimilar(monster->movement().body_orientation().target.yaw,monster->movement().body_orientation().current.yaw));
+		return			(!fis_zero(angle_difference(stalker->movement().head_orientation().target.yaw,stalker->movement().head_orientation().current.yaw)) || !fis_zero(angle_difference(monster->movement().body_orientation().target.yaw,monster->movement().body_orientation().current.yaw)));
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -56,6 +58,17 @@ u32	CScriptGameObject::add_sound		(LPCSTR prefix, u32 max_count, ESoundTypes typ
 	}
 	else
 		return					(monster->sound().add(prefix,max_count,type,priority,mask,internal_type,bone_name));
+}
+
+u32	CScriptGameObject::add_combat_sound	(LPCSTR prefix, u32 max_count, ESoundTypes type, u32 priority, u32 mask, u32 internal_type, LPCSTR bone_name)
+{
+	CAI_Stalker* const stalker = smart_cast< CAI_Stalker* >(&object());
+	if ( !stalker ) {
+		ai().script_engine().script_log	(ScriptStorage::eLuaMessageTypeError,"CSoundPlayer : cannot access class member add!");
+		return					(0);
+	}
+	else
+		return					( stalker->sound().add(prefix,max_count,type,priority,mask,internal_type,bone_name, xr_new<CStalkerSoundData>(stalker) ) );
 }
 
 u32	CScriptGameObject::add_sound		(LPCSTR prefix, u32 max_count, ESoundTypes type, u32 priority, u32 mask, u32 internal_type)
@@ -217,6 +230,60 @@ bool CScriptGameObject::IsInvBoxEmpty()
 		return			(false);
 	else
 		return			ib->IsEmpty		();
+}
+
+bool CScriptGameObject::inv_box_closed( bool status, LPCSTR reason )
+{
+	CInventoryBox* ib = smart_cast<CInventoryBox*>(&object());
+	if ( !ib )
+	{
+		return			false;
+	}
+	else
+	{
+		ib->set_closed( status, reason );
+		return			true;
+	}
+}
+
+bool CScriptGameObject::inv_box_closed_status()
+{
+	CInventoryBox* ib = smart_cast<CInventoryBox*>(&object());
+	if ( !ib )
+	{
+		return			false;
+	}
+	else
+	{
+		return			ib->closed();
+	}
+}
+
+bool CScriptGameObject::inv_box_can_take( bool status )
+{
+	CInventoryBox* ib = smart_cast<CInventoryBox*>(&object());
+	if ( !ib )
+	{
+		return			false;
+	}
+	else
+	{
+		ib->set_can_take( status );
+		return			true;
+	}
+}
+
+bool CScriptGameObject::inv_box_can_take_status()
+{
+	CInventoryBox* ib = smart_cast<CInventoryBox*>(&object());
+	if ( !ib )
+	{
+		return			false;
+	}
+	else
+	{
+		return			ib->can_take();
+	}
 }
 
 CZoneCampfire* CScriptGameObject::get_campfire()

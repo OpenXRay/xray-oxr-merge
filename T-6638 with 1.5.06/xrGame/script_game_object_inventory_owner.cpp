@@ -1095,8 +1095,6 @@ CScriptGameObject *CScriptGameObject::active_detector	() const
 	return (0);
 }
 
-
-
 CScriptGameObject *CScriptGameObject::item_in_slot	(u32 slot_id) const
 {
 	CInventoryOwner	*inventory_owner = smart_cast<CInventoryOwner*>(&object());

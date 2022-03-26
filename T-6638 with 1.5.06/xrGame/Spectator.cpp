@@ -431,9 +431,9 @@ void CSpectator::cam_Update	(CActor* A)
 			g_pGameLevel->Cameras().UpdateFromCamera(cam);
 		}
 		//-----------------------------------
-	} else
+	}
+	else
 	{
-
 		CCameraBase* cam			= cameras[eacFreeFly];
 		if (cam_active == eacFixedLookAt)
 		{
@@ -490,7 +490,7 @@ BOOL			CSpectator::net_Spawn				( CSE_Abstract*	DC )
 	}
 	look_idx				= 0;
 
-	cameras[cam_active]->Set(-E->o_Angle.y, -E->o_Angle.x, tmp_roll);// set's camera orientation
+	cameras[cam_active]->Set(-E->o_Angle.y, -E->o_Angle.x, tmp_roll); // set's camera orientation
 	cameras[cam_active]->vPosition.set(E->o_Position);
 
 	if (OnServer())

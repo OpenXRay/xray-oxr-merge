@@ -145,6 +145,7 @@ void CAI_Stalker::choose_weapon					(ALife::EWeaponPriorityType weapon_priority_
 			continue;
 
 		ai().ef_storage().non_alife().member_item() = &(*I).m_item->object();
+
 		int						j = ai().ef_storage().m_pfPersonalWeaponType->dwfGetWeaponType();
 		float					current_value = -1.f;
 		switch (weapon_priority_type) {
@@ -363,11 +364,11 @@ bool CAI_Stalker::conflicted						(const CInventoryItem *item, const CWeapon *ne
 	const CWeapon			*weapon = smart_cast<const CWeapon*>(item);
 	VERIFY					(weapon);
 
-	bool					current_wepon_enough_ammo = enough_ammo(weapon);
-	if (current_wepon_enough_ammo && !new_wepon_enough_ammo)
+	bool					current_weapon_enough_ammo = enough_ammo(weapon);
+	if (current_weapon_enough_ammo && !new_wepon_enough_ammo)
 		return				(true);
 
-	if (!current_wepon_enough_ammo && new_wepon_enough_ammo)
+	if (!current_weapon_enough_ammo && new_wepon_enough_ammo)
 		return				(false);
 
 	if (!fsimilar(weapon->GetCondition(),new_weapon->GetCondition(),.05f))

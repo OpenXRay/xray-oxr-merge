@@ -3,7 +3,7 @@
 #include "../Include/xrRender/Kinematics.h"
 #include "../xrEngine/bone.h"
 
-float SBoneProtections::getBoneProtection	(s16 bone_id)
+float SBoneProtections::getBoneProtection(s16 bone_id)
 {
 	storage_it it = m_bones_koeff.find(bone_id);
 	if( it != m_bones_koeff.end() )
@@ -12,7 +12,7 @@ float SBoneProtections::getBoneProtection	(s16 bone_id)
 		return m_default.koeff;
 }
 
-float SBoneProtections::getBoneArmor	(s16 bone_id)
+float SBoneProtections::getBoneArmor(s16 bone_id)
 {
 	storage_it it = m_bones_koeff.find(bone_id);
 	if( it != m_bones_koeff.end() )

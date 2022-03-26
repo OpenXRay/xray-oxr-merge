@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "actor.h"
 #include "customdetector.h"
-//#include "uigamesp.h"
-//#include "hudmanager.h"
 #include "weapon.h"
 #include "artefact.h"
 #include "scope.h"
@@ -59,7 +57,7 @@ void CActor::OnEvent(NET_Packet& P, u16 type)
 				
 #ifdef MP_LOGGING
 				string64 act;
-				strcpy_s( act, (type == GE_TRADE_BUY)? "buys" : "takes" );
+				xr_strcpy( act, (type == GE_TRADE_BUY)? "buys" : "takes" );
 				Msg("--- Actor [%d][%s]  %s  [%d][%s]", ID(), Name(), act, _GO->ID(), _GO->cNameSect().c_str());
 #endif // MP_LOGGING
 				
@@ -103,7 +101,7 @@ void CActor::OnEvent(NET_Packet& P, u16 type)
 			
 #ifdef MP_LOGGING
 			string64 act;
-			strcpy_s( act, (type == GE_TRADE_SELL)? "sells" : "rejects" );
+			xr_strcpy( act, (type == GE_TRADE_SELL)? "sells" : "rejects" );
 			Msg("--- Actor [%d][%s]  %s  [%d][%s]", ID(), Name(), act, GO->ID(), GO->cNameSect().c_str());
 #endif // MP_LOGGING
 			
@@ -127,7 +125,7 @@ void CActor::OnEvent(NET_Packet& P, u16 type)
 				break;
 			}
 
-			if (!Obj->getDestroy() && inventory().DropItem(GO, dont_create_shell)) 
+			if (!Obj->getDestroy() && inventory().DropItem(GO, just_before_destroy, dont_create_shell)) 
 			{
 				//O->H_SetParent(0,just_before_destroy);//moved to DropItem
 				//feel_touch_deny(O,2000);
@@ -156,15 +154,15 @@ void CActor::OnEvent(NET_Packet& P, u16 type)
 		break;
 	case GE_INV_ACTION:
 		{
-			s32 cmd;
-			P.r_s32		(cmd);
+			u16 cmd;
+			P.r_u16		(cmd);
 			u32 flags;
 			P.r_u32		(flags);
 			s32 ZoomRndSeed = P.r_s32();
 			s32 ShotRndSeed = P.r_s32();
 			if (!IsGameTypeSingle() && !g_Alive())
 			{
-				Msg("! WARNING: dead player tries to rize inventory action");
+//				Msg("! WARNING: dead player tries to rize inventory action");
 				break;
 			}
 									
@@ -192,14 +190,14 @@ void CActor::OnEvent(NET_Packet& P, u16 type)
 //			R_ASSERT2( Obj, make_string("GEG_PLAYER_ITEM_EAT(use): Object not found. object_id = [%d]", id).c_str() );
 			VERIFY2  ( Obj, make_string("GEG_PLAYER_ITEM_EAT(use): Object not found. object_id = [%d]", id).c_str() );
 			if ( !Obj ) {
-				Msg                 ( "! GEG_PLAYER_ITEM_EAT(use): Object not found. object_id = [%d]", id );
+//				Msg                 ( "! GEG_PLAYER_ITEM_EAT(use): Object not found. object_id = [%d]", id );
 				break;
 			}
 
 //			R_ASSERT2( !Obj->getDestroy(), make_string("GEG_PLAYER_ITEM_EAT(use): Object is destroying. object_id = [%d]", id).c_str() );
 			VERIFY2  ( !Obj->getDestroy(), make_string("GEG_PLAYER_ITEM_EAT(use): Object is destroying. object_id = [%d]", id).c_str() );
 			if ( Obj->getDestroy() ) {
-				Msg                                ( "! GEG_PLAYER_ITEM_EAT(use): Object is destroying. object_id = [%d]", id );
+//				Msg                                ( "! GEG_PLAYER_ITEM_EAT(use): Object is destroying. object_id = [%d]", id );
 				break;
 			}
 
@@ -230,8 +228,10 @@ void CActor::OnEvent(NET_Packet& P, u16 type)
 			switch (type)
 			{
 			case GEG_PLAYER_ITEM2SLOT:	 
-				inventory().Slot( iitem ); 
-				break;//2
+			{
+				u16 slot_id = P.r_u16();
+				inventory().Slot(slot_id, iitem ); 
+			}break;//2
 			case GEG_PLAYER_ITEM2BELT:	 
 				inventory().Belt( iitem ); 
 				break;//2
@@ -246,8 +246,8 @@ void CActor::OnEvent(NET_Packet& P, u16 type)
 		}break;//1
 	case GEG_PLAYER_ACTIVATE_SLOT:
 		{
-			u32							slot_id;
-			P.r_u32						(slot_id);
+			u16							slot_id;
+			P.r_u16						(slot_id);
 
 			inventory().Activate		(slot_id);
 								  
@@ -266,9 +266,9 @@ void CActor::OnEvent(NET_Packet& P, u16 type)
 
 	case GEG_PLAYER_WEAPON_HIDE_STATE:
 		{
-			u32 State		= P.r_u32();
+			u16 State		= P.r_u16();
 			BOOL	Set		= !!P.r_u8();
-			inventory().SetSlotsBlocked	((u16)State, !!Set);
+			inventory().SetSlotsBlocked	(State, !!Set);
 		}break;
 	case GE_MOVE_ACTOR:
 		{

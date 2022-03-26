@@ -12,8 +12,6 @@
 #include "object_broker.h"
 #include "alife_human_brain.h"
 
-
-
 #ifndef AI_COMPILER
 #	include "ai_space.h"
 #	include "character_info.h"

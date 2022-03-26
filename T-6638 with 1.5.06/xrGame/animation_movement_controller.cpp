@@ -241,7 +241,6 @@ void animation_movement_controller::OnFrame( )
 	animation_root_position( root_pos );
 
 
-
 	Fmatrix obj_pos = Fmatrix().mul_43( m_startObjXForm, root_pos);
 	//Fvector prv_pos = m_pObjXForm.c;
 	InitalPositionBlending( obj_pos );

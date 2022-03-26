@@ -128,6 +128,5 @@ void CStalkerActionDead::execute		()
 		object().inventory().Ruck		(item);
 	}
 
-
 	set_property						(eWorldPropertyDead,true);
 }

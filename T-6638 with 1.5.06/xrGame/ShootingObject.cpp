@@ -514,6 +514,7 @@ void CShootingObject::FireBullet(const Fvector& pos,
 										send_hit, 
 										aim_bullet);
 }
+
 void CShootingObject::FireStart	()
 {
 	bWorking=true;	

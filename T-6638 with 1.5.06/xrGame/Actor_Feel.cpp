@@ -74,14 +74,16 @@ ICF static BOOL info_trace_callback(collide::rq_result& result, LPVOID params)
 		if (Level().CurrentEntity()==result.O)
 		{ //ignore self-actor
 			return			TRUE;
-		}else
+		}
+		else
 		{ //check obstacle flag
 			if(result.O->spatial.type&STYPE_OBSTACLE)
 				bOverlaped			= TRUE;
 
 			return			TRUE;
 		}
-	}else
+	}
+	else
 	{
 		//получить треугольник и узнать его материал
 		CDB::TRI* T		= Level().ObjectSpace.GetStaticTris()+result.element;
@@ -124,8 +126,7 @@ void CActor::PickupModeUpdate()
 	if(	m_pObjectWeLookingAt									&& 
 		m_pObjectWeLookingAt->cast_inventory_item()				&& 
 		m_pObjectWeLookingAt->cast_inventory_item()->Useful()	&&
-		m_pUsableObject											&& 
-		!m_pUsableObject->nonscript_usable()					&&
+		m_pUsableObject && !m_pUsableObject->nonscript_usable()	&&
 		!Level().m_feel_deny.is_object_denied(m_pObjectWeLookingAt) )
 	{
 		m_pUsableObject->use(this);

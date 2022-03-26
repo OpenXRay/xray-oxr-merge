@@ -544,6 +544,7 @@ void CScriptGameObject::invulnerable		(bool invulnerable)
 
 	monster->invulnerable	(invulnerable);
 }
+
 LPCSTR CScriptGameObject::get_smart_cover_description	() const {
 	smart_cover::object		*smart_cover_object = smart_cast<smart_cover::object*>(&object());
 	if (!smart_cover_object) {
@@ -557,6 +558,7 @@ void CScriptGameObject::set_visual_name						(LPCSTR visual)
 {
 	object().cNameVisual_set(visual);
 }
+
 LPCSTR CScriptGameObject::get_visual_name				() const {
 	return object().cNameVisual().c_str();
 }

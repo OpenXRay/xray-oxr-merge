@@ -5,7 +5,6 @@
 #include "pch_script.h"
 #include "ai_debug.h"
 #include "CustomMonster.h"
-#include "hudmanager.h"
 #include "ai_space.h"
 #include "ai/monsters/BaseMonster/base_monster.h"
 #include "xrserver_objects_alife_monsters.h"

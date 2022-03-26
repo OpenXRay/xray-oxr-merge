@@ -70,12 +70,12 @@ const Fvector &CALifeMonsterPatrolPathManager::target_position	() const
 void CALifeMonsterPatrolPathManager::select_nearest			()
 {
 	m_current_vertex_index				= u32(-1);
-	Fvector								global_position = ai().game_graph().vertex(object().m_tGraphID)->game_point();
+	Fvector								global_position = ai().game_graph().vertex(object().get_object().m_tGraphID)->game_point();
 	float								best_distance = flt_max;
 	CPatrolPath::const_vertex_iterator	I = path().vertices().begin();
 	CPatrolPath::const_vertex_iterator	E = path().vertices().end();
 	for ( ; I != E; ++I) {
-		if ((*I).second->data().game_vertex_id() == object().m_tGraphID) {
+		if ((*I).second->data().game_vertex_id() == object().get_object().m_tGraphID) {
 			m_current_vertex_index		= (*I).second->vertex_id();
 			break;
 		}
@@ -129,10 +129,10 @@ void CALifeMonsterPatrolPathManager::actualize				()
 
 bool CALifeMonsterPatrolPathManager::location_reached			() const
 {
-	if (object().m_tGraphID != target_game_vertex_id())
+	if (object().get_object().m_tGraphID != target_game_vertex_id())
 		return							(false);
 
-	if (object().m_tNodeID != target_level_vertex_id())
+	if (object().get_object().m_tNodeID != target_level_vertex_id())
 		return							(false);
 
 	return								(true);
@@ -177,7 +177,7 @@ void CALifeMonsterPatrolPathManager::navigate					()
 		};
 	}
 
-	u32									chosen = use_randomness() ? object().randI(branching_factor) : 0;
+	u32									chosen = use_randomness() ? object().get_object().randI(branching_factor) : 0;
 	u32									branch = 0;
 	for (I = B; I != E; ++I) {
 		if (*I == m_previous_vertex_index)

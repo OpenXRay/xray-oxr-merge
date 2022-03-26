@@ -15,14 +15,14 @@ void HUD_SOUND_ITEM::LoadSound(	LPCSTR section, LPCSTR line,
 	hud_snd.sounds.clear	();
 
 	string256	sound_line;
-	strcpy_s		(sound_line,line);
+	xr_strcpy		(sound_line,line);
 	int k=0;
 	while( pSettings->line_exist(section, sound_line) ){
 		hud_snd.sounds.push_back( SSnd() );
 		SSnd& s = hud_snd.sounds.back();
 
 		LoadSound	(section, sound_line, s.snd, type, &s.volume, &s.delay);
-		sprintf_s		(sound_line,"%s%d",line,++k);
+		xr_sprintf		(sound_line,"%s%d",line,++k);
 	}//while
 }
 
@@ -179,6 +179,7 @@ void HUD_SOUND_COLLECTION::StopAllSounds()
 void HUD_SOUND_COLLECTION::LoadSound(	LPCSTR section, 
 										LPCSTR line,
 										LPCSTR alias,													
+										bool exclusive,
 										int type)
 {
 	R_ASSERT					(NULL==FindSoundItem(alias, false));
@@ -186,4 +187,5 @@ void HUD_SOUND_COLLECTION::LoadSound(	LPCSTR section,
 	HUD_SOUND_ITEM& snd_item	= m_sound_items.back();
 	HUD_SOUND_ITEM::LoadSound	(section, line, snd_item, type);
 	snd_item.m_alias			= alias;
+	snd_item.m_b_exclusive		= exclusive;
 }

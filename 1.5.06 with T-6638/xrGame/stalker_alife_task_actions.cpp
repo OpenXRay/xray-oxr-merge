@@ -94,7 +94,7 @@ void CStalkerActionSolveZonePuzzle::initialize	()
 		object().movement().patrol().set_path		("test_sight",PatrolPathManager::ePatrolStartTypeNearest,PatrolPathManager::ePatrolRouteTypeContinue);
 //		object().movement().set_nearest_accessible_position();
 		object().sight().setup						(CSightAction(SightManager::eSightTypePathDirection));
-//		object().CObjectHandler::set_goal			(eObjectActionFire1,object().inventory().m_slots[3].m_pIItem,0,1,2500,3000);
+//		object().CObjectHandler::set_goal			(eObjectActionFire1,object().inventory().ItemFromSlot(GRENADE_SLOT),0,1,2500,3000);
 #	endif
 #endif
 }
@@ -127,11 +127,11 @@ void CStalkerActionSolveZonePuzzle::execute		()
 #	if 1
 //		object().throw_target					(g_actor->Position(), g_actor);
 //		if (object().throw_enabled()) {
-//			object().CObjectHandler::set_goal	(eObjectActionFire1,object().inventory().m_slots[3].m_pIItem);
+//			object().CObjectHandler::set_goal	(eObjectActionFire1,object().inventory().ItemFromSlot(GRENADE_SLOT));
 //			return;
 //		}
 //
-//		object().CObjectHandler::set_goal			(eObjectActionIdle,object().inventory().m_slots[3].m_pIItem);
+//		object().CObjectHandler::set_goal			(eObjectActionIdle,object().inventory().ItemFromSlot(GRENADE_SLOT));
 		object().CObjectHandler::set_goal			(eObjectActionFire1,object().best_weapon());
 #	else
 #		if 1
@@ -148,7 +148,7 @@ void CStalkerActionSolveZonePuzzle::execute		()
 
 			static u32 m_time_to_strap = 0;
 			static u32 m_time_to_idle = 0;
-			if (!object().inventory().ActiveItem() || (object().inventory().ActiveItem() == object().inventory().m_slots[1].m_pIItem)) {
+			if (!object().inventory().ActiveItem() || (object().inventory().GetActiveSlot() == INV_SLOT_2)) {
 				if (!m_time_to_strap)
 					m_time_to_strap					= Device.dwTimeGlobal + 10000;
 				if (Device.dwTimeGlobal >= m_time_to_strap) {
@@ -164,7 +164,7 @@ void CStalkerActionSolveZonePuzzle::execute		()
 						m_time_to_idle					= Device.dwTimeGlobal + 10000;
 					if (Device.dwTimeGlobal >= m_time_to_idle) {
 						m_time_to_strap					= 0;
-						object().CObjectHandler::set_goal	(eObjectActionIdle,object().inventory().m_slots[1].m_pIItem);
+						object().CObjectHandler::set_goal	(eObjectActionIdle,object().inventory().ItemFromSlot(INV_SLOT_2));
 					}
 				}
 			}
@@ -258,10 +258,10 @@ void CStalkerActionSmartTerrain::execute				()
 	object().sight().setup						(CSightAction(g_actor,true));
 	object().throw_target						(g_actor->Position(), g_actor);
 	if (object().throw_enabled()) {
-		object().CObjectHandler::set_goal		(eObjectActionFire1,object().inventory().m_slots[3].m_pIItem);
+		object().CObjectHandler::set_goal		(eObjectActionFire1,object().inventory().ItemFromSlot(GRENADE_SLOT));
 		return;
 	}
 
-	object().CObjectHandler::set_goal			(eObjectActionIdle,object().inventory().m_slots[3].m_pIItem);
+	object().CObjectHandler::set_goal			(eObjectActionIdle,object().inventory().ItemFromSlot(GRENADE_SLOT));
 #endif
 }

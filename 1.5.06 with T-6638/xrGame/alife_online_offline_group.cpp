@@ -153,7 +153,6 @@ void CSE_ALifeOnlineOfflineGroup::try_switch_online		()
 		return;
 
 	if (!can_switch_offline()) {
-		//.
 		o_Position				= alife().graph().actor()->o_Position;
 
         inherited1::try_switch_online	();
@@ -170,7 +169,6 @@ void CSE_ALifeOnlineOfflineGroup::try_switch_online		()
 		if (alife().graph().actor()->o_Position.distance_to((*I).second->o_Position) > alife().offline_distance())
 			continue;
 
-		//.
 		o_Position				= (*I).second->o_Position;
 
         inherited1::try_switch_online	();

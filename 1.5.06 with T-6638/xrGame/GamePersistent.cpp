@@ -29,15 +29,15 @@
 #	include "ai_debug.h"
 #endif // _EDITOR
 
-#ifdef DEBUG_MEMORY_MANAGER
-	static	void *	ode_alloc	(size_t size)								{ return Memory.mem_alloc(size,"ODE");			}
-	static	void *	ode_realloc	(void *ptr, size_t oldsize, size_t newsize)	{ return Memory.mem_realloc(ptr,newsize,"ODE");	}
-	static	void	ode_free	(void *ptr, size_t size)					{ return xr_free(ptr);							}
-#else // DEBUG_MEMORY_MANAGER
-	static	void *	ode_alloc	(size_t size)								{ return xr_malloc(size);			}
-	static	void *	ode_realloc	(void *ptr, size_t oldsize, size_t newsize)	{ return xr_realloc(ptr,newsize);	}
-	static	void	ode_free	(void *ptr, size_t size)					{ return xr_free(ptr);				}
-#endif // DEBUG_MEMORY_MANAGER
+//#ifdef DEBUG_MEMORY_MANAGER
+//	static	void *	ode_alloc	(size_t size)								{ return Memory.mem_alloc(size,"ODE");			}
+//	static	void *	ode_realloc	(void *ptr, size_t oldsize, size_t newsize)	{ return Memory.mem_realloc(ptr,newsize,"ODE");	}
+//	static	void	ode_free	(void *ptr, size_t size)					{ return xr_free(ptr);							}
+//#else // DEBUG_MEMORY_MANAGER
+//	static	void *	ode_alloc	(size_t size)								{ return xr_malloc(size);			}
+//	static	void *	ode_realloc	(void *ptr, size_t oldsize, size_t newsize)	{ return xr_realloc(ptr,newsize);	}
+//	static	void	ode_free	(void *ptr, size_t size)					{ return xr_free(ptr);				}
+//#endif // DEBUG_MEMORY_MANAGER
 
 CGamePersistent::CGamePersistent(void)
 {
@@ -59,15 +59,15 @@ CGamePersistent::CGamePersistent(void)
 	m_pUI_core					= NULL;
 	m_pMainMenu					= NULL;
 	m_intro						= NULL;
-	m_intro_event.bind			(this,&CGamePersistent::start_logo_intro);
+	m_intro_event.bind			(this, &CGamePersistent::start_logo_intro);
 #ifdef DEBUG
 	m_frame_counter				= 0;
 	m_last_stats_frame			= u32(-2);
 #endif
 	// 
-	dSetAllocHandler			(ode_alloc		);
-	dSetReallocHandler			(ode_realloc	);
-	dSetFreeHandler				(ode_free		);
+	//dSetAllocHandler			(ode_alloc		);
+	//dSetReallocHandler			(ode_realloc	);
+	//dSetFreeHandler				(ode_free		);
 
 	// 
 	BOOL	bDemoMode	= (0!=strstr(Core.Params,"-demomode "));
@@ -206,7 +206,6 @@ LPCSTR GameTypeToString(EGameIDs gt, bool bShort)
 		return (bShort)?"tdz":"teamdominationzone";
 		break;
 	default :
-//		R_ASSERT	(0);
 		return		"---";
 	}
 }
@@ -431,7 +430,7 @@ void CGamePersistent::start_logo_intro		()
 #ifdef MASTER_GOLD
 	if (g_SASH.IsRunning())
 #else	// #ifdef MASTER_GOLD
-	if ((0!=strstr(Core.Params,"-nointro")) || g_SASH.IsRunning())
+	if ((0!=strstr(Core.Params, "-nointro")) || g_SASH.IsRunning())
 #endif	// #ifdef MASTER_GOLD
 	{
 		m_intro_event			= 0;
@@ -491,18 +490,20 @@ void CGamePersistent::update_game_intro			()
 		m_intro_event			= 0;
 	}
 }
-#include "holder_custom.h"
+
 extern CUISequencer * g_tutorial;
 extern CUISequencer * g_tutorial2;
 
 void CGamePersistent::OnFrame	()
 {
-	if(g_tutorial2){ 
+	if(g_tutorial2)
+	{ 
 		g_tutorial2->Destroy	();
 		xr_delete				(g_tutorial2);
 	}
 
-	if(g_tutorial && !g_tutorial->IsActive()){
+	if(g_tutorial && !g_tutorial->IsActive())
+	{
 		xr_delete(g_tutorial);
 	}
 
@@ -601,7 +602,6 @@ void CGamePersistent::OnFrame	()
 
 #include "game_sv_single.h"
 #include "xrServer.h"
-#include "hudmanager.h"
 #include "UIGameCustom.h"
 
 void CGamePersistent::OnEvent(EVENT E, u64 P1, u64 P2)
@@ -611,8 +611,10 @@ void CGamePersistent::OnEvent(EVENT E, u64 P1, u64 P2)
 		if (Device.Paused())
 			Device.Pause		(FALSE, TRUE, TRUE, "eQuickLoad");
 		
-		if(HUD().GetUI())
-			HUD().GetUI()->UIGame()->HideShownDialogs();
+		if(CurrentGameUI())
+		{
+			CurrentGameUI()->HideShownDialogs();
+		}
 
 		LPSTR		saved_name	= (LPSTR)(P1);
 
@@ -779,8 +781,8 @@ void CGamePersistent::UpdateDof()
 #include "ui\uimainingamewnd.h"
 void CGamePersistent::OnSectorChanged(int sector)
 {
-	if(HUD().GetUI())
-		HUD().GetUI()->UIMainIngameWnd->OnSectorChanged(sector);
+	if(CurrentGameUI())
+		CurrentGameUI()->UIMainIngameWnd->OnSectorChanged(sector);
 }
 
 void CGamePersistent::OnAssetsChanged()

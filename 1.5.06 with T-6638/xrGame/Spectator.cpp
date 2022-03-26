@@ -6,10 +6,8 @@
 #include "spectator.h"
 #include "effectorfall.h"
 #include "CameraLook.h"
-//#include "CameraFirstEye.h"
 #include "spectator_camera_first_eye.h"
 #include "actor.h"
-#include "hudmanager.h"
 #include "xrServer_Objects.h"
 #include "game_cl_base.h"
 #include "level.h"
@@ -48,6 +46,9 @@ CSpectator::CSpectator() : CGameObject()
 
 	cameras[eacFreeFly]		= xr_new<CSpectrCameraFirstEye>	(m_fTimeDelta, this, 0);
 	cameras[eacFreeFly]->Load("actor_firsteye_cam");
+
+	cameras[eacFixedLookAt]	= xr_new<CCameraFixedLook>	(this);
+	cameras[eacFixedLookAt]->Load("actor_look_cam");
 
 //	cam_active				= eacFreeFly;
 	cam_active				= eacFreeLook;
@@ -423,7 +424,9 @@ void CSpectator::cam_Update	(CActor* A)
 			g_pGameLevel->Cameras().UpdateFromCamera(cam);
 		}
 		//-----------------------------------
-	}else{
+	}
+	else
+	{
 		CCameraBase* cam			= cameras[eacFreeFly];
 		Fvector point, dangle;
 		point.set					(0.f,1.6f,0.f);
@@ -458,7 +461,7 @@ BOOL			CSpectator::net_Spawn				( CSE_Abstract*	DC )
 	cam_active				= eacFreeFly;
 	look_idx				= 0;
 
-	cameras[cam_active]->Set		(-E->o_Angle.y,-E->o_Angle.x,0);		// set's camera orientation
+	cameras[cam_active]->Set(-E->o_Angle.y, -E->o_Angle.x, 0); // set's camera orientation
 	cameras[cam_active]->vPosition.set(E->o_Position);
 
 	if (OnServer())
@@ -504,7 +507,7 @@ bool			CSpectator::SelectNextPlayerToLook	(bool const search_next)
 		if (!pObject) continue;
 		CActor* A = smart_cast<CActor*>(pObject);
 		if (!A) continue;
-		if (m_last_player_name.size() && (m_last_player_name == ps->name))
+		if (m_last_player_name.size() && (m_last_player_name == ps->getName()))
 		{
 			last_player_idx		= PPCount;
 		}
@@ -528,7 +531,7 @@ bool			CSpectator::SelectNextPlayerToLook	(bool const search_next)
 		m_pActorToLookAt = PossiblePlayers[look_idx];
 		game_PlayerState* tmp_state = Game().GetPlayerByGameID(m_pActorToLookAt->ID());
 		if (tmp_state)
-			m_last_player_name = tmp_state->name;
+			m_last_player_name = tmp_state->getName();
 		return true;
 	};
 	return false;
@@ -601,7 +604,7 @@ void CSpectator::GetSpectatorString		(string1024& pStr)
 			SpectatorMsg += m_pActorToLookAt ? m_pActorToLookAt->Name() : "";
 		}break;
 	};
-	strcpy_s(pStr, SpectatorMsg.c_str());
+	xr_strcpy(pStr, SpectatorMsg.c_str());
 };
 
 

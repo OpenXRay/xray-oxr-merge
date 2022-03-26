@@ -238,7 +238,6 @@ CScriptGameObject *CScriptGameObject::GetCurrentOutfit() const
 	return			(current_equipment ? current_equipment->lua_game_object() : 0);
 }
 
-
 float CScriptGameObject::GetCurrentOutfitProtection(int hit_type)
 {
 	CInventoryOwner		*inventoryOwner = smart_cast<CInventoryOwner*>(&object());
