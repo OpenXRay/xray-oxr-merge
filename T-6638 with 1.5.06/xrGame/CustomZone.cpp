@@ -427,6 +427,7 @@ bool CCustomZone::AccumulateState()
 	}
 	return false;
 }
+
 void CCustomZone::UpdateWorkload	(u32 dt)
 {
 	m_iPreviousStateTime	= m_iStateTime;
@@ -1165,10 +1166,10 @@ bool CCustomZone::Disable()
 	if (!IsEnabled()) return false;
 	o_switch_2_slow();
 
-	for(OBJECT_INFO_VEC_IT it = m_ObjectInfoMap.begin(); m_ObjectInfoMap.end()!=it; ++it) 
+	for(OBJECT_INFO_VEC_IT it = m_ObjectInfoMap.begin(); m_ObjectInfoMap.end() != it; ++it) 
 	{
 		CGameObject* pObject = (*it).object;
-		if (!pObject) 
+		if (!pObject)
 			continue;
 
 		StopObjectIdleParticles(pObject);
@@ -1401,7 +1402,7 @@ BOOL CCustomZone::feel_touch_on_contact	(CObject *O)
 BOOL CCustomZone::AlwaysTheCrow()
 {
 	bool b_idle = ZoneState()==eZoneStateIdle || ZoneState()==eZoneStateDisabled;
- 	if(!b_idle || (m_zone_flags.test(eAlwaysFastmode) && IsEnabled()) )
+ 	if (!b_idle || (m_zone_flags.test(eAlwaysFastmode) && IsEnabled()) )
 		return TRUE;
  	else
  		return inherited::AlwaysTheCrow();

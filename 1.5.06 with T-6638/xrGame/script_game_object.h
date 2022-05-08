@@ -191,7 +191,7 @@ public:
 	_DECLARE_FUNCTION11	(SetHealth,			void, float);
 	_DECLARE_FUNCTION11	(SetPsyHealth,		void, float);
 	_DECLARE_FUNCTION11	(SetPower,			void, float);
-//	_DECLARE_FUNCTION11	(SetSatiety,		void, float);
+	_DECLARE_FUNCTION11	(ChangeSatiety,		void, float);
 	_DECLARE_FUNCTION11	(SetRadiation,		void, float);
 	_DECLARE_FUNCTION11	(SetBleeding,		void, float);
 	_DECLARE_FUNCTION11	(SetCircumspection,	void, float);
@@ -258,7 +258,7 @@ public:
 
 			void				force_stand_sleep_animation	(u32 index);
 			void				release_stand_sleep_animation ();
-	
+
 			void				set_invisible			(bool val);
 			bool				get_invisible			();
 			void				set_manual_invisibility (bool val);

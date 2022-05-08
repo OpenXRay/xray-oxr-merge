@@ -59,13 +59,6 @@ void CMapSpot::Load(CUIXml* xml, LPCSTR path)
 			m_border_static->SetStretchTexture	(true);
 		}
 	}
-
-	/*strconcat			(sizeof(str), str, path, ":focused_border");
-	if ( xml->NavigateToNode(str) )
-	{
-		m_focused_static = UIHelper::CreateStatic( *xml, str, this );
-		m_focused_static->Show( false );
-	}*/
 	m_mark_focused = false;
 }
 
@@ -89,21 +82,6 @@ void CMapSpot::Update()
 			GetMessageTarget()->SendMessage(this, MAP_SHOW_HINT, NULL);
 		}
 	}
-
-//	Frect rect;
-//	GetWndRect( rect );
-//	HUD().GetUI()->UIGame()->PdaMenu().pUITaskWnd->m_pMapWnd->ActiveMapRect();
-
-//	Frect vis_rect = ActiveMapRect();
-	
-//	bool view = is_in( vis_rect, rect );
-
-/*	if ( view && m_focused_static && m_mark_focused )
-	{
-		m_focused_static->ResetXformAnimation();
-		m_focused_static->ResetClrAnimation();
-		m_mark_focused = false;
-	}*/
 }
 
 bool CMapSpot::OnMouseDown( int mouse_btn )
@@ -144,7 +122,6 @@ void CMapSpot::mark_focused()
 CMapSpotPointer::CMapSpotPointer(CMapLocation* ml)
 :inherited(ml)
 {
-	ClipperOn();
 }
 
 CMapSpotPointer::~CMapSpotPointer()
@@ -154,17 +131,6 @@ CMapSpotPointer::~CMapSpotPointer()
 LPCSTR CMapSpotPointer::GetHint()
 {
 	return NULL;
-/*
-	m_pointer_hint = "to: ";
-	m_pointer_hint += inherited::GetHint();
-	Fvector2 cam_pos;
-	cam_pos.set(Device.vCameraPosition.x,Device.vCameraPosition.z);
-	float dist = MapLocation()->Position().distance_to(cam_pos);
-	string32 s;
-	sprintf_s(s," [%.2f]m.", dist);
-	m_pointer_hint += s;
-	return m_pointer_hint.c_str();
-*/
 }
 
 //////////////////////////////////////////////////

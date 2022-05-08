@@ -3,9 +3,11 @@
 #include "HudSound.h"
 
 float psHUDSoundVolume			= 1.0f;
+float psHUDStepSoundVolume		= 1.0f;
 void InitHudSoundSettings()
 {
-	psHUDSoundVolume = pSettings->r_float("hud_sound", "hud_sound_vol_k");
+	psHUDSoundVolume		= pSettings->r_float("hud_sound", "hud_sound_vol_k");
+	psHUDStepSoundVolume	= pSettings->r_float("hud_sound", "hud_step_sound_vol_k");
 }
 
 void HUD_SOUND_ITEM::LoadSound(	LPCSTR section, LPCSTR line, 
@@ -178,7 +180,7 @@ void HUD_SOUND_COLLECTION::StopAllSounds()
 
 void HUD_SOUND_COLLECTION::LoadSound(	LPCSTR section, 
 										LPCSTR line,
-										LPCSTR alias,													
+										LPCSTR alias,
 										bool exclusive,
 										int type)
 {

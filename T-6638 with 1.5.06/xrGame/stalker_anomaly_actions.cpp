@@ -103,9 +103,11 @@ void CStalkerActionGetOutOfAnomaly::execute	()
 
 	xr_vector<CObject*>::const_iterator	I = object().feel_touch.begin();
 	xr_vector<CObject*>::const_iterator	E = object().feel_touch.end();
-	for ( ; I != E; ++I) {
+	for ( ; I != E; ++I)
+	{
 		CCustomZone						*zone = smart_cast<CCustomZone*>(*I);
-		if ( zone && (zone->restrictor_type() != RestrictionSpace::eRestrictorTypeNone) ) {
+		if ( zone && (zone->restrictor_type() != RestrictionSpace::eRestrictorTypeNone) )
+		{
 			if (smart_cast<CRadioactiveZone*>(zone))
 				continue;
 

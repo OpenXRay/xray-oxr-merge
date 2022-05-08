@@ -6,7 +6,7 @@
 #include "../../../CharacterPhysicsSupport.h"
 #include "../../../phmovementcontrol.h"
 #include "../ai_monster_squad_manager.h"
-#include "../../../../skeletonanimated.h"
+#include "../../../../Include/xrRender/KinematicsAnimated.h"
 #include "../../../detail_path_manager.h"
 #include "../../../level_graph.h"
 #include "../corpse_cover.h"
@@ -20,7 +20,7 @@
 #include "../monster_home.h"
 #include "../../../ai_object_location.h"
 #include "../../../level.h"
-#include "../../../xrserver_objects_alife_monsters.h"
+#include "../../../../xrServerEntities/xrserver_objects_alife_monsters.h"
 #include "../../../alife_simulator.h"
 #include "../../../alife_object_registry.h"
 #include "../../../xrServer.h"
@@ -35,8 +35,6 @@ void CBaseMonster::Load(LPCSTR section)
 	m_corpse_cover_evaluator		= xr_new<CMonsterCorpseCoverEvaluator>	(&movement().restrictions());
 	m_enemy_cover_evaluator			= xr_new<CCoverEvaluatorFarFromEnemy>	(&movement().restrictions());
 	m_cover_evaluator_close_point	= xr_new<CCoverEvaluatorCloseToEnemy>	(&movement().restrictions());
-
-	movement().Load					(section);
 
 	MeleeChecker.load				(section);
 	Morale.load						(section);
@@ -62,7 +60,7 @@ void CBaseMonster::Load(LPCSTR section)
 //	} else m_spawn_probability			= 0.f;
 
 	m_melee_rotation_factor			= READ_IF_EXISTS(pSettings,r_float,section,"Melee_Rotation_Factor", 1.5f);
-	berserk_always					= READ_IF_EXISTS(!!pSettings,r_bool,section,"berserk_always", false);
+	berserk_always					= !!READ_IF_EXISTS(pSettings,r_bool,section,"berserk_always", false);
 }
 
 // if sound is absent just do not load that one
@@ -170,27 +168,22 @@ BOOL CBaseMonster::net_Spawn (CSE_Abstract* DC)
 		return(FALSE);
 
 	CSE_Abstract							*e	= (CSE_Abstract*)(DC);
-#ifndef PRIQUEL
-	m_pPhysics_support->in_NetSpawn			(e);//этот выззов с послудующими не связан, 
-												//но там есть хак - запуск анимации на всякий случай если никто больше ее не запустил 
-												//поэтому в основной версии на всякий случай пусть будет здесь, 
-												//но для animation movement controllr он должен быть в конце чтобы знать что он создался на споне
-#endif
-
 	R_ASSERT2								(ai().get_level_graph() && ai().get_cross_table() && (ai().level_graph().level_id() != u32(-1)),"There is no AI-Map, level graph, cross table, or graph is not compiled into the game graph!");
-
 	monster_squad().register_member			((u8)g_Team(),(u8)g_Squad(),(u8)g_Group(), this);
-
 	settings_overrides						();
 
-#ifdef PRIQUEL
+	CHARACTER_COMMUNITY						community;
+	community.set							("monster");
+	CInventoryOwner::SetCommunity			(community.index());
+
 	if (GetScriptControl()) {
 		m_control_manager->animation().reset_data	();
 		ProcessScripts						();
 	}
 	m_pPhysics_support->in_NetSpawn			(e);
-#endif
 
+	control().update_frame();
+	control().update_schedule();
 
 	// spawn inventory item
 //	if (ai().get_alife()) {
@@ -371,7 +364,7 @@ void CBaseMonster::fill_bones_body_parts	(LPCSTR body_part, CriticalWoundType wo
 {
 	LPCSTR					body_parts_section = pSettings->r_string(cNameSect(),body_part);
 
-	CKinematics				*kinematics	= smart_cast<CKinematics*>(Visual());
+	IKinematics				*kinematics	= smart_cast<IKinematics*>(Visual());
 	VERIFY					(kinematics);
 
 	CInifile::Sect			&body_part_section = pSettings->r_section(body_parts_section);

@@ -143,22 +143,22 @@ protected:
 	typedef detail::functor2<int>			IntFunctor;
 
 protected:
-	Group*				m_parent_group;
+	Group*					m_parent_group;
 
-	shared_str			m_section;
-	Ivector2			m_scheme_index;
+	shared_str				m_section;
+	Ivector2				m_scheme_index;
 
-	shared_str			m_name;
-	shared_str			m_description;
-	shared_str			m_icon;
+	shared_str				m_name;
+	shared_str				m_description;
+	shared_str				m_icon;
 	shared_str				m_properties[max_properties_count];
 
-	IntFunctor			m_preconditions;
-	VoidFunctor3		m_effects;
-	StrFunctor			m_prerequisites;
-//	VoidFunctor			m_tooltip;
+	IntFunctor				m_preconditions;
+	VoidFunctor3			m_effects;
+	StrFunctor				m_prerequisites;
+//	VoidFunctor				m_tooltip;
 
-	bool				m_highlight;
+	bool					m_highlight;
 
 };
 

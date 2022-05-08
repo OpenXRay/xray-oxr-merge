@@ -294,7 +294,7 @@ public:
 
 	// CProjector
 			Fvector				GetCurrentDirection		();
-			
+
 			bool				IsInvBoxEmpty			();
 			bool				inv_box_closed			(bool status, LPCSTR reason);
 			bool				inv_box_closed_status	();
@@ -576,7 +576,7 @@ public:
 			void				set_sound_threshold		(float value);
 			void				restore_sound_threshold	();
 			//////////////////////////////////////////////////////////////////////////
-			void				enable_attachable_item	(bool value);			
+			void				enable_attachable_item	(bool value);
 			bool				attachable_item_enabled	() const;
 			void				enable_night_vision		(bool value);			
 			bool				night_vision_enabled	() const;
@@ -713,7 +713,7 @@ public:
 			void				set_dest_smart_cover					();
 			CCoverPoint const*	get_dest_smart_cover					();
 			LPCSTR				get_dest_smart_cover_name				();
-			
+
 			void				set_dest_loophole						(LPCSTR loophole_id);
 			void				set_dest_loophole						();
 

@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "../xrCore/xrCore.h"
+#include "../../xrCore/xrCore.h"
 
 #define WIN32_LEAN_AND_MEAN
 

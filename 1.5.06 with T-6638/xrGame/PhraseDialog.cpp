@@ -195,7 +195,6 @@ LPCSTR CPhraseDialog::GetPhraseText	(const shared_str& phrase_id, bool current_s
 		return ph->m_script_text_val.c_str		();
 	}else
 		return ph->GetScriptHelper()->GetScriptText(ph->GetText(), pSpeakerGO1, pSpeakerGO2, m_DialogId.c_str(), phrase_id.c_str());
-//.	return ph->GetText();
 }
 
 LPCSTR CPhraseDialog::DialogCaption()

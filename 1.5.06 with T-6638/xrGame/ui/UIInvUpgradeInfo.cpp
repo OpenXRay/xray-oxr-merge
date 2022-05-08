@@ -101,9 +101,9 @@ bool UIInvUpgradeInfo::init_upgrade( Upgrade_type* upgr, CInventoryItem* inv_ite
 	m_desc->Show( true );
 
 	m_name->SetText( m_upgrade->name() );
+	m_desc->SetText( m_upgrade->description_text() );
 	if ( m_upgrade->is_known() )
 	{
-		m_desc->SetText( m_upgrade->description_text() );
 		m_prereq->Show( true );
 		m_properties_wnd->Show( true );
 		luabind::functor<LPCSTR> cost_func;
@@ -147,9 +147,7 @@ bool UIInvUpgradeInfo::init_upgrade( Upgrade_type* upgr, CInventoryItem* inv_ite
 	}
 	else
 	{
-		m_desc->SetTextST( "st_desc_unknown" );
 		m_prereq->Show( false );
-		m_prereq->SetText( "" );
 		m_properties_wnd->Show( false );
 		m_cost->Show(false);
 	}

@@ -41,11 +41,11 @@ private:
 	friend class CRenumbererConverter;
 
 public:
-	typedef LevelGraph::CPosition	CPosition;
-	typedef LevelGraph::CHeader		CHeader;
-	typedef LevelGraph::CVertex		CVertex;
-	typedef LevelGraph::SSegment	SSegment;
-	typedef LevelGraph::SContour	SContour;
+	typedef LevelGraph::CPosition			CPosition;
+	typedef LevelGraph::CHeader				CHeader;
+	typedef LevelGraph::CVertex				CVertex;
+	typedef LevelGraph::SSegment			SSegment;
+	typedef LevelGraph::SContour			SContour;
 	typedef LevelGraph::ELineIntersections	ELineIntersections;
 
 private:

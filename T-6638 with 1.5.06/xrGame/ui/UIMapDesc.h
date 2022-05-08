@@ -12,7 +12,7 @@ class CUIMapDesc : public CUIDialogWnd {
 public:
 	CUIMapDesc();
 	~CUIMapDesc();
-	
+
 	virtual void	SendMessage(CUIWindow* pWnd, s16 msg, void *pData = 0);
 	virtual bool	OnKeyboardAction(int dik, EUIMessages keyboard_action);
 

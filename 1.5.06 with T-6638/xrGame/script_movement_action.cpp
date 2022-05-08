@@ -72,8 +72,16 @@ CScriptMovementAction::CScriptMovementAction		(MonsterSpace::EScriptMonsterMoveA
 	SetPosition			(*tPosition);																										
 	m_tSpeedParam		= speed_param;
 	m_fDistToEnd		= dist_to_end;
-	if (m_tMoveAction == MonsterSpace::eMA_Jump)
+
+	if ( m_tMoveAction == MonsterSpace::eMA_Jump )
+	{
 		m_tGoalType		= eGoalTypeJumpToPosition;
+	}
+	else if ( m_tMoveAction == MonsterSpace::eMA_WalkWithLeader ||
+			  m_tMoveAction == MonsterSpace::eMA_RunWithLeader )
+	{
+		m_tGoalType		= eGoalTypeFollowLeader;
+	}
 }						
 
 CScriptMovementAction::CScriptMovementAction		(MonsterSpace::EScriptMonsterMoveAction tAct, u32 node_id, Fvector *tPosition, float dist_to_end)

@@ -35,4 +35,3 @@ protected:
 	virtual void	UpfateWork					();
 	CZoneList		m_zones;
 };
-

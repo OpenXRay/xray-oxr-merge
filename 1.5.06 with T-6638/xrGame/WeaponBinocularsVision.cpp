@@ -237,12 +237,12 @@ void CBinocularsVision::Update()
 		}else{
 			m_active_objects.push_back		(xr_new<SBinocVisibleObj>() );
 			SBinocVisibleObj* new_vis_obj	= m_active_objects.back();
-			new_vis_obj->m_flags.set			(flVisObjNotValid,FALSE);
+			new_vis_obj->m_flags.set		(flVisObjNotValid,FALSE);
 			new_vis_obj->m_object			= object_;
 			new_vis_obj->create_default		(m_frame_color.get());
-			new_vis_obj->m_upd_speed			= m_rotating_speed;
+			new_vis_obj->m_upd_speed		= m_rotating_speed;
 			if(NULL==m_snd_found._feedback())
-				m_snd_found.play_at_pos			(0,Fvector().set(0,0,0),sm_2D);
+				m_snd_found.play_at_pos		(0, Fvector().set(0,0,0), sm_2D);
 		}
 	}
 	std::sort								(m_active_objects.begin(), m_active_objects.end());

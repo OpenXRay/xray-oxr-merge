@@ -115,19 +115,31 @@ CStalkerActionGatherItems::CStalkerActionGatherItems	(CAI_Stalker *object, LPCST
 
 void CStalkerActionGatherItems::initialize	()
 {
-	inherited::initialize			();
+	inherited::initialize						();
 
 	object().movement().set_desired_direction	(0);
 	object().movement().set_path_type			(MovementManager::ePathTypeLevelPath);
 	object().movement().set_detail_path_type	(DetailPathManager::eDetailPathTypeSmooth);
-	object().movement().set_body_state		(eBodyStateStand);
+	object().movement().set_body_state			(eBodyStateStand);
 	object().movement().set_movement_type		(eMovementTypeWalk);
 	object().movement().set_mental_state		(eMentalStateDanger);
-	object().sound().remove_active_sounds	(u32(eStalkerSoundMaskNoHumming));
+	object().sound().remove_active_sounds		(u32(eStalkerSoundMaskNoHumming));
 	if (!object().inventory().ActiveItem())
-		object().CObjectHandler::set_goal	(eObjectActionIdle);
+		object().CObjectHandler::set_goal		(eObjectActionIdle);
 	else
-		object().CObjectHandler::set_goal	(eObjectActionIdle,object().inventory().ActiveItem());
+		object().CObjectHandler::set_goal		(eObjectActionIdle,object().inventory().ActiveItem());
+
+	CObject const* const selected							= object().memory().item().selected();
+
+	typedef CAI_Stalker::ignored_touched_objects_type		ignored_touched_objects_type;
+	ignored_touched_objects_type& ignored_touched_objects	= m_object->ignored_touched_objects();
+	ignored_touched_objects_type::iterator i				= std::find(ignored_touched_objects.begin(), ignored_touched_objects.end(), selected);
+	if ( i == ignored_touched_objects.end() )
+		return;
+
+	ignored_touched_objects.erase				( i );
+
+	m_object->generate_take_event				( selected );
 }
 
 void CStalkerActionGatherItems::finalize	()

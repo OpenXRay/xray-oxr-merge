@@ -53,6 +53,7 @@ void CStringTable::Init		()
 	Msg("StringTable: loaded %d files", fset.size());
 #endif // #ifdef DEBUG
 //---
+	ReparseKeyBindings();
 }
 
 void CStringTable::Load	(LPCSTR xml_file_full)
@@ -147,13 +148,8 @@ STRING_VALUE CStringTable::translate (const STRING_ID& str_id) const
 {
 	VERIFY					(pData);
 
-	STRING_VALUE res =  pData->m_StringTable[str_id];
-
-	if(!res)
-	{
-		if(m_bWriteErrorsToLog && *str_id != NULL && xr_strlen(*str_id)>0)
-			Msg("[string table] '%s' has no entry", *str_id);
+	if(pData->m_StringTable.find(str_id)!=pData->m_StringTable.end())
+		return  pData->m_StringTable[str_id];
+	else
 		return str_id;
-	}
-	return					pData->m_StringTable[str_id];
 }

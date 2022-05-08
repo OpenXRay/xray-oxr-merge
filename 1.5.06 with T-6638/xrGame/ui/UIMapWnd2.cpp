@@ -16,24 +16,24 @@ void CUIMapWnd::init_xml_nav( CUIXml& xml )
 	string64 buf;
 	for ( u8 i = 0; i < max_btn_nav; ++i )
 	{
-		sprintf( buf, "btn_nav_parent:btn_nav_%d", i );
+		xr_sprintf( buf, "btn_nav_parent:btn_nav_%d", i );
 
-		m_btn_nav[i] = UIHelper::Create3tButtonEx( xml, buf, m_btn_nav_parent );
+		m_btn_nav[i] = UIHelper::Create3tButton( xml, buf, m_btn_nav_parent );
 		Register( m_btn_nav[i] );
 		m_btn_nav[i]->set_hint_wnd( hint_wnd );
 	}
 
-	AddCallback( m_btn_nav[btn_legend]->WindowName(),		BUTTON_DOWN, CUIWndCallback::void_function( this, &CUIMapWnd::OnBtnLegend_Push	) );
+	AddCallback( m_btn_nav[btn_legend],						BUTTON_DOWN, CUIWndCallback::void_function( this, &CUIMapWnd::OnBtnLegend_Push	) );
 //	AddCallback( m_btn_nav[btn_up]->WindowName(),			BUTTON_DOWN, CUIWndCallback::void_function( this, &CUIMapWnd::OnBtnUp_Push		) );
-	AddCallback( m_btn_nav[btn_zoom_more]->WindowName(),	BUTTON_DOWN, CUIWndCallback::void_function( this, &CUIMapWnd::OnBtnZoomMore_Push) );
+	AddCallback( m_btn_nav[btn_zoom_more],					BUTTON_DOWN, CUIWndCallback::void_function( this, &CUIMapWnd::OnBtnZoomMore_Push) );
 
 //	AddCallback( m_btn_nav[btn_left]->WindowName(),			BUTTON_DOWN, CUIWndCallback::void_function( this, &CUIMapWnd::OnBtnLeft_Push	) );
-	AddCallback( m_btn_nav[btn_actor]->WindowName(),		BUTTON_DOWN, CUIWndCallback::void_function( this, &CUIMapWnd::OnBtnActor_Push	) );
+	AddCallback( m_btn_nav[btn_actor],						BUTTON_DOWN, CUIWndCallback::void_function( this, &CUIMapWnd::OnBtnActor_Push	) );
 //	AddCallback( m_btn_nav[btn_right]->WindowName(),		BUTTON_DOWN, CUIWndCallback::void_function( this, &CUIMapWnd::OnBtnRight_Push	) );
 
-	AddCallback( m_btn_nav[btn_zoom_less]->WindowName(),	BUTTON_DOWN, CUIWndCallback::void_function( this, &CUIMapWnd::OnBtnZoomLess_Push) );
+	AddCallback( m_btn_nav[btn_zoom_less],					BUTTON_DOWN, CUIWndCallback::void_function( this, &CUIMapWnd::OnBtnZoomLess_Push) );
 //	AddCallback( m_btn_nav[btn_down]->WindowName(),			BUTTON_DOWN, CUIWndCallback::void_function( this, &CUIMapWnd::OnBtnDown_Push	) );
-	AddCallback( m_btn_nav[btn_zoom_reset]->WindowName(),	BUTTON_DOWN, CUIWndCallback::void_function( this, &CUIMapWnd::OnBtnZoomReset_Push) );
+	AddCallback( m_btn_nav[btn_zoom_reset],					BUTTON_DOWN, CUIWndCallback::void_function( this, &CUIMapWnd::OnBtnZoomReset_Push) );
 
 }
 
@@ -45,19 +45,19 @@ void CUIMapWnd::UpdateNav()
 	}
 	m_nav_timing = Device.dwTimeGlobal;
 
-	if ( m_btn_nav[btn_up]->CursorOverWindow() && m_btn_nav[btn_up]->GetButtonsState() == CUIButton::BUTTON_PUSHED )
+	if ( m_btn_nav[btn_up]->CursorOverWindow() && m_btn_nav[btn_up]->GetButtonState() == CUIButton::BUTTON_PUSHED )
 	{
 		MoveMap( Fvector2().set( 0.0f, m_map_move_step ) );
 	}
-	else if ( m_btn_nav[btn_left]->CursorOverWindow() && m_btn_nav[btn_left]->GetButtonsState() == CUIButton::BUTTON_PUSHED )
+	else if ( m_btn_nav[btn_left]->CursorOverWindow() && m_btn_nav[btn_left]->GetButtonState() == CUIButton::BUTTON_PUSHED )
 	{
 		MoveMap( Fvector2().set( m_map_move_step, 0.0f ) );
 	}
-	else if ( m_btn_nav[btn_right]->CursorOverWindow() && m_btn_nav[btn_right]->GetButtonsState() == CUIButton::BUTTON_PUSHED )
+	else if ( m_btn_nav[btn_right]->CursorOverWindow() && m_btn_nav[btn_right]->GetButtonState() == CUIButton::BUTTON_PUSHED )
 	{
 		MoveMap( Fvector2().set( -m_map_move_step, 0.0f ) );
 	}
-	else if ( m_btn_nav[btn_down]->CursorOverWindow() && m_btn_nav[btn_down]->GetButtonsState() == CUIButton::BUTTON_PUSHED )
+	else if ( m_btn_nav[btn_down]->CursorOverWindow() && m_btn_nav[btn_down]->GetButtonState() == CUIButton::BUTTON_PUSHED )
 	{
 		MoveMap( Fvector2().set( 0.0f, -m_map_move_step ) );
 	}

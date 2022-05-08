@@ -97,7 +97,8 @@ void CWeaponShotgun::Reload()
 
 void CWeaponShotgun::TriStateReload()
 {
-	if( !HaveCartridgeInInventory(1) )return;
+	if( !HaveCartridgeInInventory(1) )
+		return;
 	CWeapon::Reload		();
 	m_sub_state			= eSubstateReloadBegin;
 	SwitchState			(eReload);
@@ -174,9 +175,10 @@ void CWeaponShotgun::PlayAnimCloseWeapon()
 
 bool CWeaponShotgun::HaveCartridgeInInventory		(u8 cnt)
 {
-	if (unlimited_ammo()) return true;
+	if (unlimited_ammo())
+		return true;
 	m_pAmmo = NULL;
-	if(m_pInventory) 
+	if (m_pInventory)
 	{
 		//попытаться найти в инвентаре патроны текущего типа 
 		m_pAmmo = smart_cast<CWeaponAmmo*>(m_pInventory->GetAny(*m_ammoTypes[m_ammoType]));
@@ -195,16 +197,17 @@ bool CWeaponShotgun::HaveCartridgeInInventory		(u8 cnt)
 			}
 		}
 	}
-	return (m_pAmmo!=NULL)&&(m_pAmmo->m_boxCurr>=cnt) ;
+	return (m_pAmmo!=NULL)&&(m_pAmmo->m_boxCurr>=cnt);
 }
 
 u8 CWeaponShotgun::AddCartridge		(u8 cnt)
 {
 	if(IsMisfire())	bMisfire = false;
 
-	if(m_set_next_ammoType_on_reload != u32(-1)){
+	if ( m_set_next_ammoType_on_reload != undefined_ammo_type )
+	{
 		m_ammoType						= m_set_next_ammoType_on_reload;
-		m_set_next_ammoType_on_reload	= u32(-1);
+		m_set_next_ammoType_on_reload	= undefined_ammo_type;
 
 	}
 
@@ -215,9 +218,10 @@ u8 CWeaponShotgun::AddCartridge		(u8 cnt)
 
 
 	if (m_DefaultCartridge.m_LocalAmmoType != m_ammoType)
-		m_DefaultCartridge.Load(*m_ammoTypes[m_ammoType], u8(m_ammoType));
+		m_DefaultCartridge.Load(m_ammoTypes[m_ammoType].c_str(), m_ammoType);
+
 	CCartridge l_cartridge = m_DefaultCartridge;
-	while(cnt)// && m_pAmmo->Get(l_cartridge)) 
+	while(cnt)
 	{
 		if (!unlimited_ammo())
 		{
@@ -225,7 +229,7 @@ u8 CWeaponShotgun::AddCartridge		(u8 cnt)
 		}
 		--cnt;
 		++iAmmoElapsed;
-		l_cartridge.m_LocalAmmoType = u8(m_ammoType);
+		l_cartridge.m_LocalAmmoType = m_ammoType;
 		m_magazine.push_back(l_cartridge);
 //		m_fCurrentCartirdgeDisp = l_cartridge.m_kDisp;
 	}

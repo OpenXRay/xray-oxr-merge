@@ -120,7 +120,7 @@ void CAI_Stalker::react_on_grenades		()
 	if (missile && agent_manager().member().group_behaviour()) {
 //		Msg						("%6d : Stalker %s : grenade reaction",Device.dwTimeGlobal,*m_object->cName());
 		CEntityAlive			*initiator = smart_cast<CEntityAlive*>(Level().Objects.net_Find(reaction.m_grenade->CurrentParentID()));
-		VERIFY2					(
+/*		VERIFY2					(
 			initiator,
 			make_string(
 				"grenade[%d][%s], parent[%d]",
@@ -129,12 +129,15 @@ void CAI_Stalker::react_on_grenades		()
 				reaction.m_grenade->CurrentParentID()
 			)
 		);
+*/
 		if (initiator) {
 			if (is_relation_enemy(initiator))
 				sound().play	(StalkerSpace::eStalkerSoundGrenadeAlarm);
 			else
-				if (missile->Position().distance_to(Position()) < FRIENDLY_GRENADE_ALARM_DIST)
-					sound().play(StalkerSpace::eStalkerSoundFriendlyGrenadeAlarm);
+				if (missile->Position().distance_to(Position()) < FRIENDLY_GRENADE_ALARM_DIST) {
+					u32 const time	= missile->destroy_time() >= Device.dwTimeGlobal ? u32(missile->destroy_time() - Device.dwTimeGlobal) : 0;
+					sound().play( StalkerSpace::eStalkerSoundFriendlyGrenadeAlarm, time + 1500, time + 1000 );
+				}
 		}
 	}
 
@@ -150,8 +153,12 @@ void CAI_Stalker::react_on_member_death	()
 	if (Device.dwTimeGlobal < reaction.m_time + TOLLS_INTERVAL)
 		return;
 
-	if (agent_manager().member().group_behaviour())
-		sound().play			(StalkerSpace::eStalkerSoundTolls);
+	if (agent_manager().member().group_behaviour()) {
+		if (!reaction.m_member->g_Alive())
+			sound().play		( StalkerSpace::eStalkerSoundTolls, 3000, 2000 );
+		else
+			sound().play		( StalkerSpace::eStalkerSoundWounded, 3000, 2000 );
+	}
 
 	reaction.clear				();
 }

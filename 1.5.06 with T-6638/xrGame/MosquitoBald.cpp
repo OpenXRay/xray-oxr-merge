@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "mosquitobald.h"
-#include "hudmanager.h"
 #include "ParticlesObject.h"
 #include "level.h"
 #include "physicsshellholder.h"
@@ -60,7 +59,6 @@ void CMosquitoBald::Affect(SZoneObjectInfo* O)
 
 	float dist = pGameObject->Position().distance_to(P) - pGameObject->Radius();
 	float power = Power(dist>0.f?dist:0.f);
-	float power_critical = 0.0f;
 	float impulse = m_fHitImpulseScale*power*pGameObject->GetMass();
 
 	if(power > 0.01f) 

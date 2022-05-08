@@ -500,18 +500,18 @@ void CShootingObject::FireBullet(const Fvector& pos,
 		l_fHitPower			= fvHitPower[egdMaster];
 	}
 
-	Level().BulletManager().AddBullet( pos, 
+	Level().BulletManager().AddBullet( pos,
 										dir,
 										m_fStartBulletSpeed * cur_silencer_koef.bullet_speed,
 										l_fHitPower * cur_silencer_koef.hit_power,
 										fHitImpulse * cur_silencer_koef.hit_impulse,
-										parent_id, 
+										parent_id,
 										weapon_id,
-										ALife::eHitTypeFireWound, 
-										fireDistance, 
-										cartridge, 
+										ALife::eHitTypeFireWound,
+										fireDistance,
+										cartridge,
 										m_air_resistance_factor,
-										send_hit, 
+										send_hit,
 										aim_bullet);
 }
 

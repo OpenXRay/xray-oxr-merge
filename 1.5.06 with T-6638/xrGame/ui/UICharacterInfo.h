@@ -37,7 +37,6 @@ protected:
 		eCommunityIconOver,
 		eCommunityBigIcon,
 		eCommunityBigIconOver,
-
 		eName,
 		eNameCaption,
 		eRank,

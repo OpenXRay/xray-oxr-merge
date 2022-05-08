@@ -4,7 +4,7 @@
 
 class CUIStatic;
 class CUIScrollView;
-class CUI3tButtonEx;
+class CUI3tButton;
 class CUIMapInfo;
 class CUIStatsPlayerList;
 
@@ -13,7 +13,7 @@ public:
 	CUIMapDesc();
 	~CUIMapDesc();
 
-    virtual void SendMessage(CUIWindow* pWnd, s16 msg, void *pData = 0);
+	virtual void	SendMessage(CUIWindow* pWnd, s16 msg, void *pData = 0);
 	virtual bool	OnKeyboardAction(int dik, EUIMessages keyboard_action);
 
 private:
@@ -25,7 +25,7 @@ private:
 	CUIStatic*		m_pFrame[3];
 	CUIScrollView*	m_pTextDesc;
 	CUIStatic*		m_pImage;
-	CUI3tButtonEx*	m_pBtnSpectator;
-	CUI3tButtonEx*	m_pBtnNext;
+	CUI3tButton*	m_pBtnSpectator;
+	CUI3tButton*	m_pBtnNext;
 	CUIMapInfo*		m_pMapInfo;
 };

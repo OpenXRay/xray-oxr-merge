@@ -30,7 +30,8 @@ void CPHCollisionDamageReceiver::Init()
 			BoneInsert(index,float(atof(*item.second)));
 			CODEGeom* og= sh->PPhysicsShell()->get_GeomByID(index);
 			//R_ASSERT3(og, "collision damage bone has no physics collision", *item.first);
-			if(og)og->add_obj_contact_cb(CollisionCallback);
+			if(og)
+				og->add_obj_contact_cb(CollisionCallback);
 		}
 		
 	}
@@ -102,7 +103,7 @@ void CPHCollisionDamageReceiver::Hit(u16 source_id,u16 bone_id,float power,const
 
 void CPHCollisionDamageReceiver::Clear()
 {
-	//CPhysicsShellHolder *sh	=PPhysicsShellHolder	();
+	//IPhysicsShellHolder *sh	=PPhysicsShellHolder	();
 	//xr_map<u16,float>::iterator i=m_controled_bones.begin(),e=m_controled_bones.end();
 	//for(;e!=i;++i)
 	//{

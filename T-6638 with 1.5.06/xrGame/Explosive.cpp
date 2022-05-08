@@ -741,8 +741,6 @@ void CExplosive::SetExplosionSize(const Fvector	&new_size)
 	
 }
 
-
-
 void CExplosive::ActivateExplosionBox(const Fvector &size,Fvector &in_out_pos)
 {
 	CPhysicsShellHolder		*self_obj=smart_cast<CPhysicsShellHolder*>(cast_game_object());

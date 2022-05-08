@@ -91,7 +91,7 @@ bool	CLevel::synchronize_client()
 	{
 		NET_Packet	P;
 		P.w_begin	(M_CLIENT_REQUEST_CONNECTION_DATA);
-		
+
 		Send		(P, net_flags(TRUE, TRUE, TRUE, TRUE));
 		sended_request_connection_data = TRUE;
 	}

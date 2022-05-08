@@ -39,8 +39,8 @@ protected:
 	CUISpinNum*							m_spin_ban_sec;
 	CUIStatic*							m_ban_sec_label;
 
-	CUI3tButtonEx*						btn_ok;
-	CUI3tButtonEx*						btn_cancel;
+	CUI3tButton*						btn_ok;
+	CUI3tButton*						btn_cancel;
 
 	u32									m_prev_upd_time;
 

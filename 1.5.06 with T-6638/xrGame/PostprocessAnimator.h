@@ -137,9 +137,9 @@ class CPostprocessAnimator
 #endif
 {
 protected:
+    SPPInfo											m_EffectorParams;
     CPostProcessParam                               *m_Params[POSTPROCESS_PARAMS_COUNT];
     shared_str										m_Name;
-    SPPInfo											m_EffectorParams;
 	float											m_factor;
 	float											m_dest_factor;
 	bool											m_bStop;
@@ -161,6 +161,7 @@ public:
 		void		SetCurrentFactor				(float f);
 		void		SetCyclic						(bool b)					{m_bCyclic=b;}
         float       GetLength                       ();
+        SPPInfo&	PPinfo							() {return m_EffectorParams;}
 #ifndef _PP_EDITOR_
 virtual	BOOL		Valid							();
 virtual	BOOL		Process							(SPPInfo &PPInfo);

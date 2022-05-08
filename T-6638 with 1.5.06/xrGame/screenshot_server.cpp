@@ -45,9 +45,9 @@ void clientdata_proxy::make_screenshot(ClientID const & admin_id, ClientID const
 	m_cheater_digest = tmp_cheater->m_cdkey_digest;
 	m_cheater_name	= tmp_cheater->ps ? tmp_cheater->ps->getName() : "unknown";
 	NET_Packet ssr_packet;
-	ssr_packet.w_begin				(M_GAMEMESSAGE); 
-	ssr_packet.w_u32				(GAME_EVENT_MAKE_DATA);
-	ssr_packet.w_u8					(e_screenshot_request);	//make screenshot
+	ssr_packet.w_begin		(M_GAMEMESSAGE); 
+	ssr_packet.w_u32		(GAME_EVENT_MAKE_DATA);
+	ssr_packet.w_u8			(e_screenshot_request);	//make screenshot
 
 	//alligning size to GAME_EVENT_PLAYER_KILLED message size
 	ssr_packet.w_u16		(u16(Random.randI(2)));	//food for thought for crackers :)
@@ -84,9 +84,9 @@ void clientdata_proxy::make_config_dump(ClientID const & admin_id, ClientID cons
 	m_cheater_digest = tmp_cheater->m_cdkey_digest;
 	m_cheater_name	= tmp_cheater->ps ? tmp_cheater->ps->getName() : "unknown";
 	NET_Packet ssr_packet;
-	ssr_packet.w_begin				(M_GAMEMESSAGE); 
-	ssr_packet.w_u32				(GAME_EVENT_MAKE_DATA);
-	ssr_packet.w_u8					(e_configs_request);	//make screenshot
+	ssr_packet.w_begin		(M_GAMEMESSAGE); 
+	ssr_packet.w_u32		(GAME_EVENT_MAKE_DATA);
+	ssr_packet.w_u8			(e_configs_request);	//make screenshot
 
 	//alligning size to GAME_EVENT_PLAYER_KILLED message size
 	ssr_packet.w_u16		(u16(Random.randI(2)));	//food for thought for crackers :)

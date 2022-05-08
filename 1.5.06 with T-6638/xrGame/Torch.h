@@ -31,8 +31,8 @@ private:
 	inline	bool	can_use_dynamic_lights	();
 
 public:
-					CTorch				(void);
-	virtual			~CTorch				(void);
+					CTorch				();
+	virtual			~CTorch				();
 
 	virtual void	Load				(LPCSTR section);
 	virtual BOOL	net_Spawn			(CSE_Abstract* DC);

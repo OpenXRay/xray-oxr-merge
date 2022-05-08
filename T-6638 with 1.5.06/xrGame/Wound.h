@@ -52,7 +52,7 @@ protected:
 	shared_str m_sParticleName;
 
 	//список составл€ющих раны 
-	HitImmunity::HitTypeSVec	m_Wounds;
+	HitImmunity::HitTypeSVec m_Wounds;
 
-	bool						m_bToBeDestroy;
+	bool _bToBeDestroy;
 };

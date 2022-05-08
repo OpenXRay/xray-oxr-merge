@@ -62,7 +62,7 @@ xrGameSpyServer::EConnect xrGameSpyServer::Connect(shared_str &session_name, Gam
 	{
 		string1024	CompName;
 		DWORD		CompNameSize = 1024;
-		if (GetComputerName(CompName, &CompNameSize)) 
+		if (GetComputerName(CompName, &CompNameSize))
 			HostName	= CompName;
 	}
 	else
@@ -249,7 +249,7 @@ void xrGameSpyServer::GetServerInfo( CServerInfo* si )
 	si->AddItem( "Game version", QR2()->GetGameVersion( res ), RGB(0,158,255) );
 	
 	xr_strcpy( res, "" );
-	if ( HasProtected() || (Password.size() > 0))
+	if ( HasProtected() || Password.size() > 0 )
 	{
 		if ( HasProtected() )			xr_strcat( res, "protected  " );
 		if ( Password.size() > 0 )		xr_strcat( res, "password  " );

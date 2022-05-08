@@ -45,7 +45,7 @@ void UIMapLegend::init_from_xml( CUIXml& xml, LPCSTR path )
 
 	m_background = UIHelper::CreateFrameWindow( xml, "background_frame", this );
 	m_caption    = UIHelper::CreateStatic( xml, "t_caption", this );
-	m_btn_close  = UIHelper::Create3tButtonEx( xml, "btn_close", this );
+	m_btn_close  = UIHelper::Create3tButton( xml, "btn_close", this );
 
 	m_list = xr_new<CUIScrollView>();
 	AttachChild( m_list );

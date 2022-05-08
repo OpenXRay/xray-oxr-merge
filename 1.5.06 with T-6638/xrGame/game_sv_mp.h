@@ -134,6 +134,7 @@ public:
 	virtual		void				OnVoteYes				(ClientID sender);
 	virtual		void				OnVoteNo				(ClientID sender);
 	virtual		void				OnVoteStop				();
+
 	virtual		void				OnPlayerChangeName		(NET_Packet& P, ClientID sender);
 	virtual		void				OnPlayerSpeechMessage	(NET_Packet& P, ClientID sender);
 	virtual		void				OnPlayerGameMenu		(NET_Packet& P, ClientID sender);

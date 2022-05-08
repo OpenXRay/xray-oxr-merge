@@ -174,7 +174,7 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 #ifndef MASTER_GOLD
 			if ((game->Type() != eGameIDSingle) && l_pC && l_pC->owner)
 			{
-				Msg					("* [%2d] killed by [%2d] - sended by [%s:%2d]", id_dest, id_src, game->get_option_s(*l_pC->name,"name","Player"), l_pC->owner->ID);
+				Msg					("* [%2d] killed by [%2d] - sended by [0x%08x]", id_dest, id_src, l_pC->ID.value());
 			}
 #endif // #ifndef MASTER_GOLD
 
@@ -238,9 +238,12 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 		break;
 	case GE_ADDON_ATTACH:
 	case GE_ADDON_DETACH:
+		{
+			SendBroadcast	(BroadcastCID, P, net_flags(TRUE, TRUE));
+		}break;
 	case GE_CHANGE_POS:
 		{			
-			SendTo(SV_Client->ID, P, net_flags(TRUE, TRUE));
+			SendTo		(SV_Client->ID, P, net_flags(TRUE, TRUE));
 		}break;
 	case GE_INSTALL_UPGRADE:
 		{
@@ -252,6 +255,37 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 				break;
 			}
 			iitem->add_upgrade		( upgrade_id );
+		}break;
+	case GE_INV_BOX_STATUS:
+		{
+			u8 can_take, closed;
+			P.r_u8	( can_take );
+			P.r_u8	( closed );
+			shared_str tip_text;
+			P.r_stringZ( tip_text );
+
+			CSE_ALifeInventoryBox* box = smart_cast<CSE_ALifeInventoryBox*>( receiver );
+			if ( !box )
+			{
+				break;
+			}
+			box->m_can_take = (can_take == 1);
+			box->m_closed   = (closed == 1);
+			box->m_tip_text._set( tip_text );
+		}break;
+	case GE_INV_OWNER_STATUS:
+		{
+			u8 can_take, closed;
+			P.r_u8	( can_take );
+			P.r_u8	( closed );
+
+			CSE_ALifeTraderAbstract* iowner = smart_cast<CSE_ALifeTraderAbstract*>( receiver );
+			if ( !iowner )
+			{
+				break;
+			}
+			iowner->m_deadbody_can_take = (can_take == 1);
+			iowner->m_deadbody_closed   = (closed == 1);
 		}break;
 
 	case GEG_PLAYER_DISABLE_SPRINT:
@@ -270,7 +304,16 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 #	ifdef SLOW_VERIFY_ENTITIES
 			VERIFY					(verify_entities());
 #	endif
-		}break;	
+		}break;
+	case GEG_PLAYER_USE_BOOSTER:
+		{
+			if (receiver && receiver->owner && (receiver->owner != SV_Client))
+			{
+				NET_Packet tmp_packet;
+				CGameObject::u_EventGen(tmp_packet, GEG_PLAYER_USE_BOOSTER, receiver->ID);
+				SendTo(receiver->owner->ID, P, net_flags(TRUE, TRUE));
+			}
+		}break;
 	case GEG_PLAYER_ITEM_SELL:
 		{
 			game->OnPlayer_Sell_Item(sender, P);
@@ -300,6 +343,10 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 		}break;
 	case GE_FREEZE_OBJECT:
 		break;
+	case GE_REQUEST_PLAYERS_INFO:
+		{
+			SendPlayersInfo(sender);
+		}break;
 	default:
 		R_ASSERT2	(0,"Game Event not implemented!!!");
 		break;

@@ -30,6 +30,7 @@ void target_selector::setup				(animation_planner *object, CPropertyStorage *sto
 //	inherited_planner::m_use_log = true;
 //	inherited_action::m_use_log = true;
 	CActionPlanner::m_storage.set_property(eWorldPropertyLookedOut, m_random.randF() <= .7f ? true : false);
+	CActionPlanner::m_storage.set_property(eWorldPropertyLoopholeTooMuchTimeFiring, false);
 	add_evaluators			();
 	add_actions				();
 
@@ -63,6 +64,16 @@ void target_selector::add_evaluators	()
 			true,
 			true,
 			"looked out"
+		)
+	);	
+	add_evaluator			(
+		eWorldPropertyLoopholeTooMuchTimeFiring,
+		xr_new<CPropertyEvaluatorMember<animation_planner> >(
+			(CPropertyStorage*)0,
+			eWorldPropertyLoopholeTooMuchTimeFiring,
+			true,
+			true,
+			"too much time firing"
 		)
 	);	
 	add_evaluator			(
@@ -133,16 +144,17 @@ void target_selector::add_actions		()
 	add_condition			(action, eWorldPropertyPlannerHasTarget,			false);
 	add_effect				(action, eWorldPropertyPlannerHasTarget,			true);
 	add_operator			(eWorldOperatorLoopholeTargetLookout,				action);
-	
+
 	action					= xr_new<target_provider>(&object(), "fire", eWorldPropertyLoopholeFire, 0);
 	add_condition			(action, eWorldPropertyLoopholeCanFireAtEnemy,		true);
 	add_condition			(action, eWorldPropertyLoopholeCanFire,				true);
 	add_condition			(action, eWorldPropertyLookedOut,					true);
 	add_condition			(action, eWorldPropertyLoopholeLastHitWasLongAgo,	true);
+	add_condition			(action, eWorldPropertyLoopholeTooMuchTimeFiring,	false);
 	add_condition			(action, eWorldPropertyPlannerHasTarget,			false);
 	add_effect				(action, eWorldPropertyPlannerHasTarget,			true);
 	add_operator			(eWorldOperatorLoopholeTargetFire,					action);
-	
+
 	action					= xr_new<target_fire_no_lookout>(&object(), "fire_no_lookout", eWorldPropertyLoopholeFireNoLookout, 0);
 	add_condition			(action, eWorldPropertyLoopholeCanFireAtEnemy,		true);
 	add_condition			(action, eWorldPropertyLoopholeCanFireNoLookout,	true);
@@ -153,6 +165,7 @@ void target_selector::add_actions		()
 
 	action					= xr_new<default_behaviour_planner>(&object(), "default_behaviour");
 	add_condition			(action, eWorldPropertyLoopholeUseDefaultBehaviour,	true);
+	add_condition			(action, eWorldPropertyLoopholeTooMuchTimeFiring,	false);
 	add_condition			(action, eWorldPropertyPlannerHasTarget,			false);
 	add_effect				(action, eWorldPropertyPlannerHasTarget,			true);
 	add_operator			(eWorldOperatorLoopholeTargetDefaultBehaviour,		action);

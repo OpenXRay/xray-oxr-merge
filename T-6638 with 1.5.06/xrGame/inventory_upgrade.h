@@ -156,7 +156,7 @@ protected:
 	IntFunctor				m_preconditions;
 	VoidFunctor3			m_effects;
 	StrFunctor				m_prerequisites;
-//	VoidFunctor			m_tooltip;
+//	VoidFunctor				m_tooltip;
 
 	bool					m_highlight;
 

@@ -72,7 +72,7 @@ public:
 
 	void						LoadSound		(	LPCSTR section, 
 													LPCSTR line,
-													LPCSTR alias,													
+													LPCSTR alias,
 													bool exclusive = false,
 													int type = sg_SourceType);
 

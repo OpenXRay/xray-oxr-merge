@@ -289,15 +289,6 @@ KNOWN_INFO_VECTOR *registry						(const CALifeSimulator *self, const ALife::_OBJ
 	return								(self->registry(info_portions).object(id, true));
 }
 
-class CFindByIDPred
-{
-public:
-	CFindByIDPred(shared_str element_to_find) {element = element_to_find;}
-	bool operator () (const INFO_DATA& data) const {return data.info_id == element;}
-private:
-	shared_str element;
-};
-
 bool has_info									(const CALifeSimulator *self, const ALife::_OBJECT_ID &id, LPCSTR info_id)
 {
 	const KNOWN_INFO_VECTOR				*known_info = registry(self,id);

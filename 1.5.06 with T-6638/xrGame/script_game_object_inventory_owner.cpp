@@ -796,7 +796,7 @@ void CScriptGameObject::add_restrictions		(LPCSTR out, LPCSTR in)
 		ai().script_engine().script_log		(ScriptStorage::eLuaMessageTypeError,"CRestrictedObject : cannot access class member add_restrictions!");
 		return;
 	}
-	
+
 //	Msg	( "object[%s] add_restrictions( \"%s\", \"%s\" )", monster->cName().c_str(), out, in );
 	monster->movement().restrictions().add_restrictions(out,in);
 }

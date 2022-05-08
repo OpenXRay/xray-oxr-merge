@@ -21,6 +21,8 @@ class CSE_ALifeItemWeaponAmmo;
 class CWeaponMagazined;
 class CParticlesObject;
 class CUIWindow;
+class CBinocularsVision;
+class CNightVisionEffector;
 
 class CWeapon : public CHudItemObject,
 				public CShootingObject
@@ -109,6 +111,7 @@ public:
 		eSubstateReloadInProcess,
 		eSubstateReloadEnd,
 	};
+	enum { undefined_ammo_type = u8(-1) };
 
 	IC BOOL					IsValid				()	const		{	return iAmmoElapsed;						}
 	// Does weapon need's update?
@@ -129,7 +132,7 @@ protected:
 	bool					bMisfire;				
 
 	BOOL					m_bAutoSpawnAmmo;
-
+	virtual bool			AllowBore		();
 public:
 			bool IsGrenadeLauncherAttached	() const;
 			bool IsScopeAttached			() const;
@@ -159,9 +162,9 @@ public:
 	int	GetGrenadeLauncherX() {return m_iGrenadeLauncherX;}
 	int	GetGrenadeLauncherY() {return m_iGrenadeLauncherY;}
 
-	const shared_str& GetGrenadeLauncherName	()		{return m_sGrenadeLauncherName;}
-	const shared_str& GetScopeName				()		{return m_sScopeName;}
-	const shared_str& GetSilencerName			()		{return m_sSilencerName;}
+	const shared_str& GetGrenadeLauncherName	() const {return m_sGrenadeLauncherName;}
+	const shared_str& GetScopeName				() const {return m_sScopeName;}
+	const shared_str& GetSilencerName			() const {return m_sSilencerName;}
 
 	IC void	ForceUpdateAmmo						()		{ m_dwAmmoCurrentCalcFrame = 0; }
 
@@ -209,6 +212,7 @@ protected:
 	} m_zoom_params;
 	
 	CUIWindow*				m_UIScope;
+
 public:
 
 	IC bool					IsZoomEnabled		()	const		{return m_zoom_params.m_bZoomEnabled;}
@@ -231,11 +235,11 @@ public:
 
 	virtual	u8				GetCurrentHudOffsetIdx ();
 
-	virtual float				Weight			();		
-
+	virtual float			Weight			() const;
+	virtual	u32				Cost			() const;
 public:
-    virtual EHandDependence		HandDependence		()	const		{	return eHandDependence;}
-			bool				IsSingleHanded		()	const		{	return m_bIsSingleHanded; }
+    virtual EHandDependence	HandDependence		()	const		{	return eHandDependence;}
+			bool			IsSingleHanded		()	const		{	return m_bIsSingleHanded; }
 
 public:
 	IC		LPCSTR			strap_bone0			() const {return m_strap_bone0;}
@@ -309,8 +313,8 @@ protected:
 	virtual	void			StopShotEffector	();
 
 public:
-	float					GetFireDispersion	(bool with_cartridge)			;
-	float					GetFireDispersion	(float cartridge_k)				;
+	float					GetFireDispersion	(bool with_cartridge);
+	float					GetFireDispersion	(float cartridge_k);
 	virtual	int				ShotsFired			() { return 0; }
 	virtual	int				GetCurrentFireMode	() { return 1; }
 
@@ -367,8 +371,8 @@ protected:
 public:
 	IC int					GetAmmoElapsed		()	const		{	return /*int(m_magazine.size())*/iAmmoElapsed;}
 	IC int					GetAmmoMagSize		()	const		{	return iMagazineSize;						}
-	int						GetSuitableAmmoTotal		(bool use_item_to_spawn = false)  const;
-	int						GetCurrentTypeAmmoTotal		()  const;
+	int						GetSuitableAmmoTotal(bool use_item_to_spawn = false) const;
+	int						GetCurrentTypeAmmoTotal()  const;
 
 	void					SetAmmoElapsed		(int ammo_count);
 
@@ -390,8 +394,8 @@ protected:
 	int						iMagazineSize;		// size (in bullets) of magazine
 
 	//для подсчета в GetSuitableAmmoTotal
-	mutable int				iAmmoCurrent;
-	mutable u32				m_dwAmmoCurrentCalcFrame;	//кадр на котором просчитали кол-во патронов
+	mutable int				m_iAmmoCurrentTotal;
+	mutable u32				m_BriefInfo_CalcFrame;	//кадр на котором просчитали кол-во патронов
 	bool					m_bAmmoWasSpawned;
 
 	virtual bool			IsNecessaryItem	    (const shared_str& item_sect);
@@ -399,12 +403,12 @@ protected:
 public:
 	xr_vector<shared_str>	m_ammoTypes;
 
-	CWeaponAmmo*			m_pAmmo;
-	u32						m_ammoType;
+	CWeaponAmmo*			m_pCurrentAmmo;
+	u8						m_ammoType;
 	shared_str				m_ammoName;
-	BOOL					m_bHasTracers;
+	bool					m_bHasTracers;
 	u8						m_u8TracerColorID;
-	u32						m_set_next_ammoType_on_reload;
+	u8						m_set_next_ammoType_on_reload;
 	// Multitype ammo support
 	xr_vector<CCartridge>	m_magazine;
 	CCartridge				m_DefaultCartridge;

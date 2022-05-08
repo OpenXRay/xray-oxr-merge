@@ -82,7 +82,6 @@ bool CPHSkeleton::Spawn(CSE_Abstract *D)
 	}
 	if(source)
 	{
-		
 		R_ASSERT2(source,"no source");
 		source->UnsplitSingle(this);
 		m_flags.set				(CSE_PHSkeleton::flSpawnCopy,FALSE);
@@ -253,7 +252,7 @@ void CPHSkeleton::RestoreNetState(CSE_PHSkeleton* po)
 	CPhysicsShellHolder* obj=PPhysicsShellHolder();
 	PHNETSTATE_VECTOR& saved_bones=po->saved_bones.bones;
 	VERIFY( saved_bones.size() == obj->PHGetSyncItemsNumber() );
-	
+
 	PHNETSTATE_I i=saved_bones.begin(),e=saved_bones.end();
 	if(obj->PPhysicsShell()&&obj->PPhysicsShell()->isActive())
 	{

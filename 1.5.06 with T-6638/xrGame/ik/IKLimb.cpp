@@ -1237,10 +1237,14 @@ void	DBG_DrawRotation3( const Fmatrix &start, const float angs[7], const AngleIn
 
 IC void ang_evaluate(Fmatrix& M, const float ang[3] )
 {
+	VERIFY( _valid( ang[0] ) );
+	VERIFY( _valid( ang[1] ) );
+	VERIFY( _valid( ang[2] ) );
 	Fmatrix ry;ry.rotateY( -ang[0] );
 	Fmatrix rz;rz.rotateZ( -ang[1] );
 	Fmatrix rx;rx.rotateX( -ang[2] );
 	M.mul_43(Fmatrix().mul_43( ry, rz ), rx);
+	VERIFY(_valid(M));
 }
 
 IC void CIKLimb::get_start( Fmatrix &start, SCalculateData &D, u16 bone )
@@ -1271,7 +1275,7 @@ void 	CIKLimb::BonesCallback0( CBoneInstance* B )
 		DBG_DrawMatrix( Fmatrix( ).mul_43( *D->m_obj, Fmatrix( ).mul_43( start, bm ) ), 0.75f );
 	}
 #endif
-	R_ASSERT2(  _valid( B->mTransform ), "CIKLimb::BonesCallback0" );
+	VERIFY2(  _valid( B->mTransform ), "CIKLimb::BonesCallback0" );
 }
 void 	CIKLimb::BonesCallback1				( CBoneInstance* B )
 {
@@ -1284,7 +1288,7 @@ void 	CIKLimb::BonesCallback1				( CBoneInstance* B )
 	Fmatrix start	; 
 	get_start		( start, *D, 1 );
 	B->mTransform.mul_43( start, bm );
-	R_ASSERT2(  _valid( B->mTransform ), "CIKLimb::BonesCallback1" );
+	VERIFY2(  _valid( B->mTransform ), "CIKLimb::BonesCallback1" );
 }
 void 	CIKLimb::BonesCallback2				( CBoneInstance* B )
 {
@@ -1296,6 +1300,10 @@ void 	CIKLimb::BonesCallback2				( CBoneInstance* B )
 
 	Fmatrix start	; 
 	get_start		( start, *D, 2 );
+
+	VERIFY2(  _valid( bm ), "CIKLimb::BonesCallback2" );
+	VERIFY2(  _valid( start ), "CIKLimb::BonesCallback2" );
+
 	B->mTransform.mul_43( start, bm );
 
 #ifdef DEBUG
@@ -1310,5 +1318,5 @@ void 	CIKLimb::BonesCallback2				( CBoneInstance* B )
 		DBG_DrawMatrix( Fmatrix( ).mul_43( *D->m_obj, start ), 0.3f );
 	}
 #endif
-	R_ASSERT2(  _valid( B->mTransform ), "CIKLimb::BonesCallback2" );
+	VERIFY2(  _valid( B->mTransform ), "CIKLimb::BonesCallback2" );
 }

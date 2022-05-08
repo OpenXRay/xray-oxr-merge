@@ -1,13 +1,12 @@
 #include "stdafx.h"
 #include "radioactivezone.h"
-#include "hudmanager.h"
 #include "level.h"
 #include "xrmessages.h"
 #include "../xrEngine/bone.h"
 #include "actor.h"
 #include "game_base_space.h"
 #include "Hit.h"
-
+#include "../xrengine/xr_collide_form.h"
 
 CRadioactiveZone::CRadioactiveZone(void) 
 {}
@@ -43,7 +42,6 @@ void CRadioactiveZone::Affect(SZoneObjectInfo* O)
 	Fvector dir				={0,0,0}; 
 	float power				= Power(O->object->Position().distance_to(pos));
 
-	float power_critical	= 0.0f;
 	float impulse			= 0.0f;
 	if(power < EPS)			
 	{
@@ -59,7 +57,6 @@ void CRadioactiveZone::Affect(SZoneObjectInfo* O)
 						ID(),
 						dir,
 						send_power,
-						power_critical,
 						BI_NONE,
 						Fvector().set(0.0f,0.0f,0.0f),
 						impulse,
@@ -85,7 +82,7 @@ void CRadioactiveZone::feel_touch_new					(CObject* O	)
 	{
 		if (smart_cast<CActor*>(O))
 		{
-			CreateHit(O->ID(),ID(),Fvector().set(0, 0, 0),0.0f,0.0f,BI_NONE,Fvector().set(0, 0, 0),0.0f,m_eHitTypeBlowout);// ALife::eHitTypeRadiation
+			CreateHit(O->ID(),ID(),Fvector().set(0, 0, 0),0.0f,BI_NONE,Fvector().set(0, 0, 0),0.0f,m_eHitTypeBlowout);// ALife::eHitTypeRadiation
 		}
 	};
 };
@@ -119,20 +116,19 @@ void CRadioactiveZone::UpdateWorkload					(u32	dt)
 				l_P.write_start();
 				l_P.read_start();
 
-				float dist = (*it).object->Position().distance_to(pos);
-				float power = Power(dist)*dt/1000;
-///				Msg("Zone Dist %f, Radiation Power %f, ", dist, power);
+				float dist			= (*it).object->Position().distance_to(pos);
+				float power			= Power(dist) * dt / 1000;
 
-				SHit HS;
-				HS.GenHeader(GE_HIT, (*it).object->ID());
-				HS.whoID  =ID();
-				HS.weaponID = ID();
-				HS.dir = Fvector().set(0,0,0);
-				HS.power = power;
-				HS.boneID = BI_NONE;
-				HS.p_in_bone_space = Fvector().set(0, 0, 0);
-				HS.impulse = 0.0f;
-				HS.hit_type = m_eHitTypeBlowout;
+				SHit				HS;
+				HS.GenHeader		(GE_HIT, (*it).object->ID());
+				HS.whoID			= ID();
+				HS.weaponID			= ID();
+				HS.dir				= Fvector().set(0,0,0);
+				HS.power			= power;
+				HS.boneID			= BI_NONE;
+				HS.p_in_bone_space	= Fvector().set(0, 0, 0);
+				HS.impulse			= 0.0f;
+				HS.hit_type			= m_eHitTypeBlowout;
 				
 				HS.Write_Packet_Cont(l_P);
 

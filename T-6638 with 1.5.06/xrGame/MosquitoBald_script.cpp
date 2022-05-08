@@ -9,7 +9,7 @@ using namespace luabind;
 void CMosquitoBald::script_register	(lua_State *L)
 {
 	module(L)
-	[	
+	[
 		class_<CTorridZone,CGameObject>("CTorridZone")
 			.def(constructor<>()),
 		class_<CMosquitoBald,CGameObject>("CMosquitoBald")

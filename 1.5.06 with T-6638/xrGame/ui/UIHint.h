@@ -44,7 +44,6 @@ protected:
 	bool			m_visible;
 	float			m_border;
 	Frect			m_rect;
-
 }; // class UIHint
 
 // =================================================================================================
@@ -78,7 +77,6 @@ private:
 	u32				m_hint_delay;
 	shared_str		m_hint_text;
 	bool			m_enable;
-
 };// class UIHintWindow
 
 #endif // UI_HINT_H_INCLUDED

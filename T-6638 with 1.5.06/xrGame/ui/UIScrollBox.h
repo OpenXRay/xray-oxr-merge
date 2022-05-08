@@ -7,5 +7,5 @@ class CUIScrollBox :public CUIFrameLineWnd
 public:
 								CUIScrollBox			();
 
-	virtual bool				OnMouseAction					(float x, float y, EUIMessages mouse_action);
+	virtual bool				OnMouseAction			(float x, float y, EUIMessages mouse_action);
 };

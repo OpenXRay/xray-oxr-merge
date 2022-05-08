@@ -86,7 +86,7 @@ void CWeaponBM16::PlayAnimReload()
 
 	VERIFY(GetState()==eReload);
 
-	if(m_magazine.size()==1 || !b_both)
+	if (m_magazine.size()==1 || !b_both)
 		PlayHUDMotion("anm_reload_1",TRUE,this,GetState());
 	else
 		PlayHUDMotion("anm_reload_2",TRUE,this,GetState());

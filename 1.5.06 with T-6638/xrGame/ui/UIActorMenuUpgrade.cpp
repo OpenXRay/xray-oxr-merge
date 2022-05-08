@@ -48,6 +48,17 @@ void CUIActorMenu::DeInitUpgradeMode()
 	{
 		m_pPartnerInvOwner->StopTrading();
 	}
+
+	if(!CurrentGameUI())
+		return;
+	//только если находимся в режиме single
+	CUIGameSP* pGameSP = smart_cast<CUIGameSP*>(CurrentGameUI());
+	if(!pGameSP) return;
+
+	if(pGameSP->TalkMenu->IsShown())
+	{
+		pGameSP->TalkMenu->NeedUpdateQuestions();
+	}
 }
 
 void CUIActorMenu::SetupUpgradeItem()

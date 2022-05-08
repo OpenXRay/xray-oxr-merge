@@ -15,9 +15,9 @@ struct tracks_update: public IUpdateTracksCallback
 		imotion_position *motion;
 		bool update;
 	} update_callback;
-	float					time_to_end;
-	UpdateCallback			saved_visual_callback;
-	CBlend					*blend;
+	float			time_to_end;
+	UpdateCallback	saved_visual_callback;
+	CBlend			*blend;
 	bool					shell_motion_has_history;
 public:
 	imotion_position();

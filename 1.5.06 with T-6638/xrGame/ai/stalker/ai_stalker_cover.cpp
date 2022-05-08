@@ -85,12 +85,13 @@ void CAI_Stalker::compute_enemy_distances			(float &minimum_enemy_distance, floa
 			break;
 		}
 		// shotguns
-		case 7 : {
+		case 9 : {
 			maximum_enemy_distance		= 5.f;
 			break;
 		}
 		// sniper rifles
-		case 8 : {
+		case 11 :
+		case 12 : {
 			minimum_enemy_distance		= 20.f;
 			break;
 		}

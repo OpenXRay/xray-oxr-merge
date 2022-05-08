@@ -162,9 +162,9 @@ public:
 	int	GetGrenadeLauncherX() {return m_iGrenadeLauncherX;}
 	int	GetGrenadeLauncherY() {return m_iGrenadeLauncherY;}
 
-	const shared_str& GetGrenadeLauncherName	() const{return m_sGrenadeLauncherName;}
-	const shared_str GetScopeName				() const{return pSettings->r_string(m_scopes[m_cur_scope], "scope_name");}
-	const shared_str& GetSilencerName			() const{return m_sSilencerName;}
+	const shared_str& GetGrenadeLauncherName	() const {return m_sGrenadeLauncherName;}
+	const shared_str GetScopeName				() const {return pSettings->r_string(m_scopes[m_cur_scope], "scope_name");}
+	const shared_str& GetSilencerName			() const {return m_sSilencerName;}
 
 	IC void	ForceUpdateAmmo						()		{ m_BriefInfo_CalcFrame = 0; }
 
@@ -195,7 +195,7 @@ protected:
 	{
 		bool			m_bZoomEnabled;			//разрешение режима приближения
 		bool			m_bHideCrosshairInZoom;
-//		bool			m_bZoomDofEnabled;
+		bool			m_bZoomDofEnabled;
 
 		bool			m_bIsZoomModeNow;		//когда режим приближения включен
 		float			m_fCurrentZoomFactor;	//текущий фактор приближения
@@ -206,8 +206,8 @@ protected:
 
 		float			m_fZoomRotationFactor;
 		
-//		Fvector			m_ZoomDof;
-//		Fvector4		m_ReloadDof;
+		Fvector			m_ZoomDof;
+		Fvector4		m_ReloadDof;
 		BOOL			m_bUseDynamicZoom;
 		shared_str		m_sUseZoomPostprocess;
 		shared_str		m_sUseBinocularVision;
@@ -216,8 +216,9 @@ protected:
 
 	} m_zoom_params;
 	
-		float			m_fRTZoomFactor; //run-time zoom factor
-		CUIWindow*		m_UIScope;
+	float					m_fRTZoomFactor; //run-time zoom factor
+	CUIWindow*				m_UIScope;
+
 public:
 
 	IC bool					IsZoomEnabled		()	const		{return m_zoom_params.m_bZoomEnabled;}
@@ -240,11 +241,11 @@ public:
 
 	virtual	u8				GetCurrentHudOffsetIdx ();
 
-	virtual float				Weight			() const;		
-	virtual	u32					Cost			() const;
+	virtual float			Weight			() const;
+	virtual	u32				Cost			() const;
 public:
-    virtual EHandDependence		HandDependence		()	const		{	return eHandDependence;}
-			bool				IsSingleHanded		()	const		{	return m_bIsSingleHanded; }
+    virtual EHandDependence	HandDependence		()	const		{	return eHandDependence;}
+			bool			IsSingleHanded		()	const		{	return m_bIsSingleHanded; }
 
 public:
 	IC		LPCSTR			strap_bone0			() const {return m_strap_bone0;}

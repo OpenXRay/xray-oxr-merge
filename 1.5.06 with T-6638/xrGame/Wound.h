@@ -54,5 +54,5 @@ protected:
 	//список составл€ющих раны 
 	HitImmunity::HitTypeSVec m_Wounds;
 
-	bool		m_bToBeDestroy;
+	bool _bToBeDestroy;
 };

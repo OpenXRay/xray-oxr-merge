@@ -60,9 +60,14 @@ IC	shared_str const &cover::id						() const
 	return	(m_id);
 }
 
-IC	bool const &cover::is_combat_cover				() const
+IC	bool cover::is_combat_cover						() const
 {
 	return	(m_is_combat_cover);
+}
+
+IC	bool cover::can_fire							() const
+{
+	return	(m_is_combat_cover || m_can_fire);
 }
 
 #undef cover

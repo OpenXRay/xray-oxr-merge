@@ -14,7 +14,7 @@ class CUIXml;
 class CUIFrameWindow;
 class CUIScrollView;
 class CUIStatic;
-class CUI3tButtonEx;
+class CUI3tButton;
 class CUICheckButton;
 class CUIFrameLineWnd;
 class UIHint;
@@ -38,7 +38,7 @@ private: // m_
 	CUIScrollView*		m_list;
 
 	CUIStatic*			m_caption;
-	CUI3tButtonEx*		m_btn_close;
+	CUI3tButton*		m_btn_close;
 
 }; // class UIMapLegend
 

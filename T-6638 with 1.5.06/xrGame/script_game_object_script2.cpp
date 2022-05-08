@@ -64,7 +64,7 @@ class_<CScriptGameObject> &script_register_game_object1(class_<CScriptGameObject
 			value("alifeMovementTypeMask",	int(eSelectionTypeMask)),
 			value("alifeMovementTypeRandom",int(eSelectionTypeRandomBranching))
 		]
-	
+
 //		.property("visible",				&CScriptGameObject::getVisible,			&CScriptGameObject::setVisible)
 //		.property("enabled",				&CScriptGameObject::getEnabled,			&CScriptGameObject::setEnabled)
 
@@ -213,7 +213,7 @@ class_<CScriptGameObject> &script_register_game_object1(class_<CScriptGameObject
 		// inventory owner
 		.def("get_current_outfit",			&CScriptGameObject::GetCurrentOutfit)
 		.def("get_current_outfit_protection",&CScriptGameObject::GetCurrentOutfitProtection)
-		
+
 		.def("deadbody_closed",				&CScriptGameObject::deadbody_closed)
 		.def("deadbody_closed_status",		&CScriptGameObject::deadbody_closed_status)
 		.def("deadbody_can_take",			&CScriptGameObject::deadbody_can_take)

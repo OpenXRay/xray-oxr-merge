@@ -6,7 +6,7 @@
 
 using namespace luabind;
 
-ESingleGameDifficulty g_SingleGameDifficulty = egdMaster;
+ESingleGameDifficulty g_SingleGameDifficulty = egdStalker;
 
 xr_token	difficulty_type_token						[ ]={
 	{ "gd_novice",						egdNovice									},
@@ -30,7 +30,7 @@ CUIGameCustom* game_cl_Single::createGameUI()
 	pUIGame->Init			(0);
 	pUIGame->Init			(1);
 	pUIGame->Init			(2);
-	return pUIGame;
+	return					pUIGame;
 }
 
 char*	game_cl_Single::getTeamSection(int Team)

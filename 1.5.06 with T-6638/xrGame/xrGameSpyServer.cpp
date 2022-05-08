@@ -62,18 +62,19 @@ xrGameSpyServer::EConnect xrGameSpyServer::Connect(shared_str &session_name, Gam
 	{
 		string1024	CompName;
 		DWORD		CompNameSize = 1024;
-		if (GetComputerName(CompName, &CompNameSize)) HostName._set(CompName);
+		if (GetComputerName(CompName, &CompNameSize))
+			HostName	= CompName;
 	}
 	else
-		HostName._set(game->get_option_s		(*session_name,"hname",NULL));
+		HostName	= game->get_option_s		(*session_name,"hname",NULL);
 	
 	if (0 != *(game->get_option_s		(*session_name,"psw",NULL)))
 		Password._set(game->get_option_s		(*session_name,"psw",NULL));
 
 	string4096	tMapName = "";
 	const char* SName = *session_name;
-	strncpy(tMapName, *session_name, strchr(SName, '/') - SName);
-	MapName._set(tMapName);// = (session_name);
+	strncpy_s(tMapName, *session_name, strchr(SName, '/') - SName);
+	MapName		= tMapName;// = (session_name);
 	
 
 	m_iReportToMasterServer = game->get_option_i		(*session_name,"public",0);
@@ -185,7 +186,7 @@ u32				xrGameSpyServer::OnMessage(NET_Packet& P, ClientID sender)			// Non-Zero 
 				Msg("Server : Respond accepted, Authenticate client.");
 #endif // #ifndef MASTER_GOLD
 				m_GCDServer.AuthUser(int(CL->ID.value()), CL->m_cAddress.m_data.data, CL->m_pChallengeString, ResponseStr, this);
-				strcpy_s(CL->m_guid,128,this->GCD_Server()->GetKeyHash(CL->ID.value()));
+				xr_strcpy(CL->m_guid,128,this->GCD_Server()->GetKeyHash(CL->ID.value()));
 			}
 			else
 			{
@@ -264,22 +265,22 @@ void xrGameSpyServer::Assign_ServerType( string512& res )
 			if( inif.line_count( "users" ) != 0 )
 			{
 				ServerFlags.set( server_flag_protected, 1 );
-				strcpy_s( res, "# Server started as protected, using users list." );
+				xr_strcpy( res, "# Server started as protected, using users list." );
 				Msg( res );
 				return;
 			}else{
-				strcpy_s( res, "Users count in list is null." );
+				xr_strcpy( res, "Users count in list is null." );
 			}
 		}else{
-			strcpy_s( res, "Section [users] not found." );
+			xr_strcpy( res, "Section [users] not found." );
 		}
 	}else{
-		strcpy_s( res, "File <server_users.ltx> not found in folder <$app_data_root$>." );
+		xr_strcpy( res, "File <server_users.ltx> not found in folder <$app_data_root$>." );
 	}// if FS.exist(fn)
 
 	Msg( res );
 	ServerFlags.set( server_flag_protected, 0 );
-	strcpy_s( res, "# Server started without users list." );
+	xr_strcpy( res, "# Server started without users list." );
 	Msg( res );
 }
 
@@ -290,24 +291,24 @@ void xrGameSpyServer::GetServerInfo( CServerInfo* si )
 	si->AddItem( "Server name", HostName.c_str(), RGB(128,128,255) );
 	si->AddItem( "Map", MapName.c_str(), RGB(255,0,128) );
 	
-	strcpy_s( tmp, itoa( GetPlayersCount(), tmp2, 10 ) );
-	strcat_s( tmp, " / ");
-	strcat_s( tmp, itoa( m_iMaxPlayers, tmp2, 10 ) );
+	xr_strcpy( tmp, itoa( GetPlayersCount(), tmp2, 10 ) );
+	xr_strcat( tmp, " / ");
+	xr_strcat( tmp, itoa( m_iMaxPlayers, tmp2, 10 ) );
 	si->AddItem( "Players", tmp, RGB(255,128,255) );
 
 	string256 res;
 	si->AddItem( "Game version", QR2()->GetGameVersion( res ), RGB(0,158,255) );
 	
-	strcpy_s( res, "" );
+	xr_strcpy( res, "" );
 	if ( HasProtected() || Password.size() > 0 || HasBattlEye() )
 	{
-		if ( HasProtected() )			strcat_s( res, "protected  " );
-		if ( Password.size() > 0 )		strcat_s( res, "password  " );
-		if ( HasBattlEye() )			strcat_s( res, "BattlEye  " );
+		if ( HasProtected() )			xr_strcat( res, "protected  " );
+		if ( Password.size() > 0 )		xr_strcat( res, "password  " );
+		if ( HasBattlEye() )			xr_strcat( res, "BattlEye  " );
 	}
 	else
 	{
-		if ( xr_strlen( res ) == 0 )	strcat_s( res, "free" );
+		if ( xr_strlen( res ) == 0 )	xr_strcat( res, "free" );
 	}
 	si->AddItem( "Access to server", res, RGB(200,155,155) );
 

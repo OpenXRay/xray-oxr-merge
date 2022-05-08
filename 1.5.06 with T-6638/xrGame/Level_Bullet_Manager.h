@@ -12,7 +12,6 @@
 struct SBullet_Hit 
 {
 	float	power;				// power          * cartridge
-	float	power_critical;		// power_critical * cartridge
 	float	impulse;			// impulse        * cartridge
 };
 
@@ -29,6 +28,7 @@ struct SBullet
 			u16			allow_sendhit	: 1	;			//statistics
 //.			u16			skipped_frame	: 1	;			//пропуск первой отрисовки
 			u16			aim_bullet		: 1 ;			//прицеленная пуля( вылетевшая первой после длительного молчания оружия (1-3 сек.))
+			u16			magnetic_beam	: 1 ;			//магнитный луч (нет отклонения после пробивания, не падает скорость после пробивания)
 		};
 		u16				_storage			;
 	}				flags				;
@@ -85,13 +85,14 @@ public:
 										const	Fvector& direction,
 										float	start_speed,
 										float	power,
-										float	power_critical,
+//.										float	power_critical,
 										float	impulse,
 										u16		sender_id,
 										u16		sendersweapon_id,
 										ALife::EHitType e_hit_type,
 										float	maximum_distance,
 										const	CCartridge& cartridge,
+										float const air_resistance_factor,
 										bool	SendHit);
 };
 
@@ -227,10 +228,12 @@ public:
 	void 					Load				();
 	void 					Clear				();
 	void 					AddBullet			(const Fvector& position, const Fvector& direction, float starting_speed,
-												float power, float power_critical, float impulse, 
+												float power, /*float power_critical,*/ float impulse, 
 												u16	sender_id, u16 sendersweapon_id,
 												ALife::EHitType e_hit_type, float maximum_distance, 
-												const CCartridge& cartridge, bool SendHit,bool AimBullet=false);
+												const CCartridge& cartridge,
+												float const air_resistance_factor,
+												bool SendHit,bool AimBullet=false);
 
 	void					CommitEvents		();	// @ the start of frame
 	void					CommitRenderSet		();	// @ the end of frame

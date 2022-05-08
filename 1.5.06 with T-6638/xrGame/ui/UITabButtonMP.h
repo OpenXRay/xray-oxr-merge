@@ -21,5 +21,4 @@ public:
 		Fvector2	m_text_ident_cursor_over;
 private:
     bool			m_orientationVertical;
-
 };

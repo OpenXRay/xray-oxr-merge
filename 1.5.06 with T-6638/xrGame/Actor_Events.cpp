@@ -227,7 +227,7 @@ void CActor::OnEvent(NET_Packet& P, u16 type)
 
 			switch (type)
 			{
-			case GEG_PLAYER_ITEM2SLOT:	 
+			case GEG_PLAYER_ITEM2SLOT:
 			{
 				u16 slot_id = P.r_u16();
 				inventory().Slot(slot_id, iitem ); 

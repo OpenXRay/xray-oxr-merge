@@ -10,6 +10,7 @@
 #include "level.h"
 #include "game_cl_base.h"
 #include "../xrEngine/igame_persistent.h"
+#include "../xrengine/xr_collide_form.h"
 #include "artefact.h"
 #include "ai_object_location.h"
 #include "../Include/xrRender/Kinematics.h"
@@ -50,6 +51,8 @@ CCustomZone::CCustomZone(void)
 	m_zone_flags.set			(eIdleObjectParticlesDontStop, FALSE);
 	m_zone_flags.set			(eBlowoutWindActive, FALSE);
 	m_zone_flags.set			(eFastMode, TRUE);
+
+	m_eZoneState				= eZoneStateIdle;
 }
 
 CCustomZone::~CCustomZone(void) 
@@ -132,6 +135,10 @@ void CCustomZone::Load(LPCSTR section)
 		m_sIdleParticles	= pSettings->r_string(section,"idle_particles");
 	if(pSettings->line_exist(section,"blowout_particles")) 
 		m_sBlowoutParticles = pSettings->r_string(section,"blowout_particles");
+
+	m_bBlowoutOnce = FALSE;
+	if (pSettings->line_exist(section, "blowout_once"))
+		m_bBlowoutOnce		= pSettings->r_bool(section,"blowout_once");
 
 	if(pSettings->line_exist(section,"accum_particles")) 
 		m_sAccumParticles = pSettings->r_string(section,"accum_particles");
@@ -326,7 +333,6 @@ BOOL CCustomZone::net_Spawn(CSE_Abstract* DC)
 
 	PlayIdleParticles			();
 
-	m_eZoneState				= eZoneStateIdle;
 	m_iPreviousStateTime		= m_iStateTime = 0;
 
 	m_dwLastTimeMoved			= Device.dwTimeGlobal;
@@ -395,6 +401,10 @@ bool CCustomZone::BlowoutState()
 	if(m_iStateTime>=m_StateTime[eZoneStateBlowout])
 	{
 		SwitchZoneState(eZoneStateAccumulate);
+		if (m_bBlowoutOnce){
+			ZoneDisable();
+		}
+		
 		return true;
 	}
 	return false;
@@ -1134,18 +1144,19 @@ bool CCustomZone::Enable()
 		PlayObjectIdleParticles(pObject);
 	}
 	PlayIdleParticles	();
-	return true;
+	return				true;
 };
 
 bool CCustomZone::Disable()
 {
 	if (!IsEnabled()) return false;
 
-	for(OBJECT_INFO_VEC_IT it = m_ObjectInfoMap.begin(); 
-		m_ObjectInfoMap.end() != it; ++it) 
+	for(OBJECT_INFO_VEC_IT it = m_ObjectInfoMap.begin(); m_ObjectInfoMap.end() != it; ++it) 
 	{
 		CGameObject* pObject = (*it).object;
-		if (!pObject) continue;
+		if (!pObject)
+			continue;
+
 		StopObjectIdleParticles(pObject);
 	}
 	StopIdleParticles	();
@@ -1220,7 +1231,6 @@ void CCustomZone::CreateHit	(	u16 id_to,
 								u16 id_from, 
 								const Fvector& hit_dir, 
 								float hit_power, 
-								float hit_power_critical, 
 								s16 bone_id, 
 								const Fvector& pos_in_bone, 
 								float hit_impulse, 
@@ -1233,7 +1243,7 @@ void CCustomZone::CreateHit	(	u16 id_to,
 
 		NET_Packet			l_P;
 		Fvector hdir		= hit_dir;
-		SHit Hit			= SHit(hit_power, hit_power_critical, hdir, this, bone_id, pos_in_bone, hit_impulse, hit_type);		
+		SHit Hit			= SHit(hit_power, hdir, this, bone_id, pos_in_bone, hit_impulse, hit_type, 0.0f, false);		
 		Hit.GenHeader		(GE_HIT, id_to);
 		Hit.whoID			= id_from;
 		Hit.weaponID		= this->ID();
@@ -1373,7 +1383,7 @@ BOOL CCustomZone::feel_touch_on_contact	(CObject *O)
 
 BOOL CCustomZone::AlwaysTheCrow()
 {
- 	if(m_zone_flags.test(eAlwaysFastmode) && IsEnabled() )
+ 	if (m_zone_flags.test(eAlwaysFastmode) && IsEnabled() )
 		return TRUE;
  	else
  		return inherited::AlwaysTheCrow();

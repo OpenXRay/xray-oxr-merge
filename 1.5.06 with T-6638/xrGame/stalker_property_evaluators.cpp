@@ -319,7 +319,7 @@ _value_type CStalkerPropertyEvaluatorInsideAnomaly::evaluate	()
 //////////////////////////////////////////////////////////////////////////
 
 CStalkerPropertyEvaluatorPanic::CStalkerPropertyEvaluatorPanic	(CAI_Stalker *object, LPCSTR evaluator_name) :
-	inherited		(object ? object->lua_game_object() : 0,evaluator_name)
+	inherited			(object ? object->lua_game_object() : 0,evaluator_name)
 {
 }
 
@@ -337,7 +337,7 @@ _value_type CStalkerPropertyEvaluatorPanic::evaluate	()
 //////////////////////////////////////////////////////////////////////////
 
 CStalkerPropertyEvaluatorSmartTerrainTask::CStalkerPropertyEvaluatorSmartTerrainTask	(CAI_Stalker *object, LPCSTR evaluator_name) :
-	inherited		(object ? object->lua_game_object() : 0,evaluator_name)
+	inherited			(object ? object->lua_game_object() : 0,evaluator_name)
 {
 }
 

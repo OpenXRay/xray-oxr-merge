@@ -115,7 +115,8 @@ bool CLevel::net_start1				()
 		if (!xr_strcmp(p.m_game_type,"single"))
 		{
 			Server					= xr_new<xrServer>();
-		} else
+		}
+		else
 		{
 			g_allow_heap_min		= false;
 			Server					= xr_new<xrGameSpyServer>();
@@ -138,7 +139,8 @@ bool CLevel::net_start1				()
 				return true;
 			}
 		}
-	} else
+	}
+	else
 	{
 		g_allow_heap_min = false;
 	}
@@ -240,6 +242,7 @@ bool CLevel::net_start5				()
 	};
 	return true;
 }
+
 bool CLevel::net_start6				()
 {
 	//init bullet manager
@@ -257,7 +260,7 @@ bool CLevel::net_start6				()
 		}
 	}else{
 		Msg				("! Failed to start client. Check the connection or level existance.");
-		
+
 		if (m_connect_server_err==xrServer::ErrConnect&&!psNET_direct_connect && !g_dedicated_server) 
 		{
 			DEL_INSTANCE	(g_pGameLevel);

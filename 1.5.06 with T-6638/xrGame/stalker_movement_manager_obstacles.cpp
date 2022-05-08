@@ -24,7 +24,7 @@
 #	include "ai_debug.h"
 #endif // MASTER_GOLD
 
-static const u32	fail_check_time				= 1000;
+static const u32 fail_check_time	= 1000;
 
 stalker_movement_manager_obstacles::stalker_movement_manager_obstacles	(CAI_Stalker *object) :
 	inherited						(object),

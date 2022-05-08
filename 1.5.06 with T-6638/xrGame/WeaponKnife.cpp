@@ -28,6 +28,15 @@ CWeaponKnife::CWeaponKnife()
 	SetNextState			( eHidden );
 	knife_material_idx		= (u16)-1;
 	fHitImpulse_cur			= 0.0f;
+
+	m_Hit1Distance			= 1.f;
+	m_Hit2Distance			= 1.f;
+
+	m_Hit1SplashRadius		= 1.0f;
+	m_Hit2SplashRadius		= 1.0f;
+
+	m_Hit1SpashDir.set	(0.f,0.f,1.f);
+	m_Hit2SpashDir.set	(0.f,0.f,1.f);
 }
 
 CWeaponKnife::~CWeaponKnife()
@@ -40,8 +49,25 @@ void CWeaponKnife::Load	(LPCSTR section)
 	inherited::Load		(section);
 
 	fWallmarkSize = pSettings->r_float(section,"wm_size");
-	m_sounds.LoadSound(section,"snd_shoot"		, "sndShot"		, ESoundTypes(SOUND_TYPE_WEAPON_SHOOTING)		);
+	m_sounds.LoadSound(section,"snd_shoot"		, "sndShot"		, false, SOUND_TYPE_WEAPON_SHOOTING		);
 	
+	m_Hit1SpashDir		=	pSettings->r_fvector3(section, "splash1_direction");
+	m_Hit2SpashDir		=	pSettings->r_fvector3(section, "splash2_direction");
+
+	m_Hit1Distance		=	pSettings->r_float(section, "spash1_dist");
+	m_Hit2Distance		=	pSettings->r_float(section, "spash2_dist");
+
+	m_Hit1SplashRadius	=	pSettings->r_float(section, "spash1_radius");
+	m_Hit2SplashRadius	=	pSettings->r_float(section, "spash2_radius");
+
+	m_Splash1HitsCount			=	pSettings->r_u32(section, "splash1_hits_count");
+	m_Splash1PerVictimsHCount	=	pSettings->r_u32(section, "splash1_pervictim_hcount");
+	m_Splash2HitsCount			=	pSettings->r_u32(section, "splash2_hits_count");
+#ifdef DEBUG
+	m_dbg_data.m_pick_vectors.reserve(std::max(m_Splash1HitsCount, m_Splash2HitsCount));
+#endif
+	m_NextHitDivideFactor	=	pSettings->r_float(section, "splash_hit_divide_factor");
+
 	knife_material_idx =  GMLib.GetMaterialIdx(KNIFE_MATERIAL_NAME);
 }
 
@@ -72,18 +98,15 @@ void CWeaponKnife::OnStateSwitch	(u32 S)
 				if (GameID() == eGameIDSingle)
 				{
 					fCurrentHit			= fvHitPower_1[g_SingleGameDifficulty];
-					fCurrentHitCritical	= fvHitPowerCritical_1[g_SingleGameDifficulty];
 				}
 				else
 				{
 					fCurrentHit			= fvHitPower_1[egdMaster];
-					fCurrentHitCritical	= fvHitPowerCritical_1[egdMaster];
 				}
 			}
 			else
 			{
 				fCurrentHit			= fvHitPower_1[egdMaster];
-				fCurrentHitCritical	= fvHitPowerCritical_1[egdMaster];
 			}
 			fHitImpulse_cur	= fHitImpulse_1;
 			//-------------------------------------------
@@ -99,18 +122,15 @@ void CWeaponKnife::OnStateSwitch	(u32 S)
 				if (GameID() == eGameIDSingle)
 				{
 					fCurrentHit			= fvHitPower_2[g_SingleGameDifficulty];
-					fCurrentHitCritical	= fvHitPowerCritical_2[g_SingleGameDifficulty];
 				}
 				else
 				{
 					fCurrentHit			= fvHitPower_2[egdMaster];
-					fCurrentHitCritical	= fvHitPowerCritical_2[egdMaster];
 				}
 			}
 			else
 			{
 				fCurrentHit			= fvHitPower_2[egdMaster];
-				fCurrentHitCritical	= fvHitPowerCritical_2[egdMaster];
 			}
 			fHitImpulse_cur	= fHitImpulse_2;
 			//-------------------------------------------
@@ -118,18 +138,55 @@ void CWeaponKnife::OnStateSwitch	(u32 S)
 		}break;
 	}
 }
-	
+
 
 void CWeaponKnife::KnifeStrike(const Fvector& pos, const Fvector& dir)
+{
+	CObject* real_victim = TryPick(pos, dir, m_hit_dist);
+	if (real_victim)
+	{
+		float new_khit = m_eHitType == m_eHitType_1 ? 
+			float(m_Splash1PerVictimsHCount) : float(m_Splash2HitsCount);
+		MakeShot(pos, dir, new_khit);
+		return;
+	}
+	
+	
+	shot_targets_t	dest_hits(_alloca(sizeof(Fvector)*m_hits_count), m_hits_count);
+	
+	if (SelectHitsToShot(dest_hits, pos))
+	{
+#ifdef DEBUG
+		m_dbg_data.m_targets_vectors.clear();
+		std::copy(dest_hits.begin(), dest_hits.end(),
+			std::back_insert_iterator<dbg_draw_data::targets_t>(
+				m_dbg_data.m_targets_vectors));
+#endif
+		float tmp_k_hit = 1.0f;
+		for (shot_targets_t::const_iterator i = dest_hits.begin(),
+			ie = dest_hits.end(); i != ie; ++i)
+		{
+			Fvector shot_dir;
+			shot_dir.set(*i).sub(pos).normalize();
+			MakeShot(pos, shot_dir, tmp_k_hit);
+			tmp_k_hit *= m_NextHitDivideFactor;
+		}
+		return;
+	}
+
+	MakeShot(pos, dir);
+}
+
+void CWeaponKnife::MakeShot(Fvector const & pos, Fvector const & dir, float const k_hit)
 {
 	CCartridge						cartridge; 
 	cartridge.param_s.buckShot		= 1;				
 	cartridge.param_s.impair		= 1.0f;
 	cartridge.param_s.kDisp			= 1.0f;
-	cartridge.param_s.kHit			= 1.0f;
-	cartridge.param_s.kCritical		= 1.0f;
+	cartridge.param_s.kHit			= k_hit;
+//.	cartridge.param_s.kCritical		= 1.0f;
 	cartridge.param_s.kImpulse		= 1.0f;
-	cartridge.param_s.kAP			= 1.0f;
+	cartridge.param_s.kAP			= EPS_L;
 	cartridge.m_flags.set			(CCartridge::cfTracer, FALSE);
 	cartridge.m_flags.set			(CCartridge::cfRicochet, FALSE);
 	cartridge.param_s.fWallmarkSize	= fWallmarkSize;
@@ -145,30 +202,47 @@ void CWeaponKnife::KnifeStrike(const Fvector& pos, const Fvector& dir)
 										dir, 
 										m_fStartBulletSpeed, 
 										fCurrentHit, 
-										fCurrentHitCritical, 
 										fHitImpulse_cur, 
 										H_Parent()->ID(), 
 										ID(), 
 										m_eHitType, 
 										fireDistance, 
 										cartridge, 
+										1.f, 
 										SendHit);
 }
 
 void CWeaponKnife::OnMotionMark(u32 state, const motion_marks& M)
 {
 	inherited::OnMotionMark(state, M);
-	if(state==eFire || state==eFire2)
+	if (state == eFire)
 	{
-		Fvector	p1, d; 
-		p1.set	(get_LastFP()); 
-		d.set	(get_LastFD());
+		m_hit_dist		=	m_Hit1Distance;
+		m_splash_dir	=	m_Hit1SpashDir;
+		m_splash_radius	=	m_Hit1SplashRadius;
+		m_hits_count	=	m_Splash1HitsCount;
+		m_perv_hits_count = m_Splash1PerVictimsHCount;
+	} else if (state == eFire2)
+	{
+		m_hit_dist		=	m_Hit2Distance;
+		m_splash_dir	=	m_Hit2SpashDir;
+		m_splash_radius	=	m_Hit2SplashRadius;
+		m_hits_count	=	m_Splash2HitsCount;
+		m_perv_hits_count = 0;
+	} else
+	{
+		return;
+	}
 
-		if(H_Parent())
-		{
-			smart_cast<CEntity*>(H_Parent())->g_fireParams(this, p1,d);
-			KnifeStrike(p1,d);
-		}
+	Fvector	p1, d; 
+	p1.set			(get_LastFP()); 
+	d.set			(get_LastFD());
+	fireDistance	= m_hit_dist + m_splash_radius;
+
+	if(H_Parent())
+	{
+		smart_cast<CEntity*>(H_Parent())->g_fireParams(this, p1,d);
+		KnifeStrike(p1,d);
 	}
 }
 

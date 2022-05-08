@@ -317,7 +317,7 @@ bool is_binded(EGameActions _action_id, int _dik)
 int get_action_dik(EGameActions _action_id, int idx)
 {
 	_binding* pbinding = &g_key_bindings[_action_id];
-	
+
 	if(idx==-1)
 	{
 	if(pbinding->m_keyboard[0])

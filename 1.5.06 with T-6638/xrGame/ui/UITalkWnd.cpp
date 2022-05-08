@@ -117,7 +117,7 @@ void CUITalkWnd::UpdateQuestions()
 		m_pOurDialogManager->UpdateAvailableDialogs(m_pOthersDialogManager);
 		for(u32 i=0; i< m_pOurDialogManager->AvailableDialogs().size(); ++i)
 		{
-			const DIALOG_SHARED_PTR& phrase_dialog = m_pOurDialogManager->AvailableDialogs()[i];
+			const DIALOG_SHARED_PTR& phrase_dialog	= m_pOurDialogManager->AvailableDialogs()[i];
 			bool bfinalizer = (phrase_dialog->GetPhrase("0"))->IsFinalizer();
 
 			AddQuestion(phrase_dialog->DialogCaption(), phrase_dialog->GetDialogID(), i, bfinalizer);
@@ -366,12 +366,12 @@ bool CUITalkWnd::OnKeyboardAction(int dik, EUIMessages keyboard_action)
 	if (keyboard_action==WINDOW_KEY_PRESSED)
 	{
 		if(is_binded(kUSE, dik) || is_binded(kQUIT, dik))
-	{
-		if(!b_disable_break)
+		{
+			if(!b_disable_break)
 			{
 				HideDialog();
-		return true;
-	}
+				return true;
+			}
 		}
 		else if(is_binded(kSPRINT_TOGGLE, dik))
 		{

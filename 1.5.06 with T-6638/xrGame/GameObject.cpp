@@ -281,12 +281,7 @@ BOOL CGameObject::net_Spawn		(CSE_Abstract*	DC)
 		Msg("* Spawning demo spectator ...");
 		demo_spectator = true;
 	} else {
-		CObject* prev_obj = Level().Objects.net_Find(E->ID);
-		R_ASSERT2(prev_obj == NULL, 
-			make_string("previous object ID=%d is %s, hasn't been destroyed but (to destroy = %d)",
-				E->ID, prev_obj->cName().c_str(), prev_obj->getDestroy()
-			).c_str()
-		);
+		R_ASSERT(Level().Objects.net_Find(E->ID) == NULL);
 	}
 
 

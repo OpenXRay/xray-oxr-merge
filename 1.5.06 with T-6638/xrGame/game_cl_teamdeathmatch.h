@@ -15,7 +15,7 @@ protected:
 	virtual			void				shedule_Update			(u32 dt);
 	virtual			void				TranslateGameMessage	(u32 msg, NET_Packet& P);
 
-	virtual		void				LoadSndMessages				();
+	virtual			void				LoadSndMessages				();
 public :
 										game_cl_TeamDeathmatch	();
 	virtual								~game_cl_TeamDeathmatch	();

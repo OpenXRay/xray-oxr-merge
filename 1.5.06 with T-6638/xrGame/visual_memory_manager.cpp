@@ -26,11 +26,14 @@
 #include "client_spawn_manager.h"
 #include "client_spawn_manager.h"
 #include "memory_manager.h"
+#include "ai/monsters/basemonster/base_monster.h"
 
 #ifndef MASTER_GOLD
 #	include "actor.h"
 #	include "ai_debug.h"
 #endif // MASTER_GOLD
+
+void SetActorVisibility(u16 who, float value);
 
 struct SRemoveOfflinePredicate {
 	bool		operator()						(const CVisibleObject &object) const
@@ -102,7 +105,7 @@ CVisualMemoryManager::CVisualMemoryManager		(vision_client *client)
 
 void CVisualMemoryManager::initialize			()
 {
-	m_max_object_count	= 1;
+	m_max_object_count	= 128;
 	m_enabled			= true;
 	m_objects			= 0;
 }
@@ -140,14 +143,19 @@ void CVisualMemoryManager::reinit					()
 
 void CVisualMemoryManager::reload				(LPCSTR section)
 {
-	m_max_object_count			= READ_IF_EXISTS(pSettings,r_s32,section,"DynamicObjectsCount",1);
+//	m_max_object_count			= READ_IF_EXISTS(pSettings,r_s32,section,"DynamicObjectsCount",1);
 
 	if (m_stalker) {
 		m_free.Load		(pSettings->r_string(section,"vision_free_section"),true);
 		m_danger.Load	(pSettings->r_string(section,"vision_danger_section"),true);
 	}
-	else
+	else if (m_object) {
+		m_free.Load		(pSettings->r_string(section,"vision_free_section"),!!m_client);
+		m_danger.Load	(pSettings->r_string(section,"vision_danger_section"),!!m_client);
+	}
+	else {
 		m_free.Load		(section,!!m_client);
+	}
 }
 
 IC	const CVisionParameters &CVisualMemoryManager::current_state() const
@@ -169,7 +177,12 @@ bool CVisualMemoryManager::visible_right_now	(const CGameObject *game_object) co
 	if ( !m_objects )
 	{
 		// --> owner is dead
-		return false;
+		return						false;
+	}
+
+	if ( should_ignore_object(game_object) )
+	{
+		return						false;
 	}
 
 	VISIBLES::const_iterator		I = std::find(objects().begin(),objects().end(),object_id(game_object));
@@ -190,8 +203,13 @@ bool CVisualMemoryManager::visible_now	(const CGameObject *game_object) const
 	if ( !m_objects )
  	{
 		// --> owner is dead
- 		return false;
+ 		return							false;
  	}
+
+	if ( should_ignore_object(game_object) )
+	{
+		return							false;
+	}
 
 	VISIBLES::const_iterator		I = std::find(objects().begin(),objects().end(),object_id(game_object));
 	return							((objects().end() != I) && (*I).visible(mask()));
@@ -336,6 +354,11 @@ bool CVisualMemoryManager::visible				(const CGameObject *game_object, float tim
 {
 	VERIFY						(game_object);
 
+	if ( should_ignore_object(game_object) )
+	{
+		return					false;
+	}
+
 	if (game_object->getDestroy())
 		return					(false);
 
@@ -380,12 +403,38 @@ bool CVisualMemoryManager::visible				(const CGameObject *game_object, float tim
 	return						(object->m_value >= current_state().m_visibility_threshold);
 }
 
+bool   CVisualMemoryManager::should_ignore_object (CObject const* object) const
+{
+	if ( !object )
+	{
+		return true;
+	}
+
+#ifndef MASTER_GOLD
+	if ( smart_cast<CActor const*>(object) && psAI_Flags.test(aiIgnoreActor) )
+	{
+		return	true;
+	}
+	else
+#endif // MASTER_GOLD
+	
+	if ( CBaseMonster const* const monster = smart_cast<CBaseMonster const*>(object) )
+	{
+		if ( !monster->can_be_seen() )
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
 void CVisualMemoryManager::add_visible_object	(const CObject *object, float time_delta, bool fictitious)
 {
-#ifndef MASTER_GOLD
-	if (object && smart_cast<CActor const*>(object) && psAI_Flags.test(aiIgnoreActor))
+	if ( !fictitious && should_ignore_object(object) )
+	{
 		return;
-#endif // MASTER_GOLD
+	}
 
 	xr_vector<CVisibleObject>::iterator	J;
 	const CGameObject *game_object;
@@ -436,10 +485,10 @@ void CVisualMemoryManager::add_visible_object	(const CObject *object, float time
 
 void CVisualMemoryManager::add_visible_object	(const CVisibleObject visible_object)
 {
-#ifndef MASTER_GOLD
-	if (visible_object.m_object && smart_cast<CActor const*>(visible_object.m_object) && psAI_Flags.test(aiIgnoreActor))
+	if ( should_ignore_object(visible_object.m_object) )
+	{
 		return;
-#endif // MASTER_GOLD
+	}
 
 	VERIFY										(m_objects);
 	xr_vector<CVisibleObject>::iterator			J = std::find(m_objects->begin(),m_objects->end(),object_id(visible_object.m_object));
@@ -658,7 +707,7 @@ void CVisualMemoryManager::update				(float time_delta)
 			CNotYetVisibleObjectPredicate(Actor())
 		);
 		if (I != m_not_yet_visible_objects.end()) {
-			Actor()->SetActorVisibility				(
+			SetActorVisibility				(
 				m_object->ID(),
 				clampr(
 					(*I).m_value/visibility_threshold(),
@@ -668,10 +717,22 @@ void CVisualMemoryManager::update				(float time_delta)
 			);
 		}
 		else
-			Actor()->SetActorVisibility				(m_object->ID(),0.f);
+			SetActorVisibility				(m_object->ID(),0.f);
 	}
 
 	STOP_PROFILE
+}
+
+static inline bool is_object_valuable_to_save ( CCustomMonster const* const self, MemorySpace::CVisibleObject const& object )
+{
+	CEntityAlive const* const entity_alive = smart_cast<CEntityAlive const*>(object.m_object);
+	if ( !entity_alive )
+		return					false;
+
+	if ( !entity_alive->g_Alive() )
+		return					true;
+
+	return						self->is_relation_enemy(entity_alive);
 }
 
 void CVisualMemoryManager::save	(NET_Packet &packet) const
@@ -682,11 +743,24 @@ void CVisualMemoryManager::save	(NET_Packet &packet) const
 	if (!m_object->g_Alive())
 		return;
 
-	packet.w_u8					((u8)objects().size());
-
+//	Msg("before saving object %s[%d]", m_object->cName().c_str(), packet.w_tell() );
+	u32 count					= 0;
 	VISIBLES::const_iterator	I = objects().begin();
-	VISIBLES::const_iterator	E = objects().end();
+	VISIBLES::const_iterator const	E = objects().end();
 	for ( ; I != E; ++I) {
+		if ( is_object_valuable_to_save( m_object, *I) )
+			++count;
+	}
+
+	packet.w_u8					((u8)count);
+
+	if ( !count )
+		return;
+
+	for ( I = objects().begin(); I != E; ++I) {
+		if ( !is_object_valuable_to_save( m_object, *I) )
+			continue;
+
 		VERIFY					((*I).m_object);
 		packet.w_u16			((*I).m_object->ID());
 		// object params
@@ -716,6 +790,8 @@ void CVisualMemoryManager::save	(NET_Packet &packet) const
 #endif // USE_FIRST_LEVEL_TIME
 		packet.w_u64			((*I).m_visible.flags);
 	}
+
+//	Msg("after saving object %s[%d]", m_object->cName().c_str(), packet.w_tell() );
 }
 
 void CVisualMemoryManager::load	(IReader &packet)

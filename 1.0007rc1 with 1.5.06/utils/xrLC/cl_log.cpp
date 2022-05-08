@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "resource.h"
-#include "log.h"
+#include "../../xrcore/log.h"
 #include <time.h>
 #include <mmsystem.h>
 
@@ -107,7 +107,7 @@ void Phase			(const char *phase_name)
 
 	// Start _new phase
 	phase_start_time	= timeGetTime();
-	strcpy				(phase,  phase_name);
+	strcpy_s				(phase,  phase_name);
 	SetWindowText		( hwStage,		phase_name );
 	sprintf				( tbuf,"--:--:-- * %s",phase);
 	SendMessage			( hwPhaseTime,  LB_ADDSTRING, 0, (LPARAM) tbuf);
@@ -247,3 +247,14 @@ void __cdecl clMsg( const char *format, ...)
 	Log				(_out_);
 	csLog.Leave		();
 }
+
+
+class client_log_impl : public i_lc_log
+{
+	virtual void clMsg		( LPCSTR msg )			{::clMsg(msg);}
+	virtual void Status		( LPCSTR msg )			{::Status(msg);}
+	virtual	void Progress	( const float F )		{::Progress( F );}
+	virtual	void Phase		( LPCSTR phase_name )	{::Phase( phase_name );}
+public:
+	client_log_impl(){ lc_log = this;}
+} client_log_impl;

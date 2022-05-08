@@ -329,7 +329,7 @@ void CUICharacterInfo::Update()
 void CUICharacterInfo::ClearInfo()
 {
 	ResetAllStrings	();
-	
+
 	for ( int i = eIcon; i < eMaxCaption; ++i )
 	{
 		if ( m_icons[i] )

@@ -3050,53 +3050,53 @@
 						</File>
 					</Filter>
 				</Filter>
-			<Filter
-					Name="doors_manager"
-				>
-				<File
-						RelativePath=".\doors.h"
-					>
-				</File>
 				<Filter
-						Name="door"
+					Name="doors_manager"
 					>
 					<File
-							RelativePath=".\doors_door.cpp"
+						RelativePath=".\doors.h"
 						>
-						<FileConfiguration
-							Name="Debug|Win32"
+					</File>
+					<Filter
+						Name="door"
+						>
+						<File
+							RelativePath=".\doors_door.cpp"
 							>
-							<Tool
-								Name="VCCLCompilerTool"
-								PrecompiledHeaderThrough="pch_script.h"
-								PrecompiledHeaderFile="$(IntDir)/$(ProjectName)_script.pch"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Mixed|Win32"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-								PrecompiledHeaderThrough="pch_script.h"
-								PrecompiledHeaderFile="$(IntDir)/$(ProjectName)_script.pch"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-								PrecompiledHeaderThrough="pch_script.h"
-								PrecompiledHeaderFile="$(IntDir)/$(ProjectName)_script.pch"
-							/>
-						</FileConfiguration>
+							<FileConfiguration
+								Name="Debug|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									PrecompiledHeaderThrough="pch_script.h"
+									PrecompiledHeaderFile="$(IntDir)/$(ProjectName)_script.pch"
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Mixed|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									PrecompiledHeaderThrough="pch_script.h"
+									PrecompiledHeaderFile="$(IntDir)/$(ProjectName)_script.pch"
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+									PrecompiledHeaderThrough="pch_script.h"
+									PrecompiledHeaderFile="$(IntDir)/$(ProjectName)_script.pch"
+								/>
+							</FileConfiguration>
 						</File>
 						<File
 							RelativePath=".\doors_door.h"
 							>
-					</File>
-				</Filter>
-				<Filter
+						</File>
+					</Filter>
+					<Filter
 						Name="actor"
 						>
 						<File
@@ -3108,39 +3108,39 @@
 							>
 						</File>
 					</Filter>
-						<Filter
+					<Filter
 						Name="manager"
-							>
-							<File
+						>
+						<File
 							RelativePath=".\doors_manager.cpp"
-								>
+							>
 						</File>
 						<File
 							RelativePath=".\doors_manager.h"
-									>
+							>
 						</File>
 					</Filter>
 				</Filter>
 			</Filter>
 			<Filter
 				Name="ACover"
-									>
+				>
 				<File
 					RelativePath=".\cover_manager.cpp"
-									>
-							</File>
-							<File
+					>
+				</File>
+				<File
 					RelativePath=".\cover_manager.h"
-								>
-							</File>
-							<File
+					>
+				</File>
+				<File
 					RelativePath=".\cover_manager_inline.h"
-								>
-							</File>
-							<Filter
+					>
+				</File>
+				<Filter
 					Name="cover_point"
-								>
-								<File
+					>
+					<File
 						RelativePath=".\cover_point.h"
 						>
 					</File>
@@ -6675,23 +6675,23 @@
 						</Filter>
 						<Filter
 							Name="Attack"
-								>
-								<File
+							>
+							<File
 								RelativePath=".\ai\Monsters\States\monster_state_attack.h"
-									>
-								</File>
-								<File
+								>
+							</File>
+							<File
 								RelativePath=".\ai\Monsters\States\monster_state_attack_inline.h"
-									>
-								</File>
-								<File
+								>
+							</File>
+							<File
 								RelativePath=".\ai\Monsters\States\monster_state_attack_melee.h"
-									>
-								</File>
-								<File
+								>
+							</File>
+							<File
 								RelativePath=".\ai\Monsters\States\monster_state_attack_melee_inline.h"
-									>
-								</File>
+								>
+							</File>
 							<File
 								RelativePath=".\ai\monsters\states\monster_state_attack_on_run.h"
 								>
@@ -6700,23 +6700,23 @@
 								RelativePath=".\ai\monsters\states\monster_state_attack_on_run_inline.h"
 								>
 							</File>
-								<File
+							<File
 								RelativePath=".\ai\Monsters\States\monster_state_attack_run.h"
-									>
-								</File>
-								<File
+								>
+							</File>
+							<File
 								RelativePath=".\ai\monsters\states\monster_state_attack_run_attack.h"
-									>
-								</File>
-								<File
+								>
+							</File>
+							<File
 								RelativePath=".\ai\monsters\states\monster_state_attack_run_attack_inline.h"
-									>
-								</File>
-								<File
+								>
+							</File>
+							<File
 								RelativePath=".\ai\Monsters\States\monster_state_attack_run_inline.h"
-									>
-								</File>
-							</Filter>
+								>
+							</File>
+						</Filter>
 						<Filter
 							Name="Hitted"
 							>
@@ -6724,83 +6724,83 @@
 								RelativePath=".\ai\Monsters\States\monster_state_hitted.h"
 								>
 							</File>
-								<File
+							<File
 								RelativePath=".\ai\Monsters\States\monster_state_hitted_hide.h"
-									>
-								</File>
-								<File
+								>
+							</File>
+							<File
 								RelativePath=".\ai\Monsters\States\monster_state_hitted_hide_inline.h"
-									>
-								</File>
-								<File
+								>
+							</File>
+							<File
 								RelativePath=".\ai\Monsters\States\monster_state_hitted_inline.h"
-									>
-								</File>
-								<File
+								>
+							</File>
+							<File
 								RelativePath=".\ai\Monsters\States\monster_state_hitted_moveout.h"
-									>
-								</File>
-								<File
+								>
+							</File>
+							<File
 								RelativePath=".\ai\Monsters\States\monster_state_hitted_moveout_inline.h"
-									>
-								</File>
+								>
+							</File>
 						</Filter>
 						<Filter
 							Name="Steal"
-									>
-								<File
+							>
+							<File
 								RelativePath=".\ai\Monsters\States\monster_state_steal.h"
-									>
-								</File>
-								<File
+								>
+							</File>
+							<File
 								RelativePath=".\ai\Monsters\States\monster_state_steal_inline.h"
-									>
-								</File>
+								>
+							</File>
 							<Filter
 								Name="Squad"
 								>
 								<Filter
 									Name="Rest"
-								>
-								<File
+									>
+									<File
 										RelativePath=".\ai\Monsters\States\monster_state_squad_rest.h"
-									>
-								</File>
-								<File
+										>
+									</File>
+									<File
 										RelativePath=".\ai\Monsters\States\monster_state_squad_rest_follow.h"
-									>
-								</File>
-								<File
+										>
+									</File>
+									<File
 										RelativePath=".\ai\Monsters\States\monster_state_squad_rest_follow_inline.h"
-									>
-								</File>
-								<File
+										>
+									</File>
+									<File
 										RelativePath=".\ai\Monsters\States\monster_state_squad_rest_inline.h"
-									>
-								</File>
-							</Filter>
+										>
+									</File>
+								</Filter>
 							</Filter>
 						</Filter>
-							<Filter
+						<Filter
 							Name="Hunt"
 							>
 						</Filter>
 						<Filter
 							Name="Home Point"
-								>
-								<File
+							>
+							<File
 								RelativePath=".\ai\Monsters\States\monster_state_home_point_attack.h"
-									>
-								</File>
-								<File
+								>
+							</File>
+							<File
 								RelativePath=".\ai\Monsters\States\monster_state_home_point_attack_inline.h"
-									>
-								</File>
-								<File
+								>
+							</File>
+							<File
 								RelativePath=".\ai\Monsters\States\monster_state_home_point_danger.h"
-									>
-								</File>
-								<File
+								>
+							</File>
+							<File
 								RelativePath=".\ai\Monsters\States\monster_state_home_point_danger_inline.h"
 								>
 							</File>
@@ -6810,41 +6810,41 @@
 							</File>
 							<File
 								RelativePath=".\ai\Monsters\States\monster_state_home_point_rest_inline.h"
-									>
-								</File>
-							</Filter>
-							<Filter
-							Name="Help Sound"
 								>
-								<File
+							</File>
+						</Filter>
+						<Filter
+							Name="Help Sound"
+							>
+							<File
 								RelativePath=".\ai\Monsters\States\monster_state_help_sound.h"
-									>
-								</File>
-								<File
+								>
+							</File>
+							<File
 								RelativePath=".\ai\Monsters\States\monster_state_help_sound_inline.h"
-									>
-								</File>
+								>
+							</File>
 						</Filter>
 						<Filter
 							Name="ALife"
 							>
-								<File
+							<File
 								RelativePath=".\ai\Monsters\States\monster_state_smart_terrain_task.h"
-									>
-								</File>
-								<File
+								>
+							</File>
+							<File
 								RelativePath=".\ai\Monsters\States\monster_state_smart_terrain_task_graph_walk.h"
-									>
-								</File>
-								<File
+								>
+							</File>
+							<File
 								RelativePath=".\ai\Monsters\States\monster_state_smart_terrain_task_graph_walk_inline.h"
-									>
-								</File>
-								<File
+								>
+							</File>
+							<File
 								RelativePath=".\ai\Monsters\States\monster_state_smart_terrain_task_inline.h"
-									>
-								</File>
-							</Filter>
+								>
+							</File>
+						</Filter>
 						<Filter
 							Name="Group Monsters Home"
 							>
@@ -6880,22 +6880,22 @@
 								RelativePath=".\ai\monsters\group_states\group_state_eat_drag.h"
 								>
 							</File>
-								<File
+							<File
 								RelativePath=".\ai\monsters\group_states\group_state_eat_drag_inline.h"
-									>
-								</File>
-								<File
+								>
+							</File>
+							<File
 								RelativePath=".\ai\monsters\group_states\group_state_eat_eat.h"
-									>
-								</File>
-								<File
+								>
+							</File>
+							<File
 								RelativePath=".\ai\monsters\group_states\group_state_eat_eat_inline.h"
-									>
-								</File>
-								<File
+								>
+							</File>
+							<File
 								RelativePath=".\ai\monsters\group_states\group_state_eat_inline.h"
-									>
-								</File>
+								>
+							</File>
 							<File
 								RelativePath=".\ai\monsters\group_states\group_state_hear_danger_sound.h"
 								>
@@ -6930,7 +6930,7 @@
 							</File>
 							<File
 								RelativePath=".\ai\monsters\group_states\group_state_rest.h"
-							>
+								>
 							</File>
 							<File
 								RelativePath=".\ai\monsters\group_states\group_state_rest_idle.h"
@@ -6986,7 +6986,7 @@
 							</File>
 							<File
 								RelativePath=".\ai\Monsters\States\monster_state_find_enemy_run.h"
-							>
+								>
 							</File>
 							<File
 								RelativePath=".\ai\Monsters\States\monster_state_find_enemy_run_inline.h"
@@ -7015,26 +7015,26 @@
 							<Filter
 								Name="Eating"
 								>
-							<File
+								<File
 									RelativePath=".\ai\Monsters\States\monster_state_eat_eat.h"
-								>
-							</File>
-							<File
+									>
+								</File>
+								<File
 									RelativePath=".\ai\Monsters\States\monster_state_eat_eat_inline.h"
-								>
-							</File>
-						</Filter>
-						<Filter
+									>
+								</File>
+							</Filter>
+							<Filter
 								Name="Drag"
-							>
-							<File
+								>
+								<File
 									RelativePath=".\ai\Monsters\States\monster_state_eat_drag.h"
-								>
-							</File>
-							<File
+									>
+								</File>
+								<File
 									RelativePath=".\ai\Monsters\States\monster_state_eat_drag_inline.h"
-								>
-							</File>
+									>
+								</File>
 							</Filter>
 						</Filter>
 						<Filter
@@ -7047,106 +7047,106 @@
 							<Filter
 								Name="Movement"
 								>
-							<File
+								<File
 									RelativePath=".\ai\Monsters\States\state_hide_from_point.h"
-								>
-							</File>
-							<File
+									>
+								</File>
+								<File
 									RelativePath=".\ai\Monsters\States\state_hide_from_point_inline.h"
-								>
-							</File>
-							<File
+									>
+								</File>
+								<File
 									RelativePath=".\ai\Monsters\States\state_move_around_point.h"
-								>
-							</File>
-							<File
+									>
+								</File>
+								<File
 									RelativePath=".\ai\Monsters\States\state_move_around_point_inline.h"
-								>
-							</File>
-							<File
+									>
+								</File>
+								<File
 									RelativePath=".\ai\Monsters\States\state_move_to_point.h"
-								>
-							</File>
-							<File
+									>
+								</File>
+								<File
 									RelativePath=".\ai\Monsters\States\state_move_to_point_inline.h"
-								>
-							</File>
-							<File
+									>
+								</File>
+								<File
 									RelativePath=".\ai\Monsters\States\state_move_to_restrictor.h"
-								>
-							</File>
-							<File
+									>
+								</File>
+								<File
 									RelativePath=".\ai\Monsters\States\state_move_to_restrictor_inline.h"
-								>
-							</File>
+									>
+								</File>
 							</Filter>
 							<Filter
 								Name="Look"
 								>
-							<File
+								<File
 									RelativePath=".\ai\Monsters\States\state_look_point.h"
-								>
-							</File>
-							<File
+									>
+								</File>
+								<File
 									RelativePath=".\ai\Monsters\States\state_look_point_inline.h"
-								>
-							</File>
-							<File
+									>
+								</File>
+								<File
 									RelativePath=".\ai\Monsters\States\state_look_unprotected_area.h"
-								>
-							</File>
-							<File
+									>
+								</File>
+								<File
 									RelativePath=".\ai\Monsters\States\state_look_unprotected_area_inline.h"
-								>
-							</File>
+									>
+								</File>
 							</Filter>
 							<Filter
 								Name="Custom Action"
 								>
-							<File
+								<File
 									RelativePath=".\ai\Monsters\States\state_custom_action.h"
-								>
-							</File>
-							<File
+									>
+								</File>
+								<File
 									RelativePath=".\ai\Monsters\States\state_custom_action_inline.h"
-								>
-							</File>
-							<File
+									>
+								</File>
+								<File
 									RelativePath=".\ai\Monsters\States\state_custom_action_look.h"
-								>
-							</File>
-							<File
+									>
+								</File>
+								<File
 									RelativePath=".\ai\Monsters\States\state_custom_action_look_inline.h"
-								>
-							</File>
+									>
+								</File>
 							</Filter>
 							<Filter
 								Name="Test"
 								>
-							<File
+								<File
 									RelativePath=".\ai\Monsters\States\state_hit_object.h"
-								>
-							</File>
-							<File
+									>
+								</File>
+								<File
 									RelativePath=".\ai\Monsters\States\state_hit_object_inline.h"
-								>
-							</File>
-							<File
+									>
+								</File>
+								<File
 									RelativePath=".\ai\Monsters\States\state_test_look_actor.h"
-								>
-							</File>
-							<File
+									>
+								</File>
+								<File
 									RelativePath=".\ai\Monsters\States\state_test_look_actor_inline.h"
-								>
-							</File>
-							<File
+									>
+								</File>
+								<File
 									RelativePath=".\ai\Monsters\States\state_test_state.h"
-								>
-							</File>
-							<File
+									>
+								</File>
+								<File
 									RelativePath=".\ai\Monsters\States\state_test_state_inline.h"
-								>
-							</File>
+									>
+								</File>
 							</Filter>
 						</Filter>
 						<Filter
@@ -19810,7 +19810,7 @@
 								</FileConfiguration>
 								<FileConfiguration
 									Name="Release|Xbox 360"
-								>
+									>
 									<Tool
 										Name="VCCLX360CompilerTool"
 										PrecompiledHeaderThrough="pch_script.h"
@@ -26524,16 +26524,16 @@
 					</Filter>
 					<Filter
 						Name="32bit"
-					>
-					<File
-						RelativePath=".\random32.cpp"
 						>
-					</File>
-					<File
-						RelativePath=".\random32.h"
-						>
-					</File>
-				</Filter>
+						<File
+							RelativePath=".\random32.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\random32.h"
+							>
+						</File>
+					</Filter>
 				</Filter>
 				<Filter
 					Name="Shared"
@@ -27402,33 +27402,33 @@
 										RelativePath=".\reward_event_handler.h"
 										>
 									</File>
-						</Filter>
-						<Filter
+								</Filter>
+								<Filter
 									Name="player_state"
-							>
-							<File
+									>
+									<File
 										RelativePath=".\accumulative_states.h"
-								>
+										>
 									</File>
 									<File
 										RelativePath=".\game_state_accumulator.cpp"
-									>
+										>
 									</File>
 									<File
 										RelativePath=".\game_state_accumulator.h"
-									>
+										>
 									</File>
 									<File
 										RelativePath=".\game_state_accumulator_inline.h"
-									>
+										>
 									</File>
 									<File
 										RelativePath=".\game_state_accumulator_state_register.cpp"
-									>
+										>
 									</File>
 									<File
 										RelativePath=".\hits_store.cpp"
-									>
+										>
 									</File>
 									<File
 										RelativePath=".\hits_store.h"
@@ -27479,12 +27479,12 @@
 										</File>
 										<File
 											RelativePath=".\double_shot_double_kill.cpp"
-									>
-							</File>
-							<File
+											>
+										</File>
+										<File
 											RelativePath=".\double_shot_double_kill.h"
-								>
-							</File>
+											>
+										</File>
 										<File
 											RelativePath=".\faster_than_bullets_time.cpp"
 											>
@@ -27791,30 +27791,30 @@
 						</Filter>
 						<Filter
 							Name="single"
-								>
+							>
 							<File
 								RelativePath="game_sv_single.cpp"
-									>
+								>
 							</File>
 							<File
 								RelativePath="game_sv_single.h"
-									>
+								>
 							</File>
 						</Filter>
 						<Filter
 							Name="team_deathmatch"
-									>
+							>
 							<File
 								RelativePath=".\game_sv_teamdeathmatch.cpp"
-									>
+								>
 							</File>
 							<File
 								RelativePath=".\game_sv_teamdeathmatch.h"
-									>
+								>
 							</File>
 							<File
 								RelativePath=".\game_sv_teamdeathmatch_process_event.cpp"
-									>
+								>
 							</File>
 						</Filter>
 						<Filter
@@ -27828,23 +27828,23 @@
 								RelativePath=".\cdkey_ban_list.h"
 								>
 							</File>
-								<File
+							<File
 								RelativePath=".\game_sv_mp.cpp"
-									>
-								</File>
-								<File
+								>
+							</File>
+							<File
 								RelativePath=".\game_sv_mp.h"
-									>
-								</File>
-								<File
+								>
+							</File>
+							<File
 								RelativePath=".\game_sv_mp_team.h"
-									>
-								</File>
-								<File
+								>
+							</File>
+							<File
 								RelativePath=".\game_sv_mp_vote_flags.h"
-									>
-								</File>
-							</Filter>
+								>
+							</File>
+						</Filter>
 						<Filter
 							Name="capture_the_artefact"
 							>
@@ -27873,91 +27873,91 @@
 					<Filter
 						Name="PlayerAccounts"
 						>
-							<File
+						<File
 							RelativePath=".\account_manager.cpp"
-								>
-							</File>
-							<File
+							>
+						</File>
+						<File
 							RelativePath=".\account_manager.h"
-								>
-							</File>
-							<File
+							>
+						</File>
+						<File
 							RelativePath=".\account_manager_console.cpp"
-								>
-							</File>
-							<File
+							>
+						</File>
+						<File
 							RelativePath=".\account_manager_console.h"
-								>
-							</File>
+							>
+						</File>
 						<File
 							RelativePath=".\account_manager_script.cpp"
 							>
 						</File>
-							<File
+						<File
 							RelativePath=".\atlas_stalkercoppc_v1.c"
+							>
+							<FileConfiguration
+								Name="Debug|Win32"
 								>
-								<FileConfiguration
-									Name="Debug|Win32"
-									>
-									<Tool
-										Name="VCCLCompilerTool"
+								<Tool
+									Name="VCCLCompilerTool"
 									UsePrecompiledHeader="0"
-									/>
-								</FileConfiguration>
-								<FileConfiguration
-									Name="Mixed|Win32"
-									>
-									<Tool
-										Name="VCCLCompilerTool"
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Mixed|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
 									UsePrecompiledHeader="0"
-									/>
-								</FileConfiguration>
-								<FileConfiguration
-									Name="Release|Win32"
-									>
-									<Tool
-										Name="VCCLCompilerTool"
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
 									UsePrecompiledHeader="0"
-									/>
-								</FileConfiguration>
+								/>
+							</FileConfiguration>
 						</File>
 						<File
 							RelativePath=".\atlas_stalkercoppc_v1.h"
-									>
+							>
 						</File>
 						<File
 							RelativePath=".\atlas_submit_queue.cpp"
-									>
+							>
 						</File>
 						<File
 							RelativePath=".\atlas_submit_queue.h"
-									>
-							</File>
-							<File
+							>
+						</File>
+						<File
 							RelativePath=".\awards_store.cpp"
-								>
-							</File>
+							>
+						</File>
 						<File
 							RelativePath=".\awards_store.h"
 							>
 						</File>
-							<File
+						<File
 							RelativePath=".\best_scores_store.cpp"
-								>
-							</File>
-							<File
+							>
+						</File>
+						<File
 							RelativePath=".\best_scores_store.h"
-								>
-							</File>
-							<File
+							>
+						</File>
+						<File
 							RelativePath=".\gsc_dsigned_ltx.cpp"
-								>
-							</File>
-							<File
+							>
+						</File>
+						<File
 							RelativePath=".\gsc_dsigned_ltx.h"
-								>
-							</File>
-							<File
+							>
+						</File>
+						<File
 							RelativePath=".\login_manager.cpp"
 							>
 						</File>
@@ -28023,8 +28023,8 @@
 						</File>
 						<File
 							RelativePath=".\stats_submitter_dsa_params.cpp"
-								>
-							</File>
+							>
+						</File>
 					</Filter>
 				</Filter>
 				<Filter
@@ -29134,12 +29134,12 @@
 									PrecompiledHeaderFile="$(IntDir)/$(ProjectName)_script.pch"
 								/>
 							</FileConfiguration>
-					</File>
-				</Filter>
+						</File>
+					</Filter>
 				</Filter>
 				<Filter
 					Name="ServerPerform"
-						>
+					>
 					<File
 						RelativePath="xrServer_perform_GameExport.cpp"
 						>
@@ -29179,14 +29179,14 @@
 				</Filter>
 				<Filter
 					Name="ServerProcess"
-						>
+					>
 					<File
 						RelativePath="xrServer_process_event.cpp"
 						>
 					</File>
 					<File
 						RelativePath=".\xrServer_process_event_activate.cpp"
-							>
+						>
 					</File>
 					<File
 						RelativePath=".\xrServer_process_event_destroy.cpp"
@@ -29194,7 +29194,7 @@
 					</File>
 					<File
 						RelativePath="xrServer_process_event_ownership.cpp"
-							>
+						>
 					</File>
 					<File
 						RelativePath="xrServer_process_event_reject.cpp"
@@ -29202,7 +29202,7 @@
 					</File>
 					<File
 						RelativePath="xrServer_process_spawn.cpp"
-							>
+						>
 					</File>
 					<File
 						RelativePath="xrServer_process_update.cpp"
@@ -29219,7 +29219,7 @@
 				</Filter>
 				<Filter
 					Name="xrGameSpyServer"
-							>
+					>
 					<File
 						RelativePath=".\xrGameSpy_GameSpyFuncs.cpp"
 						>
@@ -29230,69 +29230,69 @@
 					</File>
 					<File
 						RelativePath=".\xrGameSpyServer.h"
-							>
+						>
 					</File>
-				<File
+					<File
 						RelativePath=".\xrGameSpyServer_callbacks.cpp"
-					>
-				</File>
-				<File
+						>
+					</File>
+					<File
 						RelativePath=".\xrGameSpyServer_callbacks.h"
-					>
-				</File>
-			</Filter>
-			<Filter
+						>
+					</File>
+				</Filter>
+				<Filter
 					Name="filetransfer"
-				>
-				<File
+					>
+					<File
 						RelativePath=".\file_transfer.cpp"
-					>
-				</File>
-				<File
+						>
+					</File>
+					<File
 						RelativePath=".\file_transfer.h"
-					>
-				</File>
-				<File
+						>
+					</File>
+					<File
 						RelativePath=".\filereceiver_node.cpp"
-					>
-				</File>
-				<File
+						>
+					</File>
+					<File
 						RelativePath=".\filereceiver_node.h"
-					>
-				</File>
-				<File
+						>
+					</File>
+					<File
 						RelativePath=".\filetransfer_common.h"
-					>
-				</File>
-				<File
+						>
+					</File>
+					<File
 						RelativePath=".\filetransfer_node.cpp"
-					>
-				</File>
-				<File
+						>
+					</File>
+					<File
 						RelativePath=".\filetransfer_node.h"
-					>
-				</File>
-			</Filter>
-			<Filter
+						>
+					</File>
+				</Filter>
+				<Filter
 					Name="ServerConnect"
 					>
-				<File
+					<File
 						RelativePath="xrServer_CL_connect.cpp"
-					>
-				</File>
-				<File
+						>
+					</File>
+					<File
 						RelativePath="xrServer_CL_disconnect.cpp"
-					>
-				</File>
-				<File
+						>
+					</File>
+					<File
 						RelativePath="xrServer_Connect.cpp"
-					>
-				</File>
-				<File
+						>
+					</File>
+					<File
 						RelativePath="xrServer_Disconnect.cpp"
-					>
-				</File>
-			</Filter>
+						>
+					</File>
+				</Filter>
 			</Filter>
 		</Filter>
 		<Filter
@@ -29646,28 +29646,28 @@
 						RelativePath=".\ui\UIPdaWnd.h"
 						>
 					</File>
-				<Filter
+					<Filter
 						Name="MAP"
-					>
-					<File
+						>
+						<File
 							RelativePath=".\ui\map_hint.cpp"
-						>
-					</File>
-					<File
+							>
+						</File>
+						<File
 							RelativePath=".\ui\map_hint.h"
-						>
-					</File>
-					<File
+							>
+						</File>
+						<File
 							RelativePath=".\map_spot.cpp"
-						>
-					</File>
-					<File
+							>
+						</File>
+						<File
 							RelativePath=".\map_spot.h"
-						>
-					</File>
+							>
+						</File>
 						<File
 							RelativePath=".\ui\UIMap.cpp"
-								>
+							>
 						</File>
 						<File
 							RelativePath=".\ui\UIMap.h"
@@ -29675,23 +29675,23 @@
 						</File>
 						<File
 							RelativePath=".\ui\UIMapWnd.cpp"
-								>
+							>
 						</File>
 						<File
 							RelativePath=".\ui\UIMapWnd.h"
-								>
+							>
 						</File>
 						<File
 							RelativePath=".\ui\UIMapWnd2.cpp"
-								>
+							>
 						</File>
 						<File
 							RelativePath=".\ui\UIMapWndActions.cpp"
-								>
+							>
 						</File>
 						<File
 							RelativePath=".\ui\UIMapWndActions.h"
-								>
+							>
 						</File>
 						<File
 							RelativePath=".\ui\UIMapWndActionsSpace.h"
@@ -30322,7 +30322,7 @@
 					</File>
 					<File
 						RelativePath=".\MainMenu.h"
-					>
+						>
 					</File>
 					<File
 						RelativePath=".\ui\MMSound.cpp"
@@ -31908,14 +31908,14 @@
 							/>
 						</FileConfiguration>
 					</File>
-						<File
+					<File
 						RelativePath=".\ui\UIListBoxItem.cpp"
-							>
-						</File>
-						<File
+						>
+					</File>
+					<File
 						RelativePath=".\ui\UIListBoxItem.h"
-							>
-						</File>
+						>
+					</File>
 					<File
 						RelativePath=".\ui\UIListBoxItemMsgChain.cpp"
 						>

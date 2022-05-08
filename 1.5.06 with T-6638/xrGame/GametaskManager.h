@@ -30,14 +30,14 @@ public:
 
 	void		__stdcall	UpdateTasks						();
 
-	CGameTask*				ActiveTask						(ETaskType type);
-//	void					SetActiveTask					(const shared_str& id, ETaskType type);
+	CGameTask*				ActiveTask						();
+//	void					SetActiveTask					(const shared_str& id);
 	void					SetActiveTask					(CGameTask* task);
 	u32						ActualFrame						() const {return m_actual_frame;}
 	
-	CGameTask*				IterateGet						(CGameTask* t, ETaskState state, ETaskType type, bool bForward);
-	u32						GetTaskIndex					(CGameTask* t, ETaskState state, ETaskType type);
-	u32						GetTaskCount					(ETaskState state, ETaskType type);
+	CGameTask*				IterateGet						(CGameTask* t, ETaskState state, bool bForward);
+	u32						GetTaskIndex					(CGameTask* t, ETaskState state);
+	u32						GetTaskCount					(ETaskState state);
 	void					MapLocationRelcase				(CMapLocation* ml);
 
 	void					ResetStorage					() {m_gametasks = NULL;};

@@ -29,7 +29,7 @@ namespace luabind {
 
 class CCoverManager {
 public:
-	typedef CQuadTree<CCoverPoint> CPointQuadTree;
+	typedef CQuadTree<CCoverPoint>	CPointQuadTree;
 	typedef xr_vector<CCoverPoint*> PointVector;
 	typedef smart_cover::storage	Storage;
 	typedef smart_cover::cover		Cover;

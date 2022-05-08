@@ -36,6 +36,12 @@ void CWeaponRPG7::FireTrace(const Fvector& P, const Fvector& D)
 	UpdateMissileVisibility	();
 }
 
+void CWeaponRPG7::on_a_hud_attach()
+{
+	inherited::on_a_hud_attach		();
+	UpdateMissileVisibility			();
+}
+
 void CWeaponRPG7::UpdateMissileVisibility()
 {
 	bool vis_hud,vis_weap;
@@ -152,6 +158,12 @@ void CWeaponRPG7::switch2_Fire()
 			u_EventSend						(P);
 		}
 	}
+}
+
+void CWeaponRPG7::PlayAnimReload()
+{
+	VERIFY(GetState()==eReload);
+	PlayHUDMotion("anm_reload", FALSE, this, GetState());
 }
 
 void CWeaponRPG7::OnEvent(NET_Packet& P, u16 type) 

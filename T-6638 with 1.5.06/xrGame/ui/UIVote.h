@@ -23,6 +23,7 @@ public:
 			void 	OnBtnCancel	();
 			void 	SetVoting	(LPCSTR txt);
 protected:
+	CUIStatic*		bkgrnd;
 	CUITextWnd*		msg;
 	CUITextWnd*		cap[3];
 	CUIFrameWindow* frame[3];
@@ -31,6 +32,6 @@ protected:
 	CUI3tButton*	btn_yes;
 	CUI3tButton*	btn_no;
 	CUI3tButton*	btn_cancel;
-	CUIStatic*		bkgrnd;
+
 	u32				m_prev_upd_time;
 };

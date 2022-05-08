@@ -65,7 +65,7 @@ void CAutosaveManager::shedule_Update		(u32 dt)
 	update_autosave_time		();
 
 	string_path					temp;
-	strconcat					(sizeof(temp),temp,Core.UserName,"_","autosave");
+	strconcat					(sizeof(temp),temp,Core.UserName," - ","autosave");
 	NET_Packet					net_packet;
 	net_packet.w_begin			(M_SAVE_GAME);
 	net_packet.w_stringZ		(temp);
@@ -78,8 +78,7 @@ void CAutosaveManager::shedule_Update		(u32 dt)
 
 	MainMenu()->Screenshot		(IRender_interface::SM_FOR_GAMESAVE,S1);
 	
-	SDrawStaticStruct* s		= HUD().GetUI()->UIGame()->AddCustomStatic("autosave", true);
-	s->m_endTime				= Device.fTimeGlobal+3.0f;// 3sec
+	CurrentGameUI()->AddCustomStatic("autosave", true);
 }
 
 void CAutosaveManager::on_game_loaded	()

@@ -69,7 +69,7 @@ protected:
 	float									m_fRadius;
 
 	u16										m_idOriginalOwner;
-	shared_str					m_SpecificChracterOwner;
+	shared_str								m_SpecificChracterOwner;
 	xr_string								m_sFullName;
 
 	bool									m_bTurnedOff;

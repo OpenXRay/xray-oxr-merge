@@ -78,7 +78,7 @@ BOOL CPhysicObject::net_Spawn(CSE_Abstract* DC)
 	}
 	//processing_activate();
 #ifdef	DEBUG
-	if(dbg_draw_doors)
+	if (dbg_draw_doors)
 	{
 		DBG_OpenCashedDraw( );
 		Fvector closed, open; 
@@ -351,7 +351,7 @@ void CPhysicObject::UpdateCL()
 
 	m_anim_script_callback.update( *this );
 	PHObjectPositionUpdate();
-	
+
 #ifdef	DEBUG
 	if (dbg_draw_doors)
 	{
@@ -534,7 +534,7 @@ Msg("%s",(*I).first);
 //////////////////////////////////////////////////////////////////////////
 bool CPhysicObject::is_ai_obstacle		() const
 {
-	return							(true);
+	return							!!( READ_IF_EXISTS(pSettings, r_bool, cNameSect(), "is_ai_obstacle", true ) );
 }
 
 // network synchronization ----------------------------

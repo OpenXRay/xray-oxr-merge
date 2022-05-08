@@ -3,11 +3,12 @@
 //#if 0
 
 #include "entity.h"
-#include "PHDynamicData.h"
-#include "PhysicsShell.h"
+//#include "../xrphysics/PHDynamicData.h"
+#include "../xrphysics/PhysicsShell.h"
+#include "../xrphysics/phupdateobject.h"
 #include "script_entity.h"
 #include "CarLights.h"
-#include "phobject.h"
+//#include "phobject.h"
 #include "holder_custom.h"
 #include "PHSkeleton.h"
 #include "DamagableItem.h"
@@ -83,8 +84,8 @@ static	const u16				cAsCallsnum						=3;
 ////////////////////////////////////////////////////////////////////////
 	static	BONE_P_MAP					bone_map;					//interface for PhysicsShell
 	static	void 						ActorObstacleCallback		(bool& do_colide,bool bo1,dContact& c,SGameMtl* material_1,SGameMtl* material_2);
-	virtual void						PhDataUpdate				(dReal step)			;
-	virtual void						PhTune						(dReal step)			;
+	virtual void						PhDataUpdate				(float step)			;
+	virtual void						PhTune						(float step)			;
 /////////////////////////////////////////////////////////////////////////
 	virtual void						ApplyDamage					(u16 level)				;
 	virtual	float						Health						()						{return GetfHealth();}
@@ -92,7 +93,7 @@ static	const u16				cAsCallsnum						=3;
 	virtual void						StartTimerEffects			()						{};
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	virtual CPhysicsShellHolder*		PPhysicsShellHolder			()						{return static_cast<CPhysicsShellHolder*>(this);}
-	virtual CPHCollisionDamageReceiver	*PHCollisionDamageReceiver	()						{return static_cast<CPHCollisionDamageReceiver*>(this);}
+	virtual ICollisionDamageReceiver	*PHCollisionDamageReceiver	()						{ return this; }
 
 ////////////////////////////////////////////////////////////////////////
 	CCarDamageParticles					m_damage_particles;
@@ -211,10 +212,8 @@ virtual void ApplyDamage			(u16 level);
 		float steering_velocity;
 		float steering_torque;
 		bool  limited;			//zero limited for idle steering drive
-		float GetSteerAngle()
-		{
-			return -pos_right*dJointGetHinge2Angle1 (pwheel->joint->GetDJoint());
-		}
+		float GetSteerAngle();
+	
 		void	 Init		()						;
 		void	 SteerRight	()						;
 		void	 SteerLeft	()						;
@@ -460,7 +459,7 @@ private:
 	float	 			EnginePower							()	;
 	float	 			EngineDriveSpeed					()	;
 	float	 			DriveWheelsMeanAngleRate			()	;
-IC	float	 			EngineRpmFromWheels					(){return dFabs(DriveWheelsMeanAngleRate()*m_current_gear_ratio);}
+IC	float	 			EngineRpmFromWheels					(){return _abs(DriveWheelsMeanAngleRate()*m_current_gear_ratio);}
 	/////////////////////////////////////////////////////////////////////////	
 	void				SteerRight							();
 	void				SteerLeft							();
@@ -514,7 +513,7 @@ IC	size_t				CurrentTransmission					(){return m_current_transmission_num;}
 
 	bool					HUDview						( ) { return IsFocused(); }
 
-	static void				cb_Steer					(CBoneInstance* B);
+	static void	_BCL		cb_Steer					(CBoneInstance* B);
 	virtual	void			Hit							(SHit* pHDS);
 	virtual void			Die							(CObject* who);
 	virtual void PHHit									(SHit &H);
@@ -571,7 +570,7 @@ public:
 	virtual void			ActivateExplosionBox		(const Fvector &size,Fvector &in_out_pos){};
 	virtual void			ResetScriptData				(void *P=0);
 
-	virtual void			Action						(int id, u32 flags);
+	virtual void			Action						(u16 id, u32 flags);
 	virtual void			SetParam					(int id, Fvector2 val);
 	virtual void			SetParam					(int id, Fvector val);
 			bool			HasWeapon					();

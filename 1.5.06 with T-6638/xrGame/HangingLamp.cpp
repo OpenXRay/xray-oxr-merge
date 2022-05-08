@@ -269,7 +269,7 @@ void CHangingLamp::TurnOn	()
 
 	Fvector p						= XFORM().c;
 	light_render->set_position		(p);
-	light_render->set_active						(true);
+	light_render->set_active		(true);
 	if (glow_render)
 	{
 		glow_render->set_position		(p);

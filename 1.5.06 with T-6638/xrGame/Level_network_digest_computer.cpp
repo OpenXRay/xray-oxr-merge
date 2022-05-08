@@ -3,7 +3,7 @@
 #include "../xrGameSpy/gamespy/md5.h"
 
 extern	void	GetCDKey_FromRegistry(char* CDKeyStr);
-char const * ComputeClientDigest(string128& dest, bool lower_case)
+char const * ComputeClientDigest(string128& dest)
 {
 	string128 cd_key;
 	string128 md5hash;
@@ -14,16 +14,10 @@ char const * ComputeClientDigest(string128& dest, bool lower_case)
 		dest[0] = 0;
 		return dest;
 	}
-	if (lower_case)
-	{
-		strlwr(cd_key);
-	} else
-	{
-		strupr(cd_key);
-	}
+	strupr(cd_key);
 	MD5Digest(reinterpret_cast<unsigned char*>(cd_key), cd_keylen, md5hash);
 	md5hash[33] = 0;
-	strcpy_s(dest, sizeof(dest), md5hash);
+	xr_strcpy(dest, sizeof(dest), md5hash);
 	return dest;
 };
 
@@ -32,8 +26,7 @@ void CLevel::SendClientDigestToServer()
 	string128 tmp_digest;
 	NET_Packet P;
 	P.w_begin			(M_SV_DIGEST);
-	m_client_digest		= ComputeClientDigest(tmp_digest, true);
+	m_client_digest	=	ComputeClientDigest(tmp_digest);
 	P.w_stringZ			(m_client_digest);
-	P.w_stringZ			(ComputeClientDigest(tmp_digest, false));
 	SecureSend			(P, net_flags(TRUE, TRUE, TRUE, TRUE));
 }

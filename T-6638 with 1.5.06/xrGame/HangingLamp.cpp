@@ -270,12 +270,12 @@ void CHangingLamp::TurnOn	()
 	Fvector p						= XFORM().c;
 	light_render->set_position		(p);
 	light_render->set_active		(true);
-	if (glow_render)	
+	if (glow_render)
 	{
 		glow_render->set_position		(p);
 		glow_render->set_active		(true);
 	}
-	if (light_ambient)	
+	if (light_ambient)
 	{
 		light_ambient->set_position	(p);
 		light_ambient->set_active	(true);
@@ -286,7 +286,7 @@ void CHangingLamp::TurnOn	()
 		K->LL_SetBoneVisible		(light_bone, TRUE, TRUE);
 		K->CalculateBones_Invalidate();
 		K->CalculateBones			(TRUE);
-		K->LL_SetBoneVisible		(light_bone, TRUE, TRUE); //hack		
+		K->LL_SetBoneVisible		(light_bone, TRUE, TRUE); //hack
 	}
 	processing_activate		();
 	m_bState				= 1;

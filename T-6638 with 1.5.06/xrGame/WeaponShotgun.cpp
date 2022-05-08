@@ -97,7 +97,8 @@ void CWeaponShotgun::Reload()
 
 void CWeaponShotgun::TriStateReload()
 {
-	if( m_magazine.size() == (u32)iMagazineSize ||  !HaveCartridgeInInventory(1) )return;
+	if( m_magazine.size() == (u32)iMagazineSize ||  !HaveCartridgeInInventory(1) )
+		return;
 	CWeapon::Reload		();
 	m_sub_state			= eSubstateReloadBegin;
 	SwitchState			(eReload);
@@ -174,8 +175,10 @@ void CWeaponShotgun::PlayAnimCloseWeapon()
 
 bool CWeaponShotgun::HaveCartridgeInInventory(u8 cnt)
 {
-	if (unlimited_ammo())	return true;
-	if(!m_pInventory)		return false;
+	if (unlimited_ammo())
+		return true;
+	if (!m_pInventory)
+		return false;
 
 	u32 ac = GetAmmoCount(m_ammoType);
 	if(ac<cnt)

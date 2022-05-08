@@ -139,8 +139,9 @@ void CSE_ALifeOnlineOfflineGroup::unregister_member						(ALife::_OBJECT_ID memb
 	alife().scheduled().add		((*I).second);
 
 	m_members.erase				(I);
-	
-	if (m_members.empty()) {
+
+	if (m_members.empty())
+	{
 		m_flags.set				(flUsedAI_Locations,FALSE);
 	}
 }
@@ -158,8 +159,9 @@ CSE_ALifeOnlineOfflineGroup::MEMBER *CSE_ALifeOnlineOfflineGroup::member(ALife::
 }
 
 bool CSE_ALifeOnlineOfflineGroup::synchronize_location	()
-{	
-	if (m_bOnline){
+{
+	if (m_bOnline)
+	{
 		MEMBER					*member = (*m_members.begin()).second;
 		o_Position				= member->o_Position;
 		m_tNodeID				= member->m_tNodeID;
@@ -175,10 +177,11 @@ void CSE_ALifeOnlineOfflineGroup::try_switch_online		()
 	if (m_members.empty())
 		return;
 
-	if (!can_switch_online())	
+	if (!can_switch_online())
 		return;
 
-	if (!can_switch_offline()) {
+	if (!can_switch_offline())
+	{
 	    inherited1::try_switch_online	();
 		return;
 	}
@@ -189,7 +192,8 @@ void CSE_ALifeOnlineOfflineGroup::try_switch_online		()
 		VERIFY3					((*I).second->g_Alive(),"Incorrect situation : some of the OnlineOffline group members is dead",(*I).second->name_replace());
 		VERIFY3					((*I).second->can_switch_online(),"Incorrect situation : some of the OnlineOffline group members cannot be switched online due to their personal properties",(*I).second->name_replace());
 		VERIFY3					((*I).second->can_switch_offline(),"Incorrect situation : some of the OnlineOffline group members cannot be switched online due to their personal properties",(*I).second->name_replace());
-		if (alife().graph().actor()->o_Position.distance_to((*I).second->o_Position) > alife().online_distance()){
+		if (alife().graph().actor()->o_Position.distance_to((*I).second->o_Position) > alife().online_distance())
+		{
 			continue;
 		}
 		inherited1::try_switch_online	();
@@ -232,7 +236,8 @@ void CSE_ALifeOnlineOfflineGroup::switch_online			()
 
 	MEMBERS::iterator			I = m_members.begin();
 	MEMBERS::iterator			E = m_members.end();
-	for ( ; I != E; ++I){
+	for ( ; I != E; ++I)
+	{
 		alife().add_online		((*I).second, false);
 	}
 
@@ -258,9 +263,10 @@ void CSE_ALifeOnlineOfflineGroup::switch_offline		()
 
 	MEMBERS::iterator			I = m_members.begin();
 	MEMBERS::iterator			E = m_members.end();
-	for ( ; I != E; ++I){
+	for ( ; I != E; ++I)
+	{
 		(*I).second->clear_client_data();
-		alife().remove_online		((*I).second, false);
+		alife().remove_online	((*I).second, false);
 	}
 
 	alife().scheduled().add		(this);

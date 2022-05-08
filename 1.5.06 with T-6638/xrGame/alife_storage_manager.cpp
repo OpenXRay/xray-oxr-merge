@@ -42,7 +42,7 @@ void CALifeStorageManager::save	(LPCSTR save_name, bool update_name)
 	xr_strcpy					(save,m_save_name);
 	if (save_name)
 	{
-		strconcat				(sizeof(m_save_name),m_save_name,save_name,SAVE_EXTENSION);
+		strconcat				(sizeof(m_save_name), m_save_name, save_name, SAVE_EXTENSION);
 	}
 	else {
 		if (!xr_strlen(m_save_name)) {
@@ -128,8 +128,8 @@ bool CALifeStorageManager::load	(LPCSTR save_name)
 	CTimer						timer;
 	timer.Start					();
 
-	string256					save;
-	xr_strcpy						(save,m_save_name);
+	string_path					save;
+	xr_strcpy					(save,m_save_name);
 	if (!save_name)
 	{
 		if (!xr_strlen(m_save_name))

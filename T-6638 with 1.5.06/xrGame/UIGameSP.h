@@ -24,7 +24,7 @@ public:
 
 	virtual void		SetClGame				(game_cl_GameState* g);
 	virtual bool		IR_UIOnKeyboardPress	(int dik);
-	virtual void _BCL	OnFrame					();
+	virtual void 		OnFrame					();
 
 	void				StartTalk				(bool disable_break);
 	void				StartTrade				(CInventoryOwner* pActorInv, CInventoryOwner* pOtherOwner);
@@ -67,5 +67,5 @@ public:
 	virtual bool		WorkInPause					()const {return true;}
 	virtual void		Show						();
 	virtual void		Hide						();
-	virtual bool		OnKeyboardAction					(int dik, EUIMessages keyboard_action);
+	virtual bool		OnKeyboardAction			(int dik, EUIMessages keyboard_action);
 };

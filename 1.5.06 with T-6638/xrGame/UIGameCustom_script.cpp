@@ -1,7 +1,6 @@
 #include "pch_script.h"
 #include "UIGameCustom.h"
 #include "level.h"
-#include "hudmanager.h"
 #include "ui/uistatic.h"
 
 using namespace luabind;

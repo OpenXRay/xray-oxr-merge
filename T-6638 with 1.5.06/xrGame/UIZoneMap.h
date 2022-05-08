@@ -6,7 +6,6 @@
 class CActor;
 class CUIMiniMap;
 
-
 class CUIZoneMap
 {
 public:

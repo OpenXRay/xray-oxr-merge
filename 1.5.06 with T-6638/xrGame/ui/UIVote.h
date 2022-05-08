@@ -3,7 +3,7 @@
 #include "UIDialogWnd.h"
 
 class CUIStatic;
-class CUI3tButtonEx;
+class CUI3tButton;
 class CUIListBox;
 class CUIFrameWindow;
 
@@ -29,9 +29,9 @@ protected:
 	CUIFrameWindow* frame[3];
 	CUIListBox*		list[3];
 
-	CUI3tButtonEx*	btn_yes;
-	CUI3tButtonEx*	btn_no;
-	CUI3tButtonEx*	btn_cancel;
+	CUI3tButton*	btn_yes;
+	CUI3tButton*	btn_no;
+	CUI3tButton*	btn_cancel;
 
 	u32				m_prev_upd_time;
 };

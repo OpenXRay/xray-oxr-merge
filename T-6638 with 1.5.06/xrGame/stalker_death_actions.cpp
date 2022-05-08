@@ -87,7 +87,7 @@ void CStalkerActionDead::initialize		()
 
 		if (I == object().inventory().GetActiveSlot())
 			continue;
-		
+
 		PIItem item = object().inventory().ItemFromSlot(I);
 		if (item)
 			object().inventory().Ruck		(item);

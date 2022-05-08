@@ -48,8 +48,9 @@ loophole::loophole	(luabind::object const &description) :
 	m_id			= parse_string(description,"id");
 
 	m_usable		= parse_bool(description,"usable");
+
 	m_fov_position	= parse_fvector(description, "fov_position");
-	
+
 	m_fov_direction	= parse_fvector(description, "fov_direction");
 
 	if (m_fov_direction.square_magnitude() < EPS_L) {

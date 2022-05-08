@@ -133,7 +133,6 @@ void CUIMapLocationHint::SetInfoTask(CGameTask* task)
 	S						= m_info["t_hint_text"];
 	S->SetTextST			(task->m_Description.c_str());
 	S->AdjustHeightToText	();
-//	pos						= S->GetWndPos();
 	if ( b_rem )
 	{
 		S = m_info["t_time_rem"];

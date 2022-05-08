@@ -333,7 +333,7 @@ void CPHDestroyable::NotificatePart(CPHDestroyableNotificate *dn)
 void CPHDestroyable::NotificateDestroy(CPHDestroyableNotificate *dn)
 {
 	VERIFY(m_depended_objects);
-	VERIFY(!ph_world->Processing());
+	VERIFY(!physics_world()->Processing());
 	m_depended_objects--;
 	PhysicallyRemovePart(dn);
 	m_notificate_objects.push_back(dn);

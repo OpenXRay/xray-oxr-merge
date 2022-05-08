@@ -115,7 +115,7 @@ void CStalkerActionDead::execute		()
 	{
 		if (I==BOLT_SLOT)
 			continue;
-		
+
 		PIItem item = object().inventory().ItemFromSlot(I);
 		if(!item)
 			continue;

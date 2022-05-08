@@ -88,10 +88,13 @@ void CStalkerActionGetOutOfAnomaly::execute	()
 
 	xr_vector<CObject*>::const_iterator	I = object().feel_touch.begin();
 	xr_vector<CObject*>::const_iterator	E = object().feel_touch.end();
-	for ( ; I != E; ++I) {
+	for ( ; I != E; ++I)
+	{
 		CCustomZone						*zone = smart_cast<CCustomZone*>(*I);
-		if (zone)
+		if ( zone )
+		{
 			m_temp0.push_back			(zone->ID());
+		}
 	}
 	
 	object().movement().restrictions().add_restrictions	(m_temp1,m_temp0);

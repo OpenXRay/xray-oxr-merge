@@ -130,7 +130,7 @@ void CPatrolPathManager::select_point(const Fvector &position, u32 &dest_vertex_
 			case ePatrolStartTypeNext : {
 				if (m_prev_point_index != u32(-1)) {
 					if ((m_prev_point_index + 1) < m_path->vertex_count()) {
-						vertex		= m_path->vertex(m_prev_point_index+1);
+						vertex				= m_path->vertex(m_prev_point_index+1);
 					} else {
 						u32 next_point_id	= get_next_point(m_prev_point_index);
 						vertex				= m_path->vertex(next_point_id);

@@ -467,12 +467,12 @@ void CCar::UpdateCL				( )
 // 			OwnerActor()->Cameras().ApplyDevice();
 // 		}
 // 
-/*		if(HUD().GetUI())//
+/*		if(CurrentGameUI())//
 		{
-			HUD().GetUI()->UIMainIngameWnd->CarPanel().Show(true);
-			HUD().GetUI()->UIMainIngameWnd->CarPanel().SetCarHealth(GetfHealth());
-			HUD().GetUI()->UIMainIngameWnd->CarPanel().SetSpeed(lin_vel.magnitude()/1000.f*3600.f/100.f);
-			HUD().GetUI()->UIMainIngameWnd->CarPanel().SetRPM(m_current_rpm/m_max_rpm/2.f);
+			CurrentGameUI()->UIMainIngameWnd->CarPanel().Show(true);
+			CurrentGameUI()->UIMainIngameWnd->CarPanel().SetCarHealth(GetfHealth());
+			CurrentGameUI()->UIMainIngameWnd->CarPanel().SetSpeed(lin_vel.magnitude()/1000.f*3600.f/100.f);
+			CurrentGameUI()->UIMainIngameWnd->CarPanel().SetRPM(m_current_rpm/m_max_rpm/2.f);
 		}
 */
 	}
@@ -1610,7 +1610,7 @@ float CCar::DriveWheelsMeanAngleRate()
 }
 float CCar::EngineDriveSpeed()
 {
-	//float wheel_speed,drive_speed=dInfinity;
+	//float wheel_speed,drive_speed=phInfinity;
 	float calc_rpm=0.f;
 	if(b_transmission_switching)
 	{
@@ -1634,7 +1634,7 @@ float CCar::EngineDriveSpeed()
 	else
 		return		(1.f-m_rpm_decrement_factor)*m_current_rpm+m_rpm_decrement_factor*calc_rpm;
 
-	//if(drive_speed<dInfinity) return dFabs(drive_speed*m_current_gear_ratio);
+	//if(drive_speed<phInfinity) return dFabs(drive_speed*m_current_gear_ratio);
 	//else					  return 0.f;
 }
 
@@ -1811,8 +1811,8 @@ void CCar::CarExplode()
 //
 //	dxGeomUserData *l_pUD1 = NULL;
 //	dxGeomUserData *l_pUD2 = NULL;
-//	l_pUD1 = retrieveGeomUserData(c.geom.g1);
-//	l_pUD2 = retrieveGeomUserData(c.geom.g2);
+//	l_pUD1 = PHRetrieveGeomUserData(c.geom.g1);
+//	l_pUD2 = PHRetrieveGeomUserData(c.geom.g2);
 //
 //	if(! l_pUD1) return;
 //	if(!l_pUD2) return;

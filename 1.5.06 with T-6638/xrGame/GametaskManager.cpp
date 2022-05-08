@@ -6,7 +6,6 @@
 #include "Level.h"
 #include "map_manager.h"
 #include "map_location.h"
-#include "HUDManager.h"
 #include "actor.h"
 #include "UIGameSP.h"
 #include "ui/UIPDAWnd.h"
@@ -18,7 +17,7 @@
 #include <malloc.h>
 #pragma warning(pop)
 
-shared_str	g_active_task_id	[eTaskTypeCount];
+shared_str	g_active_task_id;
 
 struct FindTaskByID{
 	shared_str	id;
@@ -46,25 +45,20 @@ CGameTaskManager::CGameTaskManager()
 	m_flags.set					(eChanged, TRUE);
 	m_gametasks					= NULL;
 
-	for(int i=0; i<eTaskTypeCount; ++i)
-		if( g_active_task_id[i].size() )
+	if( g_active_task_id.size() )
+	{
+		CGameTask* t = HasGameTask( g_active_task_id, true );
+		if ( t )
 		{
-			CGameTask* t = HasGameTask( g_active_task_id[i], true );
-			if ( t )
-			{
-				VERIFY( t->GetTaskType() == (ETaskType)i );
-				SetActiveTask( t );
-			}
+			SetActiveTask( t );
 		}
+	}
 }
 
 CGameTaskManager::~CGameTaskManager()
 {
 	delete_data					(m_gametasks_wrapper);
-	for ( int i=0; i<eTaskTypeCount; ++i )
-	{
-		g_active_task_id[i] = NULL;
-	}	
+	g_active_task_id			= NULL;
 }
 
 vGameTasks&	CGameTaskManager::GetGameTasks	() 
@@ -348,7 +342,7 @@ u32 CGameTaskManager::GetTaskCount( ETaskState state, ETaskType type )
 	for ( u32 i = 0; i < cnt; ++i )
 	{
 		CGameTask* gt = v[i].game_task;
-		if ( gt->GetTaskType() == type && gt->GetTaskState()==state )
+		if ( gt->GetTaskState()==state )
 		{
 			++res;
 		}
@@ -362,12 +356,6 @@ char* sTaskStates[]=
 	"TaskStateInProgress",
 	"TaskStateCompleted",
 	"TaskStateDummy"
-};
-char* sTaskTypes[] =
-{
-	"TaskTypeStoryline",
-	"TaskTypeAdditional",
-	"TaskTypeInsignificant",
 };
 
 void CGameTaskManager::DumpTasks()

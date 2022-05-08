@@ -24,9 +24,6 @@ void CUIButton::script_register(lua_State *L)
 		.def(							constructor<>())
 		,
 
-		class_<CUI3tButtonEx, CUI3tButton>("CUI3tButtonEx")
-		.def(							constructor<>())
-		,
 
 		class_<CUICheckButton, CUI3tButton>("CUICheckButton")
 		.def(							constructor<>())
@@ -52,5 +49,8 @@ void CUIButton::script_register(lua_State *L)
 		.def("SetCheck",				&CUITrackBar::SetCheck)
 		.def("GetIValue",				&CUITrackBar::GetIValue)
 		.def("GetFValue",				&CUITrackBar::GetFValue)
+		.def("SetOptIBounds",			&CUITrackBar::SetOptIBounds)
+		.def("SetOptFBounds",			&CUITrackBar::SetOptFBounds)
+		.def("SetCurrentValue",			&CUITrackBar::SetCurrentOptValue)
 	];
 }

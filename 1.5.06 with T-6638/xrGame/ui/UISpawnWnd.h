@@ -6,7 +6,7 @@
 
 class CUIStatix;
 class CUIStatic;
-class CUI3tButtonEx;
+class CUI3tButton;
 class CUIScrollView;
 
 //typedef	void (*ButtonClickCallback) (int);
@@ -26,7 +26,7 @@ public:
 
 	virtual void Init();
 	virtual void SendMessage(CUIWindow *pWnd, s16 msg, void *pData);
-	virtual bool OnKeyboard(int dik, EUIMessages keyboard_action);
+	virtual bool OnKeyboardAction(int dik, EUIMessages keyboard_action);
 			void SetVisibleForBtn(ETEAMMENU_BTN btn, bool state);
 			void SetCurTeam(int team);
 
@@ -48,9 +48,9 @@ protected:
 	CUIScrollView*	m_pTextDesc;
 	CUIStatix*		m_pImage1;
 	CUIStatix*		m_pImage2;
-	CUI3tButtonEx*	m_pBtnAutoSelect;
-	CUI3tButtonEx*	m_pBtnSpectator;
-	CUI3tButtonEx*	m_pBtnBack;
+	CUI3tButton*	m_pBtnAutoSelect;
+	CUI3tButton*	m_pBtnSpectator;
+	CUI3tButton*	m_pBtnBack;
 
 	int		m_iCurTeam;
 };

@@ -113,7 +113,7 @@ void CUICharacterInfo::Init_IconInfoItem( CUIXml& xml_doc, LPCSTR item_str, UIIt
 		CUIStatic*	pItem = m_icons[type] = xr_new<CUIStatic>();
 		CUIXmlInit::InitStatic( xml_doc, item_str, 0, pItem );
 		
-		pItem->ClipperOn();
+//.		pItem->ClipperOn();
 		pItem->Show( true );
 		pItem->Enable( true );
 		AttachChild( pItem );
@@ -189,7 +189,6 @@ void CUICharacterInfo::InitCharacter(u16 id)
 		}
 	}
 
-	//	m_icons[eIcon]->SetStretchTexture		(true);
 	m_texture_name				= chInfo.IconName();
 	if ( m_icons[eIcon            ] ) { m_icons[eIcon            ]->InitTexture( m_texture_name.c_str()     ); }
 	if ( m_icons[eRankIcon        ] ) { m_icons[eRankIcon        ]->InitTexture( chInfo.Rank().id().c_str() ); }

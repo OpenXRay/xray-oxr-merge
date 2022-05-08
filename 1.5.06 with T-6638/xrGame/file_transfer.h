@@ -10,10 +10,6 @@
 //this module is an implementation of file transfering ...
 namespace file_transfer
 {
-
-
-	
-
 class server_site
 {
 public:

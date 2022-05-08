@@ -26,9 +26,10 @@ CGameTask::CGameTask()
 	m_FinishTime			= 0;
 	m_timer_finish			= 0;
 	m_Title					= NULL;
+	m_Description			= NULL;
 	m_ID					= NULL;
-	m_task_state			= eTaskStateDummy;
 	m_task_type				= eTaskTypeDummy;
+	m_task_state			= eTaskStateDummy;
 	m_linked_map_location	= NULL;
 	m_read					= false;
 }
@@ -59,7 +60,7 @@ void CGameTask::OnArrived()
 {
 	m_task_state   = eTaskStateInProgress;
 	m_read         = false;
-	
+
 	CreateMapLocation( false );
 }
 
@@ -123,30 +124,19 @@ void CGameTask::RemoveMapLocations(bool notify)
 
 void CGameTask::ChangeMapLocation( LPCSTR new_map_location, u16 new_map_object_id )
 {
-	RemoveMapLocations( false );
+	RemoveMapLocations	( false );
 
-	m_map_location._set( new_map_location );
-	m_map_object_id = new_map_object_id;
+	m_map_location		= new_map_location;
+	m_map_object_id		= new_map_object_id;
 
-	m_task_state = eTaskStateInProgress;
-	CreateMapLocation( false );
+	m_task_state		= eTaskStateInProgress;
+	CreateMapLocation	( false );
 }
 
 void CGameTask::ChangeStateCallback()
 {
 	Actor()->callback(GameObject::eTaskStateChange)(this, GetTaskState() );
 }
-
-/*
-CMapLocation* CGameTask::LinkedMapLocation()
-{
-	if( m_map_location.size() == 0 ) 
-	{
-		return	NULL;
-	}
-
-	return Level().MapManager().GetMapLocation(m_map_location, m_map_object_id);
-}*/
 
 ETaskState CGameTask::UpdateState()
 {

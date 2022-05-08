@@ -94,7 +94,8 @@ void CSE_ALifeOnlineOfflineGroup::unregister_member						(ALife::_OBJECT_ID memb
 
 	m_members.erase				(I);
 
-	if (m_members.empty()) {
+	if (m_members.empty())
+	{
 		if (!m_bOnline) {
 			graph.remove		(this,m_tGraphID);
 		}
@@ -152,7 +153,8 @@ void CSE_ALifeOnlineOfflineGroup::try_switch_online		()
 	if (!can_switch_online())
 		return;
 
-	if (!can_switch_offline()) {
+	if (!can_switch_offline())
+	{
 		o_Position				= alife().graph().actor()->o_Position;
 
         inherited1::try_switch_online	();
@@ -167,8 +169,9 @@ void CSE_ALifeOnlineOfflineGroup::try_switch_online		()
 		VERIFY3					((*I).second->can_switch_offline(),"Incorrect situation : some of the OnlineOffline group members cannot be switched online due to their personal properties",(*I).second->name_replace());
 
 		if (alife().graph().actor()->o_Position.distance_to((*I).second->o_Position) > alife().offline_distance())
+		{
 			continue;
-
+		}
 		o_Position				= (*I).second->o_Position;
 
         inherited1::try_switch_online	();
@@ -195,7 +198,7 @@ void CSE_ALifeOnlineOfflineGroup::try_switch_offline	()
 		VERIFY3					((*I).second->g_Alive(),"Incorrect situation : some of the OnlineOffline group members is dead",(*I).second->name_replace());
 		VERIFY3					((*I).second->can_switch_offline(),"Incorrect situation : some of the OnlineOffline group members cannot be switched online due to their personal properties",(*I).second->name_replace());
 		VERIFY3					((*I).second->can_switch_online(),"Incorrect situation : some of the OnlineOffline group members cannot be switched online due to their personal properties",(*I).second->name_replace());
-		
+
 		if (alife().graph().actor()->o_Position.distance_to((*I).second->o_Position) <= alife().offline_distance())
 			return;
 	}
@@ -211,7 +214,9 @@ void CSE_ALifeOnlineOfflineGroup::switch_online			()
 	MEMBERS::iterator			I = m_members.begin();
 	MEMBERS::iterator			E = m_members.end();
 	for ( ; I != E; ++I)
+	{
 		alife().add_online		((*I).second, false);
+	}
 
 	alife().scheduled().remove	(this);
 	alife().graph().remove		(this,m_tGraphID,false);
@@ -233,7 +238,9 @@ void CSE_ALifeOnlineOfflineGroup::switch_offline		()
 	MEMBERS::iterator			I = m_members.begin();
 	MEMBERS::iterator			E = m_members.end();
 	for ( ; I != E; ++I)
-		alife().remove_online	((*I).second,false);
+	{
+		alife().remove_online	((*I).second, false);
+	}
 
 	alife().scheduled().add		(this);
 	alife().graph().add			(this,m_tGraphID,false);

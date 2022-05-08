@@ -85,8 +85,8 @@ void CWeaponBM16::PlayAnimReload()
 	bool b_both = HaveCartridgeInInventory(2);
 
 	VERIFY(GetState()==eReload);
-	
-	if((m_magazine.size()==1 || !b_both) && 
+
+	if ((m_magazine.size()==1 || !b_both) && 
 		(m_set_next_ammoType_on_reload == undefined_ammo_type || 
 		 m_ammoType == m_set_next_ammoType_on_reload))
 		PlayHUDMotion("anm_reload_1",TRUE,this,GetState());

@@ -22,8 +22,10 @@ float CWeapon::GetConditionDispersionFactor() const
 
 float CWeapon::GetFireDispersion	(bool with_cartridge) 
 {
-	if (!with_cartridge) return GetFireDispersion(1.0f);
-	if (!m_magazine.empty()) m_fCurrentCartirdgeDisp = m_magazine.back().param_s.kDisp;
+	if (!with_cartridge)
+		return GetFireDispersion(1.0f);
+	if (!m_magazine.empty())
+		m_fCurrentCartirdgeDisp = m_magazine.back().param_s.kDisp;
 	return GetFireDispersion	(m_fCurrentCartirdgeDisp);
 }
 

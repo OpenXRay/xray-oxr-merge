@@ -51,6 +51,7 @@ protected:
 	u32						m_actual_time;
 	Fvector					m_position_global; //last global position, actual time only current frame 
 	Fvector2 				m_position_on_map; //last position on parent map, actual time only current frame
+
 	struct SCachedValues{
 		u32					m_updatedFrame;
 		GameGraph::_GRAPH_ID m_graphID;

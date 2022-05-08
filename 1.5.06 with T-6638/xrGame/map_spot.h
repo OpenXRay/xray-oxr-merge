@@ -14,7 +14,6 @@ private:
 	int						m_location_level;
 
 	CUIStatic*				m_border_static;
-//	CUIStatic*				m_focused_static;
 	
 	bool					m_mark_focused;
 
@@ -93,8 +92,6 @@ class CComplexMapSpot : public CMapSpot
 	bool					m_infinity_time;
 	int						m_last_delay;
 	ALife::_TIME_ID			m_timer_finish;
-
-//	Fvector2				m_pin_point;
 
 public:
 							CComplexMapSpot					(CMapLocation*);

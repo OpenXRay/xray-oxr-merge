@@ -64,7 +64,7 @@ class_<CScriptGameObject> &script_register_game_object1(class_<CScriptGameObject
 			value("alifeMovementTypeMask",	int(eSelectionTypeMask)),
 			value("alifeMovementTypeRandom",int(eSelectionTypeRandomBranching))
 		]
-		
+
 //		.property("visible",				&CScriptGameObject::getVisible,			&CScriptGameObject::setVisible)
 //		.property("enabled",				&CScriptGameObject::getEnabled,			&CScriptGameObject::setEnabled)
 
@@ -358,11 +358,11 @@ class_<CScriptGameObject> &script_register_game_object1(class_<CScriptGameObject
 		.def("apply_loophole_direction_distance",	(void (CScriptGameObject::*)	(float))&CScriptGameObject::apply_loophole_direction_distance)
 		.def("apply_loophole_direction_distance",	(float (CScriptGameObject::*)	() const)&CScriptGameObject::apply_loophole_direction_distance)
 
-		.def("movement_target_reached",		&CScriptGameObject::movement_target_reached)
-		.def("suitable_smart_cover",		&CScriptGameObject::suitable_smart_cover)
+		.def("movement_target_reached",			&CScriptGameObject::movement_target_reached)
+		.def("suitable_smart_cover",			&CScriptGameObject::suitable_smart_cover)
 
-		.def("take_items_enabled",			(void (CScriptGameObject::*)	(bool))&CScriptGameObject::take_items_enabled)
-		.def("take_items_enabled",			(bool (CScriptGameObject::*)	() const)&CScriptGameObject::take_items_enabled)
+		.def("take_items_enabled",				(void (CScriptGameObject::*)	(bool))&CScriptGameObject::take_items_enabled)
+		.def("take_items_enabled",				(bool (CScriptGameObject::*)	() const)&CScriptGameObject::take_items_enabled)
 
 		.def("death_sound_enabled",				(void (CScriptGameObject::*)	(bool))&CScriptGameObject::death_sound_enabled)
 		.def("death_sound_enabled",				(bool (CScriptGameObject::*)	() const)&CScriptGameObject::death_sound_enabled)

@@ -436,7 +436,8 @@ void stalker_movement_manager_base::parse_velocity_mask	(stalker_movement_params
 				}
 			}
 			else {
-				if (!fis_zero(path_direction_angle(),PI_DIV_8*.5f)) {
+				if (!fis_zero(path_direction_angle(),PI_DIV_8*.5f))
+				{
 					setup_body_orientation	();
 					guard.enable		(false);
 					current_velocity		= detail().velocity(path()[detail().curr_travel_point_index()].velocity);

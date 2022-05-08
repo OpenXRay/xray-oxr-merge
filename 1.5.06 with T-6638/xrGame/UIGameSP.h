@@ -12,8 +12,6 @@ class CChangeLevelWnd;
 class CUIMessageBox;
 class CInventoryBox;
 class CInventoryOwner;
-//-class CUIActorMenu;
-//-class CUIPdaWnd;			
 
 class CUIGameSP : public CUIGameCustom
 {
@@ -38,10 +36,9 @@ public:
 	void				ChangeLevel				(GameGraph::_GRAPH_ID game_vert_id, u32 level_vert_id, Fvector pos, Fvector ang, Fvector pos2, Fvector ang2, bool b, const shared_str& message, bool b_allow_change_level);
 
 	virtual void		HideShownDialogs		();
-
-//-	CUIActorMenu*		pActorMenu;
-//-	CUIPdaWnd*			PdaMenu;
-
+#ifdef DEBUG
+	virtual void		Render					();
+#endif
 	CUITalkWnd*			TalkMenu;
 	CChangeLevelWnd*	UIChangeLevelWnd;
 };
@@ -70,5 +67,5 @@ public:
 	virtual bool		WorkInPause					()const {return true;}
 	virtual void		Show						();
 	virtual void		Hide						();
-	virtual bool		OnKeyboard					(int dik, EUIMessages keyboard_action);
+	virtual bool		OnKeyboardAction			(int dik, EUIMessages keyboard_action);
 };

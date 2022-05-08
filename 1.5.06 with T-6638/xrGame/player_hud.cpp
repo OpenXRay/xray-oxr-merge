@@ -74,9 +74,9 @@ void player_hud_motion_container::load(IKinematicsAnimated* model, const shared_
 			for(u32 i=0; i<=8; ++i)
 			{
 				if(i==0)
-					strcpy_s				(buff,pm->m_base_name.c_str());		
+					xr_strcpy				(buff,pm->m_base_name.c_str());		
 				else
-					sprintf				(buff,"%s%d",pm->m_base_name.c_str(),i);		
+					xr_sprintf				(buff,"%s%d",pm->m_base_name.c_str(),i);		
 
 				motion_ID				= model->ID_Cycle_Safe(buff);
 				if(motion_ID.valid())
@@ -84,7 +84,7 @@ void player_hud_motion_container::load(IKinematicsAnimated* model, const shared_
 					pm->m_animations.resize			(pm->m_animations.size()+1);
 					pm->m_animations.back().mid		= motion_ID;
 					pm->m_animations.back().name	= buff;
-#ifdef DEBUG
+#if 0//def DEBUG
 					Msg(" alias=[%s] base=[%s] name=[%s]",pm->m_alias_name.c_str(), pm->m_base_name.c_str(), buff);
 #endif // #ifdef DEBUG
 				}
@@ -134,7 +134,7 @@ void attachable_hud_item::set_bone_visible(const shared_str& bone_name, BOOL bVi
 void attachable_hud_item::update(bool bForce)
 {
 	if(!bForce && m_upd_firedeps_frame==Device.dwFrame)	return;
-	bool is_16x9 = UI()->is_16_9_mode();
+	bool is_16x9 = UI().is_widescreen();
 	
 	if(!!m_measures.m_prop_flags.test(hud_item_measures::e_16x9_mode_now)!=is_16x9)
 		m_measures.load(m_sect_name, m_model);
@@ -231,9 +231,9 @@ void attachable_hud_item::render_item_ui()
 
 void hud_item_measures::load(const shared_str& sect_name, IKinematics* K)
 {
-	bool is_16x9 = UI()->is_16_9_mode();
+	bool is_16x9 = UI().is_widescreen();
 	string64	_prefix;
-	sprintf_s	(_prefix,"%s",is_16x9?"_16x9":"");
+	xr_sprintf	(_prefix,"%s",is_16x9?"_16x9":"");
 	string128	val_name;
 
 	strconcat					(sizeof(val_name),val_name,"hands_position",_prefix);
@@ -318,8 +318,8 @@ u32 attachable_hud_item::anim_play(const shared_str& anm_name_b, BOOL bMixIn, co
 
 	R_ASSERT				(strstr(anm_name_b.c_str(),"anm_")==anm_name_b.c_str());
 	string256				anim_name_r;
-	bool is_16x9			= UI()->is_16_9_mode();
-	sprintf_s				(anim_name_r,"%s%s",anm_name_b.c_str(),((m_attach_place_idx==1)&&is_16x9)?"_16x9":"");
+	bool is_16x9			= UI().is_widescreen();
+	xr_sprintf				(anim_name_r,"%s%s",anm_name_b.c_str(),((m_attach_place_idx==1)&&is_16x9)?"_16x9":"");
 
 	player_hud_motion* anm	= m_hand_motions.find_motion(anim_name_r);
 	R_ASSERT2				(anm, make_string("model [%s] has no motion alias defined [%s]", m_sect_name.c_str(), anim_name_r).c_str());
@@ -447,6 +447,9 @@ void player_hud::load(const shared_str& player_hud_sect)
 			m_ancors.push_back		(m_model->dcast_PKinematics()->LL_BoneID(_bone));
 		}
 	}
+	
+//	Msg("hands visual changed to[%s] [%s] [%s]", model_name.c_str(), b_reload?"R":"", m_attached_items[0]?"Y":"");
+
 	if(!b_reload)
 	{
 		m_model->PlayCycle("hand_idle_doun");

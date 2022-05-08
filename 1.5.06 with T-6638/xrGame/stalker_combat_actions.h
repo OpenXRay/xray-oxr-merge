@@ -315,5 +315,3 @@ public:
 private:
 	bool				m_check_can_kill_enemy;
 };
-
-#include "stalker_combat_actions_inline.h"

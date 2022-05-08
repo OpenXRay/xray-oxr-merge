@@ -83,7 +83,6 @@ void CEncyclopediaArticle::load_shared	(LPCSTR)
 		tex_rect.y2			= float(pSettings->r_u32(ltx, "inv_grid_height") * INV_GRID_HEIGHT);
 		tex_rect.rb.add		(tex_rect.lt);
 		data()->image.GetUIStaticItem().SetTextureRect(tex_rect);
-		data()->image.ClipperOn();
 	}
 	else 
 	{

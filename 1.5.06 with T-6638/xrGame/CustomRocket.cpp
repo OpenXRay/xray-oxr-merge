@@ -187,8 +187,8 @@ void CCustomRocket::ObjectContactCallback(bool& do_colide,bool bo1,dContact& c ,
 
 	dxGeomUserData *l_pUD1 = NULL;
 	dxGeomUserData *l_pUD2 = NULL;
-	l_pUD1 = retrieveGeomUserData(c.geom.g1);
-	l_pUD2 = retrieveGeomUserData(c.geom.g2);
+	l_pUD1 = PHRetrieveGeomUserData(c.geom.g1);
+	l_pUD2 = PHRetrieveGeomUserData(c.geom.g2);
 
 	SGameMtl* material=0;
 	CCustomRocket *l_this = l_pUD1 ? smart_cast<CCustomRocket*>(l_pUD1->ph_ref_object) : NULL;

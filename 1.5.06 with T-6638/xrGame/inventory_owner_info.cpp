@@ -41,17 +41,6 @@ void  CInventoryOwner::OnEvent (NET_Packet& P, u16 type)
 	}
 }
 
-
-class CFindByIDPred
-{
-public:
-	CFindByIDPred(shared_str element_to_find) {element = element_to_find;}
-	bool operator () (const INFO_DATA& data) const {return data.info_id == element;}
-private:
-	shared_str element;
-};
-
-
 bool CInventoryOwner::OnReceiveInfo(shared_str info_id) const
 {
 	VERIFY( info_id.size() );
@@ -98,7 +87,7 @@ void CInventoryOwner::DumpInfo() const
 	Msg("Start KnownInfo dump for [%s]",Name());	
 	KNOWN_INFO_VECTOR_IT it = known_info.begin();
 	for(int i=0;it!=known_info.end();++it,++i){
-		Msg("known info[%d]:%s",i,*(*it).info_id);	
+		Msg("known info[%d]:%s",i,(*it).c_str());
 	}
 	Msg("------------------------------------------");	
 

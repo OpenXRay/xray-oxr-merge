@@ -93,8 +93,6 @@ void CTAGameClCaptionsManager::ShowInProgressCaptions()
 			parent_game_ui->SetPressJumpMsgCaption("mp_press_fire2spectator");
 		} else
 		{
-			/*if (m_can_spawn)
-				parent_game_ui->SetPressJumpMsgCaption("mp_press_jump2start");*/
 			if (m_can_show_payspawn)
 				parent_game_ui->SetPressJumpMsgCaption("mp_press_jump2pay_spaw");
 		}

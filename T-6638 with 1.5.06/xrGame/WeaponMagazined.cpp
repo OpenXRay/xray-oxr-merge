@@ -295,7 +295,7 @@ void CWeaponMagazined::ReloadMagazine()
 	
 	if (!m_bLockType)
 	{
-		m_pCurrentAmmo		= NULL;
+		m_pCurrentAmmo	= NULL;
 	}
 	
 	if (!m_pInventory) return;

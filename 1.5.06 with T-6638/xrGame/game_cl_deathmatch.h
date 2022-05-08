@@ -36,7 +36,7 @@ public :
 	virtual		void				net_import_update		(NET_Packet& P);	
 	virtual		void				Init					();
 
-	virtual		void				LoadSndMessages				();
+	virtual		void				LoadSndMessages			();
 
 	virtual		bool				Is_Rewarding_Allowed	()  const { return m_cl_dwWarmUp_Time == 0; };
 protected:

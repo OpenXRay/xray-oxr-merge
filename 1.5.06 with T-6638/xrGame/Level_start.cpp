@@ -28,7 +28,7 @@ BOOL CLevel::net_Start	( LPCSTR op_server, LPCSTR op_client )
 
 	if ( xr_strlen(player_name) == 0 )
 	{
-		strcpy_s( player_name, xr_strlen(Core.UserName) ? Core.UserName : Core.CompName );
+		xr_strcpy( player_name, xr_strlen(Core.UserName) ? Core.UserName : Core.CompName );
 	}
 	VERIFY( xr_strlen(player_name) );
 
@@ -37,9 +37,9 @@ BOOL CLevel::net_Start	( LPCSTR op_server, LPCSTR op_client )
 	if (!NameStart)
 	{
 		string512 tmp;
-		strcpy_s(tmp, op_client);
-		strcat_s(tmp, "/name=");
-		strcat_s(tmp, player_name);
+		xr_strcpy(tmp, op_client);
+		xr_strcat(tmp, "/name=");
+		xr_strcat(tmp, player_name);
 		m_caClientOptions			= tmp;
 	} else {
 		string1024	ret="";
@@ -48,12 +48,12 @@ BOOL CLevel::net_Start	( LPCSTR op_server, LPCSTR op_client )
 		if (!xr_strlen(ret))
 		{
 			string1024 tmpstr;
-			strcpy_s(tmpstr, op_client);
+			xr_strcpy(tmpstr, op_client);
 			*(strstr(tmpstr, "name=")+5) = 0;
-			strcat_s(tmpstr, player_name);
+			xr_strcat(tmpstr, player_name);
 			const char* ptmp = strstr(strstr(op_client, "name="), "/");
 			if (ptmp)
-				strcat_s(tmpstr, ptmp);
+				xr_strcat(tmpstr, ptmp);
 			m_caClientOptions = tmpstr;
 		}
 		else
@@ -113,7 +113,7 @@ bool CLevel::net_start1				()
 		params							&p = g_pGamePersistent->m_game_params;
 		// Connect
 		if (!xr_strcmp(p.m_game_type,"single"))
-			Server					= xr_new<xrServer>();		
+			Server					= xr_new<xrServer>();
 		else
 			Server					= xr_new<xrGameSpyServer>();
 		
@@ -160,11 +160,11 @@ bool CLevel::net_start3				()
 	if (!strstr(m_caClientOptions.c_str(), "port=") && Server)
 	{
 		string64	PortStr;
-		sprintf_s(PortStr, "/port=%d", Server->GetPort());
+		xr_sprintf(PortStr, "/port=%d", Server->GetPort());
 
 		string4096	tmp;
-		strcpy_s(tmp, m_caClientOptions.c_str());
-		strcat_s(tmp, PortStr);
+		xr_strcpy(tmp, m_caClientOptions.c_str());
+		xr_strcat(tmp, PortStr);
 		
 		m_caClientOptions = tmp;
 	}
@@ -175,12 +175,12 @@ bool CLevel::net_start3				()
 			string64	PasswordStr = "";
 			const char* PSW = strstr(m_caServerOptions.c_str(), "psw=") + 4;
 			if (strchr(PSW, '/')) 
-				strncpy(PasswordStr, PSW, strchr(PSW, '/') - PSW);
+				strncpy_s(PasswordStr, PSW, strchr(PSW, '/') - PSW);
 			else
-				strcpy_s(PasswordStr, PSW);
+				xr_strcpy(PasswordStr, PSW);
 
 			string4096	tmp;
-			sprintf_s(tmp, "%s/psw=%s", m_caClientOptions.c_str(), PasswordStr);
+			xr_sprintf(tmp, "%s/psw=%s", m_caClientOptions.c_str(), PasswordStr);
 			m_caClientOptions = tmp;
 		};
 	};
@@ -191,7 +191,7 @@ bool CLevel::net_start3				()
 		const char* start = strstr(m_caClientOptions.c_str(),"/cdkey=") +xr_strlen("/cdkey=");
 		sscanf			(start, "%[^/]",CDKey);
 		string128 cmd;
-		sprintf_s(cmd, "cdkey %s", _strupr(CDKey));
+		xr_sprintf(cmd, "cdkey %s", _strupr(CDKey));
 		Console->Execute			(cmd);
 	}
 	return true;
@@ -228,7 +228,7 @@ bool CLevel::net_start5				()
 	};
 	return true;
 }
-#include "hudmanager.h"
+
 bool CLevel::net_start6				()
 {
 	//init bullet manager
@@ -317,8 +317,8 @@ bool CLevel::net_start6				()
 
 	if	(!g_dedicated_server)
 	{
-		if (g_hud)
-			HUD().GetUI()->OnConnected();
+		if (CurrentGameUI())
+			CurrentGameUI()->OnConnected();
 	}
 
 	return true;
@@ -341,6 +341,11 @@ void CLevel::InitializeClientGame	(NET_Packet& P)
 	game->Init				();
 	m_bGameConfigStarted	= TRUE;
 
+	if (!IsGameTypeSingle())
+	{
+		init_compression();
+	}
+	
 	R_ASSERT				(Load_GameSpecific_After ());
 }
 

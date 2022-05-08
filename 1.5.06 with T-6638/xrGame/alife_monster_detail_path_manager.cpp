@@ -208,8 +208,10 @@ void CALifeMonsterDetailPathManager::follow_path				(const ALife::_TIME_ID &time
 	VERIFY							(!failed());
 	VERIFY							(actual());
 	VERIFY							(!m_path.empty());
-	VERIFY							(m_path.back() == object().get_object().m_tGraphID);
-
+	if (m_path.back() != object().get_object().m_tGraphID){
+		make_inactual();
+	}
+	
 	if (m_path.size() == 1) {
 		VERIFY						(object().get_object().m_tGraphID == m_destination.m_game_vertex_id);
 		m_walked_distance			= 0.f;

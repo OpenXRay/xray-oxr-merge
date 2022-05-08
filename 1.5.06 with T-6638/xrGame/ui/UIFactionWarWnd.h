@@ -6,6 +6,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
 #include "UIWindow.h"
 #include "UIWndCallback.h"
 #include "FactionState.h"

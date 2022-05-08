@@ -39,7 +39,7 @@ public:
 
 public :
 										game_cl_ArtefactHunt	();
-	virtual							~game_cl_ArtefactHunt		();
+	virtual								~game_cl_ArtefactHunt	();
 	virtual			void				Init					();
 	virtual			CUIGameCustom*		createGameUI			();
 	virtual			void				SetGameUI				(CUIGameCustom*);

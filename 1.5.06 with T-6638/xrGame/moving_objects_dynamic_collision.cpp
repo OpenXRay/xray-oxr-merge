@@ -212,7 +212,7 @@ void moving_objects::resolve_collision			(boxes &current, moving_object *object0
 			)
 		) == m_previous_collisions.end()
 	);
-	
+
 	if (first_time) {
 		resolve_collision_first	(current, object0, object1, action);
 		return;

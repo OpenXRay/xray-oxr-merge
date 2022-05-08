@@ -437,7 +437,8 @@ void stalker_movement_manager_base::parse_velocity_mask	(stalker_movement_params
 			}
 			else {
 				CDetailPathManager::STravelParams const& path_velocity = detail().velocity(path()[detail().curr_travel_point_index()].velocity);
-				if (!fis_zero(path_direction_angle(),path_velocity.real_angular_velocity )) {
+				if (!fis_zero(path_direction_angle(),path_velocity.real_angular_velocity ))
+				{
 					setup_body_orientation	();
 					guard.enable		(false);
 					current_velocity		= path_velocity;

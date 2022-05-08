@@ -776,8 +776,15 @@ bool CAI_Stalker::fire_make_sense		()
 		return				(false);
 
 	// if we do not have automatic weapon
-	if (best_weapon()->object().ef_weapon_type() != 6)
+	switch (best_weapon()->object().ef_weapon_type()) {
+		case 6 :
+		case 7 :
+		case 8 :
+		case 10 :
+			break;
+		default:
 		return				(false);
+	}
 
 	return					(true);
 }
@@ -809,6 +816,9 @@ void CAI_Stalker::notify_on_wounded_or_killed	(CObject *object)
 {
 	CAI_Stalker							*stalker = smart_cast<CAI_Stalker*>(object);
 	if (!stalker)
+		return;
+
+	if ( !stalker->g_Alive() )
 		return;
 
 	stalker->on_enemy_wounded_or_killed	(this);
@@ -1127,6 +1137,9 @@ bool CAI_Stalker::can_cry_enemy_is_wounded		() const
 	if (brain().current_action_id() != StalkerDecisionSpace::eWorldOperatorCombatPlanner)
 		return						(false);
 
+	if (!agent_manager().member().group_behaviour())
+		return						(false);
+
 	typedef CActionPlannerActionScript<CAI_Stalker>	planner_type;
 	planner_type					*planner = smart_cast<planner_type*>(&brain().current_action());
 	VERIFY							(planner);
@@ -1165,6 +1178,9 @@ bool CAI_Stalker::can_cry_enemy_is_wounded		() const
 
 void CAI_Stalker::on_critical_wound_initiator	(const CAI_Stalker *critically_wounded)
 {
+	if ( !g_Alive() )
+		return;
+
 	if ( !can_cry_enemy_is_wounded() )
 		return;
 
@@ -1173,6 +1189,9 @@ void CAI_Stalker::on_critical_wound_initiator	(const CAI_Stalker *critically_wou
 
 void CAI_Stalker::on_enemy_wounded_or_killed	(const CAI_Stalker *wounded_or_killed)
 {
+	if (!g_Alive())
+		return;
+
 	if (!can_cry_enemy_is_wounded())
 		return;
 
@@ -1209,9 +1228,11 @@ bool CAI_Stalker::too_far_to_kill_enemy						(const Fvector &position)
 		// pistols
 		case 5 : return		(distance > 10.f);
 		// shotguns
-		case 7 : return		(distance > 5.f);
+		case 9 : return		(distance > 5.f);
 		// sniper rifles
-		case 8 : return		(distance > 70.f);
+		case 11 :
+		case 12 :
+			return			(distance > 70.f);
 		default: return		(distance > 5.f);
 	}
 #endif

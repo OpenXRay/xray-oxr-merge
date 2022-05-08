@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "weaponmagazinedwgrenade.h"
-#include "HUDManager.h"
 #include "entity.h"
 #include "ParticlesObject.h"
 #include "GrenadeLauncher.h"
@@ -11,7 +10,7 @@
 #include "level.h"
 #include "object_broker.h"
 #include "game_base_space.h"
-#include "MathUtils.h"
+#include "../xrphysics/MathUtils.h"
 #include "player_hud.h"
 
 #ifdef DEBUG
@@ -35,9 +34,9 @@ void CWeaponMagazinedWGrenade::Load	(LPCSTR section)
 	
 	
 	//// Sounds
-	m_sounds.LoadSound(section,"snd_shoot_grenade"	, "sndShotG"		, m_eSoundShot);
-	m_sounds.LoadSound(section,"snd_reload_grenade"	, "sndReloadG"	, m_eSoundReload);
-	m_sounds.LoadSound(section,"snd_switch"			, "sndSwitch"		, m_eSoundReload);
+	m_sounds.LoadSound(section,"snd_shoot_grenade"	, "sndShotG"		, false, m_eSoundShot);
+	m_sounds.LoadSound(section,"snd_reload_grenade"	, "sndReloadG"	, true, m_eSoundReload);
+	m_sounds.LoadSound(section,"snd_switch"			, "sndSwitch"		, true, m_eSoundReload);
 	
 
 	m_sFlameParticles2 = pSettings->r_string(section, "grenade_flame_particles");
@@ -91,8 +90,8 @@ BOOL CWeaponMagazinedWGrenade::net_Spawn(CSE_Abstract* DC)
 	iAmmoElapsed2	= weapon->a_elapsed_grenades.grenades_count;
 	m_ammoType2		= weapon->a_elapsed_grenades.grenades_type;
 
-	m_DefaultCartridge2.Load(*m_ammoTypes2[m_ammoType2], u8(m_ammoType2));
-	
+	m_DefaultCartridge2.Load(m_ammoTypes2[m_ammoType2].c_str(), m_ammoType2);
+
 	if (!IsGameTypeSingle())
 	{
 		if (!m_bGrenadeMode && IsGrenadeLauncherAttached() && !getRocketCount() && iAmmoElapsed2)
@@ -170,7 +169,7 @@ bool CWeaponMagazinedWGrenade::SwitchMode()
 
 	PlayAnimModeSwitch		();
 
-	m_dwAmmoCurrentCalcFrame = 0;
+	m_BriefInfo_CalcFrame	= 0;
 
 	return					true;
 }
@@ -196,7 +195,7 @@ void  CWeaponMagazinedWGrenade::PerformSwitchGL()
 
 }
 
-bool CWeaponMagazinedWGrenade::Action(s32 cmd, u32 flags) 
+bool CWeaponMagazinedWGrenade::Action(u16 cmd, u32 flags) 
 {
 	if(m_bGrenadeMode && cmd==kWPN_FIRE)
 	{
@@ -425,7 +424,6 @@ void CWeaponMagazinedWGrenade::ReloadMagazine()
 
 void CWeaponMagazinedWGrenade::OnStateSwitch(u32 S) 
 {
-
 	switch (S)
 	{
 	case eSwitch:
@@ -747,7 +745,7 @@ void CWeaponMagazinedWGrenade::load(IReader &input_packet)
 	load_data					(sz, input_packet);
 
 	CCartridge					l_cartridge; 
-	l_cartridge.Load			(*m_ammoTypes2[m_ammoType2], u8(m_ammoType2));
+	l_cartridge.Load			(m_ammoTypes2[m_ammoType2].c_str(), m_ammoType2);
 
 	while (sz > m_magazine2.size())
 		m_magazine2.push_back(l_cartridge);
@@ -849,15 +847,15 @@ bool CWeaponMagazinedWGrenade::install_upgrade_impl( LPCSTR section, bool test )
 	result |= process_if_exists( section, "launch_speed", &CInifile::r_float, m_fLaunchSpeed, test );
 
 	result2 = process_if_exists_set( section, "snd_shoot_grenade", &CInifile::r_string, str, test );
-	if ( result2 && !test ) { m_sounds.LoadSound( section, "snd_shoot_grenade", "sndShotG", m_eSoundShot );	}
+	if ( result2 && !test ) { m_sounds.LoadSound( section, "snd_shoot_grenade", "sndShotG", false, m_eSoundShot );	}
 	result |= result2;
 
 	result2 = process_if_exists_set( section, "snd_reload_grenade", &CInifile::r_string, str, test );
-	if ( result2 && !test ) { m_sounds.LoadSound( section, "snd_reload_grenade", "sndReloadG", m_eSoundReload );	}
+	if ( result2 && !test ) { m_sounds.LoadSound( section, "snd_reload_grenade", "sndReloadG", true, m_eSoundReload );	}
 	result |= result2;
 
 	result2 = process_if_exists_set( section, "snd_switch", &CInifile::r_string, str, test );
-	if ( result2 && !test ) { m_sounds.LoadSound( section, "snd_switch", "sndSwitch", m_eSoundReload );	}
+	if ( result2 && !test ) { m_sounds.LoadSound( section, "snd_switch", "sndSwitch", true, m_eSoundReload );	}
 	result |= result2;
 
 	return result;

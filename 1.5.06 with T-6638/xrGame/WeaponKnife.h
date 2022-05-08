@@ -27,7 +27,7 @@ protected:
 	float				fWallmarkSize;
 	u16					knife_material_idx;
 
-protected:	
+protected:
 	ALife::EHitType		m_eHitType;
 
 	ALife::EHitType		m_eHitType_1;

@@ -395,7 +395,7 @@ void InventoryUtilities::UpdateWeightStr(CUITextWnd &wnd, CUITextWnd &wnd_max, C
 
 	LPCSTR kg_str	= CStringTable().translate( "st_kg" ).c_str();
 	xr_sprintf		(buf, "%.1f %s", total, kg_str);
-	wnd.SetText	(buf);
+	wnd.SetText		(buf);
 
 	xr_sprintf		(buf, "(max %.1f %s)", max, kg_str);
 	wnd_max.SetText	(buf);

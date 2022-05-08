@@ -84,8 +84,8 @@ void player_hud_motion_container::load(IKinematicsAnimated* model, const shared_
 					pm->m_animations.resize			(pm->m_animations.size()+1);
 					pm->m_animations.back().mid		= motion_ID;
 					pm->m_animations.back().name	= buff;
-#ifdef DEBUG
-//					Msg(" alias=[%s] base=[%s] name=[%s]",pm->m_alias_name.c_str(), pm->m_base_name.c_str(), buff);
+#if 0//def DEBUG
+					Msg(" alias=[%s] base=[%s] name=[%s]",pm->m_alias_name.c_str(), pm->m_base_name.c_str(), buff);
 #endif // #ifdef DEBUG
 				}
 			}

@@ -57,10 +57,10 @@ inline void aimers::base::fill_bones	(
 			VERIFY						( *i < bone_count1 );
 			m_kinematics.Bone_GetAnimPos( local_bones[*i], bones_ids[*i], channel_mask, false );
 
-			VERIFY					( _valid(local_bones[*i]) );
-			VERIFY					( _valid(m_start_transform) );
+			VERIFY						( _valid(local_bones[*i]) );
+			VERIFY						( _valid(m_start_transform) );
 			global_bones[*i].mul_43		( m_start_transform, local_bones[*i] );
-			VERIFY					( _valid(global_bones[*i]) );
+			VERIFY						( _valid(global_bones[*i]) );
 		}
 	}
 
