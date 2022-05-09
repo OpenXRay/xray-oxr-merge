@@ -236,14 +236,15 @@ IC	_object_type *CSQuadTree::remove		(const _object_type *object, CQuadNode *&no
 {
 	VERIFY			(node);
 	if (depth == m_max_depth) {
-		CListItem	*leaf = ((CListItem*)((void*)(node)));
+		CListItem	*&node_leaf = ((CListItem*&)((void*&)(node)));
+		CListItem	*leaf = ((CListItem*)((void*&)(node)));
 		CListItem	*leaf_prev = 0;
 		for ( ; leaf; leaf_prev = leaf, leaf = leaf->m_next)
 			if (leaf->m_object == object) {
 				if (!leaf_prev)
-					node = 0;
+					node_leaf	= leaf->m_next;
 				else
-					leaf_prev->m_next = leaf->m_next;
+					leaf_prev->m_next	= leaf->m_next;
 				_object_type	*_object = leaf->m_object;
 				m_list_items->remove(leaf);
 				--m_leaf_count;
