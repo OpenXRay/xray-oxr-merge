@@ -209,10 +209,4 @@ public:
 	virtual		void				Player_ExperienceFin	(game_PlayerState* ps);
 	virtual		void				Player_AddMoney			(game_PlayerState* ps, s32 MoneyAmount);
 				void				SpawnPlayer				(ClientID id, LPCSTR N);
-	DECLARE_SCRIPT_REGISTER_FUNCTION
 };
-
-add_to_type_list(game_sv_mp)
-#undef script_type_list
-#define script_type_list save_type_list(game_sv_mp)
-

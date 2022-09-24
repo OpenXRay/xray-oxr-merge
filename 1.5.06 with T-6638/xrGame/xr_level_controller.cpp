@@ -31,7 +31,6 @@ _action  actions[]		= {
 	{ "cam_1",				kCAM_1					,_both},	
 	{ "cam_2",				kCAM_2					,_both},	
 	{ "cam_3",				kCAM_3					,_both},	
-	{ "cam_4",				kCAM_4					,_both},	
 	{ "cam_zoom_in",		kCAM_ZOOM_IN			,_both},	
 	{ "cam_zoom_out",		kCAM_ZOOM_OUT			,_both},	
 															
@@ -75,6 +74,7 @@ _action  actions[]		= {
 	{ "ext_1",				kEXT_1					,_both},	
 																
 	{ "vote_begin",			kVOTE_BEGIN				,_mp},		
+	{ "show_admin_menu",	kSHOW_ADMIN_MENU		,_mp},		
 	{ "vote",				kVOTE					,_mp},		
 	{ "vote_yes",			kVOTEYES				,_mp},		
 	{ "vote_no",			kVOTENO					,_mp},		

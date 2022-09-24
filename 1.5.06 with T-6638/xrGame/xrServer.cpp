@@ -505,12 +505,12 @@ u32 xrServer::OnDelayedMessage	(NET_Packet& P, ClientID sender)			// Non-Zero me
 			{
 				string1024			buff;
 				P.r_stringZ			(buff);
-				Msg("* Radmin [%s] is running command: %s", CL->name.c_str(), buff);
+				Msg("* Radmin [%s] is running command: %s", CL->ps->getName(), buff);
 				SetLogCB			(console_log_cb);
 				_tmp_log.clear		();
 				LPSTR		result_command;
 				string64	tmp_number_str;
-				sprintf_s(tmp_number_str, " raid:%u", CL->ID.value());
+				xr_sprintf(tmp_number_str, " raid:%u", CL->ID.value());
 				STRCONCAT(result_command, buff, tmp_number_str);
 				Console->Execute	(result_command);
 				SetLogCB			(NULL);
@@ -626,22 +626,8 @@ u32 xrServer::OnMessage	(NET_Packet& P, ClientID sender)			// Non-Zero means bro
 		}break;
 	case M_CLIENTREADY:
 		{
-			xrClientData* CL		= ID_to_client(sender);
-			if ( CL )	
-			{
-				CL->net_Ready	= TRUE;
-				CL->ps->DeathTime = Device.dwTimeGlobal;
 				game->OnPlayerConnectFinished(sender);
-				CL->ps->setName( CL->name.c_str() );
-				
-#ifdef BATTLEYE
-				if ( g_pGameLevel && Level().battleye_system.server )
-				{
-					Level().battleye_system.server->AddConnected_OnePlayer( CL );
-				}
-#endif // BATTLEYE
-			};
-			game->signal_Syncronize	();
+			//game->signal_Syncronize	();
 			VERIFY					(verify_entities());
 		}break;
 	case M_SWITCH_DISTANCE:
@@ -706,6 +692,10 @@ u32 xrServer::OnMessage	(NET_Packet& P, ClientID sender)			// Non-Zero means bro
 		{
 			game->AddDelayedEvent		(P,GAME_EVENT_PLAYER_AUTH, 0, sender);
 		}break;
+	case M_CREATE_PLAYER_STATE:
+		{
+			game->AddDelayedEvent		(P,GAME_EVENT_CREATE_PLAYER_STATE, 0, sender);
+		}break;
 	case M_STATISTIC_UPDATE:
 		{
 			SendBroadcast			(BroadcastCID,P,net_flags(TRUE,TRUE));
@@ -721,7 +711,9 @@ u32 xrServer::OnMessage	(NET_Packet& P, ClientID sender)			// Non-Zero means bro
 					my_game->m_async_stats.set_responded(CL->ID);
 					if (static_cast<IClient*>(CL) != GetServerClient())
 					{
-						Game().m_WeaponUsageStatistic->OnUpdateRespond(&P, CL->m_cdkey_digest);
+						game_PlayerState* tmp_ps = CL->ps;
+						u32 tmp_pid = tmp_ps != NULL ? tmp_ps->m_account.profile_id() : 0;
+						Game().m_WeaponUsageStatistic->OnUpdateRespond(&P, CL->m_cdkey_digest, tmp_pid);
 					}
 				} else
 				{
@@ -744,7 +736,7 @@ u32 xrServer::OnMessage	(NET_Packet& P, ClientID sender)			// Non-Zero means bro
 			if(0==stricmp(user.c_str(),"logoff"))
 			{
 				CL->m_admin_rights.m_has_admin_rights	= FALSE;
-				strcpy_s				(reason,"logged off");
+				xr_strcpy				(reason,"logged off");
 				Msg("# Remote administrator logged off.");
 			}else
 			{
@@ -770,16 +762,14 @@ u32 xrServer::OnMessage	(NET_Packet& P, ClientID sender)			// Non-Zero means bro
 		}break;
 	case M_BATTLEYE:
 		{
-#ifdef BATTLEYE
-			if ( g_pGameLevel )
-			{
-				Level().battleye_system.ReadPacketServer( sender.value(), &P );
-			}
-#endif // BATTLEYE
 		}break;
 	case M_FILE_TRANSFER:
 		{
 			AddDelayedPacket(P, sender);
+		}break;
+	case M_SECURE_KEY_SYNC:
+		{
+			PerformSecretKeysSyncAck(CL, P);
 		}break;
 	case M_SECURE_MESSAGE:
 		{
@@ -804,16 +794,16 @@ bool xrServer::CheckAdminRights(const shared_str& user, const shared_str& pass, 
 		{
 			if (ini.r_string ("radmins",user.c_str()) == pass)
 			{
-				strcpy_s			(reason, sizeof(reason),"Access permitted.");
+				xr_strcpy			(reason, sizeof(reason),"Access permitted.");
 				res				= true;
 			}else
 			{
-				strcpy_s			(reason, sizeof(reason),"Access denied. Wrong password.");
+				xr_strcpy			(reason, sizeof(reason),"Access denied. Wrong password.");
 			}
 		}else
-			strcpy_s			(reason, sizeof(reason),"Access denied. No such user.");
+			xr_strcpy			(reason, sizeof(reason),"Access denied. No such user.");
 	}else
-		strcpy_s				(reason, sizeof(reason),"Access denied.");
+		xr_strcpy				(reason, sizeof(reason),"Access denied.");
 
 	return				res;
 }
@@ -828,6 +818,7 @@ void xrServer::SendTo_LL			(ClientID ID, void* data, u32 size, u32 dwFlags, u32 
 	else 
 	{
 		IClient* pClient = ID_to_client(ID);
+		VERIFY2(pClient && pClient->flags.bConnected, "trying to send packet to disconnected client");
 		if (!pClient || !pClient->flags.bConnected)
 			return;
 
@@ -924,7 +915,7 @@ void			xrServer::Server_Client_Check	( IClient* CL )
 	{
 		CL->flags.bLocal	= 1;
 		SV_Client			= (xrClientData*)CL;
-		Msg( "New SV client %s", SV_Client->name.c_str() );
+		Msg( "New SV client 0x%08x", SV_Client->ID.value());
 	}else
 	{
 		CL->flags.bLocal	= 0;
@@ -1051,7 +1042,7 @@ void xrServer::create_direct_client()
 {
 	SClientConnectData cl_data;
 	cl_data.clientID.set(1);
-	strcpy_s( cl_data.name, "single_player" );
+	xr_strcpy( cl_data.name, "single_player" );
 	cl_data.process_id = GetCurrentProcessId();
 	
 	new_client( &cl_data );
@@ -1153,33 +1144,33 @@ void xrServer::GetServerInfo( CServerInfo* si )
 	LPCSTR time = InventoryUtilities::GetTimeAsString( Device.dwTimeGlobal, InventoryUtilities::etpTimeToSecondsAndDay ).c_str();
 	si->AddItem( "Uptime", time, RGB(255,228,0) );
 
-//	strcpy_s( tmp256, get_token_name(game_types, game->Type() ) );
-	strcpy_s( tmp256, GameTypeToString( game->Type(), true ) );
+//	xr_strcpy( tmp256, get_token_name(game_types, game->Type() ) );
+	xr_strcpy( tmp256, GameTypeToString( game->Type(), true ) );
 	if ( game->Type() == eGameIDDeathmatch || game->Type() == eGameIDTeamDeathmatch )
 	{
-		strcat_s( tmp256, " [" );
-		strcat_s( tmp256, itoa( g_sv_dm_dwFragLimit, tmp, 10 ) );
-		strcat_s( tmp256, "] " );
+		xr_strcat( tmp256, " [" );
+		xr_strcat( tmp256, itoa( g_sv_dm_dwFragLimit, tmp, 10 ) );
+		xr_strcat( tmp256, "] " );
 	}
 	else if ( game->Type() == eGameIDArtefactHunt || game->Type() == eGameIDCaptureTheArtefact )
 	{
-		strcat_s( tmp256, " [" );
-		strcat_s( tmp256, itoa( g_sv_ah_dwArtefactsNum, tmp, 10 ) );
-		strcat_s( tmp256, "] " );
+		xr_strcat( tmp256, " [" );
+		xr_strcat( tmp256, itoa( g_sv_ah_dwArtefactsNum, tmp, 10 ) );
+		xr_strcat( tmp256, "] " );
 		g_sv_ah_iReinforcementTime;
 	}
 	
 	//if ( g_sv_dm_dwTimeLimit > 0 )
 	{
-		strcat_s( tmp256, " time limit [" );
-		strcat_s( tmp256, itoa( g_sv_dm_dwTimeLimit, tmp, 10 ) );
-		strcat_s( tmp256, "] " );
+		xr_strcat( tmp256, " time limit [" );
+		xr_strcat( tmp256, itoa( g_sv_dm_dwTimeLimit, tmp, 10 ) );
+		xr_strcat( tmp256, "] " );
 	}
 	if ( game->Type() == eGameIDArtefactHunt || game->Type() == eGameIDCaptureTheArtefact )
 	{
-		strcat_s( tmp256, " RT [" );
-		strcat_s( tmp256, itoa( g_sv_ah_iReinforcementTime, tmp, 10 ) );
-		strcat_s( tmp256, "]" );
+		xr_strcat( tmp256, " RT [" );
+		xr_strcat( tmp256, itoa( g_sv_ah_iReinforcementTime, tmp, 10 ) );
+		xr_strcat( tmp256, "]" );
 	}
 	si->AddItem( "Game type", tmp256, RGB(128,255,255) );
 
@@ -1187,15 +1178,15 @@ void xrServer::GetServerInfo( CServerInfo* si )
 	{
 		time = InventoryUtilities::GetGameTimeAsString( InventoryUtilities::etpTimeToMinutes ).c_str();
 		
-		strcpy_s( tmp256, time );
+		xr_strcpy( tmp256, time );
 		if ( g_sv_mp_iDumpStatsPeriod > 0 )
 		{
-			strcat_s( tmp256, " statistic [" );
-			strcat_s( tmp256, itoa( g_sv_mp_iDumpStatsPeriod, tmp, 10 ) );
-			strcat_s( tmp256, "]" );
+			xr_strcat( tmp256, " statistic [" );
+			xr_strcat( tmp256, itoa( g_sv_mp_iDumpStatsPeriod, tmp, 10 ) );
+			xr_strcat( tmp256, "]" );
 			if ( g_bCollectStatisticData )
 			{
-				strcat_s( tmp256, "[weapons]" );
+				xr_strcat( tmp256, "[weapons]" );
 			}
 			
 		}
@@ -1284,4 +1275,30 @@ void xrServer::deinitialize_screenshot_proxies()
 	{
 		xr_delete(m_screenshot_proxies[i]);
 	}
+}
+
+struct PlayerInfoWriter
+{
+	NET_Packet*	dest;
+	void operator()(IClient* C)
+	{
+		xrClientData* tmp_client = smart_cast<xrClientData*>(C);
+		if (!tmp_client)
+			return;
+
+		dest->w_clientID(tmp_client->ID);
+		dest->w_stringZ(tmp_client->m_cAddress.to_string().c_str());
+		dest->w_stringZ(tmp_client->m_cdkey_digest);
+	}
+};//struct PlayerInfoWriter
+
+void xrServer::SendPlayersInfo(ClientID const & to_client)
+{
+	PlayerInfoWriter tmp_functor;
+	NET_Packet tmp_packet;
+	tmp_packet.w_begin	(M_GAMEMESSAGE); 
+	tmp_packet.w_u32	(GAME_EVENT_PLAYERS_INFO_REPLY);
+	tmp_functor.dest	= &tmp_packet;
+	ForEachClientDo		(tmp_functor);
+	SendTo				(to_client, tmp_packet, net_flags(TRUE, TRUE));
 }

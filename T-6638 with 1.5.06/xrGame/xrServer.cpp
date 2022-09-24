@@ -716,7 +716,7 @@ bool xrServer::CheckAdminRights(const shared_str& user, const shared_str& pass, 
 
 void xrServer::SendTo_LL			(ClientID ID, void* data, u32 size, u32 dwFlags, u32 dwTimeout)
 {
-	if ((SV_Client && SV_Client->ID==ID) || (psNET_direct_connect))
+	if ((SV_Client && SV_Client->ID==ID) || psNET_direct_connect)
 	{
 		// optimize local traffic
 		Level().OnMessage			(data,size);
@@ -1148,6 +1148,7 @@ void xrServer::MakeScreenshot(ClientID const & admin_id, ClientID const & cheate
 	}
 	Msg("! ERROR: SV: not enough file transfer proxies for downloading screenshot, please try later ...");
 }
+
 void xrServer::MakeConfigDump(ClientID const & admin_id, ClientID const & cheater_id)
 {
 	if ((cheater_id == SV_Client->ID) && g_dedicated_server)

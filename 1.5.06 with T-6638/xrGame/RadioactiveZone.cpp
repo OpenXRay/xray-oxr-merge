@@ -40,7 +40,7 @@ void CRadioactiveZone::Affect(SZoneObjectInfo* O)
 	XFORM().transform_tiny	(pos,CFORM()->getSphere().P);
 
 	Fvector dir				={0,0,0}; 
-	float power				= Power(O->object->Position().distance_to(pos));
+	float power				= Power(O->object->Position().distance_to(pos),nearest_shape_radius(O));
 
 	float impulse			= 0.0f;
 	if(power < EPS)			
@@ -117,7 +117,7 @@ void CRadioactiveZone::UpdateWorkload					(u32	dt)
 				l_P.read_start();
 
 				float dist			= (*it).object->Position().distance_to(pos);
-				float power			= Power(dist) * dt / 1000;
+				float power			= Power(dist,nearest_shape_radius(it)) * dt / 1000;
 
 				SHit				HS;
 				HS.GenHeader		(GE_HIT, (*it).object->ID());
@@ -138,4 +138,19 @@ void CRadioactiveZone::UpdateWorkload					(u32	dt)
 		}
 	}
 	inherited::UpdateWorkload(dt);
+}
+
+float CRadioactiveZone::nearest_shape_radius(SZoneObjectInfo* O)
+{
+	CCF_Shape* Sh		= (CCF_Shape*)CFORM();
+
+	if(Sh->Shapes().size()==1)
+	{
+		return			Radius();
+	}else
+	{
+		xr_vector<CCF_Shape::shape_def>& Shapes = Sh->Shapes();
+		CCF_Shape::shape_def& s = Shapes[0];
+		return s.data.sphere.R;
+	}
 }

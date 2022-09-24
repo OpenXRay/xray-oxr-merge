@@ -36,7 +36,8 @@ void message_filter::remove_filter(u16 const & msg_type, u32 const & msg_subtype
 
 void message_filter::msg_type_subtype_t::import(NET_Packet& packet)
 {
-	packet.r_begin(msg_type);
+	packet.r_begin	(msg_type);
+	msg_subtype		= 0;
 	switch (msg_type)
 	{
 	case M_EVENT:

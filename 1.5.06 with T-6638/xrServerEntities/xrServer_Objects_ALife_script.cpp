@@ -37,17 +37,6 @@ void CSE_ALifeGraphPoint::script_register(lua_State *L)
 	];
 }
 
-void CSE_SmartCover::script_register(lua_State *L)
-{
-	module(L)[
-		luabind_class_dynamic_alife1(
-			CSE_SmartCover,
-			"cse_smart_cover",
-			CSE_ALifeDynamicObject
-		)
-	];
-}
-
 void CSE_ALifeObject::script_register(lua_State *L)
 {
 	module(L)[
@@ -137,3 +126,13 @@ void CSE_ALifeLevelChanger::script_register(lua_State *L)
 	];
 }
 
+void CSE_ALifeInventoryBox::script_register(lua_State *L)
+{
+	module(L)[
+		luabind_class_dynamic_alife1(
+			CSE_ALifeInventoryBox,
+			"cse_alife_inventory_box",
+			CSE_ALifeDynamicObjectVisual
+			)
+	];
+}

@@ -23,7 +23,6 @@ enum	EGameActions
 	kCAM_1,
 	kCAM_2,
 	kCAM_3,
-	kCAM_4,
 	kCAM_ZOOM_IN,
 	kCAM_ZOOM_OUT,
 						
@@ -66,6 +65,7 @@ enum	EGameActions
 	kEXT_1,
 						
 	kVOTE_BEGIN,
+	kSHOW_ADMIN_MENU,
 	kVOTE,
 	kVOTEYES,
 	kVOTENO,

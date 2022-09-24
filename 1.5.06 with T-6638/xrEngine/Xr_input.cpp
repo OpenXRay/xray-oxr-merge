@@ -137,7 +137,7 @@ HRESULT CInput::CreateInputDevice( LPDIRECTINPUTDEVICE8* device, GUID guidDevice
 	if (!Device.editor())
 #endif // #ifdef INGAME_EDITOR
 	{
-		HRESULT	_hr = (*device)->SetCooperativeLevel( Device.m_hWnd, dwFlags );
+		HRESULT	_hr = (*device)->SetCooperativeLevel( RDEVICE.m_hWnd, dwFlags );
 		if (FAILED(_hr) && (_hr==E_NOTIMPL)) Msg("! INPUT: Can't set coop level. Emulation???");
 		else R_CHK(_hr);
 	}
@@ -183,11 +183,15 @@ void CInput::KeyUpdate	( )
 	VERIFY(pKeyboard);
 
 	hr = pKeyboard->GetDeviceData( sizeof(DIDEVICEOBJECTDATA), &od[0], &dwElements, 0 );
-	if (( hr == DIERR_INPUTLOST )||( hr == DIERR_NOTACQUIRED )){
+	if (( hr == DIERR_INPUTLOST )||( hr == DIERR_NOTACQUIRED ))
+	{
 		hr = pKeyboard->Acquire();
-		if ( hr != S_OK ) return;
+		if ( hr != S_OK )
+			return;
+
 		hr = pKeyboard->GetDeviceData( sizeof(DIDEVICEOBJECTDATA), &od[0], &dwElements, 0 );
-		if ( hr != S_OK ) return;
+		if ( hr != S_OK )
+			return;
 	}
 
 	bool b_alt_tab = false;
@@ -463,11 +467,11 @@ void CInput::OnAppDeactivate	(void)
 
 void CInput::OnFrame			(void)
 {
-	Device.Statistic->Input.Begin			();
-	dwCurTime		= Device.TimerAsync_MMT	();
+	RDEVICE.Statistic->Input.Begin			();
+	dwCurTime		= RDEVICE.TimerAsync_MMT	();
 	if (pKeyboard)	KeyUpdate				();
 	if (pMouse)		MouseUpdate				();
-	Device.Statistic->Input.End				();
+	RDEVICE.Statistic->Input.End			();
 }
 
 IInputReceiver*	 CInput::CurrentIR()
@@ -490,7 +494,7 @@ void CInput::acquire				(const bool &exclusive)
 #ifdef INGAME_EDITOR
 		Device.editor() ? Device.editor()->main_handle() : 
 #endif // #ifdef INGAME_EDITOR
-		Device.m_hWnd,
+		RDEVICE.m_hWnd,
 		(exclusive ? DISCL_EXCLUSIVE : DISCL_NONEXCLUSIVE) | DISCL_FOREGROUND
 	);
 	pKeyboard->Acquire				();
@@ -499,7 +503,7 @@ void CInput::acquire				(const bool &exclusive)
 #ifdef INGAME_EDITOR
 		Device.editor() ? Device.editor()->main_handle() :
 #endif // #ifdef INGAME_EDITOR
-		Device.m_hWnd,
+		RDEVICE.m_hWnd,
 		(exclusive ? DISCL_EXCLUSIVE : DISCL_NONEXCLUSIVE) | DISCL_FOREGROUND | DISCL_NOWINKEY
 	);
 	pMouse->Acquire					();
@@ -518,7 +522,7 @@ bool CInput::get_exclusive_mode		()
 
 void  CInput::feedback(u16 s1, u16 s2, float time)
 {
-	stop_vibration_time = Device.fTimeGlobal + time;
+	stop_vibration_time = RDEVICE.fTimeGlobal + time;
 #ifndef _EDITOR
 //.	set_vibration (s1, s2);
 #endif

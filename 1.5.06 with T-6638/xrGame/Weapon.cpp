@@ -388,9 +388,35 @@ void CWeapon::Load		(LPCSTR section)
 
 	if ( m_eScopeStatus == ALife::eAddonAttachable )
 	{
-		m_sScopeName = pSettings->r_string(section,"scope_name");
-		m_iScopeX = pSettings->r_s32(section,"scope_x");
-		m_iScopeY = pSettings->r_s32(section,"scope_y");
+		if(pSettings->line_exist(section, "scopes_sect"))		
+		{
+			LPCSTR str = pSettings->r_string(section, "scopes_sect");
+			for(int i = 0, count = _GetItemCount(str); i < count; ++i )	
+			{
+				string128						scope_section;
+				_GetItem						(str, i, scope_section);
+				m_scopes.push_back				(scope_section);
+			}
+		}
+		else
+		{
+			m_scopes.push_back(section);
+		}
+	}
+	else if( m_eScopeStatus == ALife::eAddonPermanent )
+	{
+		shared_str scope_tex_name			= pSettings->r_string(cNameSect(), "scope_texture");
+		m_zoom_params.m_fScopeZoomFactor	= pSettings->r_float( cNameSect(), "scope_zoom_factor");
+		if ( !g_dedicated_server )
+		{
+			m_UIScope				= xr_new<CUIWindow>();
+			if(!pWpnScopeXml)
+			{
+				pWpnScopeXml			= xr_new<CUIXml>();
+				pWpnScopeXml->Load		(CONFIG_PATH, UI_PATH, "scopes.xml");
+			}
+			CUIXmlInit::InitWindow	(*pWpnScopeXml, scope_tex_name.c_str(), 0, m_UIScope);
+		}
 	}
     
 	if ( m_eSilencerStatus == ALife::eAddonAttachable )
@@ -729,8 +755,6 @@ void CWeapon::OnHiddenItem ()
 
 	OnZoomOut();
 	inherited::OnHiddenItem		();
-//.	SetState					(eHidden);
-//.	SetNextState				(eHidden);
 
 	m_set_next_ammoType_on_reload = undefined_ammo_type;
 }

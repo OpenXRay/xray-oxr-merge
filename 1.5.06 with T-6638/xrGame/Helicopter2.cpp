@@ -232,7 +232,7 @@ void	CHelicopter::Hit							(SHit* pHDS)
 #endif
 	}else {
 		float hit_power		= pHDS->damage();
-		hit_power			*= m_HitTypeK[pHDS->hit_type];
+		hit_power			= AffectHit(hit_power, pHDS->hit_type);
 
 		SetfHealth(GetfHealth()-hit_power);
 #ifdef DEBUG

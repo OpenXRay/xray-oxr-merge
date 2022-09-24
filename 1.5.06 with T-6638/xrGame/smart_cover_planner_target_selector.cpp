@@ -136,6 +136,16 @@ void target_selector::add_actions		()
 {
 	CActionBase<animation_planner> *action;
 
+	action					= xr_new<target_idle>(&object(), "idle", eWorldPropertyLoopholeIdle, 0);
+//	add_condition			(action, eWorldPropertyLoopholeCanFireAtEnemy,		true);
+//	add_condition			(action, eWorldPropertyLoopholeCanFire,				true);
+//	add_condition			(action, eWorldPropertyLookedOut,					true);
+//	add_condition			(action, eWorldPropertyLoopholeLastHitWasLongAgo,	true);
+	add_condition			(action, eWorldPropertyLoopholeTooMuchTimeFiring,	true);
+	add_effect				(action, eWorldPropertyLoopholeTooMuchTimeFiring,	false);
+	add_operator			(eWorldOperatorLoopholeTargetIdle,					action);
+	action->set_inertia_time(1000);
+
 	action					= xr_new<target_provider>(&object(), "lookout", eWorldPropertyLookedOut, 0);
 	add_condition			(action, eWorldPropertyLoopholeCanLookout,			true);
 	add_condition			(action, eWorldPropertyLoopholeUseDefaultBehaviour,	false);
@@ -145,7 +155,7 @@ void target_selector::add_actions		()
 	add_effect				(action, eWorldPropertyPlannerHasTarget,			true);
 	add_operator			(eWorldOperatorLoopholeTargetLookout,				action);
 
-	action					= xr_new<target_provider>(&object(), "fire", eWorldPropertyLoopholeFire, 0);
+	action					= xr_new<target_fire>(&object(), "fire", eWorldPropertyLoopholeFire, 0);
 	add_condition			(action, eWorldPropertyLoopholeCanFireAtEnemy,		true);
 	add_condition			(action, eWorldPropertyLoopholeCanFire,				true);
 	add_condition			(action, eWorldPropertyLookedOut,					true);

@@ -327,8 +327,6 @@ void CEntityCondition::UpdateCondition()
 	clamp						(m_fPsyHealth,		0.0f,		m_fPsyHealthMax);
 }
 
-
-
 float CEntityCondition::HitOutfitEffect(float hit_power, ALife::EHitType hit_type, s16 element, float ap, bool& add_wound)
 {
     CInventoryOwner* pInvOwner = smart_cast<CInventoryOwner*>(m_object);
@@ -695,4 +693,3 @@ void SBooster::Load(const shared_str& sect, EBoostParams type)
 		default: NODEFAULT;	
 	}
 }
-

@@ -164,7 +164,9 @@ cphysics_shell_scripted* CScriptGameObject::get_physics_shell() const
 	CPhysicsShellHolder* ph_shell_holder =smart_cast<CPhysicsShellHolder*>(&object());
 	if(! ph_shell_holder)
 		return NULL;
-	return ph_shell_holder->PPhysicsShell();
+	if(! ph_shell_holder->PPhysicsShell() )
+		return NULL;
+	return get_script_wrapper<cphysics_shell_scripted>(*ph_shell_holder->PPhysicsShell());
 }
 
 //////////////////////////////////////////////////////////////////////////

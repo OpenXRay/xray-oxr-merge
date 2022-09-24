@@ -155,15 +155,15 @@ public:
 	virtual void InitAddons();
 
 	//для отоброажения иконок апгрейдов в интерфейсе
-	int	GetScopeX() {return m_iScopeX;}
-	int	GetScopeY() {return m_iScopeY;}
+	int	GetScopeX() {return pSettings->r_s32(m_scopes[m_cur_scope], "scope_x");}
+	int	GetScopeY() {return pSettings->r_s32(m_scopes[m_cur_scope], "scope_y");}
 	int	GetSilencerX() {return m_iSilencerX;}
 	int	GetSilencerY() {return m_iSilencerY;}
 	int	GetGrenadeLauncherX() {return m_iGrenadeLauncherX;}
 	int	GetGrenadeLauncherY() {return m_iGrenadeLauncherY;}
 
 	const shared_str& GetGrenadeLauncherName	() const {return m_sGrenadeLauncherName;}
-	const shared_str& GetScopeName				() const {return m_sScopeName;}
+	const shared_str GetScopeName				() const {return pSettings->r_string(m_scopes[m_cur_scope], "scope_name");}
 	const shared_str& GetSilencerName			() const {return m_sSilencerName;}
 
 	IC void	ForceUpdateAmmo						()		{ m_dwAmmoCurrentCalcFrame = 0; }
@@ -208,9 +208,15 @@ protected:
 		
 		Fvector			m_ZoomDof;
 		Fvector4		m_ReloadDof;
+		BOOL			m_bUseDynamicZoom;
+		shared_str		m_sUseZoomPostprocess;
+		shared_str		m_sUseBinocularVision;
+		CBinocularsVision*		m_pVision;
+		CNightVisionEffector*	m_pNight_vision;
 
 	} m_zoom_params;
 	
+	float					m_fRTZoomFactor; //run-time zoom factor
 	CUIWindow*				m_UIScope;
 
 public:
@@ -454,6 +460,17 @@ private:
 
 public:
 	const float				&hit_probability			() const;
+	
+private:
+	Fvector					m_overriden_activation_speed;
+	bool					m_activation_speed_is_overriden;
+	virtual bool			ActivationSpeedOverriden	(Fvector& dest, bool clear_override);
+
+	bool					m_bRememberActorNVisnStatus;
+public:
+	virtual void			SetActivationSpeedOverride	(Fvector const& speed);
+			bool			GetRememberActorNVisnStatus	() {return m_bRememberActorNVisnStatus;};
+	virtual void			EnableActorNVisnAfterZoom	();
 	
 	virtual void				DumpActiveParams			(shared_str const & section_name, CInifile & dst_ini) const;
 	virtual shared_str const	GetAnticheatSectionName		() const { return cNameSect(); };

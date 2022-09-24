@@ -56,6 +56,7 @@ game_cl_mp::game_cl_mp()
 {
 	m_bVotingActive = false;
 	m_pVoteStartWindow = NULL;
+	m_pAdminMenuWindow = NULL;
 	m_pVoteRespondWindow = NULL;
 	m_pMessageBox = NULL;
 	
@@ -86,7 +87,7 @@ game_cl_mp::game_cl_mp()
 	pBuySpawnMsgBox->Init("message_box_buy_spawn");
 	pBuySpawnMsgBox->AddCallback("msg_box", MESSAGE_BOX_YES_CLICKED, CUIWndCallback::void_function(this, &game_cl_mp::OnBuySpawn));
 	string1024	BuySpawnText;
-	sprintf_s(BuySpawnText, "You can buy a spawn for %d $. Press Yes to pay.", 
+	xr_sprintf(BuySpawnText, "You can buy a spawn for %d $. Press Yes to pay.", 
 		abs(m_iSpawn_Cost));
 	pBuySpawnMsgBox->SetText(BuySpawnText);
 */	//-----------------------------------------------------------
@@ -141,7 +142,7 @@ game_cl_mp::~game_cl_mp()
 CUIGameCustom*		game_cl_mp::createGameUI			()
 {
 //	m_pSpeechMenu = xr_new<CUISpeechMenu>("test_speech_section");
-	HUD().GetUI()->m_pMessagesWnd->SetChatOwner(this);
+	CurrentGameUI()->m_pMessagesWnd->SetChatOwner(this);
 		
 	return NULL;
 };
@@ -182,20 +183,23 @@ bool game_cl_mp::OnKeyboardPress(int key)
 		
 		game_PlayerState* ps	= local_player;
 
-		if (is_actor){
+		if (is_actor)
+		{
 			b_need_to_send_ready = NeedToSendReady_Actor(key, ps);
 		};
-		if(is_spectator){
+		if(is_spectator)
+		{
 			b_need_to_send_ready =	NeedToSendReady_Spectator(key, ps);
 		};
-		if(b_need_to_send_ready){
+		if(b_need_to_send_ready)
+		{
 				CGameObject* GO = smart_cast<CGameObject*>(curr);
 #ifdef DEBUG
 				Msg("---I'm ready (ID = %d) sending player ready packet !!!", GO->ID());
 #endif // #ifdef DEBUG
 				NET_Packet			P;
 				GO->u_EventGen		(P,GE_GAME_EVENT,GO->ID()	);
-				P.w_u16(GAME_EVENT_PLAYER_READY);
+				P.w_u16				(GAME_EVENT_PLAYER_READY);
 				GO->u_EventSend			(P);
 				return true;
 		}
@@ -230,7 +234,7 @@ bool game_cl_mp::OnKeyboardPress(int key)
 				shared_str prefix;
 				
 
-				CUIChatWnd* pChatWnd = HUD().GetUI()->m_pMessagesWnd->GetChatWnd();
+				CUIChatWnd* pChatWnd = CurrentGameUI()->m_pMessagesWnd->GetChatWnd();
 
 				if (kCHAT_TEAM == key)
 				{
@@ -274,9 +278,9 @@ bool game_cl_mp::OnKeyboardPress(int key)
 				else
 				{
 					if (!IsVotingEnabled())
-						OnCantVoteMsg(*st.translate("st_mp_disabled_voting"));
+						OnCantVoteMsg(st.translate("st_mp_disabled_voting").c_str());
 					else
-						OnCantVoteMsg(*st.translate("st_mp_no_current_voting"));
+						OnCantVoteMsg(st.translate("st_mp_no_current_voting").c_str());
 				}
 			}break;
 		case kVOTEYES:
@@ -375,7 +379,7 @@ char	Color_Green[]	= "%c[255,1,255,1]";
 
 void game_cl_mp::TranslateGameMessage	(u32 msg, NET_Packet& P)
 {
-	string512 Text;
+	string4096 Text;
 	CStringTable st;
 
 	switch(msg)	{
@@ -386,23 +390,23 @@ void game_cl_mp::TranslateGameMessage	(u32 msg, NET_Packet& P)
 		}break;
 	case GAME_EVENT_VOTE_START:
 		{
-			sprintf_s(Text, "%s%s", Color_Main, *st.translate("mp_voting_started_msg"));
-			CommonMessageOut(Text);
+			xr_sprintf(Text, "%s%s", Color_Main, *st.translate("mp_voting_started_msg"));
+			if(CurrentGameUI()) CurrentGameUI()->CommonMessageOut(Text);
 			OnVoteStart(P);
 		}break;
 	case GAME_EVENT_VOTE_STOP:
 		{
-			sprintf_s(Text, "%s%s", Color_Main, *st.translate("mp_voting_broken"));
-			CommonMessageOut(Text);
+			xr_sprintf(Text, "%s%s", Color_Main, *st.translate("mp_voting_broken"));
+			if(CurrentGameUI()) CurrentGameUI()->CommonMessageOut(Text);
 
 			OnVoteStop(P);
 		}break;
 	case GAME_EVENT_VOTE_END:
 		{
-			string512 Reason;
+			string4096 Reason;
 			P.r_stringZ(Reason);
-			sprintf_s(Text, "%s%s", Color_Main, *st.translate(Reason));
-			CommonMessageOut(Text);
+			xr_sprintf(Text, "%s%s", Color_Main, *st.translate(Reason));
+			if(CurrentGameUI()) CurrentGameUI()->CommonMessageOut(Text);
 			OnVoteEnd(P);
 		}break;
 	case GAME_EVENT_PLAYER_NAME:
@@ -440,8 +444,8 @@ void game_cl_mp::TranslateGameMessage	(u32 msg, NET_Packet& P)
 		{
 			string1024 mess;
 			P.r_stringZ(mess);
-			sprintf_s( Text, "%s%s", Color_Red, *st.translate(mess) );
-			CommonMessageOut(Text);
+			xr_sprintf( Text, "%s%s", Color_Red, *st.translate(mess) );
+			if(CurrentGameUI()) CurrentGameUI()->CommonMessageOut(Text);
 		}break;
 	case GAME_EVENT_SERVER_DIALOG_MESSAGE:
 		{
@@ -535,18 +539,18 @@ void game_cl_mp::OnWarnMessage(NET_Packet* P)
 		u8	_cnt				= P->r_u8	();
 		u8	_total				= P->r_u8	();
 		
-		if(HUD().GetUI())
+		if(CurrentGameUI())
 		{
 			string512				_buff;
-			sprintf_s					(_buff,"max_ping_warn_%d", _cnt);
-			SDrawStaticStruct* ss	= HUD().GetUI()->AddInfoMessage(_buff);
+			xr_sprintf					(_buff,"max_ping_warn_%d", _cnt);
+			SDrawStaticStruct* ss	= CurrentGameUI()->AddInfoMessage(_buff);
 			
-			sprintf_s					(_buff,"%d ms.", _ping);
+			xr_sprintf					(_buff,"%d ms.", _ping);
 			ss->m_static->SetText	(_buff);
 			CUIWindow*	w			= ss->m_static->FindChild("auto_static_0");
 			if(w)
 			{
-				sprintf_s				(_buff,"%d/%d", _cnt, _total);
+				xr_sprintf				(_buff,"%d/%d", _cnt, _total);
 				CUIStatic* s		= smart_cast<CUIStatic*>(w);
 				s->SetText			(_buff);
 			}
@@ -581,18 +585,9 @@ void game_cl_mp::OnChatMessage(NET_Packet* P)
 	
 	LPSTR colPlayerName;
 	STRCONCAT(colPlayerName, Color_Teams[team], PlayerName, ":%c[default]");
-	if (Level().CurrentViewEntity() && HUD().GetUI())
-		HUD().GetUI()->m_pMessagesWnd->AddChatMessage(ChatMsg, colPlayerName);
+	if (Level().CurrentViewEntity() && CurrentGameUI())
+		CurrentGameUI()->m_pMessagesWnd->AddChatMessage(ChatMsg, colPlayerName);
 };
-
-void game_cl_mp::CommonMessageOut		(LPCSTR msg)
-{
-	if(g_dedicated_server)	return;
-
-	if (HUD().GetUI())
-        HUD().GetUI()->m_pMessagesWnd->AddLogMessage(msg);
-};
-
 
 void game_cl_mp::shedule_Update(u32 dt)
 {
@@ -607,7 +602,7 @@ void game_cl_mp::shedule_Update(u32 dt)
 	{
 	case GAME_PHASE_PENDING:
 		{
-			//CUIChatWnd* pChatWnd = HUD().GetUI()->m_pMessagesWnd->GetChatWnd();
+			//CUIChatWnd* pChatWnd = CurrentGameUI()->m_pMessagesWnd->GetChatWnd();
 			//if (pChatWnd && pChatWnd->IsShown())
 			//	StartStopMenu(pChatWnd, false);
 
@@ -630,7 +625,7 @@ void game_cl_mp::shedule_Update(u32 dt)
 		}break;
 	default:
 		{
-			CUIChatWnd* pChatWnd = HUD().GetUI()->m_pMessagesWnd->GetChatWnd();
+			CUIChatWnd* pChatWnd = CurrentGameUI()->m_pMessagesWnd->GetChatWnd();
 			if (pChatWnd && pChatWnd->IsShown())
 				StartStopMenu(pChatWnd, false);
 		}break;
@@ -708,9 +703,9 @@ void game_cl_mp::OnPlayerVoted			(game_PlayerState* ps)
 
 	CStringTable st;
 	string1024 resStr;
-	sprintf_s(resStr, "%s\"%s\" %s%s %s\"%s\"", Color_Teams[ps->team], ps->getName(), Color_Main, *st.translate("mp_voted"),
+	xr_sprintf(resStr, "%s\"%s\" %s%s %s\"%s\"", Color_Teams[ps->team], ps->getName(), Color_Main, *st.translate("mp_voted"),
 		ps->m_bCurrentVoteAgreed ? Color_Green : Color_Red, *st.translate(ps->m_bCurrentVoteAgreed ? "mp_voted_yes" : "mp_voted_no"));
-	CommonMessageOut(resStr);
+	if(CurrentGameUI()) CurrentGameUI()->CommonMessageOut(resStr);
 }
 void game_cl_mp::LoadTeamData			(const shared_str& TeamName)
 {
@@ -753,10 +748,10 @@ void game_cl_mp::OnSwitchPhase			(u32 old_phase, u32 new_phase)
 		{
 			m_bSpectatorSelected = FALSE;
 
-			if (Level().pHUD && HUD().GetUI())
+			if (Level().pHUD && CurrentGameUI())
 			{
 				CUIMessagesWindow*	messages_window = NULL;
-				CUI*				ui_window = HUD().GetUI();
+				CUI*				ui_window = CurrentGameUI();
 				if (ui_window)
 				{
 					 messages_window = ui_window->m_pMessagesWnd;
@@ -774,7 +769,7 @@ void game_cl_mp::OnSwitchPhase			(u32 old_phase, u32 new_phase)
 			if (old_phase == GAME_PHASE_INPROGRESS)
 			{
 				CUIMessagesWindow*	messages_window = NULL;
-				CUI*				ui_window = HUD().GetUI();
+				CUI*				ui_window = CurrentGameUI();
 				if (ui_window)
 				{
 					 messages_window = ui_window->m_pMessagesWnd;
@@ -791,13 +786,13 @@ void game_cl_mp::OnSwitchPhase			(u32 old_phase, u32 new_phase)
 	case GAME_PHASE_TEAM2_ELIMINATED:
 	case GAME_PHASE_TEAMS_IN_A_DRAW:
 	case GAME_PHASE_PLAYER_SCORES:
+		{
 			HideMessageMenus();
-	break;
-
+		}break;
 	default:
 		{
-			if (Level().pHUD && HUD().GetUI())
-				HUD().GetUI()->ShowGameIndicators(false);
+			if (Level().pHUD && CurrentGameUI())
+				CurrentGameUI()->ShowGameIndicators(false);
 			HideMessageMenus();
 		}break;
 	}
@@ -877,14 +872,11 @@ void game_cl_mp::OnPlayerKilled			(NET_Packet& P)
 //	R_ASSERT(pKiller);
 	//-----------------------------------------------------------
 	KillMessageStruct KMS;
-	KMS.m_victim.m_name = pPlayer->name;
+	KMS.m_victim.m_name = pPlayer->getName();
 	KMS.m_victim.m_color = Color_Teams_u32[ModifyTeam(pPlayer->team) + 1];
 
 	KMS.m_killer.m_name = NULL;
 	KMS.m_killer.m_color = color_rgba(255,255,255,255);
-
-	//KMS.m_initiator.m_shader = NULL;
-	//KMS.m_ext_info.m_shader = NULL;
 
 	switch (KillType)
 	{
@@ -905,12 +897,12 @@ void game_cl_mp::OnPlayerKilled			(NET_Packet& P)
 						KMS.m_initiator.m_rect.y1 = 202;
 						KMS.m_initiator.m_rect.x2 = KMS.m_initiator.m_rect.x1 + 31;
 						KMS.m_initiator.m_rect.y2 = KMS.m_initiator.m_rect.y1 + 30;
-						sprintf_s(sWeapon, *st.translate("mp_by_explosion"));
+						xr_sprintf(sWeapon, *st.translate("mp_by_explosion"));
 					} else
 					{
 						KMS.m_initiator.m_rect	 = pIItem->GetKillMsgRect();
 						KMS.m_initiator.m_rect.rb.add(KMS.m_initiator.m_rect.lt);
-						sprintf_s(sWeapon, "%s %s", st.translate("mp_from").c_str(), pIItem->NameShort());
+						xr_sprintf(sWeapon, "%s %s", st.translate("mp_from").c_str(), pIItem->NameShort());
 					}
 				} else
 				{
@@ -922,7 +914,7 @@ void game_cl_mp::OnPlayerKilled			(NET_Packet& P)
 						KMS.m_initiator.m_rect.y1 = 202;
 						KMS.m_initiator.m_rect.x2 = KMS.m_initiator.m_rect.x1 + 31;
 						KMS.m_initiator.m_rect.y2 = KMS.m_initiator.m_rect.y1 + 30;
-						sprintf_s(sWeapon, *st.translate("mp_by_anomaly"));
+						xr_sprintf(sWeapon, *st.translate("mp_by_anomaly"));
 					}
 				}
 			}
@@ -946,7 +938,7 @@ void game_cl_mp::OnPlayerKilled			(NET_Packet& P)
 
 				if (pKiller)
 				{
-					KMS.m_killer.m_name = pKiller ? pKiller->name : *(pOKiller->cNameSect());
+					KMS.m_killer.m_name = pKiller ? pKiller->getName() : *(pOKiller->cNameSect());
 					KMS.m_killer.m_color = pKiller ? Color_Teams_u32[ModifyTeam(pKiller->team) + 1] : Color_Neutral_u32;
 				};
 			};
@@ -977,7 +969,7 @@ void game_cl_mp::OnPlayerKilled			(NET_Packet& P)
 						KMS.m_ext_info.m_rect.y2 = pBS->IconRects[0].y1 + pBS->IconRects[0].y2;
 					};
 
-					sprintf_s(sSpecial, *st.translate("mp_with_headshot"));
+					xr_sprintf(sSpecial, *st.translate("mp_with_headshot"));
 
 					if (pOKiller && pOKiller==Level().CurrentViewEntity())
 						PlaySndMessage(ID_HEADSHOT);
@@ -995,7 +987,7 @@ void game_cl_mp::OnPlayerKilled			(NET_Packet& P)
 						KMS.m_ext_info.m_rect.y2 = pBS->IconRects[0].y1 + pBS->IconRects[0].y2;
 					};
 					
-					sprintf_s(sSpecial, *st.translate("mp_with_eyeshot"));
+					xr_sprintf(sSpecial, *st.translate("mp_with_eyeshot"));
 
 					if (pOKiller && pOKiller==Level().CurrentViewEntity())
 						PlaySndMessage(ID_ASSASSIN);
@@ -1014,7 +1006,7 @@ void game_cl_mp::OnPlayerKilled			(NET_Packet& P)
 						KMS.m_ext_info.m_rect.y2 = pBS->IconRects[0].y1 + pBS->IconRects[0].y2;
 					};
 
-					sprintf_s(sSpecial, *st.translate("mp_with_backstab"));
+					xr_sprintf(sSpecial, *st.translate("mp_with_backstab"));
 					if (pOKiller && pOKiller==Level().CurrentViewEntity())
 						PlaySndMessage(ID_ASSASSIN);					
 				}break;
@@ -1065,7 +1057,7 @@ void game_cl_mp::OnPlayerKilled			(NET_Packet& P)
 
 			if (pKiller)
 			{
-				KMS.m_killer.m_name = pKiller ? pKiller->name : *(pOKiller->cNameSect());
+				KMS.m_killer.m_name = pKiller ? pKiller->getName() : *(pOKiller->cNameSect());
 				KMS.m_killer.m_color = pKiller ? Color_Teams_u32[ModifyTeam(pKiller->team) + 1] : Color_Neutral_u32;
 				//-----------------------------------------------------------------------				
 				Msg("%s died from bleeding, thanks to %s ", *KMS.m_victim.m_name, *KMS.m_killer.m_name);
@@ -1090,8 +1082,8 @@ void game_cl_mp::OnPlayerKilled			(NET_Packet& P)
 	default:
 		break;
 	}
-	if (HUD().GetUI() && HUD().GetUI()->m_pMessagesWnd)
-		HUD().GetUI()->m_pMessagesWnd->AddLogMessage(KMS);
+	if (CurrentGameUI() && CurrentGameUI()->m_pMessagesWnd)
+		CurrentGameUI()->m_pMessagesWnd->AddLogMessage(KMS);
 };
 
 extern	void	WritePlayerName_ToRegistry	(LPSTR name);
@@ -1112,8 +1104,8 @@ void	game_cl_mp::OnPlayerChangeName		(NET_Packet& P)
 	modify_player_name(new_name.c_str(), NewName);
 
 	string1024 resStr;
-	sprintf_s(resStr, "%s\"%s\" %s%s %s\"%s\"", Color_Teams[Team], OldName, Color_Main, *st.translate("mp_is_now"),Color_Teams[Team], NewName);
-	CommonMessageOut(resStr);
+	xr_sprintf(resStr, "%s\"%s\" %s%s %s\"%s\"", Color_Teams[Team], OldName, Color_Main, *st.translate("mp_is_now"),Color_Teams[Team], NewName);
+	if(CurrentGameUI()) CurrentGameUI()->CommonMessageOut(resStr);
 	Msg( NewName );
 	//-------------------------------------------
 	CObject* pObj = Level().Objects.net_Find(ObjID);
@@ -1142,9 +1134,9 @@ void	game_cl_mp::OnRankChanged	(u8 OldRank)
 	CStringTable st;
 	string256 tmp;
 	string1024 RankStr;
-	sprintf_s(tmp, "rank_%d",local_player->rank);
-	sprintf_s(RankStr, "%s : %s", *st.translate("mp_your_rank"), *st.translate(READ_IF_EXISTS(pSettings, r_string, tmp, "rank_name", "")));
-	CommonMessageOut(RankStr);	
+	xr_sprintf(tmp, "rank_%d",local_player->rank);
+	xr_sprintf(RankStr, "%s : %s", *st.translate("mp_your_rank"), *st.translate(READ_IF_EXISTS(pSettings, r_string, tmp, "rank_name", "")));
+	if(CurrentGameUI()) CurrentGameUI()->CommonMessageOut(RankStr);
 #ifdef DEBUG
 	Msg("- %s", RankStr);
 #endif
@@ -1230,7 +1222,7 @@ void	game_cl_mp::OnEventMoneyChanged			(NET_Packet& P)
 	if (Money_Added != 0)
 	{
 			string256					MoneyStr;
-			sprintf_s					(MoneyStr,(Money_Added>0)?"+%d":"%d", Money_Added);
+			xr_sprintf					(MoneyStr,(Money_Added>0)?"+%d":"%d", Money_Added);
 			m_game_ui_custom->DisplayMoneyChange	(MoneyStr);
 	};
 	u8 NumBonuses = P.r_u8();
@@ -1246,9 +1238,9 @@ void	game_cl_mp::OnEventMoneyChanged			(NET_Packet& P)
 		KillMessageStruct BMS;
 		string256	MoneyStr;
 		if (BonusMoney >=0)
-			sprintf_s		(MoneyStr, "+%d", BonusMoney);
+			xr_sprintf		(MoneyStr, "+%d", BonusMoney);
 		else
-			sprintf_s		(MoneyStr, "-%d", BonusMoney);
+			xr_sprintf		(MoneyStr, "-%d", BonusMoney);
 		BMS.m_victim.m_name = MoneyStr;
 		BMS.m_victim.m_color = 0xff00ff00;
 		u32 RectID = 0;
@@ -1278,9 +1270,9 @@ void	game_cl_mp::OnEventMoneyChanged			(NET_Packet& P)
 			}break;
 		case SKT_KIR: 
 			{				
-				BName.sprintf("%d_kill_in_row", BonusKills);
+				BName.printf("%d_kill_in_row", BonusKills);
 
-				sprintf_s		(MoneyStr, sizeof(MoneyStr), "%d", BonusKills);
+				xr_sprintf		(MoneyStr, sizeof(MoneyStr), "%d", BonusKills);
 				BMS.m_killer.m_name = MoneyStr;
 				BMS.m_killer.m_color = 0xffff0000;
 			}break;
@@ -1347,11 +1339,11 @@ void	game_cl_mp::OnGameMenuRespond		(NET_Packet& P)
 
 void	game_cl_mp::OnGameRoundStarted				()
 {
-	//			sprintf_s(Text, "%sRound started !!!",Color_Main);
+	//			xr_sprintf(Text, "%sRound started !!!",Color_Main);
 	string512 Text;
 	CStringTable st;
-	sprintf_s(Text, "%s%s",Color_Main, *st.translate("mp_match_started"));
-	CommonMessageOut(Text);
+	xr_sprintf(Text, "%s%s",Color_Main, *st.translate("mp_match_started"));
+	if(CurrentGameUI()) CurrentGameUI()->CommonMessageOut(Text);
 	OnSwitchPhase_InProgress();
 	//-------------------------------
 	PlaySndMessage(ID_MATCH_STARTED);
@@ -1397,11 +1389,11 @@ void game_cl_mp::LoadBonuses				()
 		_GetItem(line, 1, tmp1);
 		if (strstr(name, "kill_in_row")) 
 		{
-			sprintf_s(tmp1, "%s Kill", tmp1);
-			sprintf_s(IconStr, "kill_in_row");
+			xr_sprintf(tmp1, "%s Kill", tmp1);
+			xr_sprintf(IconStr, "kill_in_row");
 		}
 		else
-			sprintf_s(IconStr, "%s",name);
+			xr_sprintf(IconStr, "%s",name);
 
 		//-------------------------------------
 		Bonus_Struct	NewBonus;
@@ -1413,11 +1405,11 @@ void game_cl_mp::LoadBonuses				()
 		if (!strstr(name, "new_rank"))
 		{
 			string1024 IconShader, IconX, IconY, IconW, IconH;
-			sprintf_s(IconShader, "%s_shader", IconStr);
-			sprintf_s(IconX, "%s_x", IconStr);
-			sprintf_s(IconY, "%s_y", IconStr);
-			sprintf_s(IconW, "%s_w", IconStr);
-			sprintf_s(IconH, "%s_h", IconStr);
+			xr_sprintf(IconShader, "%s_shader", IconStr);
+			xr_sprintf(IconX, "%s_x", IconStr);
+			xr_sprintf(IconY, "%s_y", IconStr);
+			xr_sprintf(IconW, "%s_w", IconStr);
+			xr_sprintf(IconH, "%s_h", IconStr);
 			if (pSettings->line_exist("mp_bonus_icons", IconShader))
 			{			
 				NewBonus.IconShader->create("hud\\default", pSettings->r_string("mp_bonus_icons", IconShader));
@@ -1439,13 +1431,13 @@ void game_cl_mp::LoadBonuses				()
 			{
 				string256 rankstr;				
 
-				sprintf_s(rankstr, "ui_hud_status_green_0%d", r);
+				xr_sprintf(rankstr, "ui_hud_status_green_0%d", r);
 				IconRect = CUITextureMaster::GetTextureRect(rankstr);
 				IconRect.x2 -= IconRect.x1;
 				IconRect.y2 -= IconRect.y1;
 				NewBonus.IconRects.push_back(IconRect);
 
-				sprintf(rankstr, "ui_hud_status_blue_0%d", r);
+				xr_sprintf(rankstr, "ui_hud_status_blue_0%d", r);
 				IconRect = CUITextureMaster::GetTextureRect(rankstr);
 				IconRect.x2 -= IconRect.x1;
 				IconRect.y2 -= IconRect.y1;
@@ -1559,7 +1551,7 @@ void game_cl_mp::generate_file_name(
 		LPCSTR file_suffix,
 		SYSTEMTIME const& date_time)
 {
-	sprintf_s(
+	xr_sprintf(
 		file_name,
 		"%02d%02d%02d-%02d%02d%02d_%s",
 		date_time.wYear % 100,
@@ -1575,7 +1567,7 @@ void game_cl_mp::generate_file_name(
 
 LPCSTR game_cl_mp::make_file_name(LPCSTR session_id, string_path & dest)
 {
-	strcpy_s(dest, sizeof(dest), session_id);
+	xr_strcpy(dest, sizeof(dest), session_id);
 	static const char* denied_symbols = "/\\?%%*:|\"<>.";
 	size_t tmp_length = xr_strlen(dest);
 	size_t start_pos = 0;
@@ -1638,11 +1630,11 @@ void game_cl_mp::PrepareToReceiveFile(ClientID const & from_client, shared_str c
 	}
 }
 
-
 void __stdcall	game_cl_mp::fr_callback_binder::receiving_file_callback(
 															file_transfer::receiving_status_t status,
 															u32 bytes_received,
-															u32 data_size){
+															u32 data_size)
+{
 	if (g_draw_downloads)
 	{
 		m_owner->draw_downloads(true);
@@ -1699,6 +1691,7 @@ void __stdcall	game_cl_mp::fr_callback_binder::receiving_file_callback(
 			default:
 				NODEFAULT;
 			}; //switch (m_response_type)
+
 			m_active = false;
 		}break;
 	};
@@ -1727,7 +1720,7 @@ void game_cl_mp::decompress_and_save_screenshot	(LPCSTR file_name, u8* data, u32
 	}
 	string_path screen_shot_path;
 	FS.update_path(screen_shot_path, "$screenshots$", file_name);
-	strcat_s(screen_shot_path, ".jpg");
+	xr_strcat(screen_shot_path, ".jpg");
 	
 	IWriter* ftosave = FS.w_open(screen_shot_path);
 	if (!ftosave)
@@ -1764,7 +1757,7 @@ void game_cl_mp::decompress_and_process_config(LPCSTR file_name, u8* data, u32 d
 	}
 	string_path screen_shot_path;
 	FS.update_path(screen_shot_path, "$screenshots$", file_name);
-	strcat_s(screen_shot_path, ".ltx");
+	xr_strcat(screen_shot_path, ".ltx");
 	
 	IWriter* ftosave = FS.w_open(screen_shot_path);
 	if (!ftosave)
@@ -1778,7 +1771,7 @@ void game_cl_mp::decompress_and_process_config(LPCSTR file_name, u8* data, u32 d
 	if (!cd_verifyer.verify(buffer_for_compress, file_size, tmp_diff))
 	{
 		add_detected_cheater(file_name, tmp_diff);
-		Msg("! CHEATER suspect: %s, %s", file_name, tmp_diff);
+		Msg("! CHEATER detected: %s, %s", file_name, tmp_diff);
 	}
 }
 
@@ -1798,7 +1791,7 @@ void game_cl_mp::add_detected_cheater(shared_str const & file_name, string256 di
 {
 	detected_cheater_t	tmp_cheater;
 	tmp_cheater.m_file_name			= file_name;
-	strcpy_s						(tmp_cheater.m_diff, diff);
+	xr_strcpy						(tmp_cheater.m_diff, diff);
 	tmp_cheater.m_detect_time		= Device.dwTimeGlobal;
 	m_detected_cheaters.push_back	(tmp_cheater);
 }
@@ -1818,7 +1811,7 @@ struct old_detected_cheater
 void game_cl_mp::draw_all_active_binder_states()
 {
 	//drawing download states ..
-	CGameFont* F = HUD().Font().pFontDI;
+	CGameFont* F = UI().Font().pFontDI;
 	F->SetHeightI	(0.015f);
 	F->OutSetI		(0.1f,0.2f);
 	F->SetColor		(D3DCOLOR_XRGB(0,255,0));

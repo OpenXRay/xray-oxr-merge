@@ -69,7 +69,7 @@ class CALifeSmartTerrainTask;
 	DEFINE_LUA_WRAPPER_METHOD_V0		(switch_offline)
 #else
 #	define INHERIT_DYNAMIC_ALIFE \
-	INHERIT_ALIFE
+		INHERIT_ALIFE
 #endif
 
 #ifdef XRGAME_EXPORTS
@@ -94,16 +94,16 @@ class CALifeSmartTerrainTask;
 #ifdef XRGAME_EXPORTS
 #	define INHERIT_CREATURE \
 		INHERIT_DYNAMIC_ALIFE\
-		DEFINE_LUA_WRAPPER_METHOD_0			(g_team,	u8)\
-		DEFINE_LUA_WRAPPER_METHOD_0			(g_squad,	u8)\
-		DEFINE_LUA_WRAPPER_METHOD_0			(g_group,	u8)\
-		DEFINE_LUA_WRAPPER_METHOD_V1		(on_death,	CSE_Abstract*)
+		DEFINE_LUA_WRAPPER_METHOD_0		(g_team,	u8)\
+		DEFINE_LUA_WRAPPER_METHOD_0		(g_squad,	u8)\
+		DEFINE_LUA_WRAPPER_METHOD_0		(g_group,	u8)\
+		DEFINE_LUA_WRAPPER_METHOD_V1	(on_death,	CSE_Abstract*)
 #else // XRGAME_EXPORTS
 #	define INHERIT_CREATURE \
 		INHERIT_DYNAMIC_ALIFE\
-		DEFINE_LUA_WRAPPER_METHOD_0			(g_team,	u8)\
-		DEFINE_LUA_WRAPPER_METHOD_0			(g_squad,	u8)\
-		DEFINE_LUA_WRAPPER_METHOD_0			(g_group,	u8)
+		DEFINE_LUA_WRAPPER_METHOD_0		(g_team,	u8)\
+		DEFINE_LUA_WRAPPER_METHOD_0		(g_squad,	u8)\
+		DEFINE_LUA_WRAPPER_METHOD_0		(g_group,	u8)
 #endif // XRGAME_EXPORTS
 
 #define INHERIT_MONSTER \
@@ -145,6 +145,14 @@ struct CWrapperAbstractDynamicALife : public T, public luabind::wrap_base {
 	typedef CWrapperAbstractDynamicALife<T>	self_type;
 	CWrapperAbstractDynamicALife		(LPCSTR section) : inherited(section){}
 	INHERIT_DYNAMIC_ALIFE;
+};
+
+template <typename T>
+struct CWrapperAbstractOnlineOfflineGroup : public T, public luabind::wrap_base {
+	typedef T								inherited;
+	typedef CWrapperAbstractOnlineOfflineGroup<T>	self_type;
+	CWrapperAbstractOnlineOfflineGroup	(LPCSTR section) : inherited(section){}
+	INHERIT_ONLINE_OFFLINE_GROUP;
 };
 
 template <typename T>
@@ -258,6 +266,14 @@ struct CWrapperAbstractItem : public T, public luabind::wrap_base {
 		DEFINE_LUABIND_VIRTUAL_FUNCTION(a,b,smart_touch)\
 		DEFINE_LUABIND_VIRTUAL_FUNCTION(a,b,detect_probability)
 #endif
+#ifdef XRGAME_EXPORTS	
+#define luabind_virtual_online_offline_group(a,b) \
+	DEFINE_LUABIND_VIRTUAL_FUNCTION(a,b,update) \
+	DEFINE_LUABIND_VIRTUAL_FUNCTION(a,b,get_current_task)
+#else
+	#define luabind_virtual_online_offline_group(a,b) \
+	DEFINE_LUABIND_VIRTUAL_FUNCTION(a,b,update)
+#endif //#ifdef XRGAME_EXPORTS
 
 #define luabind_virtual_monster(a,b) \
 	DEFINE_LUABIND_VIRTUAL_FUNCTION(a,b,update)
@@ -287,6 +303,10 @@ struct CWrapperAbstractItem : public T, public luabind::wrap_base {
 #define luabind_virtual_Zone(a,b) \
 	luabind_virtual_DynamicAlife(a,b) \
 	luabind_virtual_zone(a,b)
+
+#define luabind_virtual_OnlineOfflineGroup(a,b) \
+	luabind_virtual_DynamicAlife(a,b) \
+	luabind_virtual_online_offline_group(a,b)
 
 #define luabind_virtual_Monster(a,b) \
 	luabind_virtual_Creature(a,b) \
@@ -388,6 +408,10 @@ struct CWrapperAbstractItem : public T, public luabind::wrap_base {
 #define luabind_class_zone2(a,b,c,d) \
 	DEFINE_LUABIND_CLASS_WRAPPER_2(a,CWrapperAbstractZone<a>,b,c,d) \
 	luabind_virtual_Zone(a,CWrapperAbstractZone<a>)
+
+#define luabind_class_online_offline_group2(a,b,c,d) \
+	DEFINE_LUABIND_CLASS_WRAPPER_2(a,CWrapperAbstractOnlineOfflineGroup<a>,b,c,d) \
+	luabind_virtual_OnlineOfflineGroup(a,CWrapperAbstractOnlineOfflineGroup<a>)
 
 #define luabind_class_creature2(a,b,c,d) \
 	DEFINE_LUABIND_CLASS_WRAPPER_2(a,CWrapperAbstractCreature<a>,b,c,d) \

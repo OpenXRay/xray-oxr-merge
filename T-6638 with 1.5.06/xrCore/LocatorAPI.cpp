@@ -556,7 +556,7 @@ bool CLocatorAPI::Recurse		(const char* path)
 
 	string_path		N;
 	xr_strcpy		(N,sizeof(N),path);
-	xr_strcat			(N,"*.*");
+	xr_strcat		(N,"*.*");
 
 	rec_files.reserve(1224);
 
@@ -1238,11 +1238,11 @@ void CLocatorAPI::copy_file_to_build	(T *&r, LPCSTR source_name)
         update_path	(e_cpy_name,"$textures$",source_name+xr_strlen(P->m_Path));
         // tga
         *strext		(e_cpy_name) = 0;
-        xr_strcat		(e_cpy_name,".tga");
+        xr_strcat	(e_cpy_name,".tga");
         r_close		(R=r_open(e_cpy_name));
         // thm
         *strext		(e_cpy_name) = 0;
-        xr_strcat		(e_cpy_name,".thm");
+        xr_strcat	(e_cpy_name,".thm");
         r_close		(R=r_open(e_cpy_name));
 		return;
     }
@@ -1252,20 +1252,20 @@ void CLocatorAPI::copy_file_to_build	(T *&r, LPCSTR source_name)
         update_path	(e_cpy_name,"$sounds$",source_name+xr_strlen(P->m_Path));
         // wav
         *strext		(e_cpy_name) = 0;
-        xr_strcat		(e_cpy_name,".wav");
+        xr_strcat	(e_cpy_name,".wav");
         r_close		(R=r_open(e_cpy_name));
         // thm
         *strext		(e_cpy_name) = 0;
-        xr_strcat		(e_cpy_name,".thm");
+        xr_strcat	(e_cpy_name,".thm");
         r_close		(R=r_open(e_cpy_name));
 		return;
     }
 	
 	if (0==xr_strcmp(ext,".object")){
-        xr_strcpy		(e_cpy_name,sizeof(e_cpy_name),source_name);
+        xr_strcpy	(e_cpy_name,sizeof(e_cpy_name),source_name);
         // object thm
         *strext		(e_cpy_name) = 0;
-        xr_strcat		(e_cpy_name,".thm");
+        xr_strcat	(e_cpy_name,".thm");
         R			= r_open(e_cpy_name);
         if (R)		r_close	(R);
     }

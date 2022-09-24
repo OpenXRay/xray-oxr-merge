@@ -20,7 +20,7 @@
 #include "inventory_item.h"
 #include "inventory.h"
 
-#include "../Include/xrRender/UIRender.h"
+#include <ai/monsters/poltergeist/poltergeist.h>
 
 
 u32 C_ON_ENEMY		D3DCOLOR_RGBA(0xff,0,0,0x80);
@@ -94,7 +94,7 @@ ICF static BOOL pick_trace_callback(collide::rq_result& result, LPVOID params)
 		
 		SGameMtl* mtl = GMLib.GetMaterialByIdx(T->material);
 		pp->power		*= mtl->fVisTransparencyFactor;
-		if(pp->power>0.4f)
+		if(pp->power>0.34f)
 		{
 			return TRUE;
 		}

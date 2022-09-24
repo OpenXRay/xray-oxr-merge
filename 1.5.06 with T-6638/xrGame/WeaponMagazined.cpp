@@ -914,29 +914,26 @@ void CWeaponMagazined::InitAddons()
 		shared_str scope_tex_name;
 		if ( m_eScopeStatus == ALife::eAddonAttachable )
 		{
-			//m_sScopeName = pSettings->r_string(cNameSect(), "scope_name");
-			//m_iScopeX	 = pSettings->r_s32(cNameSect(),"scope_x");
-			//m_iScopeY	 = pSettings->r_s32(cNameSect(),"scope_y");
+			//m_scopes[cur_scope]->m_sScopeName = pSettings->r_string(cNameSect(), "scope_name");
+			//m_scopes[cur_scope]->m_iScopeX	 = pSettings->r_s32(cNameSect(),"scope_x");
+			//m_scopes[cur_scope]->m_iScopeY	 = pSettings->r_s32(cNameSect(),"scope_y");
 
-			VERIFY( *m_sScopeName );
-			scope_tex_name						= pSettings->r_string(*m_sScopeName, "scope_texture");
-			m_zoom_params.m_fScopeZoomFactor	= pSettings->r_float( *m_sScopeName, "scope_zoom_factor");
-		}
-		else if( m_eScopeStatus == ALife::eAddonPermanent )
-		{
-			scope_tex_name						= pSettings->r_string(cNameSect(), "scope_texture");
-			m_zoom_params.m_fScopeZoomFactor	= pSettings->r_float( cNameSect(), "scope_zoom_factor");
-		}
-		if ( m_UIScope )
-		{
-			xr_delete( m_UIScope );
-		}
+			scope_tex_name						= pSettings->r_string(GetScopeName(), "scope_texture");
+			m_zoom_params.m_fScopeZoomFactor	= pSettings->r_float( GetScopeName(), "scope_zoom_factor");
+			m_zoom_params.m_sUseZoomPostprocess	= READ_IF_EXISTS(pSettings,r_string,GetScopeName(), "scope_nightvision", 0);
+			m_zoom_params.m_bUseDynamicZoom		= READ_IF_EXISTS(pSettings,r_bool,GetScopeName(),"scope_dynamic_zoom",FALSE);
+			m_zoom_params.m_sUseBinocularVision	= READ_IF_EXISTS(pSettings,r_string,GetScopeName(),"scope_alive_detector",0);
+			if ( m_UIScope )
+			{
+				xr_delete( m_UIScope );
+			}
 
-		if ( !g_dedicated_server )
-		{
-			m_UIScope				= xr_new<CUIWindow>();
-			createWpnScopeXML		();
-			CUIXmlInit::InitWindow	(*pWpnScopeXml, scope_tex_name.c_str(), 0, m_UIScope);
+			if ( !g_dedicated_server )
+			{
+				m_UIScope				= xr_new<CUIWindow>();
+				createWpnScopeXML		();
+				CUIXmlInit::InitWindow	(*pWpnScopeXml, scope_tex_name.c_str(), 0, m_UIScope);
+			}
 		}
 	}
 	else

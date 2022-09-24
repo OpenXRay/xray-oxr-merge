@@ -30,7 +30,6 @@ void CBottleItem::Load(LPCSTR section)
 
 	if(pSettings->line_exist(section, "break_sound"))
 		sndBreaking.create(pSettings->r_string(section, "break_sound"),st_Effect,sg_SourceType);
-
 }
 
 void CBottleItem::OnEvent(NET_Packet& P, u16 type) 

@@ -241,7 +241,7 @@ void CBinocularsVision::Update()
 			new_vis_obj->m_object			= object_;
 			new_vis_obj->create_default		(m_frame_color.get());
 			new_vis_obj->m_upd_speed		= m_rotating_speed;
-			
+
 			m_sounds.PlaySound	("found_snd", Fvector().set(0,0,0), NULL, true);
 		}
 	}

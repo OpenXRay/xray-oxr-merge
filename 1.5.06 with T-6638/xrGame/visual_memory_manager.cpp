@@ -160,7 +160,15 @@ void CVisualMemoryManager::reload				(LPCSTR section)
 
 IC	const CVisionParameters &CVisualMemoryManager::current_state() const
 {
-	return				(!m_stalker || (m_stalker->movement().mental_state() != eMentalStateDanger) ? m_free : m_danger);
+	if ( m_stalker ) 
+		return			(m_stalker->movement().mental_state() == eMentalStateDanger) ? m_danger : m_free;
+	}
+	else if ( m_object ) { 
+		return			m_object->is_base_monster_with_enemy() ? m_danger : m_free;
+	}
+	else {
+		return			m_free;
+	}
 }
 
 u32	CVisualMemoryManager::visible_object_time_last_seen	(const CObject *object) const

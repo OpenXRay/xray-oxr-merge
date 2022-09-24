@@ -238,7 +238,7 @@ void CInput::KeyUpdate	( )
 				continue;
 
 			key					= od[i].dwOfs;
-			if(od[i].dwData & 0x80)
+			if (od[i].dwData & 0x80)
 				cbStack.back()->IR_OnKeyboardPress	( key );
 			else
 			{

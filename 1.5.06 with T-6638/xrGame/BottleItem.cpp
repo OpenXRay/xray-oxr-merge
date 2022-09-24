@@ -30,8 +30,6 @@ void CBottleItem::Load(LPCSTR section)
 
 	if(pSettings->line_exist(section, "break_sound"))
 		sndBreaking.create(pSettings->r_string(section, "break_sound"),st_Effect,sg_SourceType);
-
-	m_alcohol = READ_IF_EXISTS(pSettings, r_float, section, "eat_alcohol", 0.0f);
 }
 
 void CBottleItem::OnEvent(NET_Packet& P, u16 type) 
@@ -81,11 +79,4 @@ void	CBottleItem::Hit					(SHit* pHDS)
 			u_EventSend		(P);
 		};
 	}
-}
-
-void CBottleItem::UseBy				(CEntityAlive* entity_alive)
-{
-	inherited::UseBy					(entity_alive);
-
-	entity_alive->conditions().ChangeAlcohol(m_alcohol);
 }

@@ -37,17 +37,17 @@ void SBinocVisibleObj::create_default(u32 color)
 	m_rt.InitTexture			("ui\\ui_enemy_frame");m_rt.SetWndRect(r);
 	m_rb.InitTexture			("ui\\ui_enemy_frame");m_rb.SetWndRect(r);
 
-	m_lt.SetOriginalRect		(Frect().set(0,				0,				RECT_SIZE,		RECT_SIZE)	);
-	m_lb.SetOriginalRect		(Frect().set(0,				32-RECT_SIZE,	RECT_SIZE,		32)			);
-	m_rt.SetOriginalRect		(Frect().set(32-RECT_SIZE,	0,				32,				RECT_SIZE)	);
-	m_rb.SetOriginalRect		(Frect().set(32-RECT_SIZE,	32-RECT_SIZE,	32,				32)			);
+	m_lt.SetTextureRect		(Frect().set(0,				0,				RECT_SIZE,		RECT_SIZE)	);
+	m_lb.SetTextureRect		(Frect().set(0,				32-RECT_SIZE,	RECT_SIZE,		32)			);
+	m_rt.SetTextureRect		(Frect().set(32-RECT_SIZE,	0,				32,				RECT_SIZE)	);
+	m_rb.SetTextureRect		(Frect().set(32-RECT_SIZE,	32-RECT_SIZE,	32,				32)			);
 
 
 	u32 clr			= subst_alpha(color,128);
-	m_lt.SetColor	(clr);
-	m_lb.SetColor	(clr);
-	m_rt.SetColor	(clr);
-	m_rb.SetColor	(clr);
+	m_lt.SetTextureColor	(clr);
+	m_lb.SetTextureColor	(clr);
+	m_rt.SetTextureColor	(clr);
+	m_rb.SetTextureColor	(clr);
 
 	cur_rect.set	(0,0, UI_BASE_WIDTH,UI_BASE_HEIGHT);
 
@@ -116,7 +116,7 @@ void SBinocVisibleObj::Update()
 		if (mn.similar(cur_rect.lt,2.f)&&mx.similar(cur_rect.rb,2.f)){ 
 			// target locked
 			m_flags.set(flTargetLocked,TRUE);
-			u32 clr	= subst_alpha(m_lt.GetColor(),255);
+			u32 clr	= subst_alpha(m_lt.GetTextureColor(),255);
 
 			//-----------------------------------------------------
 			CActor* pActor = NULL;
@@ -164,10 +164,10 @@ void SBinocVisibleObj::Update()
 				}
 			}
 
-			m_lt.SetColor	(clr);
-			m_lb.SetColor	(clr);
-			m_rt.SetColor	(clr);
-			m_rb.SetColor	(clr);
+			m_lt.SetTextureColor	(clr);
+			m_lb.SetTextureColor	(clr);
+			m_rt.SetTextureColor	(clr);
+			m_rb.SetTextureColor	(clr);
 		}
 	}
 
@@ -241,8 +241,8 @@ void CBinocularsVision::Update()
 			new_vis_obj->m_object			= object_;
 			new_vis_obj->create_default		(m_frame_color.get());
 			new_vis_obj->m_upd_speed		= m_rotating_speed;
-			if(NULL==m_snd_found._feedback())
-				m_snd_found.play_at_pos		(0, Fvector().set(0,0,0), sm_2D);
+
+			m_sounds.PlaySound	("found_snd", Fvector().set(0,0,0), NULL, true);
 		}
 	}
 	std::sort								(m_active_objects.begin(), m_active_objects.end());

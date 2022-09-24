@@ -142,6 +142,12 @@ bool CGrenade::DropGrenade()
 	return false;
 }
 
+void CGrenade::DiscardState()
+{
+	if(IsGameTypeSingle() && (GetState()==eReady || GetState()==eThrow) )
+		OnStateSwitch(eIdle);
+}
+
 void CGrenade::SendHiddenItem						()
 {
 	if (GetState()==eThrow)
@@ -216,14 +222,13 @@ void CGrenade::OnEvent(NET_Packet& P, u16 type)
 void CGrenade::PutNextToSlot()
 {
 	if (OnClient()) return;
-//	Msg ("* PutNextToSlot : %d", ID());	
+
 	VERIFY									(!getDestroy());
 	//выкинуть гранату из инвентаря
 	NET_Packet						P;
 	if (m_pInventory)
 	{
 		m_pInventory->Ruck					(this);
-//.		m_pInventory->SetActiveSlot			(NO_ACTIVE_SLOT);
 
 		this->u_EventGen				(P, GEG_PLAYER_ITEM2RUCK, this->H_Parent()->ID());
 		P.w_u16							(this->ID());
@@ -239,7 +244,8 @@ void CGrenade::PutNextToSlot()
 
 		VERIFY								(pNext != this);
 
-		if(pNext && m_pInventory->Slot(pNext) ){
+		if(pNext && m_pInventory->Slot(pNext) )
+		{
 
 			pNext->u_EventGen				(P, GEG_PLAYER_ITEM2SLOT, pNext->H_Parent()->ID());
 			P.w_u16							(pNext->ID());
@@ -271,7 +277,7 @@ void CGrenade::UpdateCL()
 }
 
 
-bool CGrenade::Action(s32 cmd, u32 flags) 
+bool CGrenade::Action(u16 cmd, u32 flags) 
 {
 	if(inherited::Action(cmd, flags)) return true;
 

@@ -17,7 +17,7 @@ IC	smart_cover::object const &cover::object		() const
 
 IC	cover::Loopholes const &cover::loopholes	() const
 {
-	return				(m_description->loopholes());
+	return				( m_loopholes );
 }
 
 IC	Fvector cover::fov_position						(loophole const &loophole) const
@@ -31,6 +31,14 @@ IC	Fvector	cover::fov_direction					(loophole const &loophole) const
 {
 	Fvector				direction;
 	m_object.XFORM().transform_dir	(direction, loophole.fov_direction());
+	direction.normalize	();
+	return				(direction);
+}
+
+IC	Fvector	cover::danger_fov_direction				(loophole const &loophole) const
+{
+	Fvector				direction;
+	m_object.XFORM().transform_dir	(direction, loophole.danger_fov_direction());
 	direction.normalize	();
 	return				(direction);
 }

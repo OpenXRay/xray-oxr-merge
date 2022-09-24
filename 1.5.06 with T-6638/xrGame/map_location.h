@@ -47,7 +47,6 @@ protected:
 
 	u16						m_objectID;
 	CSE_ALifeDynamicObject*	m_owner_se_object;
-	u16						m_refCount;
 	int						m_ttl;
 	u32						m_actual_time;
 	Fvector					m_position_global; //last global position, actual time only current frame 
@@ -100,10 +99,6 @@ public:
 	IC const shared_str&	GetLevelName					()	{return m_cached.m_LevelName;}
 	const Fvector2&			GetPosition						()	{return m_cached.m_Position;}
 
-	u16						RefCount						() {return m_refCount;}
-	void					SetRefCount						(u16 c)		{m_refCount=c;}
-	u16						AddRef							();// {++m_refCount; return m_refCount;}
-	u16						Release							() {--m_refCount; return m_refCount;}
 	u16						ObjectID						() {return m_objectID;}
 	virtual		bool		Update							();
 	Fvector					GetLastPosition					() {return m_position_global;};

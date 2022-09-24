@@ -92,14 +92,6 @@ Fvector CCameraLook2::m_cam_offset;
 void CCameraLook2::OnActivate( CCameraBase* old_cam )
 {
 	CCameraLook::OnActivate( old_cam );
-	for(int i=0; i < 2048; ++i)
-	{
-		if(is_binded(kEXT_1, i) )
-		{
-			cam_dik = i;
-			break;
-		}
-	}
 }
 
 void CCameraLook2::Update(Fvector& point, Fvector&)

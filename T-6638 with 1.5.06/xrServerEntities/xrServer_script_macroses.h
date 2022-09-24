@@ -76,6 +76,7 @@ class CALifeSmartTerrainTask;
 #	define INHERIT_DYNAMIC_ALIFE \
 		INHERIT_ALIFE
 #endif
+
 #ifdef XRGAME_EXPORTS
 #define INHERIT_ONLINE_OFFLINE_GROUP \
 	INHERIT_DYNAMIC_ALIFE \
@@ -86,6 +87,7 @@ class CALifeSmartTerrainTask;
 	INHERIT_DYNAMIC_ALIFE \
 	DEFINE_LUA_WRAPPER_METHOD_V0		(update)
 #endif
+
 #ifdef XRGAME_EXPORTS
 #	define INHERIT_ZONE \
 	INHERIT_DYNAMIC_ALIFE\

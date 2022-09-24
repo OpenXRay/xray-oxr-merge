@@ -48,9 +48,11 @@ private:
 	ActionList				m_actions;
 	Fvector					m_fov_position;
 	Fvector					m_fov_direction;
+	Fvector					m_danger_fov_direction;
 	Fvector					m_enter_direction;
 	shared_str				m_id;
 	float					m_fov;
+	float					m_danger_fov;
 	float					m_range;
 	bool					m_enterable;
 	bool					m_usable;
@@ -62,8 +64,10 @@ public:
 	IC	shared_str	const	&id						()		const;
 	IC	float		const	&range					()		const;
 	IC	float		const	&fov					()		const;
+	IC	float		const	&danger_fov				()		const;
 	IC	Fvector		const	&fov_position			()		const;
 	IC	Fvector		const	&fov_direction			()		const;
+	IC	Fvector		const	&danger_fov_direction	()		const;
 	IC	Fvector		const	&enter_direction		()		const;
 	IC	ActionList	const	&actions				()		const;
 	IC	bool		const	&enterable				()		const;

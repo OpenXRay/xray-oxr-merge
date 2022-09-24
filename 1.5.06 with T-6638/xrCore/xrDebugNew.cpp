@@ -30,11 +30,11 @@ extern bool shared_str_initialized;
 
 #ifndef USE_BUG_TRAP
 #	include <exception>
-#endif // #ifndef USE_BUG_TRAP
+#endif
 
 #ifndef _M_AMD64
 #	ifndef __BORLANDC__
-#		pragma comment(lib,"dxerr9.lib")
+#		pragma comment(lib,"dxerr.lib")
 #	endif
 #endif
 

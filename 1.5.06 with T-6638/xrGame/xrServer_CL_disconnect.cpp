@@ -13,9 +13,14 @@ void xrServer::OnCL_Disconnected	(IClient* CL)
 	NET_Packet P;
 	P.B.count = 0;
 	P.w_clientID(CL->ID);
-	P.w_stringZ(CL->name);
 	xrClientData* xrCData = (xrClientData*)(CL);
-	P.w_u16( (NULL != xrCData) ? xrCData->ps->GameID : 0);
+	VERIFY(xrCData);
+	
+	if (!xrCData->ps)
+		return;
+
+	P.w_stringZ(xrCData->ps->getName());
+	P.w_u16(xrCData->ps->GameID);
 	P.r_pos = 0;
 	
 	ClientID clientID;
@@ -43,12 +48,4 @@ void xrServer::OnCL_Disconnected	(IClient* CL)
 	//csPlayers.Leave			();
 
 	Server_Client_Check(CL);
-
-#ifdef BATTLEYE
-	if ( g_pGameLevel && Level().battleye_system.server )
-	{
-		Level().battleye_system.server->RemovePlayer( CL->ID.value() );
-}
-#endif // BATTLEYE
-
 }

@@ -516,13 +516,13 @@ void game_cl_mp::OnWarnMessage(NET_Packet* P)
 			SDrawStaticStruct* ss		= CurrentGameUI()->AddCustomStatic(_buff, true);
 			
 			xr_sprintf					(_buff,"%d ms.", _ping);
-			ss->m_static->TextItemControl()->SetText	(_buff);
+			ss->m_static->SetText	(_buff);
 			CUIWindow*	w				= ss->m_static->FindChild("auto_static_0");
 			if(w)
 			{
 				xr_sprintf			(_buff,"%d/%d", _cnt, _total);
 				CUIStatic* s		= smart_cast<CUIStatic*>(w);
-				s->TextItemControl()->SetText(_buff);
+				s->SetText			(_buff);
 			}
 		}
 	}
@@ -1098,7 +1098,7 @@ void	game_cl_mp::OnRankChanged	(u8 OldRank)
 	string1024 RankStr;
 	xr_sprintf(tmp, "rank_%d",local_player->rank);
 	xr_sprintf(RankStr, "%s : %s", *st.translate("mp_your_rank"), *st.translate(READ_IF_EXISTS(pSettings, r_string, tmp, "rank_name", "")));
-	if(CurrentGameUI()) CurrentGameUI()->CommonMessageOut(RankStr);	
+	if(CurrentGameUI()) CurrentGameUI()->CommonMessageOut(RankStr);
 #ifdef DEBUG
 	Msg("- %s", RankStr);
 #endif

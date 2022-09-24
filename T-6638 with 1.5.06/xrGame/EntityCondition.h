@@ -8,6 +8,7 @@ class CLevel;
 #include "hit_immunity.h"
 #include "Hit.h"
 #include "Level.h"
+
 enum EBoostParams{
 	eBoostHpRestore = 0,
 	eBoostPowerRestore,

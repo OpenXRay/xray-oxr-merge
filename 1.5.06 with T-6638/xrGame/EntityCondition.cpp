@@ -56,6 +56,19 @@ CEntityCondition::CEntityCondition(CEntityAlive *object)
 	m_fHealthHitPart		= 1.0f;
 	m_fPowerHitPart			= 0.5f;
 
+	m_fBoostBurnImmunity			= 0.f;
+	m_fBoostShockImmunity			= 0.f;
+	m_fBoostRadiationImmunity		= 0.f;
+	m_fBoostTelepaticImmunity		= 0.f;
+	m_fBoostChemicalBurnImmunity	= 0.f;
+	m_fBoostExplImmunity			= 0.f;
+	m_fBoostStrikeImmunity			= 0.f;
+	m_fBoostFireWoundImmunity		= 0.f;
+	m_fBoostWoundImmunity			= 0.f;
+	m_fBoostRadiationProtection		= 0.f;
+	m_fBoostTelepaticProtection		= 0.f;
+	m_fBoostChemicalBurnProtection	= 0.f;
+
 	m_fDeltaHealth			= 0;
 	m_fDeltaPower			= 0;
 	m_fDeltaRadiation		= 0;
@@ -67,6 +80,10 @@ CEntityCondition::CEntityCondition(CEntityAlive *object)
 
 	m_WoundVector.clear		();
 
+	m_fKillHitTreshold		= 0;
+	m_fLastChanceHealth		= 0;
+	m_fInvulnerableTime		= 0;
+	m_fInvulnerableTimeDelta= 0;
 
 	m_fHitBoneScale			= 1.f;
 	m_fWoundBoneScale		= 1.f;
@@ -101,6 +118,17 @@ void CEntityCondition::LoadCondition(LPCSTR entity_section)
 
 	m_use_limping_state		= !!(READ_IF_EXISTS(pSettings,r_bool,section,"use_limping_state",FALSE));
 	m_limping_threshold		= READ_IF_EXISTS(pSettings,r_float,section,"limping_threshold",.5f);
+
+	m_fKillHitTreshold		= READ_IF_EXISTS(pSettings,r_float,section,"killing_hit_treshold",0.0f);
+	m_fLastChanceHealth		= READ_IF_EXISTS(pSettings,r_float,section,"last_chance_health",0.0f);
+	m_fInvulnerableTimeDelta= READ_IF_EXISTS(pSettings,r_float,section,"invulnerable_time",0.0f)/1000.f;
+}
+
+void CEntityCondition::LoadTwoHitsDeathParams(LPCSTR section)
+{
+	m_fKillHitTreshold		= READ_IF_EXISTS(pSettings,r_float,section,"killing_hit_treshold",0.0f);
+	m_fLastChanceHealth		= READ_IF_EXISTS(pSettings,r_float,section,"last_chance_health",0.0f);
+	m_fInvulnerableTimeDelta= READ_IF_EXISTS(pSettings,r_float,section,"invulnerable_time",0.0f)/1000.f;
 }
 
 void CEntityCondition::reinit	()
@@ -115,7 +143,6 @@ void CEntityCondition::reinit	()
 
 	m_fEntityMorale			=  m_fEntityMoraleMax = 1.f;
 
-	//health()				= MAX_HEALTH;
 	SetHealth				( MAX_HEALTH );
 	m_fPower				= MAX_POWER;
 	m_fRadiation			= 0;
@@ -124,6 +151,7 @@ void CEntityCondition::reinit	()
 	m_fDeltaHealth			= 0;
 	m_fDeltaPower			= 0;
 	m_fDeltaRadiation		= 0;
+
 	m_fDeltaCircumspection	= 0;
 	m_fDeltaEntityMorale	= 0;
 	m_fDeltaPsyHealth		= 0;
@@ -289,9 +317,7 @@ void CEntityCondition::UpdateCondition()
 	clamp						(m_fPsyHealth,		0.0f,		m_fPsyHealthMax);
 }
 
-
-
-float CEntityCondition::HitOutfitEffect( float hit_power, ALife::EHitType hit_type, s16 element, float ap, bool& add_wound )
+float CEntityCondition::HitOutfitEffect(float hit_power, ALife::EHitType hit_type, s16 element, float ap, bool& add_wound)
 {
     CInventoryOwner* pInvOwner		= smart_cast<CInventoryOwner*>(m_object);
 	if(!pInvOwner)					return hit_power;
@@ -580,4 +606,61 @@ void CEntityCondition::remove_links	(const CObject *object)
 
 	m_pWho					= m_object;
 	m_iWhoID				= m_object->ID();
+}
+
+bool CEntityCondition::ApplyInfluence(const SMedicineInfluenceValues& V, const shared_str& sect)
+{
+	ChangeHealth	(V.fHealth);
+	ChangePower		(V.fPower);
+	ChangeSatiety	(V.fSatiety);
+	ChangeRadiation	(V.fRadiation);
+	ChangeBleeding	(V.fWoundsHeal);
+	SetMaxPower		(GetMaxPower()+V.fMaxPowerUp);
+	ChangeAlcohol	(V.fAlcohol);
+	return true;
+}
+
+bool CEntityCondition::ApplyBooster(const SBooster& B, const shared_str& sect)
+{
+	return true;
+}
+
+void SMedicineInfluenceValues::Load(const shared_str& sect)
+{
+	fHealth			= pSettings->r_float(sect.c_str(), "eat_health");
+	fPower			= pSettings->r_float(sect.c_str(), "eat_power");
+	fSatiety		= pSettings->r_float(sect.c_str(), "eat_satiety");
+	fRadiation		= pSettings->r_float(sect.c_str(), "eat_radiation");
+	fWoundsHeal		= pSettings->r_float(sect.c_str(), "wounds_heal_perc");
+	clamp			(fWoundsHeal, 0.f, 1.f);
+	fMaxPowerUp		= READ_IF_EXISTS	(pSettings,r_float,sect.c_str(),	"eat_max_power",0.0f);
+	fAlcohol		= READ_IF_EXISTS	(pSettings, r_float, sect.c_str(),	"eat_alcohol", 0.0f);
+	fTimeTotal		= READ_IF_EXISTS	(pSettings, r_float, sect.c_str(),	"apply_time_sec", -1.0f);
+}
+
+void SBooster::Load(const shared_str& sect, EBoostParams type)
+{
+	fBoostTime = pSettings->r_float(sect.c_str(), "boost_time");
+	m_type = type;
+	switch(type)
+	{
+		case eBoostHpRestore: fBoostValue = pSettings->r_float(sect.c_str(), "boost_health_restore"); break;
+		case eBoostPowerRestore: fBoostValue = pSettings->r_float(sect.c_str(), "boost_power_restore"); break;
+		case eBoostRadiationRestore: fBoostValue = pSettings->r_float(sect.c_str(), "boost_radiation_restore"); break;
+		case eBoostBleedingRestore: fBoostValue = pSettings->r_float(sect.c_str(), "boost_bleeding_restore"); break;
+		case eBoostMaxWeight: fBoostValue = pSettings->r_float(sect.c_str(), "boost_max_weight"); break;
+		case eBoostBurnImmunity: fBoostValue = pSettings->r_float(sect.c_str(), "boost_burn_immunity"); break;
+		case eBoostShockImmunity: fBoostValue = pSettings->r_float(sect.c_str(), "boost_shock_immunity"); break;
+		case eBoostRadiationImmunity: fBoostValue = pSettings->r_float(sect.c_str(), "boost_radiation_immunity"); break;
+		case eBoostTelepaticImmunity: fBoostValue = pSettings->r_float(sect.c_str(), "boost_telepat_immunity"); break;
+		case eBoostChemicalBurnImmunity: fBoostValue = pSettings->r_float(sect.c_str(), "boost_chemburn_immunity"); break;
+		case eBoostExplImmunity: fBoostValue = pSettings->r_float(sect.c_str(), "boost_explosion_immunity"); break;
+		case eBoostStrikeImmunity: fBoostValue = pSettings->r_float(sect.c_str(), "boost_strike_immunity"); break;
+		case eBoostFireWoundImmunity: fBoostValue = pSettings->r_float(sect.c_str(), "boost_fire_wound_immunity"); break;
+		case eBoostWoundImmunity: fBoostValue = pSettings->r_float(sect.c_str(), "boost_wound_immunity"); break;
+		case eBoostRadiationProtection: fBoostValue = pSettings->r_float(sect.c_str(), "boost_radiation_protection"); break;
+		case eBoostTelepaticProtection: fBoostValue = pSettings->r_float(sect.c_str(), "boost_telepat_protection"); break;
+		case eBoostChemicalBurnProtection: fBoostValue = pSettings->r_float(sect.c_str(), "boost_chemburn_protection"); break;
+		default: NODEFAULT;	
+	}
 }

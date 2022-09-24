@@ -22,11 +22,9 @@ public:
 	CUIGameSP									();
 	virtual				~CUIGameSP				();
 
-	virtual	void		reset_ui				();
-	virtual	void		shedule_Update			(u32 dt);
 	virtual void		SetClGame				(game_cl_GameState* g);
-	virtual bool		IR_OnKeyboardPress		(int dik);
-	virtual bool		IR_OnKeyboardRelease	(int dik);
+	virtual bool		IR_UIOnKeyboardPress	(int dik);
+	virtual void 		OnFrame					();
 
 	void				StartTalk				(bool disable_break);
 	void				StartTrade				(CInventoryOwner* pActorInv, CInventoryOwner* pOtherOwner);
@@ -41,6 +39,8 @@ public:
 #endif
 	CUITalkWnd*			TalkMenu;
 	CChangeLevelWnd*	UIChangeLevelWnd;
+
+	SDrawStaticStruct*	m_game_objective;
 };
 
 

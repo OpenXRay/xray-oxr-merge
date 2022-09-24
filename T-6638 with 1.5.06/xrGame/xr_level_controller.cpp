@@ -69,6 +69,9 @@ _action  actions[]		= {
 	{ "skin_menu",			kSKIN					,_mp},		
 	{ "team_menu",			kTEAM					,_mp},		
 	{ "active_jobs",		kACTIVE_JOBS			,_sp},		
+	{ "map",				kMAP					,_both},	
+	{ "contacts",			kCONTACTS				,_sp},		
+	{ "ext_1",				kEXT_1					,_both},	
 																
 	{ "vote_begin",			kVOTE_BEGIN				,_mp},		
 	{ "show_admin_menu",	kSHOW_ADMIN_MENU		,_mp},		
@@ -81,6 +84,15 @@ _action  actions[]		= {
 															
 	{ "speech_menu_0",		kSPEECH_MENU_0			,_mp},		
 	{ "speech_menu_1",		kSPEECH_MENU_1			,_mp},		
+	{ "speech_menu_2",		kSPEECH_MENU_2			,_mp},		
+	{ "speech_menu_3",		kSPEECH_MENU_3			,_mp},		
+	{ "speech_menu_4",		kSPEECH_MENU_4			,_mp},		
+	{ "speech_menu_5",		kSPEECH_MENU_5			,_mp},		
+	{ "speech_menu_6",		kSPEECH_MENU_6			,_mp},		
+	{ "speech_menu_7",		kSPEECH_MENU_7			,_mp},		
+	{ "speech_menu_8",		kSPEECH_MENU_8			,_mp},		
+	{ "speech_menu_9",		kSPEECH_MENU_9			,_mp},		
+																
 	{ "use_bandage",		kUSE_BANDAGE			,_sp},		
 	{ "use_medkit",			kUSE_MEDKIT				,_sp},		
 																

@@ -6,7 +6,7 @@
 using namespace luabind;
 
 CUIGameCustom* get_hud(){
-	return HUD().GetUI()->UIGame();
+	return CurrentGameUI();
 }
 
 #pragma optimize("s",on)

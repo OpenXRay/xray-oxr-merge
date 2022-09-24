@@ -154,4 +154,3 @@ float CRadioactiveZone::nearest_shape_radius(SZoneObjectInfo* O)
 		return s.data.sphere.R;
 	}
 }
-

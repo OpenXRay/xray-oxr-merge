@@ -748,9 +748,9 @@ void  CScriptGameObject::SwitchToTalk		()
 
 void CScriptGameObject::AllowBreakTalkDialog(bool b)
 {
-	CUIGameSP* pGameSP = smart_cast<CUIGameSP*>(HUD().GetUI()->UIGame());
-	if(!pGameSP) return;
-	pGameSP->TalkMenu->b_disable_break = !b;
+	CInventoryOwner* inv_owner = smart_cast<CInventoryOwner*>(&object());	
+	VERIFY(inv_owner);
+	inv_owner->bDisableBreakDialog = !b;
 }
 
 void  CScriptGameObject::RunTalkDialog(CScriptGameObject* pToWho, bool disable_break)
@@ -1103,12 +1103,7 @@ CScriptGameObject *CScriptGameObject::item_in_slot	(u32 slot_id) const
 		return		(0);
 	}
 
-	if (inventory_owner->inventory().m_slots.size() <= slot_id) {
-		ai().script_engine().script_log			(ScriptStorage::eLuaMessageTypeError,"CInventoryOwner : invalid slot id for class member item_in_slot : %d!",slot_id);
-		return		(0);
-	}
-
-	CInventoryItem	*result = inventory_owner->inventory().m_slots[slot_id].m_pIItem;
+	CInventoryItem	*result = inventory_owner->inventory().ItemFromSlot((u16)slot_id);
 	return			(result ? result->object().lua_game_object() : 0);
 }
 
