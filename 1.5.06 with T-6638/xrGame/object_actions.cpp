@@ -112,9 +112,9 @@ static bool try_advance_ammo		(CWeapon const& weapon)
 {
 	VERIFY				(weapon.m_pInventory);
 	CInventory&			inventory = *weapon.m_pInventory;
-	for(int i = 0; i < (int)weapon.m_ammoTypes.size(); ++i) 
+	for(u8 i = 0; i < u8(weapon.m_ammoTypes.size()); ++i) 
 	{
-		LPCSTR l_ammoType = *weapon.m_ammoTypes[i];
+		LPCSTR l_ammoType = weapon.m_ammoTypes[i].c_str();
 
 		for(TIItemContainer::iterator l_it = inventory.m_belt.begin(); inventory.m_belt.end() != l_it; ++l_it) 
 		{
@@ -161,7 +161,7 @@ void CObjectActionReload::initialize		()
 	VERIFY						(m_item);
 	VERIFY						(object().inventory().ActiveItem());
 	VERIFY						(object().inventory().ActiveItem()->object().ID() == m_item->object().ID());
-	if (object().inifinite_ammo()) {
+	if (object().infinite_ammo()) {
 		CWeapon*				weapon = smart_cast<CWeapon*>(&m_item->object());
 		VERIFY					(weapon);
 		try_advance_ammo		(*weapon);
@@ -410,7 +410,6 @@ void CObjectActionStrapping::finalize		()
 				)
 			)
 		);
-//		Msg						("[%6d][%s] callback is already removed, do nothing on ::finalize CObjectActionStrapping::on_animation_end",Device.dwTimeGlobal,*object().cName());
 	}
 }
 

@@ -222,8 +222,8 @@ protected:
 public:
 
 	IC bool					IsZoomEnabled		()	const		{return m_zoom_params.m_bZoomEnabled;}
-	virtual	void			ZoomInc				(){};
-	virtual	void			ZoomDec				(){};
+	virtual	void			ZoomInc				();
+	virtual	void			ZoomDec				();
 	virtual void			OnZoomIn			();
 	virtual void			OnZoomOut			();
 	IC		bool			IsZoomed			()	const		{return m_zoom_params.m_bIsZoomModeNow;};
@@ -408,10 +408,26 @@ protected:
 
 public:
 	xr_vector<shared_str>	m_ammoTypes;
+/*
+	struct SScopes
+	{
+		shared_str			m_sScopeName;
+		int					m_iScopeX;
+		int					m_iScopeY;
+	};
+	DEFINE_VECTOR(SScopes*, SCOPES_VECTOR, SCOPES_VECTOR_IT);
+	SCOPES_VECTOR			m_scopes;
+
+	u8						cur_scope;
+*/
+
+	DEFINE_VECTOR(shared_str, SCOPES_VECTOR, SCOPES_VECTOR_IT);
+	SCOPES_VECTOR			m_scopes;
+	u8						m_cur_scope;
 
 	CWeaponAmmo*			m_pCurrentAmmo;
 	u8						m_ammoType;
-	shared_str				m_ammoName;
+//-	shared_str				m_ammoName; <== deleted
 	bool					m_bHasTracers;
 	u8						m_u8TracerColorID;
 	u8						m_set_next_ammoType_on_reload;
@@ -422,8 +438,6 @@ public:
 
 		bool				unlimited_ammo				();
 	IC	bool				can_be_strapped				() const {return m_can_be_strapped;};
-
-	LPCSTR					GetCurrentAmmo_ShortName	();
 
 protected:
 	u32						m_ef_main_weapon_type;

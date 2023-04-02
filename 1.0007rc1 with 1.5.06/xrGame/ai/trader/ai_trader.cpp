@@ -12,17 +12,17 @@
 #include "../../script_entity_action.h"
 #include "../../script_game_object.h"
 #include "../../inventory.h"
-#include "../../xrserver_objects_alife_monsters.h"
-#include "../../artifact.h"
+#include "../../../xrServerEntities/xrserver_objects_alife_monsters.h"
+#include "../../artefact.h"
 #include "../../xrserver.h"
 #include "../../relation_registry.h"
-#include "../../object_broker.h"
+#include "../../../xrServerEntities/object_broker.h"
 #include "../../sound_player.h"
 #include "../../level.h"
 #include "../../script_callback_ex.h"
 #include "../../game_object_space.h"
-#include "../../clsid_game.h"
 #include "trader_animation.h"
+#include "../../../xrServerEntities/clsid_game.h"
 
 CAI_Trader::CAI_Trader()
 {
@@ -86,9 +86,10 @@ bool CAI_Trader::bfAssignSound(CScriptEntityAction *tpEntityAction)
 //////////////////////////////////////////////////////////////////////////
 void CAI_Trader::BoneCallback(CBoneInstance *B)
 {
-	CAI_Trader*	this_class = static_cast<CAI_Trader*>(B->Callback_Param);
+	CAI_Trader*	this_class = static_cast<CAI_Trader*>(B->callback_param());
 
 	this_class->LookAtActor(B);
+	R_ASSERT2( _valid( B->mTransform ), "CAI_Trader::BoneCallback" );
 }
 
 void CAI_Trader::LookAtActor(CBoneInstance *B)
@@ -132,7 +133,7 @@ BOOL CAI_Trader::net_Spawn			(CSE_Abstract* DC)
 	set_money				( l_tpTrader->m_dwMoney, false );
 
 	// Установка callback на кости
-	CBoneInstance			*bone_head =	&smart_cast<CKinematics*>(Visual())->LL_GetBoneInstance(smart_cast<CKinematics*>(Visual())->LL_BoneID("bip01_head"));
+	CBoneInstance			*bone_head =	&smart_cast<IKinematics*>(Visual())->LL_GetBoneInstance(smart_cast<IKinematics*>(Visual())->LL_BoneID("bip01_head"));
 	bone_head->set_callback	(bctCustom,BoneCallback,this);
 
 	shedule.t_min			= 100;
@@ -241,7 +242,7 @@ void CAI_Trader::shedule_Update	(u32 dt)
 
 void CAI_Trader::g_WeaponBones	(int &L, int &R1, int &R2)
 {
-	CKinematics *V	= smart_cast<CKinematics*>(Visual());
+	IKinematics *V	= smart_cast<IKinematics*>(Visual());
 	R1				= V->LL_BoneID("bip01_r_hand");
 	R2				= V->LL_BoneID("bip01_r_finger2");
 	L				= V->LL_BoneID("bip01_l_finger1");

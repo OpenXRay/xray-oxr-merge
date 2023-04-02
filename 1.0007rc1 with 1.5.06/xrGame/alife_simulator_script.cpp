@@ -107,7 +107,6 @@ void generate_story_ids		(
 	}
 
 	result.push_back		(std::make_pair(INVALID_ID_STRING,INVALID_ID));
-
 }
 
 void kill_entity0			(CALifeSimulator *alife, CSE_ALifeMonsterAbstract *monster, const GameGraph::_GRAPH_ID &game_vertex_id)

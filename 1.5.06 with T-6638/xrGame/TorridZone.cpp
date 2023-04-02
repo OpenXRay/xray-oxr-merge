@@ -46,16 +46,24 @@ void CTorridZone::shedule_Update(u32 dt)
 	if(m_entrance_sound._feedback())	m_entrance_sound.set_position	(XFORM().c);
 }
 
-void CTorridZone::GoEnabledState()
+bool CTorridZone::Enable()
 {
-	inherited::GoEnabledState();
+	bool res = inherited::Enable();
+	if(res)
+	{
 	m_animator->Stop	();
 	m_animator->Play	(true);
+	}
+	return res;
 }
 
-void CTorridZone::GoDisabledState()
+bool CTorridZone::Disable()
 {
-	inherited::GoDisabledState();
+	bool res = inherited::Disable();
+	if(res)
+		m_animator->Stop	();
+	
+	return res;
 }
 
 // Lain: added

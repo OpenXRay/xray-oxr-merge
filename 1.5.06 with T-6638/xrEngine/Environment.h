@@ -126,6 +126,8 @@ public:
 	shared_str			sky_texture_env_name;
 	shared_str			clouds_texture_name	;
 
+	BENCH_SEC_SCRAMBLEMEMBER1
+
 	/*
 	ref_texture			sky_texture		;
 	ref_texture			sky_texture_env	;
@@ -226,7 +228,6 @@ private:
 	float					TimeWeight		(float val, float min_t, float max_t);
 	void					SelectEnvs		(EnvVec* envs, CEnvDescriptor*& e0, CEnvDescriptor*& e1, float tm);
 	void					SelectEnv		(EnvVec* envs, CEnvDescriptor*& e, float tm);
-	void					StopWFX			();
 
 	void					calculate_dynamic_sun_dir();
 public:
@@ -253,7 +254,9 @@ public:
 	float					wind_blast_strength_start_value;
 	float					wind_blast_strength_stop_value;
 	Fquaternion				wind_blast_current;
+
 	// Environments
+	BENCH_SEC_SCRAMBLEMEMBER2
 	CEnvDescriptorMixer*	CurrentEnv;
 	CEnvDescriptor*			Current[2];
 
@@ -302,9 +305,13 @@ public:
 	void					RenderLast			();
 
 	bool					SetWeatherFX		(shared_str name);
+	bool					StartWeatherFXFromTime	(shared_str name, float time);
 	bool					IsWFXPlaying		(){return bWFX;}
+	void					StopWFX				();
+
     void					SetWeather			(shared_str name, bool forced=false);
     shared_str				GetWeather			()					{ return CurrentWeatherName;}
+	void					ChangeGameTime		(float game_time);
 	void					SetGameTime			(float game_time, float time_factor);
 
 	void					OnDeviceCreate		();

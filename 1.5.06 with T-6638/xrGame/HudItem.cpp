@@ -42,8 +42,7 @@ void CHudItem::Load(LPCSTR section)
 	hud_sect				= pSettings->r_string		(section,"hud");
 	m_animation_slot		= pSettings->r_u32			(section,"animation_slot");
 
-//	if(pSettings->line_exist(section,"snd_bore"))
-	m_sounds.LoadSound(section,"snd_bore","sndBore");
+	m_sounds.LoadSound(section, "snd_bore", "sndBore");
 }
 
 
@@ -158,7 +157,7 @@ void CHudItem::DeactivateItem()
 {
 	OnHiddenItem	();
 }
-void CHudItem::OnMoveToRuck(EItemPlace prev)
+void CHudItem::OnMoveToRuck(const SInvItemPlace& prev)
 {
 	SwitchState(eHidden);
 }
@@ -175,15 +174,6 @@ void CHudItem::SendHiddenItem()
 		object().u_EventGen		(P,GE_WPN_STATE_CHANGE,object().ID());
 		P.w_u8					(u8(eHiding));
 		object().u_EventSend	(P, net_flags(TRUE, TRUE, FALSE, TRUE));
-
-		/*NET_Packet		P;
-		CHudItem::object().u_EventGen		(P,GE_WPN_STATE_CHANGE,CHudItem::object().ID());
-		P.w_u8			(u8(eHidden));
-		P.w_u8			(u8(m_sub_state));
-		P.w_u8			(u8(m_ammoType& 0xff));
-		P.w_u8			(u8(iAmmoElapsed & 0xff));
-		P.w_u8			(u8(m_set_next_ammoType_on_reload & 0xff));
-		CHudItem::object().u_EventSend		(P, net_flags(TRUE, TRUE, FALSE, TRUE));*/
 	}
 }
 
@@ -282,7 +272,12 @@ void CHudItem::on_a_hud_attach()
 	{
 		PlayHUDMotion_noCB(m_current_motion, FALSE);
 #ifdef DEBUG
-		Msg("continue playing [%s][%d]",m_current_motion.c_str(), Device.dwFrame);
+//		Msg("continue playing [%s][%d]",m_current_motion.c_str(), Device.dwFrame);
+#endif // #ifdef DEBUG
+	}else
+	{
+#ifdef DEBUG
+//		Msg("no active motion");
 #endif // #ifdef DEBUG
 	}
 }

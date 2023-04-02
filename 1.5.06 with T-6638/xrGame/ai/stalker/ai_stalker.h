@@ -685,7 +685,8 @@ private:
 	u32									m_throw_time_interval;
 
 #ifdef DEBUG
-	xr_vector<Fvector>					m_throw_picks;
+	xr_vector<trajectory_pick>			m_throw_picks;
+	xr_vector<Fvector>					m_throw_collide_tris;
 #endif // DEBUG
 
 public:
@@ -807,13 +808,6 @@ public:
 
 public:
 	typedef fastdelegate::FastDelegate<void (Fmatrix& )>							EyeMatrixCallback;
-
-private:
-	EyeMatrixCallback					m_eye_matrix_callback;
-
-public:
-	virtual void						eye_pp_s0									();
-			void						eye_matrix_callback							(EyeMatrixCallback const& callback);
 
 private:
 	virtual BOOL						AlwaysTheCrow								();

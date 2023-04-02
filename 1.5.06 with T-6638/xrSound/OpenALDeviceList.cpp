@@ -24,19 +24,24 @@
 #include "stdafx.h"
 
 #include "OpenALDeviceList.h"
-#include <openal/al.h>
-#include <openal/alc.h>
 
 #pragma warning(push)
 #pragma warning(disable:4995)
 #include <objbase.h>
 #pragma warning(pop)
 
-/* 
- * Init call
- */
+#ifdef _EDITOR
+	log_fn_ptr_type*	pLog = NULL;
+#endif
+
+void __cdecl al_log(char* msg)
+{
+	Log(msg);
+}
+
 ALDeviceList::ALDeviceList()
 {
+	pLog					= al_log;
 	snd_device_id			= u32(-1);
 	Enumerate();
 }
@@ -74,8 +79,8 @@ void ALDeviceList::Enumerate()
 
 		devices				= (char *)alcGetString(NULL, ALC_DEVICE_SPECIFIER);
 		Msg					("devices %s",devices);
-		m_defaultDeviceName	= (char *)alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
-		Msg("SOUND: OpenAL: system  default SndDevice name is %s", m_defaultDeviceName.c_str());
+		xr_strcpy(			m_defaultDeviceName, (char *)alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER));
+		Msg("SOUND: OpenAL: system  default SndDevice name is %s", m_defaultDeviceName);
 		
 		// ManowaR
 		// "Generic Hardware" device on software AC'97 codecs introduce 
@@ -86,10 +91,10 @@ void ALDeviceList::Enumerate()
 		// Also we assume that if "Generic Hardware" exists, than "Generic Software" is also exists
 		// Maybe wrong
 		
-		if(0==stricmp(m_defaultDeviceName.c_str(), AL_GENERIC_HARDWARE))
+		if(0==stricmp(m_defaultDeviceName, AL_GENERIC_HARDWARE))
 		{
-			m_defaultDeviceName			= AL_GENERIC_SOFTWARE;
-			Msg("SOUND: OpenAL: default SndDevice name set to %s", m_defaultDeviceName.c_str());
+			xr_strcpy			(m_defaultDeviceName, AL_GENERIC_SOFTWARE);
+			Msg("SOUND: OpenAL: default SndDevice name set to %s", m_defaultDeviceName);
 		}
 
 		index				= 0;
@@ -152,7 +157,7 @@ void ALDeviceList::Enumerate()
 	for(u32 i=0; i<_cnt;++i)
 	{
 		snd_devices_token[i].id				= i;
-		snd_devices_token[i].name			= xr_strdup(m_devices[i].name.c_str());
+		snd_devices_token[i].name			= xr_strdup(m_devices[i].name);
 	}
 //--
 
@@ -171,7 +176,7 @@ void ALDeviceList::Enumerate()
 			GetDeviceName(j), 
 			majorVersion, 
 			minorVersion,
-			(stricmp(GetDeviceName(j),m_defaultDeviceName.c_str())==0)? "(default)":"",
+			(stricmp(GetDeviceName(j),m_defaultDeviceName)==0)? "(default)":"",
 			GetDeviceDesc(j).props.eax,
 			GetDeviceDesc(j).props.efx?"yes":"no",
 			GetDeviceDesc(j).props.xram?"yes":"no"
@@ -199,7 +204,7 @@ void ALDeviceList::SelectBestDevice()
 		u32 new_device_id		= snd_device_id;
 		for (u32 i = 0; i < GetNumDevices(); ++i)
 		{
-			if(stricmp(m_defaultDeviceName.c_str(),GetDeviceName(i))!=0)
+			if(stricmp(m_defaultDeviceName,GetDeviceName(i))!=0)
 				continue;
 
 			GetDeviceVersion		(i, &majorVersion, &minorVersion);

@@ -52,7 +52,6 @@ void CAI_Crow::SSound::Load	(LPCSTR prefix)
 		}
 	}
 	R_ASSERT(m_Sounds.size());
-
 }
 
 void CAI_Crow::SSound::SetPosition	(const Fvector& pos)

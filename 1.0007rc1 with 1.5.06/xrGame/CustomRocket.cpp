@@ -10,9 +10,9 @@
 #include "extendedgeom.h"
 #include "level.h"
 #include "xrMessages.h"
-#include "gamemtllib.h"
+#include "../xrEngine/gamemtllib.h"
 #include "tri-colliderknoopc/dTriList.h"
-#include "../fbasicvisual.h"
+#include "../Include/xrRender/RenderVisual.h"
 #include "CalculateTriangle.h"
 #include "actor.h"
 #ifdef DEBUG
@@ -472,7 +472,7 @@ void CCustomRocket::UpdateEngine				()
 	//	VERIFY( getVisible() );
 	//	VERIFY( m_pPhysicsShell);
 	if( !m_pPhysicsShell )
-		Msg("! CCustomRocket::UpdateEngine called, but 0==m_pPhysicsShell");
+		Msg("! CCustomRocket::UpdateEngine called, but m_pPhysicsShell is NULL");
 
 	if( !getVisible() ){
 		Msg("! CCustomRocket::UpdateEngine called, but false==getVisible() id[%d] frame[%d]",ID(),Device.dwFrame);
@@ -570,10 +570,9 @@ void CCustomRocket::StartEngineParticles()
 	m_pEngineParticles = CParticlesObject::Create(*m_sEngineParticles,FALSE);
 
 	UpdateParticles();
-	m_pEngineParticles->Play();
+	m_pEngineParticles->Play(false);
 
 	VERIFY(m_pEngineParticles);
-	VERIFY3(m_pEngineParticles->IsLooped(), "must be a looped particle system for rocket engine: %s", *m_sEngineParticles);
 }
 void CCustomRocket::StopEngineParticles()
 {
@@ -593,7 +592,7 @@ void CCustomRocket::StartFlyParticles()
 	m_pFlyParticles = CParticlesObject::Create(*m_sFlyParticles,FALSE);
 	
 	UpdateParticles();
-	m_pFlyParticles->Play();
+	m_pFlyParticles->Play(false);
 	
 	VERIFY(m_pFlyParticles);
 	VERIFY3(m_pFlyParticles->IsLooped(), "must be a looped particle system for rocket fly: %s", *m_sFlyParticles);

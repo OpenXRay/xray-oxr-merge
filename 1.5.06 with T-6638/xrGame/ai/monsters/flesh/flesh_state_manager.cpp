@@ -27,7 +27,6 @@ CStateManagerFlesh::CStateManagerFlesh(CAI_Flesh *monster) : inherited(monster)
  		xr_new<CStateMonsterAttackMoveToHomePoint<CAI_Flesh> >(monster, true);
  
  	add_state(eStateAttack,					xr_new<CStateMonsterAttack<CAI_Flesh> >				(monster, move2home));
-	//add_state(eStateAttack,					xr_new<CStateMonsterAttack<CAI_Flesh> >				(monster));
 
 	add_state(eStateEat,					xr_new<CStateMonsterEat<CAI_Flesh> >				(monster));
 	add_state(eStateHearInterestingSound,	xr_new<CStateMonsterHearInterestingSound<CAI_Flesh> >(monster));

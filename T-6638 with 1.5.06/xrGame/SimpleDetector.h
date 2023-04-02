@@ -16,4 +16,3 @@ protected:
 	virtual void 	CreateUI					();
 	CUIArtefactDetectorSimple&	ui				();
 };
-

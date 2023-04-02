@@ -21,15 +21,16 @@ public:
 	//если на персонаже надет костюм
 	float							GetHitTypeProtection(ALife::EHitType hit_type, s16 element);
 	float							GetDefHitTypeProtection(ALife::EHitType hit_type);
+	float					GetBoneArmor(s16 element);
 
-	float							HitThruArmour		(float hit_power, s16 element, float AP);
+	float					HitThroughArmor		(float hit_power, s16 element, float ap, bool& add_wound );
 	//коэффициент на который домножается потеря силы
 	//если на персонаже надет костюм
 	float							GetPowerLoss		();
 
 
 	virtual void					OnMoveToSlot		();
-	virtual void					OnMoveToRuck		();
+	virtual void			OnMoveToRuck		(EItemPlace prev);
 
 protected:
 	HitImmunity::HitTypeSVec		m_HitTypeProtection;

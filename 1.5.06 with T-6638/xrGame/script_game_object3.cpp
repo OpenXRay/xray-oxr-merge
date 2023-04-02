@@ -298,7 +298,6 @@ void CScriptGameObject::add_animation			(LPCSTR animation, bool hand_usage, bool
 		return;
 	}
 
-	
 	if (stalker->movement().current_params().cover()) {
 		ai().script_engine().script_log(eLuaMessageTypeError,"Cannot add animation [%s]: object [%s] is in smart_cover!", animation, stalker->cName().c_str());
 	}

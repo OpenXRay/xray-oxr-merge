@@ -3,7 +3,11 @@
 
 #include "xr_collide_defs.h"
 
+#include "../Include/xrRender/FactoryPtr.h"
+#include "../Include/xrRender/LensFlareRender.h"
+
 class ENGINE_API CInifile;
+class ENGINE_API CEnvironment;
 
 class ENGINE_API CLensFlareDescriptor
 {
@@ -15,7 +19,8 @@ public:
     	float			fPosition;
         shared_str			texture;
         shared_str			shader;
-        ref_shader		hShader;
+		FactoryPtr<IFlareRender>	m_pRender;
+        //ref_shader		hShader;
     	SFlare()		{ fOpacity = fRadius = fPosition = 0; }
 	};
     struct SSource: public SFlare
@@ -58,6 +63,7 @@ DEFINE_VECTOR(CLensFlareDescriptor,LensFlareDescVec,LensFlareDescIt);
 
 class ENGINE_API CLensFlare
 {
+	friend class dxLensFlareRender;
 private:
 	collide::rq_results	r_dest;
 
@@ -74,7 +80,8 @@ protected:
     Fcolor				LightColor;
 	float				fGradientValue;
 
-	ref_geom			hGeom;
+	FactoryPtr<ILensFlareRender>	m_pRender;
+	//ref_geom			hGeom;
 
     LensFlareDescVec	m_Palette;
 	CLensFlareDescriptor* m_Current;

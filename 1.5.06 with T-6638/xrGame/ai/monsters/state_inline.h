@@ -216,4 +216,16 @@ void CStateAbstract::remove_links	(CObject* object)
 		(*i).second->remove_links	(object);
 }
 
+TEMPLATE_SPECIALIZATION
+bool CStateAbstract::check_control_start_conditions	(ControlCom::EControlType type)
+{
+	CState*  child	=	get_state_current();
+	if ( child && !child->check_control_start_conditions(type) )
+	{
+		return false;
+	}
+
+	return true;
+}
+
 #undef TEMPLATE_SPECIALIZATION

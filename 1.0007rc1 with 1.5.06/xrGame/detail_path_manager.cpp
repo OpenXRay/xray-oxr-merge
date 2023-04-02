@@ -99,7 +99,7 @@ void CDetailPathManager::build_path(const xr_vector<u32> &level_path, u32 interm
 		if (failed()) {
 #ifndef MASTER_GOLD
 			Msg						("! DetailPathManager has failed : from [%f,%f,%f] to [%f,%f,%f]", VPUSH(ai().level_graph().vertex_position(level_path.front())), VPUSH(ai().level_graph().vertex_position(level_path.back())));
-#endif // #ifndef MASTER_GOLD
+#endif
 #ifdef DEBUG
 			Msg						("! DetailPathManager has failed for object %s : from [%f,%f,%f] to [%f,%f,%f]", m_restricted_object ? *m_restricted_object->object().cName() : "unknown", VPUSH(ai().level_graph().vertex_position(level_path.front())), VPUSH(ai().level_graph().vertex_position(level_path.back())));
 			Msg						("List of available velocities :");

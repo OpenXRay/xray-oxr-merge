@@ -19,8 +19,6 @@ protected:
 	CUIArtefactDetectorElite& ui				();
 };
 
-
-
 class CScientificDetector :public CEliteDetector
 {
 	typedef CEliteDetector	inherited;

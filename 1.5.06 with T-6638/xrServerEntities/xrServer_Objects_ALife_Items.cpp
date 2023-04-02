@@ -483,6 +483,7 @@ CSE_ALifeItemWeapon::CSE_ALifeItemWeapon	(LPCSTR caSection) : CSE_ALifeItem(caSe
 	a_elapsed					= 0;
 	a_elapsed_grenades.grenades_count	=	0;
 	a_elapsed_grenades.grenades_type	=	0;
+
 	wpn_flags					= 0;
 	wpn_state					= 0;
 	ammo_type					= 0;

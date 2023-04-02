@@ -105,6 +105,7 @@ public:
 	// -----------------------------------------------------------------
 	
 	void			UpdateGoal			(CEntity *pE, const SMemberGoal	&goal);
+	void			InformSquadAboutEnemy	(CEntityAlive const * const enemy);
 	void			UpdateCommand		(const CEntity *pE, const SSquadCommand &com);
 	
 	void			GetGoal				(CEntity *pE, SMemberGoal &goal);

@@ -197,7 +197,6 @@ void	CActor::HitSector(CObject* who, CObject* weapon)
 			if (pWeapon->IsSilencerAttached())
 			{
 				bShowHitSector = false;
-
 			}
 		}
 	}

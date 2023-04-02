@@ -296,7 +296,6 @@ BOOL CDemoRecord::ProcessCam(SCamEffectorInfo& info)
 	{
 		if(IR_GetKeyState(DIK_F1))
 		{
-
 			pApp->pFontSystem->SetColor	(color_rgba(255,0,0,255));
 			pApp->pFontSystem->SetAligment(CGameFont::alCenter);
 			pApp->pFontSystem->OutSetI	(0,-.05f);
@@ -318,7 +317,6 @@ BOOL CDemoRecord::ProcessCam(SCamEffectorInfo& info)
 			pApp->pFontSystem->OutNext	("= Level Map ScreenShot");
 			pApp->pFontSystem->OutNext	("= Level Map ScreenShot(High Quality)");
 			pApp->pFontSystem->OutNext	("= ScreenShot");
-
 		}
 
 		m_vVelocity.lerp		(m_vVelocity,m_vT,0.3f);

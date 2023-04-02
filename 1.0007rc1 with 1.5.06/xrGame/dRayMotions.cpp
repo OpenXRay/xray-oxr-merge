@@ -77,7 +77,6 @@ int dCollideRMCyl (dxGeom *o1, dxGeom *o2, int flags,
 		dContactGeom *c = CONTACT(contact,skip*i);
 		revert_contact( c );
 		c->g1 = rm->ray_ownwer;
-		//c->depth*=60.f;
 	}
 	return ret;
 }

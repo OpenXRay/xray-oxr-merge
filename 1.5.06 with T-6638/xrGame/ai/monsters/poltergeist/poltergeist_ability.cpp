@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "poltergeist.h"
-#include "../../../PhysicsShell.h"
+#include "../../../../xrphysics/PhysicsShell.h"
 #include "../../../level.h"
 #include "../../../material_manager.h"
 #include "../../../level_debug.h"
@@ -46,6 +46,7 @@ void CPolterSpecialAbility::on_hide()
 	VERIFY(m_particles_object == 0);
 	if (!m_object->g_Alive())
 		return;
+
 	m_particles_object			= m_object->PlayParticles	(m_particles_hidden, m_object->Position(),Fvector().set(0.0f,0.1f,0.0f), false);
 	m_particles_object_electro	= m_object->PlayParticles	(m_particles_idle, m_object->Position(),Fvector().set(0.0f,0.1f,0.0f), false);
 }

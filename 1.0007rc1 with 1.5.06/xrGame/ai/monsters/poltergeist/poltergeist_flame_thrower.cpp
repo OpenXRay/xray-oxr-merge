@@ -1,13 +1,13 @@
 #include "stdafx.h"
 #include "poltergeist.h"
-#include "../../../xrmessages.h"
+#include "../../../../xrServerEntities/xrmessages.h"
 #include "../../../ai_object_location.h"
 #include "../../../level_graph.h"
 #include "../../../level.h"
-#include "../../../../../xrNetServer/net_utils.h"
 #include "../../../ai_space.h"
 #include "../../../restricted_object.h"
 #include "../../../actor.h"
+#include "../../../actorEffector.h"
 #include "../ai_monster_effector.h"
 
 CPolterFlame::CPolterFlame(CPoltergeist *polter) : inherited (polter)
@@ -318,7 +318,7 @@ bool CPolterFlame::get_valid_flame_position(const CObject *target_object, Fvecto
 	}
 
 
-	float angle = ai().level_graph().vertex_cover_angle(Obj->ai_location().level_vertex_id(),PI_DIV_6,std::less<float>());
+	float angle = ai().level_graph().vertex_high_cover_angle(Obj->ai_location().level_vertex_id(),PI_DIV_6,std::less<float>());
 
 	dir.set(1.f,0.f,0.f);
 	dir.setHP(angle + PI, 0.f);

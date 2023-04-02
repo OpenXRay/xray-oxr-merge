@@ -37,10 +37,15 @@ CInventoryOwner::CInventoryOwner			()
 	
 	EnableTalk();
 	EnableTrade();
+	bDisableBreakDialog			= false;
 	
 	m_known_info_registry		= xr_new<CInfoPortionWrapper>();
 	m_tmp_active_slot_num		= NO_ACTIVE_SLOT;
 	m_need_osoznanie_mode		= FALSE;
+
+	m_deadbody_can_take				= true;
+	m_deadbody_closed				= false;
+	m_play_show_hide_reload_sounds	= true;
 }
 
 DLL_Pure *CInventoryOwner::_construct		()
@@ -137,6 +142,9 @@ BOOL CInventoryOwner::net_Spawn		(CSE_Abstract* DC)
 			dialog_manager->SetDefaultStartDialog(CharacterInfo().StartDialog());
 		}
 		m_game_name			= pTrader->m_character_name;
+		
+		m_deadbody_can_take = pTrader->m_deadbody_can_take;
+		m_deadbody_closed   = pTrader->m_deadbody_closed;
 	}
 	else
 	{
@@ -165,7 +173,7 @@ void CInventoryOwner::net_Destroy()
 void	CInventoryOwner::save	(NET_Packet &output_packet)
 {
 	if(inventory().GetActiveSlot() == NO_ACTIVE_SLOT)
-		output_packet.w_u8((u8)(-1));
+		output_packet.w_u8((u8)NO_ACTIVE_SLOT);
 	else
 		output_packet.w_u8((u8)inventory().GetActiveSlot());
 
@@ -176,10 +184,10 @@ void	CInventoryOwner::save	(NET_Packet &output_packet)
 void	CInventoryOwner::load	(IReader &input_packet)
 {
 	u8 active_slot = input_packet.r_u8();
-	if(active_slot == u8(-1))
+	if(active_slot == NO_ACTIVE_SLOT)
 		inventory().SetActiveSlot(NO_ACTIVE_SLOT);
-	else
-		//inventory().Activate_deffered(active_slot, Device.dwFrame);
+	//else
+	//	inventory().Activate_deffered(active_slot, Device.dwFrame);
 
 	m_tmp_active_slot_num		 = active_slot;
 
@@ -200,9 +208,7 @@ void CInventoryOwner::UpdateInventoryOwner(u32 deltaT)
 	if ( IsTrading() )
 	{
 		//если мы умерли, то нет "trade"
-		CEntityAlive* pOurEntityAlive = smart_cast<CEntityAlive*>(this);
-		R_ASSERT(pOurEntityAlive);
-		if ( !pOurEntityAlive->g_Alive() )
+		if ( !is_alive() )
 		{
 			StopTrading();
 		}
@@ -218,9 +224,7 @@ void CInventoryOwner::UpdateInventoryOwner(u32 deltaT)
 		}
 
 		//если мы умерли, то тоже не говорить
-		CEntityAlive* pOurEntityAlive = smart_cast<CEntityAlive*>(this);
-		R_ASSERT(pOurEntityAlive);
-		if ( !pOurEntityAlive->g_Alive() )
+		if ( !is_alive() )
 		{
 			StopTalk();
 		}
@@ -251,16 +255,13 @@ bool CInventoryOwner::OfferTalk(CInventoryOwner* talk_partner)
 	if(!IsTalkEnabled()) return false;
 
 	//проверить отношение к собеседнику
-	CEntityAlive* pOurEntityAlive = smart_cast<CEntityAlive*>(this);
-	R_ASSERT(pOurEntityAlive);
-
 	CEntityAlive* pPartnerEntityAlive = smart_cast<CEntityAlive*>(talk_partner);
 	R_ASSERT(pPartnerEntityAlive);
 	
 //	ALife::ERelationType relation = RELATION_REGISTRY().GetRelationType(this, talk_partner);
 //	if(relation == ALife::eRelationTypeEnemy) return false;
 
-	if(!pOurEntityAlive->g_Alive() || !pPartnerEntityAlive->g_Alive()) return false;
+	if(!is_alive() || !pPartnerEntityAlive->g_Alive()) return false;
 
 	StartTalk(talk_partner);
 
@@ -330,7 +331,8 @@ void CInventoryOwner::OnItemTake			(CInventoryItem *inventory_item)
 
 	attach		(inventory_item);
 
-	if(m_tmp_active_slot_num!=NO_ACTIVE_SLOT && inventory_item->GetSlot()==m_tmp_active_slot_num)
+	if (m_tmp_active_slot_num != NO_ACTIVE_SLOT &&
+		inventory_item->GetSlot() == m_tmp_active_slot_num)
 	{
 		if(inventory().ItemFromSlot(m_tmp_active_slot_num))
 		{
@@ -467,7 +469,7 @@ void CInventoryOwner::ChangeReputation	(CHARACTER_REPUTATION_VALUE delta)
 }
 
 
-void CInventoryOwner::OnItemDrop			(CInventoryItem *inventory_item)
+void CInventoryOwner::OnItemDrop(CInventoryItem *inventory_item, bool just_before_destroy)
 {
 	CGameObject	*object = smart_cast<CGameObject*>(this);
 	VERIFY		(object);
@@ -480,22 +482,24 @@ void CInventoryOwner::OnItemDropUpdate ()
 {
 }
 
-void CInventoryOwner::OnItemBelt	(CInventoryItem *inventory_item, EItemPlace previous_place)
+void CInventoryOwner::OnItemBelt	(CInventoryItem *inventory_item, const SInvItemPlace& previous_place)
 {
 //.	attach		(inventory_item);
 }
-void CInventoryOwner::OnItemRuck	(CInventoryItem *inventory_item, EItemPlace previous_place)
+
+void CInventoryOwner::OnItemRuck	(CInventoryItem *inventory_item, const SInvItemPlace& previous_place)
 {
 	detach		(inventory_item);
 }
-void CInventoryOwner::OnItemSlot	(CInventoryItem *inventory_item, EItemPlace previous_place)
+
+void CInventoryOwner::OnItemSlot	(CInventoryItem *inventory_item, const SInvItemPlace& previous_place)
 {
 	attach		(inventory_item);
 }
 
-CInventoryItem* CInventoryOwner::GetCurrentOutfit() const
+CCustomOutfit* CInventoryOwner::GetOutfit() const
 {
-    return inventory().ItemFromSlot(OUTFIT_SLOT);
+    return smart_cast<CCustomOutfit*>(inventory().ItemFromSlot(OUTFIT_SLOT));
 }
 
 void CInventoryOwner::on_weapon_shot_start		(CWeapon *weapon)
@@ -566,7 +570,7 @@ void CInventoryOwner::sell_useless_items		()
 	}
 }
 
-bool CInventoryOwner::AllowItemToTrade 			(CInventoryItem const * item, EItemPlace place) const
+bool CInventoryOwner::AllowItemToTrade 			(CInventoryItem const * item, const SInvItemPlace& place) const
 {
 	return						(
 		trade_parameters().enabled(
@@ -610,4 +614,41 @@ float CInventoryOwner::missile_throw_force		()
 bool CInventoryOwner::use_throw_randomness		()
 {
 	return						(true);
+}
+
+bool CInventoryOwner::is_alive()
+{
+	CEntityAlive* pEntityAlive = smart_cast<CEntityAlive*>(this);
+	R_ASSERT( pEntityAlive );
+	return (!!pEntityAlive->g_Alive());
+}
+
+void CInventoryOwner::deadbody_can_take( bool status )
+{
+	if ( is_alive() )
+	{
+		return;
+	}
+	m_deadbody_can_take = status;
+
+	NET_Packet P;
+	CGameObject::u_EventGen( P, GE_INV_OWNER_STATUS, object_id() );
+	P.w_u8( (m_deadbody_can_take)? 1 : 0 );
+	P.w_u8( (m_deadbody_closed)? 1 : 0 );
+	CGameObject::u_EventSend( P );
+}
+
+void CInventoryOwner::deadbody_closed( bool status )
+{
+	if ( is_alive() )
+	{
+		return;
+	}
+	m_deadbody_closed = status;
+
+	NET_Packet P;
+	CGameObject::u_EventGen( P, GE_INV_OWNER_STATUS, object_id() );
+	P.w_u8( (m_deadbody_can_take)? 1 : 0 );
+	P.w_u8( (m_deadbody_closed)? 1 : 0 );
+	CGameObject::u_EventSend( P );
 }

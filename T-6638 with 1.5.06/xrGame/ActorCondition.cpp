@@ -462,6 +462,7 @@ void CActorCondition::PowerHit(float power, bool apply_outfit)
 	m_fPower			-=	apply_outfit ? HitPowerEffect(power) : power;
 	clamp					(m_fPower, 0.f, 1.f);
 }
+
 //weight - "удельный" вес от 0..1
 void CActorCondition::ConditionJump(float weight)
 {
@@ -597,6 +598,7 @@ void CActorCondition::ChangeAlcohol	(float value)
 {
 	m_fAlcohol += value;
 }
+
 void CActorCondition::ChangeSatiety(float value)
 {
 	m_fSatiety += value;

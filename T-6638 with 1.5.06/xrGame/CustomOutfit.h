@@ -50,8 +50,8 @@ public:
 	float					m_fPowerRestoreSpeed;
 	float					m_fBleedingRestoreSpeed;
 
-	shared_str				m_BonesProtectionSect;
 	shared_str				m_NightVisionSect;
+	shared_str				m_BonesProtectionSect;
 
 	bool					bIsHelmetAvaliable;
 

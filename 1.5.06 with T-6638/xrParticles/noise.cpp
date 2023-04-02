@@ -22,9 +22,52 @@ static int		start = 1;
 static int 		p[B+B+2];
 static float	g[B+B+2][3];
 
-void	noise3Init();
+//--------------------------------------------------------------------
+void	noise3Init()
+{
+	int		i, j, k;
+	float	v[3], s;
+	int	rnd;
+	
+	srand(1);
+	
+	for(i = 0; i < B; i++ )
+	{
+		do
+		{
+			for(j = 0; j < 3; j++)
+			{
+				rnd = rand();
+				v[j] = float((rnd % (B+B)) - B) / B;
+			}
+			s = DOT(v,v);
+		} while ( s > 1.0 );
+		s = _sqrt(s);
+		for (j = 0; j < 3; j++)
+			g[i][j] = v[j] / s;
+	}
+	
+	for (i = 0; i < B; i++)
+		p[i] = i;
+	
+	for (i = B; i > 0; i -= 2)
+	{
+		rnd = rand();
+		k = p[i];
+		p[i] = p[ (j = rnd%B) ];
+		p[j] = k;
+	}
+	
+	for (i = 0; i < B+2; i++)
+	{
+		p[B+i] = p[i];
+		for (j = 0; j < 3; j++)
+			g[B+i][j] = g[i][j];
+	}
+}
 
 //--------------------------------------------------------------------
+
 float	noise3(const Fvector& vec)
 {
 	int		bx0, bx1;
@@ -82,50 +125,6 @@ float	noise3(const Fvector& vec)
 	d = LERP(sy, a, b);
 	
 	return 1.5f * LERP(sz, c, d);
-}
-	
-//--------------------------------------------------------------------
-void	noise3Init()
-{
-	int		i, j, k;
-	float	v[3], s;
-	int	rnd;
-	
-	srand(1);
-	
-	for(i = 0; i < B; i++ )
-	{
-		do
-		{
-			for(j = 0; j < 3; j++)
-			{
-				rnd = rand();
-				v[j] = float((rnd % (B+B)) - B) / B;
-			}
-			s = DOT(v,v);
-		} while ( s > 1.0 );
-		s = _sqrt(s);
-		for (j = 0; j < 3; j++)
-			g[i][j] = v[j] / s;
-	}
-	
-	for (i = 0; i < B; i++)
-		p[i] = i;
-	
-	for (i = B; i > 0; i -= 2)
-	{
-		rnd = rand();
-		k = p[i];
-		p[i] = p[ (j = rnd%B) ];
-		p[j] = k;
-	}
-	
-	for (i = 0; i < B+2; i++)
-	{
-		p[B+i] = p[i];
-		for (j = 0; j < 3; j++)
-			g[B+i][j] = g[i][j];
-	}
 }
 
 //--------------------------------------------------------------------

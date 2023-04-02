@@ -308,7 +308,7 @@ void CAI_Stalker::Hit(SHit* pHDS)
 				if (!already_critically_wounded && became_critically_wounded) {
 					if (HDS.who) {
 						CAI_Stalker		*stalker = smart_cast<CAI_Stalker*>(HDS.who);
-						if ( stalker )
+						if ( stalker && stalker->g_Alive() )
 							stalker->on_critical_wound_initiator	(this);
 					}
 				}

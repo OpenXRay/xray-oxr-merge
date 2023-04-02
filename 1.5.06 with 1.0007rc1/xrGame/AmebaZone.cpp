@@ -1,5 +1,4 @@
 #include "stdafx.h"
-/*
 #include "CustomZone.h"
 #include "../Include/xrRender/KinematicsAnimated.h"
 #include "ZoneVisual.h"
@@ -55,7 +54,6 @@ void  CAmebaZone::Affect(SZoneObjectInfo* O)
 	Fvector position_in_bone_space;
 
 	float power = Power(distance_to_center(O->object));
-	float power_critical = 0.0f;
 	float impulse = m_fHitImpulseScale*power*pGameObject->GetMass();
 
 	if(power > 0.01f) 
@@ -63,7 +61,7 @@ void  CAmebaZone::Affect(SZoneObjectInfo* O)
 		m_dwDeltaTime = 0;
 		position_in_bone_space.set(0.f,0.f,0.f);
 
-		CreateHit(pGameObject->ID(),ID(),hit_dir,power,power_critical,0,position_in_bone_space,impulse,m_eHitTypeBlowout);
+		CreateHit(pGameObject->ID(),ID(),hit_dir,power,0,position_in_bone_space,impulse,m_eHitTypeBlowout);
 
 		PlayHitParticles(pGameObject);
 	}
@@ -108,4 +106,3 @@ float CAmebaZone::distance_to_center(CObject* O)
 	Fvector OP;OP.set(O->Position());
 	return _sqrt((P.x-OP.x)*(P.x-OP.x)+(P.x-OP.x)*(P.x-OP.x));
 }
-*/

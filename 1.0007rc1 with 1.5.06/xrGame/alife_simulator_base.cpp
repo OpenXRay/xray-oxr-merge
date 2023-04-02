@@ -101,7 +101,7 @@ CSE_Abstract *CALifeSimulatorBase::spawn_item	(LPCSTR section, const Fvector &po
 	abstract->m_wVersion		= SPAWN_VERSION;
 	
 	string256					s_name_replace;
-	strcpy						(s_name_replace,*abstract->s_name);
+	strcpy_s					(s_name_replace,*abstract->s_name);
 	if (abstract->ID < 1000)
 		strcat					(s_name_replace,"0");
 	if (abstract->ID < 100)
@@ -157,7 +157,7 @@ CSE_Abstract *CALifeSimulatorBase::create(CSE_ALifeGroupAbstract *tpALifeGroupAb
 	k->m_bALifeControl			= true;
 	
 	string256					s_name_replace;
-	strcpy						(s_name_replace,*k->s_name);
+	strcpy_s					(s_name_replace,*k->s_name);
 	if (k->ID < 1000)
 		strcat					(s_name_replace,"0");
 	if (k->ID < 100)
@@ -300,7 +300,7 @@ void CALifeSimulatorBase::append_item_vector(OBJECT_VECTOR &tObjectVector, ITEM_
 
 void CALifeSimulatorBase::assign_death_position(CSE_ALifeCreatureAbstract *tpALifeCreatureAbstract, GameGraph::_GRAPH_ID tGraphID, CSE_ALifeSchedulable *tpALifeSchedulable)
 {
-	tpALifeCreatureAbstract->fHealth		= 0;
+	tpALifeCreatureAbstract->set_health		( 0.f );
 	
 	if (tpALifeSchedulable) {
 		CSE_ALifeAnomalousZone				*l_tpALifeAnomalousZone = smart_cast<CSE_ALifeAnomalousZone*>(tpALifeSchedulable);

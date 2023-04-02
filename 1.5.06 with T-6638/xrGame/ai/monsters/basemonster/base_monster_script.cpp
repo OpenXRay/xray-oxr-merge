@@ -308,7 +308,7 @@ CEntity *CBaseMonster::GetCurrentEnemy()
 	CEntity *enemy = 0;
 	
 	if (EnemyMan.get_enemy()) 
-		enemy = const_cast<CEntity *>(smart_cast<const CEntity*>(EnemyMan.get_enemy()));
+		enemy = const_cast<CEntity*>(smart_cast<CEntity const*>(EnemyMan.get_enemy()));
 
 	if (!enemy || enemy->getDestroy() || !enemy->g_Alive()) enemy = 0;
 

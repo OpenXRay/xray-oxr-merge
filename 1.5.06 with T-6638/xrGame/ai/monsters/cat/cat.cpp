@@ -83,7 +83,7 @@ void CCat::Load(LPCSTR section)
 	anim().accel_chain_test		();
 #endif
 
-	//*****************************************************************************
+	PostLoad					(section);
 }
 
 void CCat::reinit()

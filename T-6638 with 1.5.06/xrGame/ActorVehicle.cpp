@@ -23,9 +23,10 @@
 
 void CActor::attach_Vehicle(CHolderCustom* vehicle)
 {
-/*
-	if(!vehicle) return;
-	if(m_holder) return;
+	if(!vehicle)
+		return;
+	if(m_holder)
+		return;
 
 	PickupModeOff		();
 	m_holder=vehicle;
@@ -55,7 +56,6 @@ void CActor::attach_Vehicle(CHolderCustom* vehicle)
 	SetWeaponHideState				(INV_STATE_CAR, true);
 
 	CStepManager::on_animation_start(MotionID(), 0);
-*/
 }
 
 void CActor::detach_Vehicle()

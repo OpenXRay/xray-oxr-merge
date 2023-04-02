@@ -3,7 +3,7 @@
 #include "entity.h"
 #include "actor.h"
 #include "../xrEngine/LightAnimLibrary.h"
-#include "PhysicsShell.h"
+#include "../xrphysics/PhysicsShell.h"
 #include "xrserver_objects_alife_items.h"
 #include "ai_sounds.h"
 
@@ -52,7 +52,7 @@ CTorch::CTorch(void)
 	m_delta_h					= 0;
 }
 
-CTorch::~CTorch(void) 
+CTorch::~CTorch() 
 {
 	light_render.destroy	();
 	light_omni.destroy		();
@@ -180,7 +180,7 @@ void CTorch::Switch()
 	Switch					(bActive);
 }
 
-void CTorch::Switch	(bool light_on)
+void CTorch::Switch(bool light_on)
 {
 	m_switched_on			= light_on;
 	if (can_use_dynamic_lights())

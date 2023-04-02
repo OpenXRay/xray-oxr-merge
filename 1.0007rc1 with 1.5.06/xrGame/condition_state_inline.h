@@ -182,12 +182,6 @@ IC	bool CConditionStateAbstract::includes(const CConditionState &condition) cons
 }
 
 TEMPLATE_SPECIALIZATION
-IC	CConditionStateAbstract::operator u32		() const
-{
-	return					(hash_value());
-}
-
-TEMPLATE_SPECIALIZATION
 IC	u32	CConditionStateAbstract::hash_value		() const
 {
 	return					(m_hash);

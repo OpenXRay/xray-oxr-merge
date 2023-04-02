@@ -9,7 +9,7 @@
 #include "stdafx.h"
 #include "ai_rat.h"
 #include "../../ai_monsters_misc.h"
-#include "../../../PhysicsShell.h"
+#include "../../../../xrphysics/PhysicsShell.h"
 #include "../../../game_graph.h"
 #include "../../../game_level_cross_table.h"
 #include "../../../../xrServerEntities/xrserver_objects_alife_monsters.h"
@@ -33,11 +33,6 @@
 #include "../../../patrol_path_storage.h"
 #include "../../../patrol_path.h"
 #include "../../../Actor.h"
-
-
-#ifdef DEBUG
-#include "HudManager.h"
-#endif
 
 using namespace RatSpace;
 

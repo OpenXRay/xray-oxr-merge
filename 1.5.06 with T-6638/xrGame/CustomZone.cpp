@@ -273,6 +273,11 @@ void CCustomZone::Load(LPCSTR section)
 		m_zone_flags.set(eIdleLightR1,pSettings->r_bool (section, "idle_light_r1") );
 	}
 
+	bool use = !!READ_IF_EXISTS(pSettings, r_bool, section, "use_secondary_hit", false);
+	m_zone_flags.set(eUseSecondaryHit, use);
+	if(use)
+		m_fSecondaryHitPower	= pSettings->r_float(section,"secondary_hit_power");
+
 	m_ef_anomaly_type			= pSettings->r_u32(section,"ef_anomaly_type");
 	m_ef_weapon_type			= pSettings->r_u32(section,"ef_weapon_type");
 	
@@ -630,21 +635,21 @@ BOOL CCustomZone::feel_touch_contact(CObject* O)
 }
 
 
-float CCustomZone::RelativePower(float dist)
+float CCustomZone::RelativePower(float dist, float nearest_shape_radius)
 {
-	float radius = effective_radius();
+	float radius = effective_radius(nearest_shape_radius);
 	float power = (radius<dist) ? 0 : (1.f - m_fAttenuation*(dist/radius)*(dist/radius));
 	return (power<0.0f) ? 0.0f : power;
 }
 
-float CCustomZone::effective_radius()
+float CCustomZone::effective_radius(float nearest_shape_radius)
 {
-	return Radius()*m_fEffectiveRadius;
+	return /*Radius()*/nearest_shape_radius*m_fEffectiveRadius;
 }
 
-float CCustomZone::Power(float dist) 
+float CCustomZone::Power(float dist, float nearest_shape_radius) 
 {
-	return  m_fMaxPower * RelativePower(dist);
+	return  m_fMaxPower * RelativePower(dist, nearest_shape_radius);
 }
 
 void CCustomZone::PlayIdleParticles(bool bIdleLight)
@@ -1482,4 +1487,22 @@ void CCustomZone::o_switch_2_slow				()
 		StopIdleLight();
 	}
 	processing_deactivate		();
+}
+
+void CCustomZone::save							(NET_Packet &output_packet)
+{
+	inherited::save			(output_packet);
+	output_packet.w_u8		(static_cast<u8>(m_eZoneState));
+}
+
+void CCustomZone::load							(IReader &input_packet)
+{
+	inherited::load			(input_packet);	
+
+	CCustomZone::EZoneState temp = static_cast<CCustomZone::EZoneState>(input_packet.r_u8());
+
+	if (temp == eZoneStateDisabled)
+		m_eZoneState = eZoneStateDisabled;
+	else
+		m_eZoneState = eZoneStateIdle;
 }

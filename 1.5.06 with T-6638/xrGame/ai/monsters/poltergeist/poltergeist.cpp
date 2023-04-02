@@ -13,7 +13,7 @@
 #include "../control_animation_base.h"
 #include "../control_movement_base.h"
 #include "../control_path_builder_base.h"
-#include "../../../PhysicsShell.h"
+#include "../../../../xrphysics/PhysicsShell.h"
 
 #define HEIGHT_CHANGE_VELOCITY	0.5f
 #define HEIGHT_CHANGE_MIN_TIME	3000
@@ -34,6 +34,8 @@ CPoltergeist::CPoltergeist()
 
 CPoltergeist::~CPoltergeist()
 {
+	remove_pp_effector	();
+
 	xr_delete		(StateMan);
 	xr_delete		(m_flame);
 	xr_delete		(m_tele);
@@ -176,6 +178,7 @@ void CPoltergeist::Show()
 void CPoltergeist::UpdateCL()
 {
 	inherited::UpdateCL();
+
 	def_lerp(m_height, target_height, HEIGHT_CHANGE_VELOCITY, client_update_fdelta());
 	
 	ability()->update_frame	();
@@ -190,6 +193,11 @@ void CPoltergeist::ForceFinalAnimation()
 
 void CPoltergeist::shedule_Update(u32 dt)
 {
+	if ( !check_work_condition() ) 
+	{
+		remove_pp_effector();
+	}
+
 	inherited::shedule_Update(dt);
 	CTelekinesis::schedule_update();
 	Energy::schedule_update();
@@ -202,7 +210,8 @@ void CPoltergeist::shedule_Update(u32 dt)
 
 BOOL CPoltergeist::net_Spawn (CSE_Abstract* DC) 
 {
-	if (!inherited::net_Spawn(DC)) return(FALSE);
+	if (!inherited::net_Spawn(DC))
+		return(FALSE);
 
 	// спаунится нивидимым
 	setVisible		(false);
@@ -305,7 +314,7 @@ CBaseMonster::SDebugInfo CPoltergeist::show_debug_info()
 	if (!info.active) return CBaseMonster::SDebugInfo();
 
 	string128 text;
-	sprintf_s(text, "Invisibility Value = [%f]", Energy::get_value());
+	xr_sprintf(text, "Invisibility Value = [%f]", Energy::get_value());
 	DBG().text(this).add_item(text, info.x, info.y+=info.delta_y, info.color);
 	DBG().text(this).add_item("---------------------------------------", info.x, info.y+=info.delta_y, info.delimiter_color);
 

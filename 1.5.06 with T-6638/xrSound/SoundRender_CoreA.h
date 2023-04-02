@@ -3,13 +3,9 @@
 #pragma once
 
 #include "SoundRender_Core.h"            
-
-#include <openal/al.h>
-#include <openal/alc.h>
-//.#include <openal/alut.h>
+#include "OpenALDeviceList.h"
 #include <eax/eax.h>
 
-#include "OpenALDeviceList.h"
 
 #ifdef DEBUG
 #	define A_CHK(expr)		{ alGetError(); 		expr; ALenum error=alGetError(); 			VERIFY2(error==AL_NO_ERROR, (LPCSTR)alGetString(error)); }

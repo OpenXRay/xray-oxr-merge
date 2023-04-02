@@ -13,6 +13,7 @@
 #include "ElectricBall.h"
 #include "RustyHairArtifact.h"
 #include "GalantineArtifact.h"
+#include "cta_game_artefact.h"
 
 using namespace luabind;
 
@@ -21,17 +22,23 @@ void CArtefact::script_register(lua_State *L)
 {
 	module(L)
 	[
-		class_<CMercuryBall			,CGameObject>("CMercuryBall").def		(constructor<>()),
-		class_<CBlackDrops			,CGameObject>("CBlackDrops").def		(constructor<>()),
-		class_<CBlackGraviArtefact	,CGameObject>("CBlackGraviArtefact").def(constructor<>()),
-		class_<CBastArtefact		,CGameObject>("CBastArtefact").def		(constructor<>()),
-		class_<CDummyArtefact		,CGameObject>("CDummyArtefact").def		(constructor<>()),
-		class_<CZudaArtefact		,CGameObject>("CZudaArtefact").def		(constructor<>()),
-		class_<CThornArtefact		,CGameObject>("CThornArtefact").def		(constructor<>()),
-		class_<CFadedBall			,CGameObject>("CFadedBall").def			(constructor<>()),
-		class_<CElectricBall		,CGameObject>("CElectricBall").def		(constructor<>()),
-		class_<CRustyHairArtefact	,CGameObject>("CRustyHairArtefact").def	(constructor<>()),
-		class_<CGalantineArtefact	,CGameObject>("CGalantineArtefact").def	(constructor<>()),
-		class_<CGraviArtefact		,CGameObject>("CGraviArtefact").def		(constructor<>())
+		class_<CArtefact			,CGameObject>("CArtefact")
+		.def(						constructor<>() )
+		.def("FollowByPath",		&CArtefact::FollowByPath)
+		.def("SwitchVisibility",	&CArtefact::SwitchVisibility)
+		.def("GetAfRank",			&CArtefact::GetAfRank),
+
+		class_<CMercuryBall			,CArtefact>("CMercuryBall").def		(constructor<>()),
+		class_<CBlackDrops			,CArtefact>("CBlackDrops").def		(constructor<>()),
+		class_<CBlackGraviArtefact	,CArtefact>("CBlackGraviArtefact").def(constructor<>()),
+		class_<CBastArtefact		,CArtefact>("CBastArtefact").def		(constructor<>()),
+		class_<CDummyArtefact		,CArtefact>("CDummyArtefact").def		(constructor<>()),
+		class_<CZudaArtefact		,CArtefact>("CZudaArtefact").def		(constructor<>()),
+		class_<CThornArtefact		,CArtefact>("CThornArtefact").def		(constructor<>()),
+		class_<CFadedBall			,CArtefact>("CFadedBall").def			(constructor<>()),
+		class_<CElectricBall		,CArtefact>("CElectricBall").def		(constructor<>()),
+		class_<CRustyHairArtefact	,CArtefact>("CRustyHairArtefact").def	(constructor<>()),
+		class_<CGalantineArtefact	,CArtefact>("CGalantineArtefact").def	(constructor<>()),
+		class_<CGraviArtefact		,CArtefact>("CGraviArtefact").def		(constructor<>())
 	];
 }

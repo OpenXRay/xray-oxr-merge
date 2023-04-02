@@ -1,8 +1,6 @@
 #pragma once
 
-#include "../../../effectorPP.h"
-#include "../../CameraEffector.h"
-#include "../../../cameramanager.h"
+#include "../../ActorEffector.h"
 
 //////////////////////////////////////////////////////////////////////////
 // CMonsterEffector
@@ -35,7 +33,7 @@ class CMonsterEffectorHit : public CEffectorCam {
 	Fvector offset;
 public:
 					CMonsterEffectorHit		(float time, float amp, float periods, float power);
-	virtual	BOOL	Process					(Fvector &p, Fvector &d, Fvector &n, float& fFov, float& fFar, float& fAspect);
+	virtual BOOL	ProcessCam				(SCamEffectorInfo& info);
 };
 
 

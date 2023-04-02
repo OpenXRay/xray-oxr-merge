@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "CustomZone.h"
-#include "../SkeletonAnimated.h"
+#include "../Include/xrRender/KinematicsAnimated.h"
 #include "ZoneVisual.h"
 #include "PHObject.h"
 #include "PHMovementControl.h"
@@ -9,6 +9,7 @@
 #include "level.h"
 #include "entity_alive.h"
 #include "CharacterPhysicsSupport.h"
+
 CAmebaZone::CAmebaZone()
 {
 	m_fVelocityLimit=1.f;
@@ -16,17 +17,19 @@ CAmebaZone::CAmebaZone()
 
 CAmebaZone::~CAmebaZone()
 {
-
 }
+
 void CAmebaZone::Load(LPCSTR section)
 {
 	inherited::Load(section);
 	m_fVelocityLimit= pSettings->r_float(section,		"max_velocity_in_zone");
 }
+
 bool CAmebaZone::BlowoutState()
 {
 	bool result = inherited::BlowoutState();
-	if(!result) UpdateBlowout();
+	if(!result)
+		UpdateBlowout();
 
 	for(OBJECT_INFO_VEC_IT it = m_ObjectInfoMap.begin(); m_ObjectInfoMap.end() != it; ++it) 
 		Affect(&(*it));
@@ -41,11 +44,6 @@ void  CAmebaZone::Affect(SZoneObjectInfo* O)
 
 	if(O->zone_ignore) return;
 
-#ifdef DEBUG
-	char l_pow[255]; 
-	sprintf_s(l_pow, "zone hit. %.1f", Power(distance_to_center(O->object)));
-	if(bDebug) Msg("%s %s",*pGameObject->cName(), l_pow);
-#endif
 	Fvector hit_dir; 
 	hit_dir.set(::Random.randF(-.5f,.5f), 
 		::Random.randF(.0f,1.f), 
@@ -84,15 +82,10 @@ void CAmebaZone::PhTune(dReal step)
 			CPHMovementControl* mc=EA->character_physics_support()->movement();
 			if(mc)
 			{
-				//Fvector vel;
-				//mc->GetCharacterVelocity(vel);
-				//vel.invert();
-				//vel.mul(mc->GetMass());
 				if(distance_to_center(EA)<effective_radius())
 								mc->SetVelocityLimit(m_fVelocityLimit);
 			}
 		}
-		
 	}
 }
 

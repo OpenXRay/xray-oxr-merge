@@ -908,7 +908,7 @@ void CWeaponMagazined::InitAddons()
 			scope_tex_name						= pSettings->r_string(*m_sScopeName, "scope_texture");
 			m_zoom_params.m_fScopeZoomFactor	= pSettings->r_float( *m_sScopeName, "scope_zoom_factor");
 		}
-		else if( m_eScopeStatus == ALife::eAddonPermanent )
+		else if ( m_eScopeStatus == ALife::eAddonPermanent )
 		{
 			scope_tex_name						= pSettings->r_string(cNameSect(), "scope_texture");
 			m_zoom_params.m_fScopeZoomFactor	= pSettings->r_float( cNameSect(), "scope_zoom_factor");
@@ -928,14 +928,10 @@ void CWeaponMagazined::InitAddons()
 	else
 	{
 		if ( m_UIScope )
-		{
 			xr_delete( m_UIScope );
-		}
 		
 		if ( IsZoomEnabled() )
-		{
 			m_zoom_params.m_fIronSightZoomFactor = pSettings->r_float( cNameSect(), "scope_zoom_factor" );
-		}
 	}
 
 	if ( IsSilencerAttached() && SilencerAttachable() )

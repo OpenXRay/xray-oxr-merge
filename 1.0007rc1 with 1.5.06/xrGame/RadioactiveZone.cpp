@@ -3,7 +3,7 @@
 #include "hudmanager.h"
 #include "level.h"
 #include "xrmessages.h"
-#include "../bone.h"
+#include "../xrEngine/bone.h"
 #include "clsid_game.h"
 #include "game_base_space.h"
 #include "Hit.h"
@@ -65,9 +65,9 @@ void CRadioactiveZone::Affect(SZoneObjectInfo* O)
 void CRadioactiveZone::feel_touch_new					(CObject* O	)
 {
 	inherited::feel_touch_new(O);
-	if (GameID() != GAME_SINGLE)
+	if (GameID() != eGameIDSingle)
 	{
-		if (O->CLS_ID == CLSID_OBJECT_ACTOR)
+		if (smart_cast<CActor*>(O))
 		{
 			CreateHit(O->ID(),ID(),Fvector().set(0, 0, 0),0.0f,BI_NONE,Fvector().set(0, 0, 0),0.0f,ALife::eHitTypeRadiation);
 		}
@@ -89,14 +89,14 @@ BOOL CRadioactiveZone::feel_touch_contact(CObject* O)
 
 void CRadioactiveZone::UpdateWorkload					(u32	dt)
 {
-	if (IsEnabled() && GameID() != GAME_SINGLE)
+	if (IsEnabled() && GameID() != eGameIDSingle)
 	{	
 		OBJECT_INFO_VEC_IT it;
 		Fvector pos; 
 		XFORM().transform_tiny(pos,CFORM()->getSphere().P);
 		for(it = m_ObjectInfoMap.begin(); m_ObjectInfoMap.end() != it; ++it) 
 		{
-			if( !(*it).object->getDestroy() && (*it).object->CLS_ID == CLSID_OBJECT_ACTOR)
+			if( !(*it).object->getDestroy() && smart_cast<CActor*>((*it).object))
 			{
 				//=====================================
 				NET_Packet	l_P;
@@ -116,7 +116,7 @@ void CRadioactiveZone::UpdateWorkload					(u32	dt)
 				HS.boneID = BI_NONE;
 				HS.p_in_bone_space = Fvector().set(0, 0, 0);
 				HS.impulse = 0.0f;
-				HS.hit_type = ALife::eHitTypeRadiation;
+				HS.hit_type = m_eHitTypeBlowout;
 				
 				HS.Write_Packet_Cont(l_P);
 

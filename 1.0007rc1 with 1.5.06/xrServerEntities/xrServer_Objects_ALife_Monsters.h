@@ -179,10 +179,14 @@ add_to_type_list(CSE_ALifeZoneVisual)
 //---------------------------------------------------------------------------------------------------------
 
 SERVER_ENTITY_DECLARE_BEGIN(CSE_ALifeCreatureAbstract,CSE_ALifeDynamicObjectVisual)
+private:
+	float							fHealth;
+	ALife::_OBJECT_ID				m_killer_id;
+public:
 	u8								s_team;
 	u8								s_squad;
 	u8								s_group;
-	float							fHealth;
+	
 	float							m_fMorale;
 	float							m_fAccuracy;
 	float							m_fIntelligence;
@@ -200,7 +204,6 @@ SERVER_ENTITY_DECLARE_BEGIN(CSE_ALifeCreatureAbstract,CSE_ALifeDynamicObjectVisu
 	u32								m_ef_weapon_type;
 	u32								m_ef_detector_type;
 
-	ALife::_OBJECT_ID				m_killer_id;
 	ALife::_TIME_ID					m_game_death_time;
 									
 									CSE_ALifeCreatureAbstract(LPCSTR caSection);
@@ -208,8 +211,14 @@ SERVER_ENTITY_DECLARE_BEGIN(CSE_ALifeCreatureAbstract,CSE_ALifeDynamicObjectVisu
 	virtual u8						g_team					();
 	virtual u8						g_squad					();
 	virtual u8						g_group					();
-	IC		float					g_Health				() const								{ return fHealth;}
-	IC		bool					g_Alive					() const								{ return (g_Health() > 0.f);}
+	
+	IC		float					get_health				() const								{ return fHealth;}
+	IC		ALife::_OBJECT_ID		get_killer_id			() const								{ return m_killer_id; }
+
+	IC		void					set_health				(float const health_value);
+	IC		void					set_killer_id			(ALife::_OBJECT_ID const killer_id);
+
+	IC		bool					g_Alive					() const								{ return (get_health() > 0.f);}
 	virtual bool					used_ai_locations		() const;
 	virtual bool					can_switch_online		() const;
 	virtual bool					can_switch_offline		() const;

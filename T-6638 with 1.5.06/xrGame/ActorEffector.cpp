@@ -365,7 +365,6 @@ CControllerPsyHitCamEffector::CControllerPsyHitCamEffector(ECamEffectorType type
 	m_dangle_target.set			(	angle_normalize(Random.randFs(DELTA_ANGLE_X)),
 									angle_normalize(Random.randFs(DELTA_ANGLE_Y)),
 									angle_normalize(Random.randFs(DELTA_ANGLE_Z))	);
-
 	m_dangle_current.set		(0.f, 0.f, 0.f);
 	m_position_source		=	src_pos;
 	m_direction.sub				(target_pos,src_pos);

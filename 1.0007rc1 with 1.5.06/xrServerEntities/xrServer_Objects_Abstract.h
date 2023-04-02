@@ -109,6 +109,7 @@ public:
 	virtual void		__stdcall	Spawn_Write		(NET_Packet &tNetPacket, BOOL bLocal) = 0;
 	virtual BOOL		__stdcall	Spawn_Read		(NET_Packet &tNetPacket) = 0;
 	virtual void		__stdcall	FillProp		(LPCSTR pref, PropItemVec &items) = 0;
+	virtual void 		__stdcall	on_render		(CDUInterface* du, ISE_AbstractLEOwner* owner, bool bSelected, const Fmatrix& parent,int priority, bool strictB2F) = 0;
 	virtual LPCSTR		__stdcall	name			() const = 0;
 	virtual void		__stdcall	set_name		(LPCSTR) = 0;
 	virtual LPCSTR		__stdcall	name_replace	() const = 0;
@@ -120,7 +121,6 @@ public:
 	virtual CSE_Visual* __stdcall	visual			() = 0;
 	virtual CSE_Motion* __stdcall	motion			() = 0;
 	virtual bool		__stdcall	validate		() = 0;
-	virtual void 		__stdcall	on_render		(CDUInterface* du, ISE_AbstractLEOwner* owner, bool bSelected, const Fmatrix& parent,int priority, bool strictB2F) = 0;
 };
 
 #pragma warning(pop)

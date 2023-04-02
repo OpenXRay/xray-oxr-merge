@@ -1113,6 +1113,10 @@ CSE_ALifeMonsterAbstract::CSE_ALifeMonsterAbstract(LPCSTR caSection)	: CSE_ALife
 	m_fCurSpeed					= 0.0f;
 	m_fDistanceFromPoint		= 0.0f;
 	m_fDistanceToPoint			= 0.0f;
+	m_fGoingSpeed				= pSettings->r_float(caSection, "going_speed");
+	m_fCurrentLevelGoingSpeed	= READ_IF_EXISTS(pSettings,r_float,caSection,"current_level_going_speed",m_fGoingSpeed);
+
+	setup_location_types		(m_tpaTerrain,pSettings,pSettings->r_string(caSection,"terrain"));
 
 	m_fMaxHealthValue	 		= pSettings->r_float	(caSection,"MaxHealthValue");
 	if (pSettings->line_exist(caSection,"hit_power")) {
@@ -1147,11 +1151,6 @@ CSE_ALifeMonsterAbstract::CSE_ALifeMonsterAbstract(LPCSTR caSection)	: CSE_ALife
 		m_fRetreatThreshold		= 0.2f;
 
 	m_fEyeRange					= pSettings->r_float(caSection,"eye_range");
-
-	m_fGoingSpeed				= pSettings->r_float(caSection, "going_speed");
-	m_fCurrentLevelGoingSpeed	= READ_IF_EXISTS(pSettings,r_float,caSection,"current_level_going_speed",m_fGoingSpeed);
-
-	setup_location_types		(m_tpaTerrain,pSettings,pSettings->r_string(caSection,"terrain"));
 
 	m_tpBestDetector			= this;
 
@@ -1255,19 +1254,23 @@ void CSE_ALifeMonsterAbstract::STATE_Read	(NET_Packet &tNetPacket, u16 size)
 void CSE_ALifeMonsterAbstract::UPDATE_Write	(NET_Packet &tNetPacket)
 {
 	inherited1::UPDATE_Write	(tNetPacket);
+
 	tNetPacket.w_u16			(m_tNextGraphID);
 	tNetPacket.w_u16			(m_tPrevGraphID);
 	tNetPacket.w_float			(m_fDistanceFromPoint);
 	tNetPacket.w_float			(m_fDistanceToPoint);
+
 };
 
 void CSE_ALifeMonsterAbstract::UPDATE_Read	(NET_Packet &tNetPacket)
 {
 	inherited1::UPDATE_Read		(tNetPacket);
+
 	tNetPacket.r_u16			(m_tNextGraphID);
 	tNetPacket.r_u16			(m_tPrevGraphID);
 	tNetPacket.r_float			(m_fDistanceFromPoint);
 	tNetPacket.r_float			(m_fDistanceToPoint);
+
 };
 
 #ifndef XRGAME_EXPORTS

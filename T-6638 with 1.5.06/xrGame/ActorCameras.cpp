@@ -134,8 +134,7 @@ ICF BOOL test_point( const Fvector	&pt, xrXRC& xrc,  const Fmatrix33& mat, const
 	return FALSE;
 }
 
-
-IC bool test_point( const Fvector	&pt, const Fmatrix33& mat, const Fvector& ext, CActor* actor  )
+IC bool test_point( const Fvector	&pt, const Fmatrix33& mat, const Fvector& ext, CActor* actor )
 {
 	Fmatrix fmat = Fidentity;
 	fmat.i.set( mat.i );
@@ -249,7 +248,7 @@ void	CActor::cam_Lookout	( const Fmatrix &xform, float camera_height )
 				Fvector	ext		= {w,h,VIEWPORT_NEAR/2};
 				Fvector				pt;
 				calc_gl_point	( pt, xform, radius, alpha );
-				if ( test_point( pt, mat, ext, this  ) )
+				if ( test_point( pt, mat, ext, this ) )
 				{
 					da			= PI/1000.f;
 					if (!fis_zero(r_torso.roll))

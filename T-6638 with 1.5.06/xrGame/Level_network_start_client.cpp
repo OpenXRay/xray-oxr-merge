@@ -37,7 +37,7 @@ bool	CLevel::net_start_client1				()
 	// Startup client
 /*
 	string256					temp;
-	xr_sprintf						(temp,"%s %s",
+	xr_sprintf					(temp,"%s %s",
 								CStringTable().translate("st_client_connecting_to").c_str(), name_of_server);
 
 	g_pGamePersistent->LoadTitle				(temp);
@@ -135,11 +135,7 @@ bool	CLevel::net_start_client4				()
 		g_pGamePersistent->LoadTitle		();
 
 		// Send physics to single or multithreaded mode
-		
 		create_physics_world				(!!psDeviceFlags.test(mtPhysics),&ObjectSpace,&Objects,&Device);
-
-
-
 		R_ASSERT							(physics_world());
 
 		m_ph_commander_physics_worldstep	= xr_new<CPHCommander>();

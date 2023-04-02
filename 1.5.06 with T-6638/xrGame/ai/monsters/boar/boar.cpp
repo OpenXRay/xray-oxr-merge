@@ -106,6 +106,7 @@ void CAI_Boar::Load(LPCSTR section)
 	anim().accel_chain_test		();
 #endif
 
+	PostLoad					(section);
 }
 
 void CAI_Boar::reinit()

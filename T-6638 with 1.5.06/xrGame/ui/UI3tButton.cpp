@@ -68,6 +68,7 @@ void CUI3tButton::PlaySoundH()
 	if (m_sound_h._handle())
 		m_sound_h.play(NULL, sm_2D);
 }
+
 void CUI3tButton::InitButton(Fvector2 pos, Fvector2 size)
 {
 	if ( m_frameline_mode )

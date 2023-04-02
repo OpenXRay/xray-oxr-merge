@@ -1,12 +1,12 @@
 #pragma once
 
 #include "state_defs.h"
+#include "control_com_defs.h"
 
 // Lain: added
 #ifdef DEBUG
 #include "debug_text_tree.h"
 #endif
-
 
 template<typename _Object>
 class CState {
@@ -37,6 +37,8 @@ public:
 			void		fill_data_with			(void *ptr_src, u32 size);
 
 			u32			time_started			() { return time_state_started; }
+
+	virtual bool		check_control_start_conditions	(ControlCom::EControlType type);
 
 	// Lain: added
 	#ifdef DEBUG

@@ -613,7 +613,7 @@ BOOL CAI_Stalker::net_Spawn			(CSE_Abstract* DC)
 	float rank_k = float(rank)/100.f;
 	m_fRankImmunity = novice_rank_immunity + (expirienced_rank_immunity - novice_rank_immunity) * rank_k;
 	m_fRankVisibility = novice_rank_visibility + (expirienced_rank_visibility - novice_rank_visibility) * rank_k;
-	m_fRankDisperison = expirienced_rank_dispersion + (expirienced_rank_dispersion - novice_rank_dispersion) * (1-rank_k);
+	m_fRankDisperison = expirienced_rank_dispersion + (novice_rank_dispersion - expirienced_rank_dispersion) * (1-rank_k);
 
 	if (!fis_zero(SpecificCharacter().panic_threshold()))
 		m_panic_threshold						= SpecificCharacter().panic_threshold();
@@ -1375,19 +1375,4 @@ bool CAI_Stalker::can_fire_right_now							( )
 bool CAI_Stalker::unlimited_ammo()
 {
 	return infinite_ammo() && CObjectHandler::planner().object().g_Alive();
-}
-
-void CAI_Stalker::eye_pp_s0						()
-{
-	inherited::eye_pp_s0	();
-
-	if (!m_eye_matrix_callback)
-		return;
-
-	m_eye_matrix_callback	(eye_matrix);
-}
-
-void CAI_Stalker::eye_matrix_callback			(EyeMatrixCallback const& callback)
-{
-	m_eye_matrix_callback	= callback;
 }

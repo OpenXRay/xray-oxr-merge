@@ -23,11 +23,11 @@
 //. #define HAVE_VISTA_HEADERS
 #endif
 
+
 #include <stdlib.h>
 #include <memory.h>
 #define AL_BUILD_LIBRARY
-//.#include <al/alc.h>
-#include "..\..\include\al\alc.h"
+#include "openal\alc.h"
 #include <stdio.h>
 #include <tchar.h>
 #include <assert.h>
@@ -55,6 +55,20 @@
 
 #include "OpenAL32.h"
 
+log_fn_ptr_type*	pLog = NULL;
+void AlLog(LPCSTR format, ...)
+{
+	if(pLog)
+	{
+		va_list		mark;
+		char	buf	[2048];
+		va_start	(mark, format );
+		int sz		= _vsnprintf(buf, sizeof(buf)-1, format, mark ); buf[sizeof(buf)-1]=0;
+		va_end		(mark);
+		if (sz)		
+			(*pLog)(buf);
+	}
+}
 
 //*****************************************************************************
 //*****************************************************************************
@@ -303,17 +317,17 @@ ALvoid BuildDeviceSpecifierList()
 {
     WIN32_FIND_DATA findData;
     HANDLE searchHandle = INVALID_HANDLE_VALUE;
-    TCHAR searchName[MAX_PATH + 1];
+    TCHAR searchName			[MAX_PATH + 1];
     BOOL found = FALSE;
-    const ALCchar* specifier = 0;
+    char* specifier				= 0;
     ALuint specifierSize = 0;
-    const ALCchar* list = alcDeviceSpecifierList;
-	const ALCchar* captureList = alcCaptureDeviceSpecifierList;
-	ALCdevice *device;
-	void *context;
+    char* list					= alcDeviceSpecifierList;
+	const char* list_end		= list+sizeof(alcDeviceSpecifierList);
+	ALCdevice* device			= NULL;
+	void* context				= NULL;
 
-
-	if (list[0] == 0) { // don't re-build lists if it's already been done once...
+	if (list[0] == 0) 
+	{ // don't re-build lists if it's already been done once...
 
 		//
 		// Directory[0] is the directory containing OpenAL32.dll
@@ -337,28 +351,33 @@ ALvoid BuildDeviceSpecifierList()
 		//
 		// Construct our search paths
 		//
-		if (GetLoadedModuleDirectory("OpenAL32.dll", dir[0], MAX_PATH)) {
+		if (GetLoadedModuleDirectory("OpenAL32.dll", dir[0], MAX_PATH)) 
+		{
             ++numDirs;
         }
+		AlLog("dir[0]=%s",dir[0]);
 
 		dirSize = GetCurrentDirectory(MAX_PATH, dir[1]);
-		_tcscat(dir[1], _T("\\"));
+		strcat_s(dir[1], _T("\\"));
 		++numDirs;
+		AlLog("dir[1]=%s",dir[1]);
 
 		GetLoadedModuleDirectory(NULL, dir[2], MAX_PATH);
 		++numDirs;
+		AlLog("dir[2]=%s",dir[2]);
 
 		dirSize = GetSystemDirectory(dir[3], MAX_PATH);
-		_tcscat(dir[3], _T("\\"));
+		strcat_s(dir[3], _T("\\"));
 		++numDirs;
+		AlLog("dir[3]=%s",dir[3]);
 
 		//
 		// Begin searching for additional OpenAL implementations.
 		//
 		for(i = 0; i < numDirs; i++)
 		{
-			_tcscpy(searchName, dir[i]);
-			_tcscat(searchName, _T("*oal.dll"));
+			strcpy_s			(searchName, dir[i]);
+			strcat_s			(searchName, _T("*oal.dll"));
 			searchHandle = FindFirstFile(searchName, &findData);
 			if(searchHandle != INVALID_HANDLE_VALUE)
 			{
@@ -367,27 +386,32 @@ ALvoid BuildDeviceSpecifierList()
 					//
 					// if this is an OpenAL32.dll, skip it -- it's probably a router and shouldn't be enumerated regardless
 					//
-					_tcscpy(searchName, dir[i]);
-					_tcscat(searchName, findData.cFileName);
+					strcpy_s(searchName, dir[i]);
+					strcat_s(searchName, findData.cFileName);
 					TCHAR cmpName[MAX_PATH];
-					_tcscpy(cmpName, searchName);
-					_tcsupr(cmpName);
+					strcpy_s(cmpName, searchName);
+					_strupr_s(cmpName);
+
 					if (strstr(cmpName, "OPENAL32.DLL") == 0)
 					{
 						// enforce search-order rules and make sure duplicate searches aren't done
 						boolean skipSearch = false;
-						if ((i == 0) && (strcmp(dir[0], dir[3]) == 0)) { // if searching router dir and router dir is sys dir, skip search
+						if ((i == 0) && (strcmp(dir[0], dir[3]) == 0)) 
+						{ // if searching router dir and router dir is sys dir, skip search
 							skipSearch = true;
 						}
-						if ((i == 2) && (strcmp(dir[2], dir[1]) == 0)) { // if searching app dir and app dir is current dir, skip search
+						if ((i == 2) && (strcmp(dir[2], dir[1]) == 0)) 
+						{ // if searching app dir and app dir is current dir, skip search
 							skipSearch = true;
 						}
-						if ((i == 3) && ((strcmp(dir[3], dir[2]) == 0) || (strcmp(dir[3], dir[1]) == 0))) {
+						if ((i == 3) && ((strcmp(dir[3], dir[2]) == 0) || (strcmp(dir[3], dir[1]) == 0))) 
+						{
 							// if searching sys dir and sys dir is either current or app directory, skip search
 							skipSearch = true;
 						}
 
-						if (skipSearch == false) {
+						if (skipSearch == false) 
+						{
 							dll = LoadLibrary(searchName);
 							if(dll)
 							{
@@ -405,37 +429,48 @@ ALvoid BuildDeviceSpecifierList()
 									(alcGetStringFxn != 0) &&
 									(alcDestroyContextFxn != 0) &&
 									(alcCloseDeviceFxn != 0) &&
-									(alcIsExtensionPresentFxn != 0)) {
+									(alcIsExtensionPresentFxn != 0)) 
+								{
 
-									if (alcIsExtensionPresentFxn(NULL, "ALC_ENUMERATION_EXT")) {
+									if (alcIsExtensionPresentFxn(NULL, "ALC_ENUMERATION_EXT")) 
+									{
 										// this DLL can enumerate devices -- so add complete list of devices
-										specifier = alcGetStringFxn(0, ALC_DEVICE_SPECIFIER);
+										specifier = (char*)alcGetStringFxn(0, ALC_DEVICE_SPECIFIER);
 										if ((specifier) && strlen(specifier))
 										{
 											do {
-												specifierSize = (ALuint)strlen((char*)specifier);
+												specifierSize = (ALuint)strlen(specifier);
 
-												if (NewSpecifierCheck(specifier)) { // make sure we're not creating a duplicate device
-													strcpy((char*)list, (char*)specifier);
+												if (NewSpecifierCheck(specifier))
+												{ // make sure we're not creating a duplicate device
+													strcpy_s(	(char*)list, 
+																list_end-list, 
+																specifier);
 													list += specifierSize + 1;
 												}
-												specifier += strlen((char *)specifier) + 1;
-											} while (strlen((char *)specifier) > 0);
+												specifier += strlen(specifier) + 1;
+											} while (strlen(specifier) > 0);
 										}
-									} else {
+									} else 
+									{
 										// no enumeration ability, -- so just add default device to the list
 										device = alcOpenDeviceFxn(NULL);
-										if (device != NULL) {
+										if (device != NULL) 
+										{
 											context = alcCreateContextFxn(device, NULL);
 											alcMakeContextCurrentFxn((ALCcontext *)context);
-											if (context != NULL) {
-												specifier = alcGetStringFxn(device, ALC_DEVICE_SPECIFIER);
+											if (context != NULL) 
+											{
+												specifier = (char*)alcGetStringFxn(device, ALC_DEVICE_SPECIFIER);
 												if ((specifier) && strlen(specifier))
 												{
-													specifierSize = (ALuint)strlen((char*)specifier);
+													specifierSize = (ALuint)strlen(specifier);
 
-													if (NewSpecifierCheck(specifier)) { // make sure we're not creating a duplicate device
-														strcpy((char*)list, (char*)specifier);
+													if (NewSpecifierCheck(specifier)) 
+													{ // make sure we're not creating a duplicate device
+														strcpy_s(	(char*)list, 
+																	list_end-list,
+																	specifier);
 														list += specifierSize + 1;
 													}
 												}
@@ -447,19 +482,22 @@ ALvoid BuildDeviceSpecifierList()
 									}
 
 									// add to capture device list
-									if (alcIsExtensionPresentFxn(NULL, "ALC_EXT_CAPTURE")) {
+									if (alcIsExtensionPresentFxn(NULL, "ALC_EXT_CAPTURE")) 
+									{
 										// this DLL supports capture -- so add complete list of capture devices
-										specifier = alcGetStringFxn(0, ALC_CAPTURE_DEVICE_SPECIFIER);
+										specifier = (char*)alcGetStringFxn(0, ALC_CAPTURE_DEVICE_SPECIFIER);
 										if ((specifier) && strlen(specifier))
 										{
-											do {
-												specifierSize = (ALuint)strlen((char*)specifier);
-												if (NewCaptureSpecifierCheck(specifier)) { // make sure we're not creating a duplicate device
-													strcpy((char*)captureList, (char*)specifier);
+											do 
+											{
+												specifierSize = (ALuint)strlen(specifier);
+												if (NewCaptureSpecifierCheck(specifier)) 
+												{ // make sure we're not creating a duplicate device
+													strcpy_s((char*)captureList, specifier);
 													captureList += specifierSize + 1;
 												}
-												specifier += strlen((char *)specifier) + 1;
-											} while (strlen((char *)specifier) > 0);
+												specifier += strlen(specifier) + 1;
+											} while (strlen(specifier) > 0);
 										}
 									}
 								}
@@ -487,8 +525,8 @@ ALvoid BuildDeviceSpecifierList()
 		//
 		// Put a terminating NULL on.
 		//
-		strcpy((char*)list, "\0");
-		strcpy((char*)captureList, "\0");
+		strcpy_s((char*)list, list_end-list, "\0");
+//.		strcpy_s((char*)captureList, "\0");
 	}
 
     return;
@@ -502,6 +540,7 @@ ALvoid BuildDeviceSpecifierList()
 //
 ALvoid CleanDeviceSpecifierList()
 {
+	AlLog("CleanDeviceSpecifierList");
     char* list = (char *)alcDeviceSpecifierList;
 	char* origListPtr = list;
 	char* newList = (char *)malloc(MAX_PATH);
@@ -518,33 +557,43 @@ ALvoid CleanDeviceSpecifierList()
 
 	// dump new terminator into copy list, so that string searches are easier
 	int len;
-	while (strlen((const char *)copyList) > 0) {
+	while (strlen((const char *)copyList) > 0) 
+	{
 		len = (int)strlen(copyList);
 		copyList[len] = ';';
 		copyList += len + 1;
 	}
 	copyList = origCopyListPtr;
 
+	AlLog("CleanDeviceSpecifierList %s", list);
 	// create new list
-	while (strlen((const char *)list) > 0) {
-		strcpy(newListPtr, list);
+	while (strlen(list) > 0) 
+	{
+		strcpy_s		(newListPtr, MAX_PATH, list);
 		advancePtr = TRUE;
-		if (strstr(newListPtr, T2A("DirectSound3D")) != NULL) {
-			if (strstr(copyList, T2A("Generic Hardware")) != NULL) {
+		if (strstr(newListPtr, T2A("DirectSound3D")) != NULL) 
+		{
+			if (strstr(copyList, T2A("Generic Hardware")) != NULL) 
+			{
 				advancePtr = FALSE;
 			}
 		}
-		if (strstr(newListPtr, T2A("DirectSound")) != NULL) {
-			if (strstr(copyList, T2A("Generic Software")) != NULL) {
+		if (strstr(newListPtr, T2A("DirectSound")) != NULL) 
+		{
+			if (strstr(copyList, T2A("Generic Software")) != NULL) 
+			{
 				advancePtr = FALSE;
 			}
 		}
-		if (strstr(newListPtr, "MMSYSTEM") != NULL) {
-			if (strstr(copyList, T2A("Generic Software")) != NULL) {
+		if (strstr(newListPtr, "MMSYSTEM") != NULL) 
+		{
+			if (strstr(copyList, T2A("Generic Software")) != NULL) 
+			{
 				advancePtr = FALSE;
 			}
 		}
-		if (advancePtr == TRUE) {
+		if (advancePtr == TRUE) 
+		{
 			newListPtr += strlen((const char *)newListPtr) + 1;
 		}
 		list += strlen((const char *)list) + 1;
@@ -805,11 +854,11 @@ HINSTANCE FindDllWithMatchingSpecifier(TCHAR* dllSearchPattern, char* specifier,
 {
     WIN32_FIND_DATA findData;
     HANDLE searchHandle = INVALID_HANDLE_VALUE;
-    TCHAR searchName[MAX_PATH + 1];
+    TCHAR searchName		[MAX_PATH + 1];
     BOOL found = FALSE;
-    const ALCchar* deviceSpecifier = 0;
-	ALCdevice *device;
-	void *context;
+    char* deviceSpecifier	= 0;
+	ALCdevice* device		= NULL;
+	void* context			= NULL;
 
     //
 	// Directory[0] is the directory containing OpenAL32.dll
@@ -834,19 +883,20 @@ HINSTANCE FindDllWithMatchingSpecifier(TCHAR* dllSearchPattern, char* specifier,
     // Construct our search paths.  We will search the current directory, the app directory,
     // the system directory, and the directory containing OpenAL32.dll, if we can find it.
     //
-	if (GetLoadedModuleDirectory("OpenAL32.dll", dir[0], MAX_PATH)) {
+	if (GetLoadedModuleDirectory("OpenAL32.dll", dir[0], MAX_PATH)) 
+	{
         ++numDirs;
     }
 
     dirSize = GetCurrentDirectory(MAX_PATH, dir[1]);
-    _tcscat(dir[1], _T("\\"));
+    strcat_s(dir[1], _T("\\"));
     ++numDirs;
 
     GetLoadedModuleDirectory(NULL, dir[2], MAX_PATH);
     ++numDirs;
 
     dirSize = GetSystemDirectory(dir[3], MAX_PATH);
-    _tcscat(dir[3], _T("\\"));
+    strcat_s(dir[3], _T("\\"));
     ++numDirs;
 
     //
@@ -854,8 +904,8 @@ HINSTANCE FindDllWithMatchingSpecifier(TCHAR* dllSearchPattern, char* specifier,
     //
 	for(i = (numDirs > 3)?0:1; i < numDirs && !found; i++)
     {
-		_tcscpy(searchName, dir[i]);
-		_tcscat(searchName, dllSearchPattern);
+		strcpy_s		(searchName, dir[i]);
+		strcat_s		(searchName, dllSearchPattern);
 		searchHandle = FindFirstFile(searchName, &findData);
 		if(searchHandle != INVALID_HANDLE_VALUE)
 		{
@@ -864,22 +914,25 @@ HINSTANCE FindDllWithMatchingSpecifier(TCHAR* dllSearchPattern, char* specifier,
 				//
 				// if this is an OpenAL32.dll, skip it -- it's probably a router and shouldn't be enumerated regardless
 				//
-				_tcscpy(searchName, dir[i]);
-				_tcscat(searchName, findData.cFileName);
-				TCHAR cmpName[MAX_PATH];
-				_tcscpy(cmpName, searchName);
-				_tcsupr(cmpName);
+				strcpy_s		(searchName, dir[i]);
+				strcat_s		(searchName, findData.cFileName);
+				TCHAR cmpName	[MAX_PATH];
+				strcpy_s		(cmpName, searchName);
+				_strupr_s		(cmpName);
 				if (strstr(cmpName, "OPENAL32.DLL") == 0)
 				{
 					// enforce search-order rules and make sure duplicate searches aren't done
 					boolean skipSearch = false;
-					if ((i == 0) && (strcmp(dir[0], dir[3]) == 0)) { // if searching router dir and router dir is sys dir, skip search
+					if ((i == 0) && (strcmp(dir[0], dir[3]) == 0)) 
+					{ // if searching router dir and router dir is sys dir, skip search
 						skipSearch = true;
 					}
-					if ((i == 2) && (strcmp(dir[2], dir[1]) == 0)) { // if searching app dir and app dir is current dir, skip search
+					if ((i == 2) && (strcmp(dir[2], dir[1]) == 0)) 
+					{ // if searching app dir and app dir is current dir, skip search
 						skipSearch = true;
 					}
-					if ((i == 3) && ((strcmp(dir[3], dir[2]) == 0) || (strcmp(dir[3], dir[1]) == 0))) {
+					if ((i == 3) && ((strcmp(dir[3], dir[2]) == 0) || (strcmp(dir[3], dir[1]) == 0))) 
+					{
 						// if searching sys dir and sys dir is either current or app directory, skip search
 						skipSearch = true;
 					}
@@ -902,84 +955,108 @@ HINSTANCE FindDllWithMatchingSpecifier(TCHAR* dllSearchPattern, char* specifier,
 								(alcGetStringFxn != 0) &&
 								(alcDestroyContextFxn != 0) &&
 								(alcCloseDeviceFxn != 0) &&
-								(alcIsExtensionPresentFxn != 0)) {
+								(alcIsExtensionPresentFxn != 0)) 
+							{
 
 								alcGetStringFxn = (ALCAPI_GET_STRING)GetProcAddress(dll, "alcGetString");
 								if(alcGetStringFxn)
 								{
-									if (captureDevice == false) {
-										if (alcIsExtensionPresentFxn(0, (ALCchar *)"ALC_ENUMERATION_EXT")) {
+									if (captureDevice == false) 
+									{
+										if (alcIsExtensionPresentFxn(0, (ALCchar *)"ALC_ENUMERATION_EXT")) 
+										{
 											// have an enumeratable DLL here, so check all available devices
-											deviceSpecifier = alcGetStringFxn(0, ALC_DEVICE_SPECIFIER);
+											deviceSpecifier = (char*)alcGetStringFxn(0, ALC_DEVICE_SPECIFIER);
 											if (deviceSpecifier)
 											{
-												do {
-													if (deviceSpecifier != NULL) {
-														if ((partialName == false) || (strstr(deviceSpecifier, "Generic") != 0)) {
+												do 
+												{
+													if (deviceSpecifier != NULL) 
+													{
+														if ((partialName == false) || (strstr(deviceSpecifier, "Generic") != 0)) 
+														{
 															found = strncmp(deviceSpecifier, specifier, 31) == 0;
 															// note -- specifier may be a non-truncated version of deviceSpecifier, which is why strncmp is being used
-														} else {
-															found = strstr((char*)deviceSpecifier, specifier) != 0;
-															if (actualName) {
-																strcpy(actualName, (char *)deviceSpecifier);
+														}else 
+														{
+															found = strstr(deviceSpecifier, specifier) != 0;
+															if (actualName) 
+															{
+																strcpy_s(actualName, MAX_DEVICE_STRINGS, deviceSpecifier);
 															}
 														}
-													} else {
+													} else 
+													{
 														found = false;
 													}
-													deviceSpecifier += strlen((char *)deviceSpecifier) + 1;
-												} while (!found && (strlen((char *)deviceSpecifier) > 0));
+													deviceSpecifier += strlen(deviceSpecifier) + 1;
+												} while (!found && (strlen(deviceSpecifier) > 0));
 											}
 										} else {
 											// no enumeration ability
 											device = alcOpenDeviceFxn(NULL);
-											if (device != NULL) {
+											if (device != NULL) 
+											{
 												context = alcCreateContextFxn(device, NULL);
 												alcMakeContextCurrentFxn((ALCcontext *)context);
-												if (context != NULL) {
-													deviceSpecifier = alcGetStringFxn(device, ALC_DEFAULT_DEVICE_SPECIFIER);
-													if (deviceSpecifier != NULL) {
-														if ((partialName == false) || (strstr(deviceSpecifier, "Generic") != 0)) {
+												if (context != NULL) 
+												{
+													deviceSpecifier = (char*)alcGetStringFxn(device, ALC_DEFAULT_DEVICE_SPECIFIER);
+													if (deviceSpecifier != NULL) 
+													{
+														if ((partialName == false) || (strstr(deviceSpecifier, "Generic") != 0)) 
+														{
 															found = strncmp(deviceSpecifier, specifier, 31) == 0;
 															// note -- specifier may be a non-truncated version of deviceSpecifier; hence the use of strncmp
-														} else {
-															found = strstr((char*)deviceSpecifier, specifier) != 0;
-															if (actualName) {
-																strcpy(actualName, (char *)deviceSpecifier);
+														} else 
+														{
+															found = strstr(deviceSpecifier, specifier) != 0;
+															if (actualName) 
+															{
+																strcpy_s(actualName, MAX_DEVICE_STRINGS, deviceSpecifier);
 															}
 														}
-													} else {
+													} else 
+													{
 														found = false;
 													}
 
-													alcMakeContextCurrentFxn((ALCcontext *)NULL);
-													alcDestroyContextFxn((ALCcontext *)context);
-													alcCloseDeviceFxn(device);
+													alcMakeContextCurrentFxn	((ALCcontext *)NULL);
+													alcDestroyContextFxn		((ALCcontext *)context);
+													alcCloseDeviceFxn			(device);
 												}
 											}
 										}
-									} else {
-										if (alcIsExtensionPresentFxn(0, (ALCchar *)"ALC_EXT_CAPTURE")) {
+									} else 
+									{
+										if (alcIsExtensionPresentFxn(0, (ALCchar *)"ALC_EXT_CAPTURE")) 
+										{
 											// so check all available capture devices
-											deviceSpecifier = alcGetStringFxn(0, ALC_CAPTURE_DEVICE_SPECIFIER);
+											deviceSpecifier = (char*)alcGetStringFxn(0, ALC_CAPTURE_DEVICE_SPECIFIER);
 											if (deviceSpecifier)
 											{
-												do {
-													if (deviceSpecifier != NULL) {
-														if (partialName == false) {
+												do 
+												{
+													if (deviceSpecifier != NULL) 
+													{
+														if (partialName == false) 
+														{
 															found = strncmp(deviceSpecifier, specifier, 31) == 0;
 															// note -- specifier may be a non-truncated version of deviceSpecifier; hence the use of strncmp
-														} else {
-															found = strstr((char*)deviceSpecifier, specifier) != 0;
-															if (actualName) {
-																strcpy(actualName, (char *)deviceSpecifier);
+														} else 
+														{
+															found = strstr(deviceSpecifier, specifier) != 0;
+															if (actualName) 
+															{
+																strcpy_s(actualName, MAX_DEVICE_STRINGS, deviceSpecifier);
 															}
 														}
-													} else {
+													} else 
+													{
 														found = false;
 													}
-													deviceSpecifier += strlen((char *)deviceSpecifier) + 1;
-												} while (!found && (strlen((char *)deviceSpecifier) > 0));
+													deviceSpecifier += strlen(deviceSpecifier) + 1;
+												} while (!found && (strlen(deviceSpecifier) > 0));
 											}
 										}
 									}
@@ -1663,19 +1740,19 @@ ALCAPI ALCdevice* ALCAPIENTRY alcOpenDevice(const ALCchar* deviceName)
     //
     if ((!deviceName) || (strcmp((char *)deviceName, "DirectSound3D") == 0))
     {
-        strncpy(newDeviceName, alcGetString(0, ALC_DEFAULT_DEVICE_SPECIFIER), 256);
+        strncpy_s(newDeviceName, alcGetString(0, ALC_DEFAULT_DEVICE_SPECIFIER), 256);
     } else {
-		strncpy(newDeviceName, deviceName, 256);
+		strncpy_s(newDeviceName, deviceName, 256);
 	}
 
 	//
 	// map legacy names to new generic names
 	// DirectSound3D mapped above to ALC_DEFAULT_DEVICE_SPECIFIER
 	if ((strcmp(newDeviceName, T2A("")) == 0) && ((!deviceName) || (strcmp((char *)deviceName, T2A("DirectSound3D"))))) {
-		strcpy(newDeviceName, T2A("Generic Hardware"));
+		strcpy_s(newDeviceName, T2A("Generic Hardware"));
 	}
 	if (strcmp(newDeviceName, T2A("DirectSound")) == 0) {
-		strcpy(newDeviceName, T2A("Generic Software"));
+		strcpy_s(newDeviceName, T2A("Generic Software"));
 	}
 
 	//
@@ -1698,7 +1775,7 @@ ALCAPI ALCdevice* ALCAPIENTRY alcOpenDevice(const ALCchar* deviceName)
     // If we still don't have a match for these default names, try the default device
     if(!dll)
     {
-        strncpy(newDeviceName, alcGetString(0, ALC_DEFAULT_DEVICE_SPECIFIER), 256);
+        strncpy_s(newDeviceName, alcGetString(0, ALC_DEFAULT_DEVICE_SPECIFIER), 256);
         dll = FindDllWithMatchingSpecifier(_T("*oal.dll"), (char*)newDeviceName);
         
     }
@@ -1810,8 +1887,8 @@ void getDefaultPlaybackDeviceNames(char *longName, char *shortName, unsigned int
 	bool bFoundOutputName = false;
 
 	// clear names
-	strcpy(longName, "");
-	strcpy(shortName, "");
+	strcpy_s(longName, MAX_DEVICE_STRINGS, "");
+	strcpy_s(shortName, MAX_DEVICE_STRINGS, "");
 
 #ifdef HAVE_VISTA_HEADERS
 	// try to grab device name through Vista Core Audio...
@@ -1872,7 +1949,7 @@ void getDefaultPlaybackDeviceNames(char *longName, char *shortName, unsigned int
 		#endif
 		#endif // !defined(_WIN64)
 		if ((shortName != NULL) && (strlen(outputInfo.szPname) <= len)) {
-			strcpy(shortName, T2A(outputInfo.szPname));
+			strcpy_s(shortName, MAX_DEVICE_STRINGS, T2A(outputInfo.szPname));
 		}
 	}
 }
@@ -1882,8 +1959,8 @@ void getDefaultCaptureDeviceNames(char *longName, char *shortName, unsigned int 
 	bool bFoundInputName = false;
 
 	// clear names
-	strcpy(longName, "");
-	strcpy(shortName, "");
+	strcpy_s(longName, MAX_DEVICE_STRINGS, "");
+	strcpy_s(shortName, MAX_DEVICE_STRINGS, "");
 
 #ifdef HAVE_VISTA_HEADERS
 	// try to grab device name through Vista Core Audio...
@@ -1944,7 +2021,7 @@ void getDefaultCaptureDeviceNames(char *longName, char *shortName, unsigned int 
 		#endif
 		#endif // !defined(_WIN64)
 		if ((shortName != NULL) && (strlen(inputInfo.szPname) <= len)) {
-			strcpy(shortName, T2A(inputInfo.szPname));
+			strcpy_s(shortName, MAX_DEVICE_STRINGS, T2A(inputInfo.szPname));
 		}
 	}
 }
@@ -2031,7 +2108,7 @@ ALCAPI const ALCchar* ALCAPIENTRY alcGetString(ALCdevice* device, ALenum param)
 					dll = FindDllWithMatchingSpecifier(_T("*oal.dll"), longDevice, false, actualName);
 					if(dll)
 					{
-						strcpy((char*)alcDefaultDeviceSpecifier, longDevice);
+						strcpy_s(alcDefaultDeviceSpecifier, longDevice);
 						FreeLibrary(dll);
 						break;
 					}
@@ -2039,20 +2116,20 @@ ALCAPI const ALCchar* ALCAPIENTRY alcGetString(ALCdevice* device, ALenum param)
 				if (strlen(mixerDevice)) { // test short device name (mixerDevice) next, with partial matches potentially...
 					if (strstr(mixerDevice, T2A("Audigy")) != NULL) {
 						acceptPartial = true;
-						strcpy(mixerDevice, T2A("Audigy"));
+						strcpy_s(mixerDevice, T2A("Audigy"));
 					}
 					if (strstr(mixerDevice, T2A("X-Fi")) != NULL) {
 						acceptPartial = true;
-						strcpy(mixerDevice, T2A("X-Fi"));
+						strcpy_s(mixerDevice, T2A("X-Fi"));
 					}
 
 					dll = FindDllWithMatchingSpecifier(_T("*oal.dll"), mixerDevice, acceptPartial, actualName);
 					if(dll)
 					{
 						if (acceptPartial == true) {
-							strcpy(mixerDevice, actualName);
+							strcpy_s(mixerDevice, actualName);
 						}
-						strcpy((char*)alcDefaultDeviceSpecifier, mixerDevice);
+						strcpy_s(alcDefaultDeviceSpecifier, mixerDevice);
 						FreeLibrary(dll);
 						break;
 					}
@@ -2065,7 +2142,7 @@ ALCAPI const ALCchar* ALCAPIENTRY alcGetString(ALCdevice* device, ALenum param)
                 dll = FindDllWithMatchingSpecifier(_T("*oal.dll"), T2A("DirectSound3D"));
                 if(dll)
                 {
-                    strcpy((char*)alcDefaultDeviceSpecifier, T2A("DirectSound3D"));
+                    strcpy_s(alcDefaultDeviceSpecifier, T2A("DirectSound3D"));
                     FreeLibrary(dll);
                     break;
                 }
@@ -2073,7 +2150,7 @@ ALCAPI const ALCchar* ALCAPIENTRY alcGetString(ALCdevice* device, ALenum param)
                 dll = FindDllWithMatchingSpecifier(_T("*oal.dll"), T2A("DirectSound"));
                 if(dll)
                 {
-                    strcpy((char*)alcDefaultDeviceSpecifier, "DirectSound");
+                    strcpy_s(alcDefaultDeviceSpecifier, "DirectSound");
                     FreeLibrary(dll);
                     break;
                 }
@@ -2081,7 +2158,7 @@ ALCAPI const ALCchar* ALCAPIENTRY alcGetString(ALCdevice* device, ALenum param)
                 dll = FindDllWithMatchingSpecifier(_T("*oal.dll"), T2A("MMSYSTEM"));
                 if(dll)
                 {
-                    strcpy((char*)alcDefaultDeviceSpecifier, "MMSYSTEM");
+                    strcpy_s(alcDefaultDeviceSpecifier, "MMSYSTEM");
                     FreeLibrary(dll);
                     break;
                 }
@@ -2089,7 +2166,7 @@ ALCAPI const ALCchar* ALCAPIENTRY alcGetString(ALCdevice* device, ALenum param)
 				 dll = FindDllWithMatchingSpecifier(_T("*oal.dll"), T2A("Generic Hardware"), true);
 				if(dll)
                 {
-                    strcpy((char*)alcDefaultDeviceSpecifier, T2A("Generic Hardware"));
+                    strcpy_s(alcDefaultDeviceSpecifier, T2A("Generic Hardware"));
                     FreeLibrary(dll);
                     break;
                 }
@@ -2097,12 +2174,12 @@ ALCAPI const ALCchar* ALCAPIENTRY alcGetString(ALCdevice* device, ALenum param)
 				dll = FindDllWithMatchingSpecifier(_T("*oal.dll"), T2A("Generic Software"), true);
 				if(dll)
                 {
-                    strcpy((char*)alcDefaultDeviceSpecifier, T2A("Generic Software"));
+                    strcpy_s(alcDefaultDeviceSpecifier, T2A("Generic Software"));
                     FreeLibrary(dll);
                     break;
                 }
 
-                memset((char*)alcDefaultDeviceSpecifier, 0, MAX_PATH * sizeof(char));
+                memset(alcDefaultDeviceSpecifier, 0, MAX_PATH * sizeof(char));
                 break;
             }
 
@@ -2150,7 +2227,7 @@ ALCAPI const ALCchar* ALCAPIENTRY alcGetString(ALCdevice* device, ALenum param)
 					dll = FindDllWithMatchingSpecifier(_T("*oal.dll"), longDevice, false, actualName, true);
 					if(dll)
 					{
-						strcpy((char*)alcCaptureDefaultDeviceSpecifier, longDevice);
+						strcpy_s(alcCaptureDefaultDeviceSpecifier, longDevice);
 						FreeLibrary(dll);
 						break;
 					}
@@ -2158,19 +2235,19 @@ ALCAPI const ALCchar* ALCAPIENTRY alcGetString(ALCdevice* device, ALenum param)
 				if (strlen(mixerDevice)) { // look for short device (mixerDevice)
 					if (strstr(mixerDevice, T2A("Audigy")) != NULL) {
 						acceptPartial = true;
-						strcpy(mixerDevice, T2A("Audigy"));
+						strcpy_s(mixerDevice, T2A("Audigy"));
 					}
 					if (strstr(mixerDevice, T2A("X-Fi")) != NULL) {
 						acceptPartial = true;
-						strcpy(mixerDevice, T2A("X-Fi"));
+						strcpy_s(mixerDevice, T2A("X-Fi"));
 					}
 					dll = FindDllWithMatchingSpecifier(_T("*oal.dll"), mixerDevice, acceptPartial, actualName, true);
 					if(dll)
 					{
 						if (acceptPartial == true) {
-							strcpy(mixerDevice, actualName);
+							strcpy_s(mixerDevice, actualName);
 						}
-						strcpy((char*)alcCaptureDefaultDeviceSpecifier, mixerDevice);
+						strcpy_s(alcCaptureDefaultDeviceSpecifier, mixerDevice);
 						FreeLibrary(dll);
 						break;
 					}
@@ -2178,7 +2255,7 @@ ALCAPI const ALCchar* ALCAPIENTRY alcGetString(ALCdevice* device, ALenum param)
 
 				// fall back to first capture device available
 				BuildDeviceSpecifierList();
-				strcpy(alcCaptureDefaultDeviceSpecifier, alcCaptureDeviceSpecifierList);
+				strcpy_s(alcCaptureDefaultDeviceSpecifier, alcCaptureDeviceSpecifierList);
                 break;
             }
 
@@ -2220,9 +2297,9 @@ ALCAPI ALCdevice * ALCAPIENTRY alcCaptureOpenDevice(const ALCchar *deviceName, A
 
 			// make sure we have a device name
 			if (!deviceName) {
-				strncpy(newDeviceName, alcGetString(0, ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER), 256);
+				strncpy_s(newDeviceName, alcGetString(0, ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER), 256);
 			} else {
-				strncpy(newDeviceName, deviceName, 256);
+				strncpy_s(newDeviceName, deviceName, 256);
 			}
 
 			g_CaptureDevice->Dll = FindDllWithMatchingSpecifier(_T("*oal.dll"), (char *)newDeviceName, false, NULL, true);

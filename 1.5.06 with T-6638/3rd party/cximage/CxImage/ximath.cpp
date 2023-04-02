@@ -2,6 +2,8 @@
 #include "ximath.h"
 #include <math.h>
 
+#pragma warning(disable:4995)
+
 //this module should contain some classes for geometrical transformations
 //usable with selections, etc... once it's done, that is. :)
 
@@ -95,3 +97,4 @@ float CxRect2::Height() const
   return topRight.y-botLeft.y;
 }
 
+#pragma warning(default:4995)

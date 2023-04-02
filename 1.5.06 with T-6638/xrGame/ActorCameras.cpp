@@ -16,14 +16,15 @@
 #include "level.h"
 #include "../xrEngine/cl_intersect.h"
 
-#include "elevatorstate.h"
+//#include "elevatorstate.h"
 #include "CharacterPhysicsSupport.h"
 #include "EffectorShot.h"
 
 #include "PHMovementControl.h"
-
-extern BOOL dbg_draw_camera_collision;
-void	collide_camera( CCameraBase & camera, float _viewport_near  );
+#include "../xrphysics/ielevatorstate.h"
+#include "../xrphysics/actorcameracollision.h"
+#include "IKLimbsController.h"
+#include "GamePersistent.h"
 
 void CActor::cam_Set	(EActorCameras style)
 {
@@ -73,8 +74,8 @@ void CActor::camUpdateLadder(float dt)
 		cam_yaw								+= delta * _min(dt*10.f,1.f) ;
 	}
 
-	CElevatorState* es = character_physics_support()->movement()->ElevatorState();
-	if(es && es->State()==CElevatorState::clbClimbingDown)
+	IElevatorState* es = character_physics_support()->movement()->ElevatorState();
+	if(es && es->State()==clbClimbingDown)
 	{
 		float &cam_pitch					= cameras[eacFirstEye]->pitch;
 		const float ldown_pitch				= cameras[eacFirstEye]->lim_pitch.y;
@@ -91,11 +92,12 @@ void CActor::cam_UnsetLadder()
 	C->lim_yaw[1]			= 0;
 	C->bClampYaw			= false;
 }
+float cammera_into_collision_shift = 0.05f;
 float CActor::CameraHeight()
 {
 	Fvector						R;
 	character_physics_support()->movement()->Box().getsize		(R);
-	return						m_fCamHeightFactor*R.y;
+	return						m_fCamHeightFactor*( R.y - cammera_into_collision_shift );
 }
 
 IC float viewport_near(float& w, float& h)
@@ -132,15 +134,16 @@ ICF BOOL test_point( const Fvector	&pt, xrXRC& xrc,  const Fmatrix33& mat, const
 	return FALSE;
 }
 
-bool test_camera_box( const Fvector &box_size, const Fmatrix &xform );
-IC bool test_point( const Fvector	&pt, const Fmatrix33& mat, const Fvector& ext  )
+IC bool test_point( const Fvector	&pt, const Fmatrix33& mat, const Fvector& ext, CActor* actor )
 {
 	Fmatrix fmat = Fidentity;
 	fmat.i.set( mat.i );
 	fmat.j.set( mat.j );
 	fmat.k.set( mat.k );
 	fmat.c.set( pt ); 
-	return test_camera_box( ext, fmat );
+	//IPhysicsShellHolder * ve = smart_cast<IPhysicsShellHolder*> ( Level().CurrentEntity() ) ;
+	VERIFY( actor );
+	return test_camera_box( ext, fmat, actor );
 }
 
 #ifdef	DEBUG
@@ -245,7 +248,7 @@ void	CActor::cam_Lookout	( const Fmatrix &xform, float camera_height )
 				Fvector	ext		= {w,h,VIEWPORT_NEAR/2};
 				Fvector				pt;
 				calc_gl_point	( pt, xform, radius, alpha );
-				if ( test_point( pt, mat, ext  ) )
+				if ( test_point( pt, mat, ext, this ) )
 				{
 					da			= PI/1000.f;
 					if (!fis_zero(r_torso.roll))
@@ -254,7 +257,7 @@ void	CActor::cam_Lookout	( const Fmatrix &xform, float camera_height )
 					{
 						Fvector				pt;
 						calc_gl_point( pt, xform, radius, angle );
-						if (test_point( pt, mat,ext )) 
+						if (test_point( pt, mat,ext, this )) 
 							{ bIntersect=TRUE; break; } 
 					}
 					valid_angle	= bIntersect?angle:alpha;
@@ -298,7 +301,7 @@ void CActor::cam_Update(float dt, float fFOV)
 	float flCurrentPlayerY	= xform.c.y;
 
 	// Smooth out stair step ups
-	if ((character_physics_support()->movement()->Environment()==peOnGround) && (flCurrentPlayerY-fPrevCamPos>0)){
+	if ((character_physics_support()->movement()->Environment()==CPHMovementControl::peOnGround) && (flCurrentPlayerY-fPrevCamPos>0)){
 		fPrevCamPos			+= dt*1.5f;
 		if (fPrevCamPos > flCurrentPlayerY)
 			fPrevCamPos		= flCurrentPlayerY;
@@ -324,8 +327,9 @@ void CActor::cam_Update(float dt, float fFOV)
 		cameras[eacFirstEye]->f_fov		= fFOV;
 	} 
 	if (Level().CurrentEntity() == this)
-		collide_camera( *cameras[eacFirstEye], _viewport_near );
-
+	{
+		collide_camera( *cameras[eacFirstEye], _viewport_near, this );
+	}
 	if( psActorFlags.test(AF_PSP) )
 	{
 		Cameras().UpdateFromCamera			(C);
@@ -386,13 +390,20 @@ void CActor::update_camera (CCameraShotEffector* effector)
 #ifdef DEBUG
 void dbg_draw_frustum (float FOV, float _FAR, float A, Fvector &P, Fvector &D, Fvector &U);
 extern	Flags32	dbg_net_Draw_Flags;
+extern	BOOL g_bDrawBulletHit;
 
 void CActor::OnRender	()
 {
+#ifdef DEBUG
+	if (inventory().ActiveItem())
+		inventory().ActiveItem()->OnRender();
+#endif
 	if (!bDebug)				return;
 
 	if ((dbg_net_Draw_Flags.is_any(dbg_draw_actor_phys)))
 		character_physics_support()->movement()->dbg_Draw	();
+
+	
 
 	OnRender_Network();
 

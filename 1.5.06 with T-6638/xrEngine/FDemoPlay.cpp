@@ -29,10 +29,10 @@ CDemoPlay::CDemoPlay(const char *name, float ms, u32 cycles, float life_time) : 
 	m_pMotion			= 0;
 	m_MParam			= 0;
 	string_path			nm, fn;
-	strcpy_s			(nm,sizeof(nm),name);	
+	xr_strcpy			(nm,sizeof(nm),name);	
 	LPSTR extp			=strext(nm);
 	if (extp)	
-		strcpy_s			( nm, sizeof( nm ) - ( extp - nm ), ".anm");
+		xr_strcpy			( nm, sizeof( nm ) - ( extp - nm ), ".anm");
 
 	if ( FS.exist(fn,"$level$",nm) || FS.exist(fn,"$game_anims$",nm) )
 	{
@@ -159,9 +159,9 @@ void CDemoPlay::stat_Stop	()
 		string_path			fname;
 
 		if(xr_strlen(g_sBenchmarkName))
-			sprintf_s	(fname,sizeof(fname),"%s.result",g_sBenchmarkName);
+			xr_sprintf	(fname,sizeof(fname),"%s.result",g_sBenchmarkName);
 		else
-			strcpy_s	(fname,sizeof(fname),"benchmark.result");
+			xr_strcpy	(fname,sizeof(fname),"benchmark.result");
 
 
 		FS.update_path		(fname,"$app_data_root$",fname);
@@ -174,7 +174,7 @@ void CDemoPlay::stat_Stop	()
 		for (u32	it=1; it<stat_table.size(); it++)
 		{
 			string32		id;
-			sprintf_s		(id,sizeof(id),"%7d",it);
+			xr_sprintf		(id,sizeof(id),"%7d",it);
 			for (u32 c=0; id[c]; c++) if (' '==id[c]) id[c] = '0';
 			res.w_float		("per_frame_stats",	id, 1.f / stat_table[it]);
 		}

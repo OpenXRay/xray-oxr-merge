@@ -6,6 +6,8 @@
 #include "ximage.h"
 #include "ximath.h"
 
+#pragma warning(disable:4995)
+
 #if CXIMAGE_SUPPORT_INTERPOLATION
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1054,3 +1056,6 @@ float CxImage::KernelPower(const float x, const float a)
 ////////////////////////////////////////////////////////////////////////////////
 
 #endif
+
+
+#pragma warning(default:4995)

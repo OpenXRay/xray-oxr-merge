@@ -16,7 +16,6 @@
 CMapSpot::CMapSpot(CMapLocation* ml)
 :m_map_location(ml)
 {
-	ClipperOn			();
 	m_bScale			= false;
 	m_location_level    = 0;
 	m_border_static		= NULL;
@@ -51,9 +50,9 @@ void CMapSpot::Load(CUIXml* xml, LPCSTR path)
 	strconcat			(sizeof(str), str, path, ":static_border");
 	if ( xml->NavigateToNode(str) )
 	{
-		m_border_static	= UIHelper::CreateStatic( *xml, str, this );
-		m_border_static->Show( false );
-		if(UI()->is_16_9_mode() && !Heading())
+		m_border_static			= UIHelper::CreateStatic( *xml, str, this );
+		m_border_static->Show	( false );
+		if (UI()->is_16_9_mode() && !Heading())
 		{
 			m_border_static->SetWidth			(m_border_static->GetWidth()/1.2f);
 			m_border_static->SetStretchTexture	(true);
@@ -156,7 +155,7 @@ void CMiniMapSpot::Load(CUIXml* xml, LPCSTR path)
 	base_rect.x2 = xml->ReadAttribFlt(path, 0, "width", 0);
 	base_rect.y2 = xml->ReadAttribFlt(path, 0, "height", 0);
 
-	Frect _stored_rect = m_UIStaticItem.GetOriginalRect();
+	Frect _stored_rect = m_UIStaticItem.GetTextureRect();
 
 	strconcat(sizeof(buf), buf, path, ":texture_above");
 	n = xml->NavigateToNode(buf,0);
@@ -171,7 +170,7 @@ void CMiniMapSpot::Load(CUIXml* xml, LPCSTR path)
 			float height			= xml->ReadAttribFlt(buf, 0, "height", base_rect.height());
 			m_tex_rect_above.set	(x,y,x+width,y+height);
 		}else
-			m_tex_rect_above		= m_UIStaticItem.GetOriginalRect();
+			m_tex_rect_above		= m_UIStaticItem.GetTextureRect();
 
 		m_icon_above				= m_UIStaticItem.GetShader		();
 	}
@@ -189,7 +188,7 @@ void CMiniMapSpot::Load(CUIXml* xml, LPCSTR path)
 			float height			= xml->ReadAttribFlt(buf, 0, "height", base_rect.height());
 			m_tex_rect_below.set	(x,y,x+width,y+height);
 		}else
-			m_tex_rect_below		= m_UIStaticItem.GetOriginalRect();
+			m_tex_rect_below		= m_UIStaticItem.GetTextureRect();
 
 		m_icon_below				= m_UIStaticItem.GetShader		();
 	}
@@ -206,12 +205,12 @@ void CMiniMapSpot::Load(CUIXml* xml, LPCSTR path)
 			float height			= xml->ReadAttribFlt(buf, 0, "height", base_rect.height());
 			m_tex_rect_normal.set	(x,y,x+width,y+height);
 		}else
-			m_tex_rect_normal		= m_UIStaticItem.GetOriginalRect();
+			m_tex_rect_normal		= m_UIStaticItem.GetTextureRect();
 
 		m_icon_normal				= m_UIStaticItem.GetShader		();
 	}
 
-	m_UIStaticItem.SetOriginalRect	(_stored_rect);
+	m_UIStaticItem.SetTextureRect	(_stored_rect);
 }
 
 void CMiniMapSpot::Draw()
@@ -222,15 +221,15 @@ void CMiniMapSpot::Draw()
 		float d = O->Position().y-ml_y;
 
 		if(d>1.8f){
-			GetUIStaticItem().SetShader(m_icon_below);
-			GetUIStaticItem().SetOriginalRect(m_tex_rect_below.x1,m_tex_rect_below.y1,m_tex_rect_below.width(),m_tex_rect_below.height());
+			GetUIStaticItem().SetShader			(m_icon_below);
+			GetUIStaticItem().SetTextureRect	(m_tex_rect_below.x1,m_tex_rect_below.y1,m_tex_rect_below.width(),m_tex_rect_below.height());
 		}else
 		if(d<-1.8f){
-			GetUIStaticItem().SetShader(m_icon_above);
-			GetUIStaticItem().SetOriginalRect(m_tex_rect_above.x1,m_tex_rect_above.y1,m_tex_rect_above.width(),m_tex_rect_above.height());
+			GetUIStaticItem().SetShader			(m_icon_above);
+			GetUIStaticItem().SetTextureRect	(m_tex_rect_above.x1,m_tex_rect_above.y1,m_tex_rect_above.width(),m_tex_rect_above.height());
 		}else{
-			GetUIStaticItem().SetShader(m_icon_normal);
-			GetUIStaticItem().SetOriginalRect(m_tex_rect_normal.x1,m_tex_rect_normal.y1,m_tex_rect_normal.width(),m_tex_rect_normal.height());
+			GetUIStaticItem().SetShader			(m_icon_normal);
+			GetUIStaticItem().SetTextureRect	(m_tex_rect_normal.x1,m_tex_rect_normal.y1,m_tex_rect_normal.width(),m_tex_rect_normal.height());
 		}
 	};
 
@@ -244,13 +243,13 @@ void CUIStaticOrig::InitWndOrigin()
 	m_origin_size = GetWndSize();
 }
 
-void CUIStaticOrig::ScaleOrigin( float k )
+void CUIStaticOrig::ScaleOrigin(float k)
 {
-	SetWndPos(  Fvector2().set( m_origin_pos.x  * k, m_origin_pos.y  * k ) );
-	SetWndSize( Fvector2().set( m_origin_size.x * k, m_origin_size.y * k ) );
+	SetWndPos		(Fvector2().set(m_origin_pos.x  * k, m_origin_pos.y  * k));
+	SetWndSize		(Fvector2().set(m_origin_size.x * k, m_origin_size.y * k));
 }
 
-CComplexMapSpot::CComplexMapSpot( CMapLocation* ml )
+CComplexMapSpot::CComplexMapSpot(CMapLocation* ml)
 	: inherited(ml)
 {
 	m_infinity_time = false;
@@ -266,49 +265,45 @@ CComplexMapSpot::~CComplexMapSpot()
 {
 }
 
-CUIStaticOrig* CComplexMapSpot::CreateStaticOrig( CUIXml& xml, LPCSTR ui_path )
+CUIStaticOrig* CComplexMapSpot::CreateStaticOrig(CUIXml& xml, LPCSTR ui_path)
 {
 	CUIStaticOrig* ui = xr_new<CUIStaticOrig>();
-	AttachChild( ui );
-	ui->SetAutoDelete( true );
-	CUIXmlInit::InitStatic( xml, ui_path, 0, ui );
-	ui->InitWndOrigin();
+	AttachChild				(ui);
+	ui->SetAutoDelete		(true);
+	CUIXmlInit::InitStatic	(xml, ui_path, 0, ui);
+	ui->InitWndOrigin		();
 	return ui;
 }
 
 void CComplexMapSpot::Load( CUIXml* xml, LPCSTR path ) // complex_spot_template
 {
-	inherited::Load( xml, path );
-//	inherited::TextureOff(); //self	
+	inherited::Load			(xml, path);
 
-	XML_NODE* stored_root = xml->GetLocalRoot();
-	XML_NODE* node = xml->NavigateToNode( path, 0 );
-	xml->SetLocalRoot( node );
+	XML_NODE* stored_root	= xml->GetLocalRoot();
+	XML_NODE* node			= xml->NavigateToNode( path, 0 );
+	xml->SetLocalRoot		(node);
 
-	m_left_icon		= CreateStaticOrig( *xml, "left_icon" );
-	m_right_icon	= CreateStaticOrig( *xml, "right_icon" );
-	m_top_icon		= CreateStaticOrig( *xml, "top_icon" );
-	m_timer			= CreateStaticOrig( *xml, "timer" );
+	m_left_icon				= CreateStaticOrig(*xml, "left_icon");
+	m_right_icon			= CreateStaticOrig(*xml, "right_icon");
+	m_top_icon				= CreateStaticOrig(*xml, "top_icon");
+	m_timer					= CreateStaticOrig(*xml, "timer");
 
-	xml->SetLocalRoot( stored_root );
-	
-//	m_pin_point = GetWndSize();
-//	m_pin_point.mul( 0.5f );
+	xml->SetLocalRoot		(stored_root);
 }
 
-void CComplexMapSpot::SetTimerFinish( ALife::_TIME_ID time ) // ms
+void CComplexMapSpot::SetTimerFinish(ALife::_TIME_ID time) // ms
 {
 	if ( time <= 0 )
 	{
-		m_timer_finish = 0;
-		m_infinity_time = true;
-		m_timer->Show( false );
+		m_timer_finish		= 0;
+		m_infinity_time		= true;
+		m_timer->Show		(false);
 	}
 	else
 	{
-		m_timer_finish = time;
-		m_infinity_time = false;
-		m_timer->Show( true );
+		m_timer_finish		= time;
+		m_infinity_time		= false;
+		m_timer->Show		(true);
 	}
 }
 

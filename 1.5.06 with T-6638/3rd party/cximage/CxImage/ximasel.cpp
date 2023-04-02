@@ -5,6 +5,8 @@
 
 #include "ximage.h"
 
+#pragma warning(disable:4995)
+
 #if CXIMAGE_SUPPORT_SELECTION
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -695,3 +697,5 @@ bool CxImage::SelectionToHRGN(HRGN& region)
 #endif //CXIMAGE_SUPPORT_WINDOWS
 ////////////////////////////////////////////////////////////////////////////////
 #endif //CXIMAGE_SUPPORT_SELECTION
+
+#pragma warning(default:4995)

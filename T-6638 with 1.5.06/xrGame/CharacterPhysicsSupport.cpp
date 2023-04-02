@@ -242,9 +242,7 @@ void CCharacterPhysicsSupport::in_NetSpawn( CSE_Abstract* e )
 	anim_mov_state.active = m_EntityAlife.animation_movement_controlled( );
 	CInifile * ini = m_EntityAlife.spawn_ini			();
 	if(ini && ini->section_exist("physics") && ini->line_exist("physics","controller_can_be_moved_by_player") )
-		m_PhysicMovementControl->SetActorMovable(!! ini->r_bool("physics","controller_can_be_moved_by_player") );
-
-		
+		m_PhysicMovementControl->SetActorMovable(!! ini->r_bool("physics","controller_can_be_moved_by_player") );	
 }
 
 bool		CCharacterPhysicsSupport::CollisionCorrectObjPos( )
@@ -1250,7 +1248,6 @@ if( dbg_draw_ragdoll_spawn )
 
 void CCharacterPhysicsSupport::in_ChangeVisual()
 {
-	
 	IKinematicsAnimated* KA = smart_cast<IKinematicsAnimated*>( m_EntityAlife.Visual( ) );
 	if(m_ik_controller)
 	{

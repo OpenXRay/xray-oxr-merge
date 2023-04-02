@@ -322,7 +322,6 @@ CLevel::~CLevel()
 
 	if(g_tutorial2 && g_tutorial2->m_pStoredInputReceiver==this)
 		g_tutorial2->m_pStoredInputReceiver = NULL;
-
 	
 	if (IsDemoPlay())
 	{
@@ -931,7 +930,7 @@ void CLevel::OnEvent(EVENT E, u64 P1, u64 /**P2/**/)
 		char* name = (char*)P1;
 		string_path RealName;
 		xr_strcpy		(RealName,name);
-		xr_strcat			(RealName,".xrdemo");
+		xr_strcat		(RealName,".xrdemo");
 		Cameras().AddCamEffector(xr_new<CDemoPlay> (RealName,1.3f,0));
 	} else if (E==eChangeTrack && P1) {
 		// int id = atoi((char*)P1);

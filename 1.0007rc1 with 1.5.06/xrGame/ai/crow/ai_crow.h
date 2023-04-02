@@ -7,11 +7,11 @@
 #define __XRAY_AI_CROW__
 
 #include "../../entity_alive.h"
-#include "../../../SkeletonAnimated.h"
+#include "../../../Include/xrRender/KinematicsAnimated.h"
 
 class CMotionDef;
 class CBlend;
-class CKinematicsAnimated;
+class IKinematicsAnimated;
 
 class CAI_Crow : public CEntity
 {
@@ -34,7 +34,7 @@ class CAI_Crow : public CEntity
 		typedef			svector<MotionID,MAX_ANIM_COUNT> MotionSVec;
 		MotionSVec		m_Animations;
 		const MotionID	&GetRandom	(){return m_Animations[Random.randI(0,m_Animations.size())];}
-		void			Load		(CKinematicsAnimated* visual, LPCSTR prefix);
+		void			Load		(IKinematicsAnimated* visual, LPCSTR prefix);
 	};
 
 	struct SSound
@@ -135,6 +135,13 @@ public:
 	virtual bool	IsVisibleForZones()			{ return false;		}
 	virtual BOOL	UsedAI_Locations()			;
 	virtual void	create_physic_shell	()		;
+
+public:
+	DECLARE_SCRIPT_REGISTER_FUNCTION
 };
+
+add_to_type_list(CAI_Crow)
+#undef script_type_list
+#define script_type_list save_type_list(CAI_Crow)
 
 #endif

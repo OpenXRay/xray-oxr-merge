@@ -369,7 +369,6 @@ void CAI_Stalker::update_best_item_info	()
 
 void CAI_Stalker::update_best_item_info_impl()
 {
-
 	ai().ef_storage().alife_evaluation(false);
 	if	(
 			m_item_actuality &&

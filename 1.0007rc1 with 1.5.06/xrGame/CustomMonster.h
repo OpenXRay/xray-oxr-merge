@@ -6,10 +6,10 @@
 
 #include "entity_alive.h"
 #include "script_entity.h"
-#include "../feel_vision.h"
-#include "../feel_sound.h"
-#include "../feel_touch.h"
-#include "../skeletonanimated.h"
+#include "../xrEngine/feel_vision.h"
+#include "../xrEngine/feel_sound.h"
+#include "../xrEngine/feel_touch.h"
+#include "../Include/xrRender/Kinematics.h"
 #include "associative_vector.h"
 
 namespace MonsterSpace {
@@ -17,7 +17,7 @@ namespace MonsterSpace {
 };
 
 class CMotionDef;
-class CKinematicsAnimated;
+class IKinematicsAnimated;
 class CMemoryManager;
 class CItemManager;
 class CEnemyManager;
@@ -26,6 +26,7 @@ class CMovementManager;
 class CSoundPlayer;
 class CAI_Stalker;
 class CDangerObject;
+class moving_object;
 
 class CCustomMonster : 
 	public CEntityAlive, 
@@ -55,7 +56,7 @@ protected:
 		MotionID		ls;
 		MotionID		rs;
 
-		void			Create(CKinematicsAnimated* K, LPCSTR base);
+		void			Create(IKinematicsAnimated* K, LPCSTR base);
 	};
 
 private:
@@ -122,7 +123,7 @@ public:
 	virtual void		Exec_Action				( float dt );
 	virtual void		Exec_Look				( float dt );
 	void	__stdcall	Exec_Visibility			( );
-	void				eye_pp_s0				( );
+	virtual void		eye_pp_s0				( );
 	void				eye_pp_s1				( );
 	void				eye_pp_s2				( );
 
@@ -308,6 +309,15 @@ public:
 	IC		void					invulnerable								(const bool &invulnerable);
 	IC		bool					invulnerable								() const;
 
+private:
+	moving_object					*m_moving_object;
+
+public:
+	IC			moving_object		*get_moving_object	() const;
+	virtual		void				spatial_move		();
+	virtual		Fvector				predict_position	(const float &time_to_check) const;
+	virtual		Fvector				target_position		() const;
+
 protected:
 	bool	m_update_rotation_on_frame;
 
@@ -315,7 +325,7 @@ private:
 	bool	m_movement_enabled_before_animation_controller;
 
 public:
-	virtual	void					create_anim_mov_ctrl						(CBlend *b);
+	virtual	void					create_anim_mov_ctrl						( CBlend *b, Fmatrix *start_pose, bool local_animation  );
 	virtual	void					destroy_anim_mov_ctrl						();
 };
 

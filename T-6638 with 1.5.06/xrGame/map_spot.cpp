@@ -55,7 +55,7 @@ void CMapSpot::Load(CUIXml* xml, LPCSTR path)
 	{
 		m_border_static			= UIHelper::CreateStatic( *xml, str, this );
 		m_border_static->Show	( false );
-		if(!Heading())
+		if (!Heading())
 		{
 			m_border_static->SetWidth			(m_border_static->GetWidth()*UI().get_current_kx());
 			m_border_static->SetStretchTexture	(true);
@@ -306,7 +306,8 @@ void CComplexMapSpot::SetTimerFinish(ALife::_TIME_ID time) // ms
 		m_timer_finish		= 0;
 		m_infinity_time		= true;
 		m_timer->Show		(false);
-	}else
+	}
+	else
 	{
 		m_timer_finish		= time;
 		m_infinity_time		= false;
@@ -334,7 +335,7 @@ void CComplexMapSpot::Update()
 			if ( !m_infinity_time )
 			{
 				ALife::_TIME_ID dt = m_timer_finish - Level().GetGameTime();
-				m_timer->TextItemControl()->SetText( GetTimeAsString( dt, InventoryUtilities::etpTimeToMinutes, ':', false ).c_str() );
+				m_timer->SetText( GetTimeAsString( dt, InventoryUtilities::etpTimeToMinutes, ':', false ).c_str() );
 			}
 		}
 	}

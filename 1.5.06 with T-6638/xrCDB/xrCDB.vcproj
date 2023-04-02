@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="9.00"
 	Name="xrCDB"
 	ProjectGUID="{A19B1DF2-82EC-4364-8BDF-85D13A1C89B5}"
+	RootNamespace="xrCDB"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -106,6 +108,8 @@
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				LinkTimeCodeGeneration="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="..\..\..\libraries\$(ProjectName).lib"
 				TargetMachine="0"
 			/>
@@ -126,9 +130,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -212,6 +213,8 @@
 				MapFileName="$(OutDir)/$(ProjectName).map"
 				SubSystem="2"
 				LargeAddressAware="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="..\..\..\libraries\$(ProjectName).lib"
 				TargetMachine="0"
 			/>
@@ -232,9 +235,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -323,6 +323,8 @@
 				MapFileName=""
 				MapExports="false"
 				LargeAddressAware="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="..\..\..\libraries\$(ProjectName).lib"
 				TargetMachine="0"
 			/>
@@ -343,9 +345,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -1587,6 +1586,62 @@
 			</File>
 			<File
 				RelativePath=".\ReadMe.txt"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="engine"
+			>
+			<File
+				RelativePath=".\ISpatial.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ISpatial.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ISpatial_q_box.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ISpatial_q_frustum.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ISpatial_q_ray.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ISpatial_verify.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\xr_area.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\xr_area.h"
+				>
+			</File>
+			<File
+				RelativePath=".\xr_area_query.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\xr_area_raypick.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\xr_collide_defs.h"
+				>
+			</File>
+			<File
+				RelativePath=".\xrXRC.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\xrXRC.h"
 				>
 			</File>
 		</Filter>

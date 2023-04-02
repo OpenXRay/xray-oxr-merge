@@ -2,6 +2,9 @@
 #include "ai_monster_squad.h"
 #include "../../entity.h"
 #include "../../entity_alive.h"
+#include "../../memory_manager.h"
+
+#include "basemonster/base_monster.h"
 
 CMonsterSquad::CMonsterSquad() : leader(0), m_home_danger_end_tick(0), m_home_danger_mode_time(8000)
 {
@@ -87,6 +90,22 @@ void CMonsterSquad::UpdateGoal(CEntity *pE, const SMemberGoal &goal)
 	VERIFY(it != m_goals.end());
 
 	it->second = goal;
+}
+
+void CMonsterSquad::InformSquadAboutEnemy(CEntityAlive const * const enemy)
+{
+	for ( MEMBER_GOAL_MAP_IT	it	=	m_goals.begin();
+								it	!=	m_goals.end();
+							  ++it )
+	{
+		CBaseMonster* monster	=	smart_cast<CBaseMonster*>(it->first);
+
+		if ( monster )
+		{
+			monster->EnemyMan.add_enemy(enemy);
+//			monster->memory().make_object_visible_somewhen(enemy);
+		}
+	}
 }
 
 void CMonsterSquad::UpdateCommand(const CEntity *pE, const SSquadCommand &com)

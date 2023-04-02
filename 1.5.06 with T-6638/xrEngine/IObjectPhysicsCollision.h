@@ -1,7 +1,7 @@
 #pragma once
 
-xr_pure_interface IPhysicsShell;
-xr_pure_interface IPhysicsElement;
+class IPhysicsShell;
+class IPhysicsElement;
 xr_pure_interface IObjectPhysicsCollision
 {
 public:

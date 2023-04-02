@@ -64,20 +64,20 @@ CActor*			Actor()
 //--------------------------------------------------------------------
 void	CActor::ConvState(u32 mstate_rl, string128 *buf)
 {
-	strcpy_s(*buf,"");
-	if (isActorAccelerated(mstate_rl, IsZoomAimingMode()))		strcat(*buf,"Accel ");
-	if (mstate_rl&mcCrouch)		strcat(*buf,"Crouch ");
-	if (mstate_rl&mcFwd)		strcat(*buf,"Fwd ");
-	if (mstate_rl&mcBack)		strcat(*buf,"Back ");
-	if (mstate_rl&mcLStrafe)	strcat(*buf,"LStrafe ");
-	if (mstate_rl&mcRStrafe)	strcat(*buf,"RStrafe ");
-	if (mstate_rl&mcJump)		strcat(*buf,"Jump ");
-	if (mstate_rl&mcFall)		strcat(*buf,"Fall ");
-	if (mstate_rl&mcTurn)		strcat(*buf,"Turn ");
-	if (mstate_rl&mcLanding)	strcat(*buf,"Landing ");
-	if (mstate_rl&mcLLookout)	strcat(*buf,"LLookout ");
-	if (mstate_rl&mcRLookout)	strcat(*buf,"RLookout ");
-	if (m_bJumpKeyPressed)		strcat(*buf,"+Jumping ");
+	xr_strcpy(*buf,"");
+	if (isActorAccelerated(mstate_rl, IsZoomAimingMode()))		xr_strcat(*buf,"Accel ");
+	if (mstate_rl&mcCrouch)		xr_strcat(*buf,"Crouch ");
+	if (mstate_rl&mcFwd)		xr_strcat(*buf,"Fwd ");
+	if (mstate_rl&mcBack)		xr_strcat(*buf,"Back ");
+	if (mstate_rl&mcLStrafe)	xr_strcat(*buf,"LStrafe ");
+	if (mstate_rl&mcRStrafe)	xr_strcat(*buf,"RStrafe ");
+	if (mstate_rl&mcJump)		xr_strcat(*buf,"Jump ");
+	if (mstate_rl&mcFall)		xr_strcat(*buf,"Fall ");
+	if (mstate_rl&mcTurn)		xr_strcat(*buf,"Turn ");
+	if (mstate_rl&mcLanding)	xr_strcat(*buf,"Landing ");
+	if (mstate_rl&mcLLookout)	xr_strcat(*buf,"LLookout ");
+	if (mstate_rl&mcRLookout)	xr_strcat(*buf,"RLookout ");
+	if (m_bJumpKeyPressed)		xr_strcat(*buf,"+Jumping ");
 };
 //--------------------------------------------------------------------
 void CActor::net_Export	(NET_Packet& P)					// export to server
@@ -315,7 +315,10 @@ void		CActor::net_Import_Base				( NET_Packet& P)
 	P.r_float /*r_angle8*/			(N.o_model		);
 	P.r_float /*r_angle8*/			(N.o_torso.yaw	); 
 	P.r_float /*r_angle8*/			(N.o_torso.pitch);
-	P.r_float /*r_angle8*/			(N.o_torso.roll	); if (N.o_torso.roll > PI) N.o_torso.roll -= PI_MUL_2;
+	P.r_float /*r_angle8*/			(N.o_torso.roll	);
+
+	if (N.o_torso.roll > PI) N.o_torso.roll -= PI_MUL_2;
+
 	id_Team				= P.r_u8();
 	id_Squad			= P.r_u8();
 	id_Group			= P.r_u8();
@@ -362,11 +365,11 @@ void		CActor::net_Import_Base				( NET_Packet& P)
 	if (OnClient())
 	//------------------------------------------------
 	{
-		if (ActiveSlot == 0xff) inventory().SetActiveSlot(NO_ACTIVE_SLOT);
+		if (ActiveSlot == NO_ACTIVE_SLOT) inventory().SetActiveSlot(NO_ACTIVE_SLOT);
 		else 
 		{
-			if (inventory().GetActiveSlot() != u32(ActiveSlot))
-				inventory().Activate(u32(ActiveSlot));
+			if (inventory().GetActiveSlot() != u16(ActiveSlot))
+				inventory().Activate(ActiveSlot);
 		};
 	}
 
@@ -473,7 +476,7 @@ void		CActor::net_Import_Physic			( NET_Packet& P)
 			}
 			else
 			{
-				VERIFY(valid_pos(N_A.State.position,phBoundaries));
+				VERIFY(valid_pos(N_A.State.position,ph_boundaries()));
 				NET_A.push_back			(N_A);
 				if (NET_A.size()>5) NET_A.pop_front();
 			};
@@ -542,7 +545,7 @@ BOOL CActor::net_Spawn		(CSE_Abstract* DC)
 	//убрать все артефакты с пояса
 	m_ArtefactsOnBelt.clear();
 //.	if(	TRUE == E->s_flags.test(M_SPAWN_OBJECT_LOCAL) && TRUE == E->s_flags.is(M_SPAWN_OBJECT_ASPLAYER))
-//.		HUD().GetUI()->UIMainIngameWnd->m_artefactPanel->InitIcons(m_ArtefactsOnBelt);
+//.		CurrentGameUI()->UIMainIngameWnd->m_artefactPanel->InitIcons(m_ArtefactsOnBelt);
 		
 
 	ROS()->force_mode	(IRender_ObjectSpecific::TRACE_ALL);
@@ -737,12 +740,12 @@ void CActor::net_Destroy	()
 
 	Engine.Sheduler.Unregister	(this);
 
-	if(	CActor::actor_camera_shell && 
-		CActor::actor_camera_shell->get_ElementByStoreOrder( 0 )->PhysicsRefObject() 
+	if(	actor_camera_shell && 
+		actor_camera_shell->get_ElementByStoreOrder( 0 )->PhysicsRefObject() 
 			== 
 		this
 		) 
-		destroy_physics_shell( CActor::actor_camera_shell );
+		destroy_physics_shell( actor_camera_shell );
 }
 
 void CActor::net_Relcase	(CObject* O)
@@ -813,7 +816,6 @@ void	CActor::ResetCallbacks()
 
 void	CActor::OnChangeVisual()
 {
-///	inherited::OnChangeVisual();
 	{
 		CPhysicsShell* tmp_shell=PPhysicsShell();
 		PPhysicsShell()=NULL;
@@ -901,7 +903,7 @@ void CActor::PH_B_CrPr		()	// actions & operations before physic correction-pred
 	//just set last update data for now
 //	if (!m_bHasUpdate) return;	
 	if (CrPr_IsActivated()) return;
-	if (CrPr_GetActivationStep() > ph_world->m_steps_num) return;
+	if (CrPr_GetActivationStep() > physics_world()->StepsNum()) return;
 
 	if (g_Alive())
 	{
@@ -1016,6 +1018,7 @@ void CActor::PH_A_CrPr		()
 	pSyncObj->set_State(RecalculatedState);
 	////////////////////////////////////
 	if (!m_bInterpolate) return;
+
 	////////////////////////////////////
 	mstate_wishful = mstate_real = NET_Last.mstate;
 	CalculateInterpolationParams();
@@ -1124,7 +1127,7 @@ void	CActor::CalculateInterpolationParams()
 	float lV0 = State0.linear_vel.magnitude();
 	float lV1 = State1.linear_vel.magnitude();
 
-	u32		ConstTime = u32((fixed_step - ph_world->m_frame_time)*1000)+ Level().GetInterpolationSteps()*u32(fixed_step*1000);
+	u32		ConstTime = u32((fixed_step - physics_world()->FrameTime())*1000)+ Level().GetInterpolationSteps()*u32(fixed_step*1000);
 
 	m_dwIStartTime = m_dwILastUpdateTime;
 	
@@ -1974,22 +1977,20 @@ bool				CActor::Check_for_BackStab_Bone			(u16 element)
 	return false;
 }
 
-bool				CActor::InventoryAllowSprint			()
+bool CActor::InventoryAllowSprint()
 {
 	PIItem pActiveItem = inventory().ActiveItem();
 	if (pActiveItem && !pActiveItem->IsSprintAllowed())
-	{
 		return false;
-	};
+
 	PIItem pOutfitItem = inventory().ItemFromSlot(OUTFIT_SLOT);
 	if (pOutfitItem && !pOutfitItem->IsSprintAllowed())
-	{
 		return false;
-	}
+
 	return true;
 };
 
-BOOL				CActor::BonePassBullet					(int boneID)
+BOOL CActor::BonePassBullet(int boneID)
 {
 	if (GameID() == eGameIDSingle) return inherited::BonePassBullet(boneID);
 
@@ -2003,7 +2004,7 @@ BOOL				CActor::BonePassBullet					(int boneID)
 	return pOutfit->BonePassBullet(boneID);
 }
 
-void			CActor::On_B_NotCurrentEntity		()
+void CActor::On_B_NotCurrentEntity()
 {
 #ifndef MASTER_GOLD
 	Msg("CActor::On_B_NotCurrentEntity");

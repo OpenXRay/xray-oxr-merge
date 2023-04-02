@@ -23,6 +23,14 @@ struct ServerInfo;
 #define DIF_HEIGHT		180
 #define LST_COLUMN_COUNT	7
 
+enum enum_connect_error
+{
+	ece_unique_nick_not_registred	=	0x01,
+	ece_unique_nick_expired
+};//enum enum_connect_errors
+
+typedef mixed_delegate<void (enum_connect_error, char const *)> connect_error_cb;
+
 class SServerFilters{
 public:
 	bool	empty;
@@ -47,6 +55,7 @@ public:
 			void 	AddServerToList		(ServerInfo* pServerInfo);
 			void 	UpdateServerInList	(ServerInfo* pServerInfo, int index);
 			void 	UpdateServerInList	(ServerInfo* pServerInfo, CUIListItemServer* pItem);
+			void	SetConnectionErrCb	(connect_error_cb conn_err_cb) { m_connect_cb = conn_err_cb; }
 			void 	ConnectToSelected	();
 			void 	SetFilters			(SServerFilters& sf);
 			void 	SetPlayerName		(LPCSTR name);
@@ -89,7 +98,7 @@ protected:
 	SServerFilters	m_sf;
 	CUIListWnd		m_list[3];
 	CUIFrameWindow	m_frame[3];
-	CUI3tButtonEx	m_header[LST_COLUMN_COUNT];
+	CUI3tButton		m_header[LST_COLUMN_COUNT];
 	CUIFrameLineWnd	m_header2[4];
 	CUIFrameLineWnd	m_header_frames[LST_COLUMN_COUNT];
 	CUIEditBox		m_edit_gs_filter;
@@ -110,6 +119,11 @@ protected:
 	struct SrvItem{
 		CUIListItemServer*	m_ui_item;
 		bool				m_busy;
+		SrvItem(float h)
+		{
+			m_ui_item			= xr_new<CUIListItemServer>(h);
+			m_busy				= true;
+		}
 	};
 	CUIListItemServer*			GetFreeItem		();
 	void						DestroySrvItems	();	
@@ -123,5 +137,6 @@ protected:
 	void						RefreshList_internal();
 
 private:
+	connect_error_cb			m_connect_cb;
 	inline	CGameSpy_Browser&	browser			() const;
 };

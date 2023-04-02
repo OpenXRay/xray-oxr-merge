@@ -246,7 +246,7 @@ void CLevel::ClientReceive()
 			InitializeClientGame	(*P);
 			break;
 		case M_SV_CONFIG_GAME:
-			game->net_import_state(*P);
+			game->net_import_state	(*P);
 			break;
 		case M_SV_CONFIG_FINISHED:
 			{

@@ -399,7 +399,7 @@ void CWeapon::Load		(LPCSTR section)
 		m_dwWeaponRemoveTime = pSettings->r_u32(section,"weapon_remove_time");
 	else
 		m_dwWeaponRemoveTime = WEAPON_REMOVE_TIME;
-	//////////////////////////////////////
+
 	if(pSettings->line_exist(section,"auto_spawn_ammo"))
 		m_bAutoSpawnAmmo = pSettings->r_bool(section,"auto_spawn_ammo");
 	else
@@ -411,13 +411,12 @@ void CWeapon::Load		(LPCSTR section)
 	if(pSettings->line_exist(hud_sect, "zoom_hide_crosshair"))
 		m_bHideCrosshairInZoom = !!pSettings->r_bool(hud_sect, "zoom_hide_crosshair");	
 
-	//////////////////////////////////////////////////////////
-
 	m_bHasTracers = READ_IF_EXISTS(pSettings, r_bool, section, "tracers", true);
 	m_u8TracerColorID = READ_IF_EXISTS(pSettings, r_u8, section, "tracers_color_ID", u8(-1));
 
 	string256						temp;
-	for (int i=egdNovice; i<egdCount; ++i) {
+	for (int i=egdNovice; i<egdCount; ++i)
+	{
 		strconcat					(sizeof(temp),temp,"hit_probability_",get_token_name(difficulty_type_token,i));
 		m_hit_probability[i]		= READ_IF_EXISTS(pSettings,r_float,section,temp,1.f);
 	}
@@ -449,21 +448,6 @@ void CWeapon::LoadZoomOffset (LPCSTR section, LPCSTR prefix)
 	if(pSettings->line_exist(hud_sect, "zoom_rotate_time"))
 		m_fZoomRotateTime = pSettings->r_float(hud_sect,"zoom_rotate_time");
 }
-/*
-void CWeapon::animGet	(MotionSVec& lst, LPCSTR prefix)
-{
-	const MotionID		&M = m_pHUD->animGet(prefix);
-	if (M)				lst.push_back(M);
-	for (int i=0; i<MAX_ANIM_COUNT; ++i)
-	{
-		string128		sh_anim;
-		sprintf_s			(sh_anim,"%s%d",prefix,i);
-		const MotionID	&M = m_pHUD->animGet(sh_anim);
-		if (M)			lst.push_back(M);
-	}
-	R_ASSERT2			(!lst.empty(),prefix);
-}
-*/
 
 BOOL CWeapon::net_Spawn		(CSE_Abstract* DC)
 {

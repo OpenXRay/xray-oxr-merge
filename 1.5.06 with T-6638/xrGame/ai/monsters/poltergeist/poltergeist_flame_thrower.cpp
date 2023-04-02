@@ -18,8 +18,6 @@ CPolterFlame::~CPolterFlame()
 {
 }
 
-
-
 void CPolterFlame::load(LPCSTR section) 
 {
 	inherited::load(section);
@@ -254,10 +252,8 @@ void CPolterFlame::update_schedule()
 			}
 		}
 	}
-
-	
-
 }
+
 void CPolterFlame::on_destroy()
 {
 	inherited::on_destroy();

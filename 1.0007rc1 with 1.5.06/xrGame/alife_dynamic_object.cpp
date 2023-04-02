@@ -45,7 +45,7 @@ void CSE_ALifeDynamicObject::on_before_register		()
 
 void CSE_ALifeDynamicObject::on_unregister()
 {
-	Level().MapManager().RemoveMapLocationByObjectID(ID);
+	Level().MapManager().OnObjectDestroyNotify(ID);
 }
 
 void CSE_ALifeDynamicObject::switch_online			()

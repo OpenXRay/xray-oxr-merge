@@ -85,7 +85,7 @@ void CALifeStorageManager::save	(LPCSTR save_name, bool update_name)
 #endif // DEBUG
 
 	if (!update_name)
-		strcpy_s					(m_save_name,save);
+		strcpy_s				(m_save_name,save);
 }
 
 void CALifeStorageManager::load	(void *buffer, const u32 &buffer_size, LPCSTR file_name)
@@ -127,7 +127,7 @@ bool CALifeStorageManager::load	(LPCSTR save_name)
 	CTimer						timer;
 	timer.Start					();
 	string256					save;
-	strcpy_s						(save,m_save_name);
+	strcpy_s					(save,m_save_name);
 	if (!save_name) {
 		if (!xr_strlen(m_save_name))
 			R_ASSERT2			(false,"There is no file name specified!");

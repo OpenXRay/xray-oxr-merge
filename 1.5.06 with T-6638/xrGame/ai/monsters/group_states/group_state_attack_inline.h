@@ -25,6 +25,7 @@ CStateGroupAttackAbstract::CStateGroupAttack(_Object *obj) : inherited(obj)
 	add_state	(eStateAttack_Run,				xr_new<CStateGroupAttackRun<_Object> >				(obj));
 	add_state	(eStateAttack_Melee,			xr_new<CStateMonsterAttackMelee<_Object> >			(obj));
 	add_state	(eStateAttack_RunAttack,		xr_new<CStateMonsterAttackRunAttack<_Object> >		(obj));
+	add_state	(eStateAttack_Attack_On_Run,	xr_new<CStateMonsterAttackOnRun<_Object> >			(obj));
 	add_state	(eStateAttack_RunAway,			xr_new<CStateMonsterHideFromPoint<_Object> >		(obj));
 	add_state	(eStateAttack_FindEnemy,		xr_new<CStateMonsterFindEnemy<_Object> >			(obj));	
 	add_state	(eStateAttack_MoveToHomePoint,	xr_new<CStateGroupAttackMoveToHomePoint<_Object> >	(obj));	
@@ -330,12 +331,6 @@ void CStateGroupAttackAbstract::execute()
 
 		squad->UpdateGoal(object, goal);
 	}
-}
-
-TEMPLATE_SPECIALIZATION
-bool CStateGroupAttackAbstract::enemy_reachable()
-{
-	return ai().level_graph().valid_vertex_id( object->EnemyMan.get_enemy_vertex() );
 }
 
 TEMPLATE_SPECIALIZATION

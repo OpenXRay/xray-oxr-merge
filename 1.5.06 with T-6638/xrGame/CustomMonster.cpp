@@ -45,15 +45,20 @@
 #include "alife_object_registry.h"
 #include "client_spawn_manager.h"
 #include "moving_object.h"
+#include "level_path_manager.h"
 
 // Lain: added
 #include "../xrEngine/IGame_Level.h"
+#include "../xrCore/_vector3d_ext.h"
+#include "debug_text_tree.h"
+#include "../xrPhysics/IPHWorld.h"
 
 #ifdef DEBUG
 #	include "debug_renderer.h"
 #   include "animation_movement_controller.h"
 #endif // DEBUG
 
+void SetActorVisibility(u16 who, float value);
 extern int g_AI_inactive_time;
 
 #ifndef MASTER_GOLD
@@ -319,7 +324,7 @@ void CCustomMonster::shedule_Update	( u32 DT )
 	float dt			= float(DT)/1000.f;
 	// *** general stuff
 	if (g_Alive()) {
-		if (g_mt_config.test(mtAiVision))
+		if ( false && g_mt_config.test(mtAiVision) )
 #ifndef DEBUG
 			Device.seqParallel.push_back	(fastdelegate::FastDelegate0<>(this,&CCustomMonster::Exec_Visibility));
 #else // DEBUG
@@ -416,7 +421,7 @@ void CCustomMonster::update_sound_player()
 void CCustomMonster::UpdateCL	()
 { 
 	START_PROFILE("CustomMonster/client_update")
-	m_client_update_delta		= Device.dwTimeGlobal - m_last_client_update_time;
+	m_client_update_delta		= (u32)std::min(Device.dwTimeGlobal - m_last_client_update_time, u32(100) );
 	m_last_client_update_time	= Device.dwTimeGlobal;
 
 #ifdef DEBUG
@@ -578,8 +583,14 @@ void CCustomMonster::eye_pp_s0			( )
 
 	const MonsterSpace::SBoneRotation		&rotation = head_orientation();
 
+	VERIFY									(_valid(rotation.current.yaw));
+	VERIFY									(_valid(m_fEyeShiftYaw));
+	VERIFY									(_valid(rotation.current.pitch));
+
 	eye_matrix.setHPB						(-rotation.current.yaw + m_fEyeShiftYaw,-rotation.current.pitch,0);
 	eye_matrix.c.add						(X.c,m_tEyeShift);
+
+	VERIFY									(_valid(eye_matrix));
 }
 
 void CCustomMonster::update_range_fov	(float &new_range, float &new_fov, float start_range, float start_fov)
@@ -676,7 +687,7 @@ void CCustomMonster::Die	(CObject* who)
 {
 	inherited::Die			(who);
 	//Level().RemoveMapLocationByID(this->ID());
-	Actor()->SetActorVisibility	(ID(),0.f);
+	SetActorVisibility	(ID(),0.f);
 }
 
 BOOL CCustomMonster::net_Spawn	(CSE_Abstract* DC)
@@ -1115,6 +1126,15 @@ void CCustomMonster::OnRender()
 	DRender->OnFrameEnd();
 	//RCache.OnFrameEnd				();
 
+	{
+		float const radius						= .075f;
+		xr_vector<u32> const& path				= movement().level_path().path();
+		xr_vector<u32>::const_iterator i		= path.begin();
+		xr_vector<u32>::const_iterator const e	= path.end();
+		for ( ; i != e; ++i )
+			Level().debug_renderer().draw_aabb	( ai().level_graph().vertex_position(*i), radius, radius, radius, D3DCOLOR_XRGB(255,22,255) );
+	}
+
 	for (int i=0; i<1; ++i) {
 		const xr_vector<CDetailPathManager::STravelPoint>		&keys	= !i ? movement().detail().m_key_points					: movement().detail().m_key_points;
 		const xr_vector<DetailPathManager::STravelPathPoint>	&path	= !i ? movement().detail().path()	: movement().detail().path();
@@ -1191,6 +1211,128 @@ void CCustomMonster::OnRender()
 	
 	if (bDebug)
 		smart_cast<IKinematics*>(Visual())->DebugRender(XFORM());
+
+
+#if 0
+	DBG().get_text_tree().clear			();
+	debug::text_tree& text_tree		=	DBG().get_text_tree().find_or_add("ActorView");
+
+	Fvector collide_position;
+	collide::rq_results	temp_rq_results;
+	Fvector sizes			=	{ 0.2f, 0.2f, 0.2f };
+
+	for ( u32 i=0; i<2; ++i )
+	{
+		Fvector start		=	{ -8.7, 1.6, -4.67 };
+		Fvector end			=	{ -9.45, 1.3, -0.24 };
+
+		bool use_p2			=	false;
+		ai_dbg::get_var			("p2", use_p2);
+
+		if ( use_p2 ^ i )
+		{
+			start.x			+=	-1.f;
+			end.x			+=	-1.f;
+		}
+
+		Fvector velocity	=	end - start;
+		float const jump_time	=	0.3f;
+		TransferenceToThrowVel	(velocity,jump_time,physics_world()->Gravity());
+
+		bool const result	=	trajectory_intersects_geometry	(jump_time, 
+																 start,
+																 end,
+																 velocity,
+																 collide_position,
+																 this,
+																 NULL,
+																 temp_rq_results,
+																 & m_jump_picks,
+																 & m_jump_collide_tris,
+																 sizes);
+
+		text_tree.add_line(i ? "box1" : "box2", result);
+	}
+#endif // #if 0
+
+	if (m_jump_picks.size() < 1)
+		return;
+
+	xr_vector<trajectory_pick>::const_iterator	I = m_jump_picks.begin();
+	xr_vector<trajectory_pick>::const_iterator	E = m_jump_picks.end();
+	for ( ; I != E; ++I )
+	{
+		trajectory_pick pick				=	*I;	
+
+		float const inv_nx			=	(pick.invert_x & 1) ? -1.f : 1.f;
+		float const inv_ny			=	(pick.invert_y & 1) ? -1.f : 1.f;
+		float const inv_nz			=	(pick.invert_z & 1) ? -1.f : 1.f;
+
+		float const inv_x			=	(pick.invert_x & 2) ? -1.f : 1.f;
+		float const inv_y			=	(pick.invert_y & 2) ? -1.f : 1.f;
+		float const inv_z			=	(pick.invert_z & 2) ? -1.f : 1.f;
+
+		Fvector const traj_start	=	pick.center	- pick.z_axis * pick.sizes.z * 0.5f * inv_z;
+		Fvector const traj_end		=	pick.center	+ pick.z_axis * pick.sizes.z * 0.5f * inv_z;
+
+		Fvector const z_offs[]		=	{ (  pick.x_axis * pick.sizes.x * 0.5f) + (pick.y_axis * pick.sizes.y * 0.5f), 
+										  (- pick.x_axis * pick.sizes.x * 0.5f) + (pick.y_axis * pick.sizes.y * 0.5f),
+										  (  pick.x_axis * pick.sizes.x * 0.5f) - (pick.y_axis * pick.sizes.y * 0.5f), 
+										  (- pick.x_axis * pick.sizes.x * 0.5f) - (pick.y_axis * pick.sizes.y * 0.5f), };
+
+		Fvector const z_normal		=	- pick.z_axis * 0.1 * inv_nz;
+		Level().debug_renderer().draw_line	(Fidentity,traj_start,traj_start + z_normal,D3DCOLOR_XRGB(128,255,128));
+		Level().debug_renderer().draw_line	(Fidentity,traj_end,traj_end - z_normal,D3DCOLOR_XRGB(128,255,128));
+
+		for ( u32 i=0; i<sizeof(z_offs)/sizeof(z_offs[0]); ++i )
+			Level().debug_renderer().draw_line	(Fidentity,traj_start + z_offs[i],traj_end+ z_offs[i],D3DCOLOR_XRGB(255,255,128));
+
+		Fvector const hor_start		=	pick.center	- pick.x_axis * pick.sizes.x * 0.5f * inv_x;
+		Fvector const hor_end		=	pick.center	+ pick.x_axis * pick.sizes.x * 0.5f * inv_x;
+
+		Fvector const x_offs[]		=	{ (  pick.y_axis * pick.sizes.y * 0.5f) + (pick.z_axis * pick.sizes.z * 0.5f), 
+										  (- pick.y_axis * pick.sizes.y * 0.5f) + (pick.z_axis * pick.sizes.z * 0.5f),
+										  (  pick.y_axis * pick.sizes.y * 0.5f) - (pick.z_axis * pick.sizes.z * 0.5f), 
+										  (- pick.y_axis * pick.sizes.y * 0.5f) - (pick.z_axis * pick.sizes.z * 0.5f), };
+
+		Fvector const x_normal		=	- pick.x_axis * 0.1 * inv_nx;
+		Level().debug_renderer().draw_line	(Fidentity,hor_start,hor_start + x_normal,D3DCOLOR_XRGB(128,255,128));
+		Level().debug_renderer().draw_line	(Fidentity,hor_end,hor_end - x_normal,D3DCOLOR_XRGB(128,255,128));
+
+		for ( u32 i=0; i<sizeof(x_offs)/sizeof(x_offs[0]); ++i )
+			Level().debug_renderer().draw_line	(Fidentity,hor_start + x_offs[i],hor_end+ x_offs[i],D3DCOLOR_XRGB(255,255,128));
+
+		Fvector const ver_start		=	pick.center	- pick.y_axis * pick.sizes.y * 0.5f * inv_y;
+		Fvector const ver_end		=	pick.center	+ pick.y_axis * pick.sizes.y * 0.5f * inv_y;
+
+		Fvector const y_offs[]		=	{ (  pick.x_axis * pick.sizes.x * 0.5f) + (pick.z_axis * pick.sizes.z * 0.5f), 
+										  (- pick.x_axis * pick.sizes.x * 0.5f) + (pick.z_axis * pick.sizes.z * 0.5f),
+										  (  pick.x_axis * pick.sizes.x * 0.5f) - (pick.z_axis * pick.sizes.z * 0.5f), 
+										  (- pick.x_axis * pick.sizes.x * 0.5f) - (pick.z_axis * pick.sizes.z * 0.5f), };
+
+		Fvector const y_normal		=	- pick.y_axis * 0.1 * inv_ny;
+		Level().debug_renderer().draw_line	(Fidentity,ver_start,ver_start + y_normal,D3DCOLOR_XRGB(128,255,128));
+		Level().debug_renderer().draw_line	(Fidentity,ver_end,ver_end - y_normal,D3DCOLOR_XRGB(128,255,128));
+
+		for ( u32 i=0; i<sizeof(y_offs)/sizeof(y_offs[0]); ++i )
+			Level().debug_renderer().draw_line	(Fidentity,ver_start + y_offs[i],ver_end+ y_offs[i],D3DCOLOR_XRGB(255,255,128));
+
+		Level().debug_renderer().draw_line	(Fidentity,traj_start,traj_end,D3DCOLOR_XRGB(255,0,0));
+	}
+
+	for ( u32 i=0; i<m_jump_collide_tris.size(); i+=3 )
+	{
+		Fvector const v1	=	m_jump_collide_tris[i];
+		Fvector const v2	=	m_jump_collide_tris[i+1];
+		Fvector const v3	=	m_jump_collide_tris[i+2];
+
+		Fmatrix unit;
+		unit.identity			();
+
+		Level().debug_renderer().draw_line(unit, v1, v2, D3DCOLOR_XRGB(255,255,255));
+		Level().debug_renderer().draw_line(unit, v1, v3, D3DCOLOR_XRGB(255,255,255));
+		Level().debug_renderer().draw_line(unit, v2, v3, D3DCOLOR_XRGB(255,255,255));
+	}
 }
 #endif // DEBUG
 
@@ -1240,4 +1382,32 @@ void CCustomMonster::destroy_anim_mov_ctrl	()
 
 	NET_Last.o_model				= movement().m_body.current.yaw;
 	NET_Last.o_torso.pitch			= movement().m_body.current.pitch;
+}
+
+void CCustomMonster::ForceTransform(const Fmatrix& m)
+{
+	character_physics_support()->ForceTransform( m );
+	const float block_damage_time_seconds = 2.f;
+	if(!IsGameTypeSingle())
+		character_physics_support()->movement()->BlockDamageSet( u64( block_damage_time_seconds/fixed_step ) );
+}
+
+Fvector	CCustomMonster::spatial_sector_point	( )
+{
+	//if ( g_Alive() )
+	//	return						inherited::spatial_sector_point( );
+
+	//if ( !animation_movement() )
+		return						inherited::spatial_sector_point( ).add( Fvector().set(0.f, Radius()*.5f, 0.f) );
+
+	//IKinematics* const kinematics	= smart_cast<IKinematics*>(Visual());
+	//VERIFY							(kinematics);
+	//u16 const root_bone_id			= kinematics->LL_BoneID("bip01_spine");
+
+	//Fmatrix local;
+	//kinematics->Bone_GetAnimPos		( local, root_bone_id, u8(-1), false );
+
+	//Fmatrix result;
+	//result.mul_43					( XFORM(), local );
+	//return							result.c;
 }

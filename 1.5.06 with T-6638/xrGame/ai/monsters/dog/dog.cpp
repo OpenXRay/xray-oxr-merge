@@ -102,7 +102,6 @@ void CAI_Dog::Load(LPCSTR section)
 	anim().accel_chain_add		(eAnimWalkFwd,		eAnimRunTurnRight);
 	anim().accel_chain_add		(eAnimWalkDamaged,	eAnimRunDamaged);
 
-
 	SVelocityParam &velocity_none		= move().get_velocity(MonsterMovement::eVelocityParameterIdle);	
 	SVelocityParam &velocity_turn		= move().get_velocity(MonsterMovement::eVelocityParameterStand);
 	SVelocityParam &velocity_walk		= move().get_velocity(MonsterMovement::eVelocityParameterWalkNormal);
@@ -124,7 +123,6 @@ void CAI_Dog::Load(LPCSTR section)
 	anim().AddAnim(eAnimSitIdle,		"sit_idle_",			-1, &velocity_none,		PS_SIT);
 	anim().AddAnim(eAnimAttack,			"stand_attack_",		-1, &velocity_turn,		PS_STAND);
 	anim().AddAnim(eAnimWalkFwd,		"stand_walk_fwd_",		-1, &velocity_walk,		PS_STAND);
-
 	anim().AddAnim(eAnimWalkDamaged,	"stand_walk_dmg_",		-1, &velocity_walk_dmg,	PS_STAND);
 	anim().AddAnim(eAnimRun,			"stand_run_",			-1,	&velocity_run,		PS_STAND);
 	anim().AddAnim(eAnimRunDamaged,		"stand_run_dmg_",		-1, &velocity_run_dmg,	PS_STAND);
@@ -195,6 +193,7 @@ void CAI_Dog::Load(LPCSTR section)
 #ifdef DEBUG	
 	anim().accel_chain_test		();
 #endif
+	PostLoad					(section);
 }
 
 void CAI_Dog::reinit()
@@ -376,11 +375,6 @@ LPCSTR CAI_Dog::get_current_animation()
 void CAI_Dog::reload(LPCSTR section)
 {
 	inherited::reload (section);
-
-//	com_man().load_jump_data(0, 0, "stand_jump_left_0", 0, MonsterMovement::eVelocityParameterRunNormal,MonsterMovement::eVelocityParameterRunNormal,0);
- 	//com_man().load_jump_data(0, "stand_jump_left_0", "stand_jump_left_0", "stand_jump_left_0",
-
-//	com_man().load_jump_data(0, "stand_jump_left_0", "stand_jump_left_0", 0,
 	com_man().load_jump_data(0, "jump_ataka_01", "jump_ataka_02", "jump_ataka_03",
 	 						 MonsterMovement::eVelocityParameterRunNormal,
 						     MonsterMovement::eVelocityParameterRunNormal, 0);

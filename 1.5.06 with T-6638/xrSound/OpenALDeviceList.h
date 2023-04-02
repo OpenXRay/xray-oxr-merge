@@ -1,11 +1,14 @@
 #ifndef ALDEVICELIST_H
 #define ALDEVICELIST_H
 
+#include "openal/al.h"
+#include "openal/alc.h"
+
 #define AL_GENERIC_HARDWARE "Generic Hardware"
 #define AL_GENERIC_SOFTWARE "Generic Software"
 
 struct ALDeviceDesc{
-	xr_string			name;
+	string256			name;
 	int					minor_ver;
 	int					major_ver;
 	union ESndProps
@@ -22,14 +25,14 @@ struct ALDeviceDesc{
 		u16 storage;
 	};
 	ESndProps				props;
-						ALDeviceDesc			(LPCSTR nm, int mn, int mj){name=nm;minor_ver=mn;major_ver=mj;props.storage=0;props.eax_unwanted=true;}
+						ALDeviceDesc			(LPCSTR nm, int mn, int mj){xr_strcpy(name,nm);minor_ver=mn;major_ver=mj;props.storage=0;props.eax_unwanted=true;}
 };
 
 class ALDeviceList
 {
 private:
 	xr_vector<ALDeviceDesc>	m_devices;
-	xr_string			m_defaultDeviceName;
+	string256			m_defaultDeviceName;
 	void				Enumerate				();
 public:
 						ALDeviceList			();

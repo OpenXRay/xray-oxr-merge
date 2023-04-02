@@ -272,6 +272,8 @@ void CBaseMonster::debug_fsm()
 		case eStateBurerAttack_RunAround:				xr_sprintf(st,"Attack :: Run Around");			break;
 		case eStateBurerAttack_FaceEnemy:				xr_sprintf(st,"Attack :: Face Enemy");			break;
 		case eStateBurerAttack_Melee:					xr_sprintf(st,"Attack :: Melee");				break;
+		case eStateBurerAttack_AntiAim:					xr_sprintf(st,"Attack :: AntiAim");				break;
+		case eStateBurerAttack_Shield:					xr_sprintf(st,"Attack :: Shield");				break;
 		case eStateBurerScanning:						xr_sprintf(st,"Attack :: Scanning");			break;
 		case eStateCustomMoveToRestrictor:				xr_sprintf(st,"Moving To Restrictor :: Position not accessible");	break;
 		case eStateSmartTerrainTask:					xr_sprintf(st,"ALIFE");	break;

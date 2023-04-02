@@ -195,7 +195,6 @@ void CStateGroupAttackAbstract::execute()
 	} 
 	else
 	{
-
 		// определить тип атаки
 		bool b_melee = false; 
 

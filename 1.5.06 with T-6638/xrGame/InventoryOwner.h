@@ -65,8 +65,9 @@ public:
 	////////////////////////////////////
 	//торговля и общение с персонажем
 
-	virtual bool	AllowItemToTrade 	(CInventoryItem const * item, EItemPlace place) const;
+	virtual bool	AllowItemToTrade 	(CInventoryItem const * item, const SInvItemPlace& place) const;
 	virtual void	OnFollowerCmd		(int cmd)		{};//redefine for CAI_Stalkker
+			bool	bDisableBreakDialog;
 	//инициализация объекта торговли
 	CTrade* GetTrade();
 
@@ -101,6 +102,8 @@ public:
 	LPCSTR				IconName		() const;
 	u32					get_money		() const				{return m_money;}
 	void				set_money		(u32 amount, bool bSendEvent);
+	bool				is_alive		();
+
 protected:
 	u32					m_money;
 	// торговля
@@ -113,7 +116,9 @@ protected:
 	bool				m_bAllowTrade;
 	bool				m_bAllowInvUpgrade;
 
-	u32					m_tmp_active_slot_num;
+	u16					m_tmp_active_slot_num;
+	
+	bool				m_play_show_hide_reload_sounds;
 	//////////////////////////////////////////////////////////////////////////
 	// сюжетная информация
 public:
@@ -144,7 +149,10 @@ public:
 	//максимальный переносимы вес
 	virtual float MaxCarryWeight			() const;
 
-	virtual CCustomOutfit*			GetOutfit()	const {return NULL;};
+	CCustomOutfit* GetOutfit				() const;
+
+	bool CanPlayShHdRldSounds				() const {return m_play_show_hide_reload_sounds;};
+	void SetPlayShHdRldSounds				(bool play) {m_play_show_hide_reload_sounds = play;};
 
 	//////////////////////////////////////////////////////////////////////////
 	//игровые характеристики персонажа
@@ -175,20 +183,15 @@ public:
 	virtual void			renderable_Render		();
 	virtual void			OnItemTake				(CInventoryItem *inventory_item);
 	
-	virtual void			OnItemBelt				(CInventoryItem *inventory_item, EItemPlace previous_place);
-	virtual void			OnItemRuck				(CInventoryItem *inventory_item, EItemPlace previous_place);
-	virtual void			OnItemSlot				(CInventoryItem *inventory_item, EItemPlace previous_place);
+	virtual void			OnItemBelt				(CInventoryItem *inventory_item, const SInvItemPlace& previous_place);
+	virtual void			OnItemRuck				(CInventoryItem *inventory_item, const SInvItemPlace& previous_place);
+	virtual void			OnItemSlot				(CInventoryItem *inventory_item, const SInvItemPlace& previous_place);
 	
-	virtual void			OnItemDrop				(CInventoryItem *inventory_item);
+	virtual void			OnItemDrop				(CInventoryItem *inventory_item, bool just_before_destroy);
 	virtual void			OnItemDropUpdate		();
 	virtual bool			use_bolts				() const {return(true);}
 	virtual	void			spawn_supplies			();
 
-	CInventoryItem* CInventoryOwner::GetCurrentOutfit() const;
-
-	//////////////////////////////////////////////////////////////////////////
-	// связь со скриптами
-	//////////////////////////////////////////////////////////////////////////
 protected:
 	shared_str					m_item_to_spawn;
 	u32							m_ammo_in_box_to_spawn;
@@ -198,6 +201,7 @@ public:
 	IC		const u32			&ammo_in_box_to_spawn	() const {return m_ammo_in_box_to_spawn;}
 
 public:
+	virtual bool				unlimited_ammo			()	= 0;
 	virtual	void				on_weapon_shot_start	(CWeapon *weapon);
 	virtual	void				on_weapon_shot_update	();
 	virtual	void				on_weapon_shot_stop		();
@@ -211,6 +215,8 @@ private:
 	CTradeParameters			*m_trade_parameters;
 	CPurchaseList				*m_purchase_list;
 	BOOL						m_need_osoznanie_mode;
+	bool						m_deadbody_can_take;
+	bool						m_deadbody_closed;
 
 public:
 	IC		CTradeParameters	&trade_parameters		() const;
@@ -225,6 +231,11 @@ public:
 	virtual	float				missile_throw_force		(); 
 	virtual	bool				use_throw_randomness	();
 	virtual bool				NeedOsoznanieMode		() {return m_need_osoznanie_mode!=FALSE;}
+
+			void				deadbody_can_take		(bool status);
+	IC		bool				deadbody_can_take_status() const { return m_deadbody_can_take; }
+			void				deadbody_closed			(bool status);
+	IC		bool				deadbody_closed_status	() const { return m_deadbody_closed; }
 };
 
 #include "inventory_owner_inline.h"

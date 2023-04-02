@@ -116,12 +116,6 @@ void CUIArtefactDetectorElite::construct(CEliteDetector* p)
 	_map_attach_r.mul					(PI/180.f);
 	m_map_attach_offset.setHPB			(_map_attach_r.x, _map_attach_r.y, _map_attach_r.z);
 	m_map_attach_offset.translate_over	(_map_attach_p);
-
-/*
-	float curr_ = (float)Device.dwWidth/(float)Device.dwHeight;
-	float kx	= curr_/1.3333333f;
-	fix_ws_wnd_size						(this, kx);
-*/
 }
 
 void CUIArtefactDetectorElite::update()
@@ -135,9 +129,9 @@ void CUIArtefactDetectorElite::Draw()
 	Fmatrix						LM;
 	GetUILocatorMatrix			(LM);
 
-	IUIRender::ePointType bk	= UI()->m_currentPointType;
+	IUIRender::ePointType bk	= UI().m_currentPointType;
 
-	UI()->m_currentPointType	= IUIRender::pttLIT;
+	UI().m_currentPointType	= IUIRender::pttLIT;
 
 	UIRender->CacheSetXformWorld(LM);
 	UIRender->CacheSetCullMode	(IUIRender::cmNONE);
@@ -180,7 +174,7 @@ void CUIArtefactDetectorElite::Draw()
 		}
 	}
 
-	UI()->m_currentPointType		= bk;
+	UI().m_currentPointType		= bk;
 }
 
 void CUIArtefactDetectorElite::GetUILocatorMatrix(Fmatrix& _m)

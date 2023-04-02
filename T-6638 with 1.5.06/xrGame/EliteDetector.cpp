@@ -7,8 +7,6 @@
 #include "ui/UIStatic.h"
 #include "ui/ArtefactDetectorUI.h"
 
-
-
 CEliteDetector::CEliteDetector()
 {
 	m_artefacts.m_af_rank = 3;
@@ -143,7 +141,6 @@ void CUIArtefactDetectorElite::update()
 
 void CUIArtefactDetectorElite::Draw()
 {
-
 	Fmatrix						LM;
 	GetUILocatorMatrix			(LM);
 
@@ -297,5 +294,3 @@ void CScientificDetector::OnH_B_Independent(bool just_before_destroy)
 	
 	m_zones.clear			();
 }
-
-

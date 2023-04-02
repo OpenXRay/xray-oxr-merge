@@ -187,7 +187,7 @@ void	CInventoryOwner::load	(IReader &input_packet)
 	if(active_slot == NO_ACTIVE_SLOT)
 		inventory().SetActiveSlot(NO_ACTIVE_SLOT);
 	//else
-		//inventory().Activate_deffered(active_slot, Device.dwFrame);
+	//	inventory().Activate_deffered(active_slot, Device.dwFrame);
 
 	m_tmp_active_slot_num		 = active_slot;
 
@@ -331,9 +331,9 @@ void CInventoryOwner::OnItemTake			(CInventoryItem *inventory_item)
 
 	attach		(inventory_item);
 
-	if(m_tmp_active_slot_num!=NO_ACTIVE_SLOT					&& 
-		inventory_item->CurrPlace()==eItemPlaceSlot	&&
-		inventory_item->CurrSlot()==m_tmp_active_slot_num)
+	if (m_tmp_active_slot_num != NO_ACTIVE_SLOT			&&
+		inventory_item->CurrPlace() == eItemPlaceSlot	&&
+		inventory_item->CurrSlot() == m_tmp_active_slot_num)
 	{
 		if(inventory().ItemFromSlot(m_tmp_active_slot_num))
 		{
@@ -491,6 +491,7 @@ void CInventoryOwner::OnItemRuck	(CInventoryItem *inventory_item, const SInvItem
 {
 	detach		(inventory_item);
 }
+
 void CInventoryOwner::OnItemSlot	(CInventoryItem *inventory_item, const SInvItemPlace& previous_place)
 {
 	attach		(inventory_item);

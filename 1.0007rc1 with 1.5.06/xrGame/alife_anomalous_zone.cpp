@@ -72,29 +72,36 @@ void CSE_ALifeAnomalousZone::spawn_artefacts				()
 	VERIFY2					(!(n % 2),"Invalid parameters count in line artefacts for anomalous zone");
 	n						>>= 1;
 	
-	typedef std::pair<shared_str,float>	ARTEFACT_PAIR;
+	typedef std::pair<shared_str,float>	Weight;
+	typedef buffer_vector<Weight>		Weights;
+	Weights weights			(
+		_alloca(n*sizeof(Weight)),
+		n
+	);
 
-	string256				temp0, temp1;
-	ARTEFACT_PAIR			*m_weights = (ARTEFACT_PAIR*)_alloca(n*sizeof(ARTEFACT_PAIR));
-	ARTEFACT_PAIR			*I = m_weights;
-	ARTEFACT_PAIR			*E = m_weights + n;
-	for (u32 i = 0; I != E; ++I, ++i) {
-		_GetItem			(artefacts,2*i,temp0);
-		_GetItem			(artefacts,2*i + 1,temp1);
-		new					(I) ARTEFACT_PAIR(temp0,(float)atof(temp1));
+	for (u32 i=0; i<n; ++i) {
+		string256			temp0, temp1;
+		_GetItem			( artefacts, 2*i + 0, temp0 );
+		_GetItem			( artefacts, 2*i + 1, temp1 );
+		weights.push_back	(
+			std::make_pair(
+				temp0,
+				(float)atof(temp1)
+			)
+		);
 	}
 
 	for (u32 ii=0; ii<m_artefact_count; ++ii) {
 		float fProbability		= randF(1.f);
 		float fSum				= 0.f;
 		for (u16 p=0; p<n; ++p) {
-			fSum			+= m_weights[p].second;
+			fSum			+= weights[p].second;
 			if (fSum > fProbability)
 				break;
 		}
 		if (p < n) {
-			CSE_Abstract		*l_tpSE_Abstract = alife().spawn_item(*m_weights[p].first,position(),m_tNodeID,m_tGraphID,0xffff);
-			R_ASSERT3			(l_tpSE_Abstract,"Can't spawn artefact ",*m_weights[p].first);
+			CSE_Abstract		*l_tpSE_Abstract = alife().spawn_item(*weights[p].first,position(),m_tNodeID,m_tGraphID,0xffff);
+			R_ASSERT3			(l_tpSE_Abstract,"Can't spawn artefact ",*weights[p].first);
 			CSE_ALifeDynamicObject	*i = smart_cast<CSE_ALifeDynamicObject*>(l_tpSE_Abstract);
 			R_ASSERT2			(i,"Non-ALife object in the 'game.spawn'");
 
@@ -116,9 +123,6 @@ void CSE_ALifeAnomalousZone::spawn_artefacts				()
 			l_tpALifeItemArtefact->m_fAnomalyValue = m_maxPower*(1.f - i->o_Position.distance_to(o_Position)/m_offline_interactive_radius);
 		}
 	}
-
-	for (I = m_weights; I != E; ++I)
-		I->~ARTEFACT_PAIR		();
 }
 
 void CSE_ALifeAnomalousZone::on_spawn						()

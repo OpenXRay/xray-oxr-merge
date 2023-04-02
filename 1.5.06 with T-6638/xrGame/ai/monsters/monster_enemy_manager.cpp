@@ -203,6 +203,16 @@ bool CMonsterEnemyManager::see_enemy_now(const CEntityAlive* enemy)
 	return monster->memory().visual().visible_right_now(enemy); 
 }
 
+bool CMonsterEnemyManager::see_enemy_recently()
+{
+	return see_enemy_recently(enemy); 
+}
+
+bool CMonsterEnemyManager::see_enemy_recently(const CEntityAlive* enemy)
+{
+	return monster->memory().visual().visible_now(enemy); 
+}
+
 bool CMonsterEnemyManager::enemy_see_me_now()
 {
 	if ( Actor() == enemy ) 
@@ -293,6 +303,10 @@ void CMonsterEnemyManager::remove_links (CObject* O)
 	if ( enemy == O )
 	{
 		enemy	=	NULL;
+	}
+	if ( prev_enemy == O )
+	{
+		prev_enemy		= NULL;
 	}
 	if ( m_script_enemy	==	O )
 	{

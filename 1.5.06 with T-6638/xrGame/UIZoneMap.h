@@ -13,7 +13,6 @@ public:
 
 private:
 	CUICustomMap*				m_activeMap;
-//	float						m_fScale;
 
 	CUIStatic					m_background;
 	CUIStatic					m_center;
@@ -32,9 +31,6 @@ public:
 
 	void						Render			();
 	void						Update			();
-
-//	void						SetScale		(float s)							{m_fScale = s;}
-//	float						GetScale		()									{return m_fScale;}
 
 	bool						ZoomIn			();
 	bool						ZoomOut			();

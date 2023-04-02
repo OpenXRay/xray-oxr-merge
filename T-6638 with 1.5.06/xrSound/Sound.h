@@ -324,6 +324,4 @@ IC void	ref_sound::set_params					( CSound_params* p )
     }
 }
 
-
-
 #endif

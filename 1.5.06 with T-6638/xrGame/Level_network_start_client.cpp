@@ -25,15 +25,15 @@ bool	CLevel::net_start_client1				()
 	pApp->LoadBegin	();
 	// name_of_server
 	string64					name_of_server = "";
-//	strcpy_s						(name_of_server,*m_caClientOptions);
+//	xr_strcpy						(name_of_server,*m_caClientOptions);
 	if (strchr(*m_caClientOptions, '/'))
-		strncpy(name_of_server,*m_caClientOptions, strchr(*m_caClientOptions, '/')-*m_caClientOptions);
+		strncpy_s(name_of_server,*m_caClientOptions, strchr(*m_caClientOptions, '/')-*m_caClientOptions);
 
 	if (strchr(name_of_server,'/'))	*strchr(name_of_server,'/') = 0;
 
 	// Startup client
 	string256					temp;
-	sprintf_s						(temp,"%s %s",
+	xr_sprintf						(temp,"%s %s",
 								CStringTable().translate("st_client_connecting_to").c_str(), name_of_server);
 
 	g_pGamePersistent->LoadTitle				(temp);
@@ -121,10 +121,8 @@ bool	CLevel::net_start_client4				()
 		g_pGamePersistent->LoadTitle		("st_client_spawning");
 
 		// Send physics to single or multithreaded mode
-		LoadPhysicsGameParams				();
-		ph_world							= xr_new<CPHWorld>();
-		ph_world->Create					();
-
+		create_physics_world				(!!psDeviceFlags.test(mtPhysics),&ObjectSpace,&Objects,&Device);
+		R_ASSERT							(physics_world());
 		// Send network to single or multithreaded mode
 		// *note: release version always has "mt_*" enabled
 		Device.seqFrameMT.Remove			(g_pNetProcessor);
@@ -198,7 +196,7 @@ bool	CLevel::net_start_client6				()
 		
 		if	(!g_dedicated_server)
 		{
-			pHUD->Load							();
+			g_hud->Load						();
 			//g_pGamePersistent->LoadTitle				("st_loading_textures");
 		}
 

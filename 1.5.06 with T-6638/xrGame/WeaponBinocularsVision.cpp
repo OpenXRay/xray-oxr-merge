@@ -32,10 +32,10 @@ struct FindVisObjByObject{
 void SBinocVisibleObj::create_default(u32 color)
 {
 	Frect r = {0,0,RECT_SIZE,RECT_SIZE};
-	m_lt.InitTexture			("ui\\ui_enemy_frame");m_lt.SetWndRect(r);
-	m_lb.InitTexture			("ui\\ui_enemy_frame");m_lb.SetWndRect(r);
-	m_rt.InitTexture			("ui\\ui_enemy_frame");m_rt.SetWndRect(r);
-	m_rb.InitTexture			("ui\\ui_enemy_frame");m_rb.SetWndRect(r);
+	m_lt.InitTexture			("ui\\ui_enemy_frame");m_lt.SetWndRect(r);m_lt.SetAlignment(waCenter);
+	m_lb.InitTexture			("ui\\ui_enemy_frame");m_lb.SetWndRect(r);m_lb.SetAlignment(waCenter);
+	m_rt.InitTexture			("ui\\ui_enemy_frame");m_rt.SetWndRect(r);m_rt.SetAlignment(waCenter);
+	m_rb.InitTexture			("ui\\ui_enemy_frame");m_rb.SetWndRect(r);m_rb.SetAlignment(waCenter);
 
 	m_lt.SetTextureRect		(Frect().set(0,				0,				RECT_SIZE,		RECT_SIZE)	);
 	m_lb.SetTextureRect		(Frect().set(0,				32-RECT_SIZE,	RECT_SIZE,		32)			);
@@ -68,6 +68,7 @@ void SBinocVisibleObj::Update()
 {
 	m_flags.set		(	flVisObjNotValid,TRUE);
 
+	if(!m_object->Visual())			return;
 
 	Fbox		b		= m_object->Visual()->getVisData().box;
 

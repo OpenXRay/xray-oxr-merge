@@ -30,5 +30,6 @@ public:
 	TTime				get_corpse_time_last_seen() {return time_last_seen;}
 
 	void				reinit					();
+	void				remove_links			(CObject* O);
 
 };

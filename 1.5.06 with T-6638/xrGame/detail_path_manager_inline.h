@@ -25,7 +25,18 @@ IC	bool CDetailPathManager::failed			() const
 
 IC	bool CDetailPathManager::completed		(const Fvector &position, bool bRealCompleted, const u32 &travel_point_point_index) const
 {
-	return					(m_path.empty() || ((bRealCompleted || !m_state_patrol_path) ? (travel_point_point_index == m_path.size() - 1) : travel_point_point_index >= m_last_patrol_point));
+	if ( m_path.empty() )
+		return						true;
+
+	if ( bRealCompleted || !m_state_patrol_path )
+	{
+		u32 const path_size		=	m_path.size();
+		return						travel_point_point_index == (path_size - 1);
+	}
+	else
+	{
+		return travel_point_point_index >= m_last_patrol_point;
+	}
 }
 
 IC	bool CDetailPathManager::completed		(const Fvector &position, bool bRealCompleted) const

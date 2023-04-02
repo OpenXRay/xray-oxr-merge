@@ -125,10 +125,10 @@ static void SaveReport(HWND hwndParent)
 	ofn.nMaxFile = countof(szFileName);
 	ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST;
 
-	unsigned int	dwVersion = GetVersion();
-	unsigned int	dwWindowsMajorVersion =  (DWORD)(LOBYTE(LOWORD(dwVersion)));
-		        
-	if ( dwWindowsMajorVersion == 6 )
+	OSVERSIONINFOEX	os_version_info;
+	os_version_info.dwOSVersionInfoSize	= sizeof(os_version_info);
+	GetVersionEx	((LPOSVERSIONINFO)&os_version_info);
+	if (os_version_info.dwMajorVersion == 6)// && !os_version_info.wServicePackMajor)
 	{
 		ofn.Flags |= OFN_ENABLEHOOK;
 		ofn.lpfnHook = OFNHookProcOldStyle;

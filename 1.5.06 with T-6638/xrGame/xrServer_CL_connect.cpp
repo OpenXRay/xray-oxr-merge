@@ -171,9 +171,9 @@ BOOL	g_SV_Disable_Auth_Check = FALSE;
 bool xrServer::NeedToCheckClient_BuildVersion		(IClient* CL)	
 {
 /*#ifdef DEBUG
-
 	return false; 
 #endif*/
+
 	xrClientData* tmp_client	= smart_cast<xrClientData*>(CL);
 	VERIFY						(tmp_client);
 	PerformSecretKeysSync		(tmp_client);

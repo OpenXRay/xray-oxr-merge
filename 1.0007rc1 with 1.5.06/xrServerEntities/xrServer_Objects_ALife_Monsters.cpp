@@ -7,7 +7,6 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "../../xrNetServer/net_utils.h"
 #include "xrServer_Objects_ALife_Items.h"
 #include "xrServer_Objects_ALife_Monsters.h"
 #include "object_broker.h"
@@ -20,6 +19,7 @@
 #endif
 
 #ifdef XRGAME_EXPORTS
+#	include "alife_time_manager.h"
 #	include "ef_storage.h"
 #	include "game_graph.h"
 #	include "alife_simulator.h"
@@ -264,7 +264,7 @@ shared_str CSE_ALifeTraderAbstract::specific_character()
 {
 #ifdef XRGAME_EXPORTS
 #pragma todo("Dima to Yura, MadMax : Remove that hacks, please!")
-	if (g_pGameLevel && Level().game && (GameID() != GAME_SINGLE)) return m_SpecificCharacter;
+	if (g_pGameLevel && Level().game && (GameID() != eGameIDSingle)) return m_SpecificCharacter;
 #endif
 
 	if(m_SpecificCharacter.size())
@@ -666,26 +666,12 @@ void CSE_ALifeCustomZone::STATE_Write	(NET_Packet	&tNetPacket)
 void CSE_ALifeCustomZone::UPDATE_Read	(NET_Packet	&tNetPacket)
 {
 	inherited::UPDATE_Read		(tNetPacket);
-//	tNetPacket.r_u32			(m_owner_id);
 }
 
 void CSE_ALifeCustomZone::UPDATE_Write	(NET_Packet	&tNetPacket)
 {
 	inherited::UPDATE_Write		(tNetPacket);
-//	tNetPacket.w_u32			(m_owner_id);
 }
-
-//xr_token TokenAnomalyType[]={
-//	{ "Gravi",			eAnomalousZoneTypeGravi			},
-//	{ "Fog",			eAnomalousZoneTypeFog			},
-//	{ "Radioactive",	eAnomalousZoneTypeRadio			},
-//	{ "Plant",			eAnomalousZoneTypePlant			},
-//	{ "Gelatine",		eAnomalousZoneTypeGelatine		},
-//	{ "Fluff",			eAnomalousZoneTypeFluff			},
-//	{ "Rusty Hair",		eAnomalousZoneTypeRustyHair		},
-//	{ "RustyWhistlers",	eAnomalousZoneTypeRustyWhistlers},
-//	{ 0,				0}
-//};
 
 void CSE_ALifeCustomZone::FillProps		(LPCSTR pref, PropItemVec& items)
 {
@@ -968,7 +954,7 @@ u32	 CSE_ALifeCreatureAbstract::ef_detector_type() const
 void CSE_ALifeCreatureAbstract::on_death		(CSE_Abstract *killer)
 {
 	VERIFY						(!m_game_death_time);
-	m_game_death_time			= Level().GetGameTime();
+	m_game_death_time			= ai().get_alife() ? alife().time_manager().game_time() : Level().GetGameTime();
 	fHealth						= -1.f;
 }
 #endif // XRGAME_EXPORTS
@@ -982,8 +968,9 @@ void CSE_ALifeCreatureAbstract::STATE_Write	(NET_Packet &tNetPacket)
 	tNetPacket.w_float			(fHealth);
 	save_data					(m_dynamic_out_restrictions,tNetPacket);
 	save_data					(m_dynamic_in_restrictions,tNetPacket);
-	tNetPacket.w				(&m_killer_id,sizeof(m_killer_id));
-	tNetPacket.w				(&m_game_death_time,sizeof(m_game_death_time));
+	tNetPacket.w_u16			( get_killer_id() );
+	R_ASSERT(!(get_health() > 0.0f && get_killer_id() != u16(-1)));
+	tNetPacket.w_u64			(m_game_death_time);
 }
 
 void CSE_ALifeCreatureAbstract::STATE_Read	(NET_Packet &tNetPacket, u16 size)
@@ -1007,13 +994,13 @@ void CSE_ALifeCreatureAbstract::STATE_Read	(NET_Packet &tNetPacket, u16 size)
 		load_data				(m_dynamic_in_restrictions,tNetPacket);
 	}
 	if (m_wVersion > 94)
-		tNetPacket.r			(&m_killer_id,sizeof(m_killer_id));
+		set_killer_id( tNetPacket.r_u16() );
 
 	o_torso.pitch				= o_Angle.x;
 	o_torso.yaw					= o_Angle.y;
 
 	if (m_wVersion > 115)
-		tNetPacket.r			(&m_game_death_time,sizeof(m_game_death_time));
+		tNetPacket.r_u64		(m_game_death_time);
 }
 
 void CSE_ALifeCreatureAbstract::UPDATE_Write(NET_Packet &tNetPacket)
@@ -1089,7 +1076,18 @@ bool CSE_ALifeCreatureAbstract::can_switch_online	() const
 
 bool CSE_ALifeCreatureAbstract::can_switch_offline	() const
 {
-	return						(inherited::can_switch_offline() && (g_Health() > 0.f));
+	return						(inherited::can_switch_offline() && (get_health() > 0.f));
+}
+
+IC	void CSE_ALifeCreatureAbstract::set_health	(float const health_value)
+{
+	VERIFY( !((get_killer_id() != u16(-1)) && (health_value > 0.f)) );
+	fHealth = health_value;
+}
+
+IC	void CSE_ALifeCreatureAbstract::set_killer_id	(ALife::_OBJECT_ID const killer_id)
+{
+	m_killer_id = killer_id;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -1123,7 +1121,12 @@ CSE_ALifeMonsterAbstract::CSE_ALifeMonsterAbstract(LPCSTR caSection)	: CSE_ALife
 		if(pSettings->line_exist(caSection, "immunities_sect"))
 			imm_section = pSettings->r_string(caSection, "immunities_sect");
 		for ( ; I != E; ++I)
-			*I					= READ_IF_EXISTS(pSettings,r_float,imm_section,strcat(strcpy(S,ALife::g_cafHitType2String(ALife::EHitType(I - B))),"_immunity"),1.f);
+		{
+			//			*I					= READ_IF_EXISTS(pSettings,r_float,imm_section,strcat(strcpy(S,ALife::g_cafHitType2String(ALife::EHitType(I - B))),"_immunity"),1.f);
+			strcpy_s(S, ALife::g_cafHitType2String(ALife::EHitType(I - B)));
+			strcat(S,"_immunity");
+			*I					= READ_IF_EXISTS(pSettings,r_float,imm_section,S,1.f);
+		}
 	}
 
 	if (pSettings->line_exist(caSection,"retreat_threshold"))
@@ -1204,7 +1207,11 @@ void CSE_ALifeMonsterAbstract::STATE_Write	(NET_Packet &tNetPacket)
 	inherited1::STATE_Write		(tNetPacket);
 	tNetPacket.w_stringZ		(m_out_space_restrictors);
 	tNetPacket.w_stringZ		(m_in_space_restrictors);
-	tNetPacket.w				(&m_smart_terrain_id,sizeof(m_smart_terrain_id));
+	tNetPacket.w_u16			(m_smart_terrain_id);
+
+	if(tNetPacket.inistream)
+		tNetPacket.w_u16			((m_task_reached)?1:0);
+	else
 	tNetPacket.w				(&m_task_reached,sizeof(m_task_reached));
 }
 
@@ -1218,33 +1225,37 @@ void CSE_ALifeMonsterAbstract::STATE_Read	(NET_Packet &tNetPacket, u16 size)
 	}
 
 	if (m_wVersion > 111)
-		tNetPacket.r			(&m_smart_terrain_id,sizeof(m_smart_terrain_id));
+		tNetPacket.r_u16		(m_smart_terrain_id);
 
 	if (m_wVersion > 113)
+	{
+		if(tNetPacket.inistream)
+		{
+			u16 tmp;
+			tNetPacket.r_u16		(tmp);
+			m_task_reached			= (tmp!=0);
+		}else
 		tNetPacket.r			(&m_task_reached,sizeof(m_task_reached));
+	}
 
 }
 
 void CSE_ALifeMonsterAbstract::UPDATE_Write	(NET_Packet &tNetPacket)
 {
 	inherited1::UPDATE_Write	(tNetPacket);
-	tNetPacket.w				(&m_tNextGraphID,			sizeof(m_tNextGraphID));
-	tNetPacket.w				(&m_tPrevGraphID,			sizeof(m_tPrevGraphID));
-//	tNetPacket.w				(&m_fGoingSpeed,			sizeof(m_fGoingSpeed));
-//	tNetPacket.w				(&m_fCurSpeed,				sizeof(m_fCurSpeed));
-	tNetPacket.w				(&m_fDistanceFromPoint,		sizeof(m_fDistanceFromPoint));
-	tNetPacket.w				(&m_fDistanceToPoint,		sizeof(m_fDistanceToPoint));
+	tNetPacket.w_u16			(m_tNextGraphID);
+	tNetPacket.w_u16			(m_tPrevGraphID);
+	tNetPacket.w_float			(m_fDistanceFromPoint);
+	tNetPacket.w_float			(m_fDistanceToPoint);
 };
 
 void CSE_ALifeMonsterAbstract::UPDATE_Read	(NET_Packet &tNetPacket)
 {
 	inherited1::UPDATE_Read		(tNetPacket);
-	tNetPacket.r				(&m_tNextGraphID,			sizeof(m_tNextGraphID));
-	tNetPacket.r				(&m_tPrevGraphID,			sizeof(m_tPrevGraphID));
-//	tNetPacket.r				(&m_fGoingSpeed,			sizeof(m_fGoingSpeed));
-//	tNetPacket.r				(&m_fCurSpeed,				sizeof(m_fCurSpeed));
-	tNetPacket.r				(&m_fDistanceFromPoint,		sizeof(m_fDistanceFromPoint));
-	tNetPacket.r				(&m_fDistanceToPoint,		sizeof(m_fDistanceToPoint));
+	tNetPacket.r_u16			(m_tNextGraphID);
+	tNetPacket.r_u16			(m_tPrevGraphID);
+	tNetPacket.r_float			(m_fDistanceFromPoint);
+	tNetPacket.r_float			(m_fDistanceToPoint);
 };
 
 void CSE_ALifeMonsterAbstract::FillProps		(LPCSTR pref, PropItemVec& items)
@@ -1263,7 +1274,7 @@ void CSE_ALifeMonsterAbstract::FillProps		(LPCSTR pref, PropItemVec& items)
 
 bool CSE_ALifeMonsterAbstract::need_update	(CSE_ALifeDynamicObject *object)
 {
-	return						(CSE_ALifeSchedulable::need_update(object) && (fHealth > EPS_L));
+	return						(CSE_ALifeSchedulable::need_update(object) && (get_health() > EPS_L));
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -1318,7 +1329,7 @@ void CSE_ALifeCreatureActor::STATE_Read		(NET_Packet	&tNetPacket, u16 size)
 		tNetPacket.r_u8			(s_squad);
 		tNetPacket.r_u8			(s_group);
 		if (m_wVersion > 18)
-			tNetPacket.r_float	(fHealth);
+			set_health( tNetPacket.r_float() );
 		if (m_wVersion >= 3)
 			visual_read			(tNetPacket,m_wVersion);
 	}
@@ -1552,7 +1563,7 @@ CSE_ALifeMonsterZombie::CSE_ALifeMonsterZombie	(LPCSTR caSection) : CSE_ALifeMon
 	// personal charactersitics
 	fEyeFov						= 120;
 	fEyeRange					= 30;
-	fHealth						= 200;
+	set_health					( 200 );
 	fMinSpeed					= 1.5;
 	fMaxSpeed					= 1.75;
 	fAttackSpeed				= 2.0;
@@ -1577,7 +1588,8 @@ void CSE_ALifeMonsterZombie::STATE_Read		(NET_Packet	&tNetPacket, u16 size)
 	tNetPacket.r_float			(fEyeFov);
 	tNetPacket.r_float			(fEyeRange);
 	if (m_wVersion <= 5)
-		tNetPacket.r_float		(fHealth);
+		set_health				( tNetPacket.r_float() );
+
 	tNetPacket.r_float			(fMinSpeed);
 	tNetPacket.r_float			(fMaxSpeed);
 	tNetPacket.r_float			(fAttackSpeed);

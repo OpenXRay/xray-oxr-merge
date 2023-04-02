@@ -20,14 +20,12 @@ namespace detail
 TEMPLATE_SPECIALIZATION
 void CMonsterStateManagerAbstract::update()
 {
-	// Lain: added (no assert check)
-
+	// Lain: added
 	if ( !detail::object_exists_in_alife_registry (object->ID()) )
 	{
 		return;
 	}
 
-	// Lain: call only when alive
 	if ( !object->g_Alive() )
 	{
 		return;		

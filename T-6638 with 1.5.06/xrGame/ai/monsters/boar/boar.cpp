@@ -176,10 +176,9 @@ void CAI_Boar::CheckSpecParams(u32 spec_params)
 	//	return;
 	//}
 
-// 	if ( (spec_params & ASP_ATTACK_RUN) == ASP_ATTACK_RUN )
-// 	{
-// 		anim().SetCurAnim(eAnimAttackRun);
-// 	}
+	//if ((spec_params & ASP_ATTACK_RUN) == ASP_ATTACK_RUN) {
+	//	anim().SetCurAnim(eAnimAttackRun);
+	//}
 }
 
 void CAI_Boar::UpdateCL()

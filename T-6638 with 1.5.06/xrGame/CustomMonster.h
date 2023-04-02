@@ -339,7 +339,7 @@ public:
 	virtual	Fvector					spatial_sector_point	( );
 
 #ifdef DEBUG
-	xr_vector<trajectory_pick>			m_jump_picks;
+	xr_vector<trajectory_pick>		m_jump_picks;
 	xr_vector<Fvector>				m_jump_collide_tris;
 #endif // #ifdef DEBUG
 };

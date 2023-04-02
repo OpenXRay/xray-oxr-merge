@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #ifdef DEBUG
-#include "ode_include.h"
-#include "../xrEngine/StatGraph.h"
+
 #include "PHDebug.h"
 #endif
 #include "alife_space.h"
@@ -9,7 +8,7 @@
 #include "PHDestroyable.h"
 #include "car.h"
 #include "../Include/xrRender/Kinematics.h"
-#include "ExtendedGeom.h"
+#include "../xrphysics/ExtendedGeom.h"
 
 CCar::SWheel::SWheelCollisionParams::SWheelCollisionParams()
 {
@@ -89,12 +88,14 @@ void CCar::SWheel::Load(LPCSTR section)
 void CCar::SWheel::ApplyDriveAxisTorque(float torque)
 {
 	if(!joint) return;
-	dJointSetHinge2Param(joint->GetDJoint(), dParamFMax2,torque);//car->m_axle_friction
+	//dJointSetHinge2Param(joint->GetDJoint(), dParamFMax2,torque);//car->m_axle_friction
+	joint->SetForce( torque, 1 );
 }
 void CCar::SWheel::ApplyDriveAxisVel(float vel)
 {
 	if(!joint) return;
-	dJointSetHinge2Param(joint->GetDJoint(), dParamVel2, vel);
+	//dJointSetHinge2Param(joint->GetDJoint(), dParamVel2, vel);
+	joint->SetVelocity( vel, 1 );
 }
 
 
@@ -107,13 +108,15 @@ void CCar::SWheel::ApplyDriveAxisVelTorque(float vel,float torque)
 void CCar::SWheel::ApplySteerAxisVel(float vel)
 {
 	if(!joint) return;
-	dJointSetHinge2Param(joint->GetDJoint(), dParamVel, vel);
+	//dJointSetHinge2Param(joint->GetDJoint(), dParamVel, vel);
+	joint->SetVelocity( vel, 0 );
 }
 
 void CCar::SWheel::ApplySteerAxisTorque(float torque)
 {
 	if(!joint) return;
-	dJointSetHinge2Param(joint->GetDJoint(), dParamFMax, torque);
+	//dJointSetHinge2Param(joint->GetDJoint(), dParamFMax, torque);
+	joint->SetForce( torque, 0 );
 }
 
 void CCar::SWheel::ApplySteerAxisVelTorque(float vel,float torque)
@@ -125,12 +128,14 @@ void CCar::SWheel::ApplySteerAxisVelTorque(float vel,float torque)
 void CCar::SWheel::SetSteerHiLimit(float hi)
 {
 	if(!joint) return;
-	dJointSetHinge2Param(joint->GetDJoint(), dParamHiStop, hi);
+	//dJointSetHinge2Param(joint->GetDJoint(), dParamHiStop, hi);
+	joint->SetHiLimitDynamic( 0, hi );
 }
 void CCar::SWheel::SetSteerLoLimit(float lo)
 {
 	if(!joint) return;
-	dJointSetHinge2Param(joint->GetDJoint(), dParamLoStop, lo);
+	//dJointSetHinge2Param(joint->GetDJoint(), dParamLoStop, lo);
+	joint->SetLoLimitDynamic( 0, lo );
 }
 void CCar::SWheel::SetSteerLimits(float hi,float lo)
 {
@@ -144,7 +149,7 @@ void CCar::SWheel::ApplyDamage(u16 level)
 	if(!joint) return;
 	if(level == 0 )return;
 	float sf,df;
-	dJointID dj=joint->GetDJoint();
+	//dJointID dj=joint->GetDJoint();
 	switch(level) {
 
 	case 1:
@@ -155,12 +160,19 @@ void CCar::SWheel::ApplyDamage(u16 level)
 		break;
 	case 2:
 		
-		dVector3 v;
+		//dVector3 v;
+		Fvector v;
+		
+		//dJointGetHinge2Axis2(dj,v);
+		joint->GetAxisDirDynamic( 1, v );
 	
-		dJointGetHinge2Axis2(dj,v);
 		v[0]+=0.1f;v[1]+=0.1f;v[2]+=0.1f;
-		accurate_normalize(v);
-		dJointSetHinge2Axis2(dj,v[0],v[1],v[2]);
+		VERIFY( v.magnitude()>EPS_S );
+		//accurate_normalize(v);
+		v.normalize();
+
+		//dJointSetHinge2Axis2(dj,v[0],v[1],v[2]);
+		joint->SetAxisDir( v, 1 );
 		joint->GetJointSDfactors(sf,df);
 		sf/=30.f;df*=8.f;
 		joint->SetJointSDfactors(sf,df);
@@ -219,7 +231,8 @@ float CCar::SWheelDrive::ASpeed()
 {
 	CPhysicsJoint* J=pwheel->joint;
 	if(!J) return 0.f;
-	return (dJointGetHinge2Angle2Rate(J->GetDJoint()))*pos_fvd;//dFabs
+	//return (dJointGetHinge2Angle2Rate(J->GetDJoint()))*pos_fvd;//dFabs
+	return (J->GetAxisAngleRate(1))*pos_fvd;//dFabs
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void CCar::SWheelSteer::Init()
@@ -239,8 +252,11 @@ void CCar::SWheelSteer::Init()
 	
 	pos_right=pos_right>0.f ? -1.f : 1.f;
 	float steering_torque=pKinematics->LL_UserData()->r_float("car_definition","steering_torque");
+	VERIFY( pwheel );
 	pwheel->ApplySteerAxisTorque(steering_torque);
-	dJointSetHinge2Param(pwheel->joint->GetDJoint(), dParamFudgeFactor, 0.005f/steering_torque);
+	VERIFY( pwheel->joint );
+	//dJointSetHinge2Param(pwheel->joint->GetDJoint(), dParamFudgeFactor, 0.005f/steering_torque);
+	pwheel->joint->SetJointFudgefactorActive( 0.005f/steering_torque );
 	pwheel->ApplySteerAxisVel(0.f);
 	limited=false;
 }

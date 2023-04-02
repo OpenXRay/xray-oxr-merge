@@ -24,13 +24,15 @@ public:
 	virtual void	CheckSpecParams		(u32 spec_params);
 
 	// look at enemy
-	static void		BoneCallback	(CBoneInstance *B);
+	static void	_BCL	BoneCallback	(CBoneInstance *B);
 	
 			float	_velocity;
 			float	_cur_delta, _target_delta;
 			bool	look_at_enemy;
 	
 	virtual bool	ability_can_drag	() {return true;}
+	
+	virtual	char*	get_monster_class_name () { return "boar"; }
 	
 	DECLARE_SCRIPT_REGISTER_FUNCTION
 

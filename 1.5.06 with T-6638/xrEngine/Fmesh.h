@@ -48,6 +48,8 @@ enum OGF_Chuncks {
 	OGF_FASTPATH			= 22,	// * extended/fast geometry
 	OGF_S_LODS 				= 23,	// * For skeletons only (Ini-file)
 	OGF_S_MOTION_REFS2		= 24,	// * changes in format
+	OGF_COLLISION_VERTICES	= 25,
+	OGF_COLLISION_INDICES	= 26,
     OGF_forcedword			= 0xFFFFFFFF         
 };							
 

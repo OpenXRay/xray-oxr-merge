@@ -22,6 +22,9 @@ public:
 
 	virtual	EMonsterState get_state_type	();
 
+	virtual bool	check_control_start_conditions (ControlCom::EControlType type) 
+											{ return inherited::check_control_start_conditions(type); }
+
 	// Lain: added
 	#ifdef DEBUG
 	virtual void    add_debug_info          (debug::text_tree& root_s);

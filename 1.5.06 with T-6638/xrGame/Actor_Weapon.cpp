@@ -193,9 +193,6 @@ void	CActor::HitSector(CObject* who, CObject* weapon)
 			if (pWeapon->IsSilencerAttached())
 			{
 				bShowHitSector = false;
-				if (pWeapon->IsGrenadeLauncherAttached())
-				{
-				}
 			}
 		}
 	}
@@ -291,7 +288,7 @@ void	CActor::SpawnAmmoForWeapon	(CInventoryItem *pIItem)
 	CWeaponMagazined* pWM = smart_cast<CWeaponMagazined*> (pIItem);
 	if (!pWM || !pWM->AutoSpawnAmmo()) return;
 
-	///	CWeaponAmmo* pAmmo = smart_cast<CWeaponAmmo*>(inventory().GetAny( *(pWM->m_ammoTypes[0]) ));
+	///	CWeaponAmmo* pAmmo = smart_cast<CWeaponAmmo*>(inventory().GetAny( (pWM->m_ammoTypes[0].c_str()) ));
 	//	if (!pAmmo) 
 	pWM->SpawnAmmo(0xffffffff, NULL, ID());
 };

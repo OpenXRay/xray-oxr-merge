@@ -147,7 +147,7 @@ void CLevel::ClientReceive()
 				else
 					dTime = Level().timeServer() - P->timeReceive + pStat.getPing();
 
-				u32 NumSteps = ph_world->CalcNumSteps(dTime);
+				u32 NumSteps = physics_world()->CalcNumSteps(dTime);
 				SetNumCrSteps(NumSteps);
 			}break;
 //		case M_UPDATE_OBJECTS:
@@ -185,10 +185,10 @@ void CLevel::ClientReceive()
 				}
 				else					
 					dTime = Level().timeServer() - P->timeReceive + Ping;
-				u32 NumSteps = ph_world->CalcNumSteps(dTime);
+				u32 NumSteps = physics_world()->CalcNumSteps(dTime);
 				SetNumCrSteps(NumSteps);
 
-				O->CrPr_SetActivationStep(u32(ph_world->m_steps_num) - NumSteps);
+				O->CrPr_SetActivationStep(u32(physics_world()->StepsNum()) - NumSteps);
 				AddActor_To_Actors4CrPr(O);
 
 			}break;
@@ -240,7 +240,7 @@ void CLevel::ClientReceive()
 			}break;
 		//---------------------------------------------------
 		case 	M_SV_CONFIG_NEW_CLIENT:
-			InitializeClientGame(*P);
+			InitializeClientGame	(*P);
 			break;
 		case M_SV_CONFIG_GAME:
 			game->net_import_state	(*P);
@@ -439,7 +439,7 @@ void CLevel::ClientReceive()
 					P->r_stringZ(GameType);*/
 
 					string4096 NewServerOptions = "";
-					sprintf_s(NewServerOptions, "%s/%s/%s%s",
+					xr_sprintf(NewServerOptions, "%s/%s/%s%s",
 						LevelName.c_str(),
 						GameType.c_str(),
 						map_ver_string,
@@ -449,7 +449,7 @@ void CLevel::ClientReceive()
 					if (m_SO)
 					{
 						string4096 additional_options;
-						strcat_s(NewServerOptions, sizeof(NewServerOptions),
+						xr_strcat(NewServerOptions, sizeof(NewServerOptions),
 							remove_version_option(m_SO, additional_options, sizeof(additional_options))
 						);
 					}

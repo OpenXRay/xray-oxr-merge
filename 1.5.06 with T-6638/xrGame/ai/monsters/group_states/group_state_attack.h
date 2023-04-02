@@ -30,7 +30,6 @@ protected:
 	bool				m_drive_out;
 
 protected:
-	bool				enemy_reachable		();
 	bool				check_home_point	();
 	bool				check_behinder		();
 };

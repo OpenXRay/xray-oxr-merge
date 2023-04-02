@@ -8,15 +8,14 @@
 
 #include "stdafx.h"
 #include "xrMessages.h"
-#include "../../xrNetServer/net_utils.h"
-#include "clsid_game.h"
 #include "xrServer_Objects_ALife_Items.h"
 #include "clsid_game.h"
+#include "object_broker.h"
 
 #ifndef XRGAME_EXPORTS
 #	include "bone.h"
 #else
-#	include "..\bone.h"
+#	include "../xrEngine/bone.h"
 #	ifdef DEBUG
 #		define PHPH_DEBUG
 #	endif

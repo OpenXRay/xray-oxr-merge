@@ -736,8 +736,8 @@ void player_hud::detach_item_idx(u16 idx)
 				}
 			}
 		}
-	}else
-	if(idx==0 && attached_item(1))
+	}
+	else if(idx==0 && attached_item(1))
 	{
 		OnMovementChanged(mcAnyMove);
 	}

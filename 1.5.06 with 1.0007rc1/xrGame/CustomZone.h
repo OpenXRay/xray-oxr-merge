@@ -5,6 +5,7 @@
 
 class CActor;
 class CLAItem;
+class CArtefact;
 class CParticlesObject;
 class CZoneEffector;
 
@@ -29,8 +30,9 @@ struct SZoneObjectInfo
 };
 
 
-class CCustomZone :		public CSpaceRestrictor,
-						public Feel::Touch
+class CCustomZone :
+	public CSpaceRestrictor,
+	public Feel::Touch
 {
 private:
     typedef	CSpaceRestrictor inherited;
@@ -62,6 +64,7 @@ public:
 				float	effective_radius				();
 	virtual		void	net_Relcase						(CObject* O);
 	virtual		void	OnEvent							(NET_Packet& P, u16 type);
+				void	OnOwnershipTake					(u16 id);
 
 				float	GetMaxPower						()							{return m_fMaxPower;}
 				void	SetMaxPower						(float p)					{m_fMaxPower = p;}
@@ -97,14 +100,6 @@ protected:
 		eIdleLight				=(1<<6),
 		eBlowoutWindActive		=(1<<7),
 		eUseOnOffTime			=(1<<8),
-		eIdleLightVolumetric	=(1<<9),
-		eIdleLightShadow		=(1<<10),
-		eAlwaysFastmode			=(1<<11),
-		eFastMode				=(1<<12),
-		eIdleObjectParticlesDontStop=(1<<13),
-		eAffectPickDOF			=(1<<14),
-		eIdleLightR1			=(1<<15),
-		eBoltEntranceParticles	=(1<<16),
 	};
 	u32					m_owner_id;
 	u32					m_ttl;
@@ -123,6 +118,7 @@ protected:
 
 	//тип наносимого хита
 	ALife::EHitType		m_eHitTypeBlowout;
+
 	EZoneState			m_eZoneState;
 
 	//текущее время пребывания зоны в определенном состоянии 
@@ -237,12 +233,12 @@ protected:
 	Fcolor					m_IdleLightColor;
 	float					m_fIdleLightRange;
 	float					m_fIdleLightHeight;
+	float					m_fIdleLightRangeDelta;
 	CLAItem*				m_pIdleLAnim;
 
 	void					StartIdleLight				();
 	void					StopIdleLight				();
 	void					UpdateIdleLight				();
-
 
 	//подсветка выброса
 	ref_light				m_pLight;
@@ -296,11 +292,51 @@ protected:
 	Fvector					m_vPrevPos;
 	u32						m_dwLastTimeMoved;
 
+	//////////////////////////////////////////////////////////////////////////
+	// список артефактов
 protected:
+	virtual			void	SpawnArtefact				();
+
+	//рождение артефакта в зоне, во время ее срабатывания
+	//и присоединение его к зоне
+					void	BornArtefact				();
+	//выброс артефактов из зоны
+					void	ThrowOutArtefact			(CArtefact* pArtefact);
+	
+					void	PrefetchArtefacts			();
 	virtual BOOL		AlwaysTheCrow		();
+
+protected:
+	DEFINE_VECTOR(CArtefact*, ARTEFACT_VECTOR, ARTEFACT_VECTOR_IT);
+	ARTEFACT_VECTOR			m_SpawnedArtefacts;
+
+	//есть ли вообще функция выбрасывания артефактов во время срабатывания
+//	bool					m_bSpawnBlowoutArtefacts;
+	//вероятность того, что артефакт засповниться при единичном 
+	//срабатывании аномалии
+	float					m_fArtefactSpawnProbability;
+	//величина импульса выкидывания артефакта из зоны
+	float					 m_fThrowOutPower;
+	//высота над центром зоны, где будет появляться артефакт
+	float					m_fArtefactSpawnHeight;
+
+	//имя партиклов, которые проигрываются во время и на месте рождения артефакта
+	shared_str				m_sArtefactSpawnParticles;
+	//звук рождения артефакта
+	ref_sound				m_ArtefactBornSound;
+
+	struct ARTEFACT_SPAWN
+	{
+		shared_str	section;
+		float		probability;
+	};
+
+	DEFINE_VECTOR(ARTEFACT_SPAWN, ARTEFACT_SPAWN_VECTOR, ARTEFACT_SPAWN_IT);
+	ARTEFACT_SPAWN_VECTOR	m_ArtefactSpawn;
 
 	//расстояние от зоны до текущего актера
 	float					m_fDistanceToCurEntity;
+
 protected:
 	u32						m_ef_anomaly_type;
 	u32						m_ef_weapon_type;
@@ -315,8 +351,7 @@ public:
 	void					o_switch_2_fast				();
 	void					o_switch_2_slow				();
 
-// Lain: adde
+// Lain: added
 private:
 	virtual bool            light_in_slow_mode () { return true; }
-
 };

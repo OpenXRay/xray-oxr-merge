@@ -175,9 +175,7 @@ void CGamePersistent::Disconnect()
 void CGamePersistent::OnGameStart()
 {
 	__super::OnGameStart		();
-	
 	UpdateGameType				();
-
 }
 
 LPCSTR GameTypeToString(EGameIDs gt, bool bShort)
@@ -547,6 +545,37 @@ void CGamePersistent::OnFrame	()
 
 				Actor()->Cameras().UpdateFromCamera		(C);
 				Actor()->Cameras().ApplyDevice			(VIEWPORT_NEAR);
+					if(psActorFlags.test(AF_NO_CLIP))
+					{
+						Actor()->dbg_update_cl			= 0;
+						Actor()->dbg_update_shedule		= 0;
+						Device.dwTimeDelta				= 0;
+						Device.fTimeDelta				= 0.01f;			
+						Actor()->UpdateCL				();
+						Actor()->shedule_Update			(0);
+						Actor()->dbg_update_cl			= 0;
+						Actor()->dbg_update_shedule		= 0;
+
+						CSE_Abstract* e					= Level().Server->ID_to_entity(Actor()->ID());
+						VERIFY							(e);
+						CSE_ALifeCreatureActor*	s_actor = smart_cast<CSE_ALifeCreatureActor*>(e);
+						VERIFY							(s_actor);
+						xr_vector<u16>::iterator it = s_actor->children.begin();
+						for(;it!=s_actor->children.end();it++)
+						{
+							CObject* obj = Level().Objects.net_Find(*it);
+							if(obj && Engine.Sheduler.Registered(obj))
+							{
+								obj->dbg_update_shedule = 0;
+								obj->dbg_update_cl = 0;
+								obj->shedule_Update	(0);
+								obj->UpdateCL();
+								obj->dbg_update_shedule = 0;
+								obj->dbg_update_cl = 0;
+							}
+						}
+					}
+#endif // DEBUG
 				}
 			}
 		}
@@ -709,11 +738,36 @@ void CGamePersistent::OnRenderPPUI_PP()
 }
 #include "string_table.h"
 #include "../xrEngine/x_ray.h"
-void CGamePersistent::LoadTitle(LPCSTR str)
+void CGamePersistent::LoadTitle(bool change_tip, shared_str map_name)
 {
+	pApp->LoadStage();
+	if(change_tip)
+	{
 	string512			buff;
-	sprintf_s			(buff, "%s...", CStringTable().translate(str).c_str());
-	pApp->LoadTitleInt	(buff);
+		u8						tip_num;
+		luabind::functor<u8>	m_functor;
+		bool is_single = !xr_strcmp(m_game_params.m_game_type,"single");
+		if(is_single)
+		{
+			R_ASSERT( ai().script_engine().functor( "loadscreen.get_tip_number", m_functor ) );
+			tip_num				= m_functor(map_name.c_str());
+		}
+		else
+		{
+			R_ASSERT( ai().script_engine().functor( "loadscreen.get_mp_tip_number", m_functor ) );
+			tip_num				= m_functor(map_name.c_str());
+		}
+//		tip_num = 83;
+		xr_sprintf				(buff, "%s%d:", CStringTable().translate("ls_tip_number").c_str(), tip_num);
+		shared_str				tmp = buff;
+		
+		if(is_single)
+			xr_sprintf			(buff, "ls_tip_%d", tip_num);
+		else
+			xr_sprintf			(buff, "ls_mp_tip_%d", tip_num);
+
+		pApp->LoadTitleInt		(CStringTable().translate("ls_header").c_str(), tmp.c_str(), CStringTable().translate(buff).c_str());
+	}
 }
 
 bool CGamePersistent::CanBePaused()

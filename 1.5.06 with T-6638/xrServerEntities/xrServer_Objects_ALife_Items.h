@@ -174,6 +174,7 @@ SERVER_ENTITY_DECLARE_BEGIN(CSE_ALifeItemWeapon,CSE_ALifeItem)
 		}
 	}; //struct grenade_count_t
 	grenade_count_t					a_elapsed_grenades;
+
 	float							m_fHitPower;
 	ALife::EHitType					m_tHitType;
 	LPCSTR							m_caAmmoSections;

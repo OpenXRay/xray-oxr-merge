@@ -570,11 +570,11 @@ void CUIMainIngameWnd::SetWarningIconColor(EWarningIcons icon, const u32 cl)
 		if (bMagicFlag) break;
 */
 	case ewiInvincible:
-		SetWarningIconColorUI	(&UIInvincibleIcon, cl);
+		SetWarningIconColorUI	(UIInvincibleIcon, cl);
 		if (bMagicFlag) break;
 		break;
 	case ewiArtefact:
-		SetWarningIconColorUI	(&UIArtefactIcon, cl);
+		SetWarningIconColorUI	(UIArtefactIcon, cl);
 		break;
 
 	default:
@@ -664,7 +664,7 @@ void CUIMainIngameWnd::UpdatePickUpItem	()
 {
 	if (!m_pPickUpItem || !Level().CurrentViewEntity() || !smart_cast<CActor*>(Level().CurrentViewEntity())) 
 	{
-		UIPickUpItemIcon.Show(false);
+		UIPickUpItemIcon->Show(false);
 		return;
 	};
 

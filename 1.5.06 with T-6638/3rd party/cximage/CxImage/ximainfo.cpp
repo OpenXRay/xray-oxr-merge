@@ -5,6 +5,7 @@
 
 #include "ximage.h"
 
+#pragma warning(disable:4995)
 ////////////////////////////////////////////////////////////////////////////////
 /**
  * \return the color used for transparency, and/or for background color
@@ -915,3 +916,5 @@ const TCHAR* CxImage::GetVersion()
 	return (CxImageVersion);
 }
 ////////////////////////////////////////////////////////////////////////////////
+
+#pragma warning(default:4995)

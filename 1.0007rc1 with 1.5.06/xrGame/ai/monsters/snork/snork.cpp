@@ -274,8 +274,9 @@ bool CSnork::check_start_conditions(ControlCom::EControlType type)
 
 void CSnork::on_activate_control(ControlCom::EControlType type)
 {
-	if (type == ControlCom::eControlThreaten) {
-		//m_sound_start_threaten.play_at_pos(this,get_head_position(this));
+	if (type == ControlCom::eControlThreaten)
+	{
+		//m_sound_start_threaten.play_at_pos(this, get_head_position(this));
 	}
 }
 //////////////////////////////////////////////////////////////////////////

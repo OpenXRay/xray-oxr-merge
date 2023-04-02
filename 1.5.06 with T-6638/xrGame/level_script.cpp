@@ -15,21 +15,27 @@
 #include "client_spawn_manager.h"
 #include "../xrEngine/igame_persistent.h"
 #include "game_cl_base.h"
-#include "ui/UIDialogWnd.h"
+#include "UIGameCustom.h"
+#include "UI/UIDialogWnd.h"
 #include "date_time.h"
 #include "ai_space.h"
 #include "level_graph.h"
 #include "PHCommander.h"
 #include "PHScriptCall.h"
-#include "HUDManager.h"
 #include "script_engine.h"
 #include "game_cl_single.h"
+#include "game_sv_single.h"
 #include "map_manager.h"
 #include "map_spot.h"
 #include "map_location.h"
 #include "physics_world_scripted.h"
 #include "alife_simulator.h"
 #include "alife_time_manager.h"
+#include "UI/UIGameTutorial.h"
+#include "string_table.h"
+#include "ui/UIInventoryUtilities.h"
+#include "alife_object_registry.h"
+#include "xrServer_Objects_ALife_Monsters.h"
 
 using namespace luabind;
 
@@ -255,33 +261,6 @@ void map_add_object_spot(u16 id, LPCSTR spot_type, LPCSTR text)
 	}
 }
 
-/*void map_add_object_spot_complex(u16 id, LPCSTR spot_name, LPCSTR hint, 
-								 LPCSTR left_icon, LPCSTR right_icon, LPCSTR top_icon, int time_end )
-{
-	CMapLocation* ml = Level().MapManager().AddMapLocation(spot_name,id);
-	R_ASSERT2( ml, spot_name );
-	R_ASSERT2( ml->complex_spot(), spot_name );
-
-	ml->complex_spot()->SetTTL( time_end );
-
-	if ( hint && xr_strlen(hint) )
-	{
-		ml->SetHint(hint);
-	}
-	if ( left_icon && xr_strlen(left_icon) )
-	{
-		ml->complex_spot()->SetLeftTexture(left_icon);
-	}
-	if ( right_icon && xr_strlen(right_icon) )
-	{
-		ml->complex_spot()->SetRightTexture(right_icon);
-	}
-	if ( top_icon && xr_strlen(top_icon) )
-	{
-		ml->complex_spot()->SetTopTexture(top_icon);
-	}
-}
-*/
 void map_add_object_spot_ser(u16 id, LPCSTR spot_type, LPCSTR text)
 {
 	CMapLocation* ml = Level().MapManager().AddMapLocation(spot_type,id);
@@ -863,5 +842,53 @@ void CLevel::script_register(lua_State *L)
 		def("community_relation",				&g_get_community_relation),
 		def("set_community_relation",			&g_set_community_relation),
 		def("get_general_goodwill_between",		&g_get_general_goodwill_between)
+	];
+	module(L,"game")
+	[
+	class_< xrTime >("CTime")
+		.enum_("date_format")
+		[
+			value("DateToDay",		int(InventoryUtilities::edpDateToDay)),
+			value("DateToMonth",	int(InventoryUtilities::edpDateToMonth)),
+			value("DateToYear",		int(InventoryUtilities::edpDateToYear))
+		]
+		.enum_("time_format")
+		[
+			value("TimeToHours",	int(InventoryUtilities::etpTimeToHours)),
+			value("TimeToMinutes",	int(InventoryUtilities::etpTimeToMinutes)),
+			value("TimeToSeconds",	int(InventoryUtilities::etpTimeToSeconds)),
+			value("TimeToMilisecs",	int(InventoryUtilities::etpTimeToMilisecs))
+		]
+		.def(						constructor<>()				)
+		.def(						constructor<const xrTime&>())
+		.def(const_self <			xrTime()					)
+		.def(const_self <=			xrTime()					)
+		.def(const_self >			xrTime()					)
+		.def(const_self >=			xrTime()					)
+		.def(const_self ==			xrTime()					)
+		.def(self +					xrTime()					)
+		.def(self -					xrTime()					)
+
+		.def("diffSec"				,&xrTime::diffSec_script)
+		.def("add"					,&xrTime::add_script)
+		.def("sub"					,&xrTime::sub_script)
+
+		.def("setHMS"				,&xrTime::setHMS)
+		.def("setHMSms"				,&xrTime::setHMSms)
+		.def("set"					,&xrTime::set)
+		.def("get"					,&xrTime::get, out_value(_2) + out_value(_3) + out_value(_4) + out_value(_5) + out_value(_6) + out_value(_7) + out_value(_8))
+		.def("dateToString"			,&xrTime::dateToString)
+		.def("timeToString"			,&xrTime::timeToString),
+		// declarations
+		def("time",					get_time),
+		def("get_game_time",		get_time_struct),
+//		def("get_surge_time",	Game::get_surge_time),
+//		def("get_object_by_name",Game::get_object_by_name),
+	
+	def("start_tutorial",		&start_tutorial),
+	def("stop_tutorial",		&stop_tutorial),
+	def("has_active_tutorial",	&has_active_tutotial),
+	def("translate_string",		&translate_string)
+
 	];
 }

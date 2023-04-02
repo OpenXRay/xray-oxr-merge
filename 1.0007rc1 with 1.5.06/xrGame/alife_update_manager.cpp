@@ -18,7 +18,7 @@
 #include "xrserver.h"
 #include "level.h"
 #include "graph_engine.h"
-#include "../x_ray.h"
+#include "../xrEngine/x_ray.h"
 #include "restriction_space.h"
 #include "profiler.h"
 #include "mt_config.h"
@@ -227,7 +227,7 @@ bool CALifeUpdateManager::change_level	(NET_Packet &net_packet)
 	return							(true);
 }
 
-#include "../igame_persistent.h"
+#include "../xrEngine/igame_persistent.h"
 void CALifeUpdateManager::new_game			(LPCSTR save_name)
 {
 	g_pGamePersistent->LoadTitle		("st_creating_new_game");
@@ -268,7 +268,7 @@ void CALifeUpdateManager::load			(LPCSTR game_name, bool no_assert, bool new_onl
 	u32									memory_usage = Memory.mem_usage();
 #endif
 
-	strcpy								(g_last_saved_game,game_name);
+	strcpy_s							(g_last_saved_game,game_name);
 
 	if (new_only || !CALifeStorageManager::load(game_name)) {
 		R_ASSERT3						(new_only || no_assert && xr_strlen(game_name),"Cannot find the specified saved game ",game_name);
@@ -300,7 +300,7 @@ bool CALifeUpdateManager::load_game		(LPCSTR game_name, bool no_assert)
 		}
 	}
 	string512					S,S1;
-	strcpy						(S,**m_server_command_line);
+	strcpy_s					(S,**m_server_command_line);
 	LPSTR						temp = strchr(S,'/');
 	R_ASSERT2					(temp,"Invalid server options!");
 	strconcat					(sizeof(S1),S1,game_name,temp);
@@ -336,7 +336,9 @@ void CALifeUpdateManager::jump_to_level			(LPCSTR level_name) const
 	GraphEngineSpace::CGameLevelParams	evaluator(level.id());
 	bool								failed = !ai().graph_engine().search(ai().game_graph(),graph().actor()->m_tGraphID,GameGraph::_GRAPH_ID(-1),0,evaluator);
 	if (failed) {
+#ifndef MASTER_GOLD
 		Msg								("! Cannot build path via game graph from the current level to the level %s!",level_name);
+#endif // #ifndef MASTER_GOLD
 		float							min_dist = flt_max;
 		Fvector							current = ai().game_graph().vertex(graph().actor()->m_tGraphID)->game_point();
 		GameGraph::_GRAPH_ID			n = ai().game_graph().header().vertex_count();

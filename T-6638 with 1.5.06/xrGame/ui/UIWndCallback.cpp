@@ -44,20 +44,20 @@ SCallbackInfo*	CUIWndCallback::NewCallback ()
 	return m_callbacks.back();
 }
 
-void CUIWndCallback::AddCallback(CUIWindow* pWnd, s16 evt, const void_function &f)
+void CUIWndCallback::AddCallback(CUIWindow* pWnd, s16 event, const void_function &f)
 {
 	SCallbackInfo* c	= NewCallback ();
 	c->m_cpp_callback	= f;
 	c->m_control_ptr	= pWnd;
 	c->m_control_name	= "noname";
-	c->m_event			= evt;
+	c->m_event			= event;
 }
 
-void CUIWndCallback::AddCallbackStr(const shared_str& control_id, s16 evt, const void_function &f)
+void CUIWndCallback::AddCallbackStr(const shared_str& control_id, s16 event, const void_function &f)
 {
 	SCallbackInfo* c	= NewCallback ();
 	c->m_cpp_callback	= f;
 	c->m_control_ptr	= NULL;
 	c->m_control_name	= control_id;
-	c->m_event			= evt;
+	c->m_event			= event;
 }

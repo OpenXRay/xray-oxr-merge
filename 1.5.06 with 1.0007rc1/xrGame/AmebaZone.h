@@ -1,5 +1,5 @@
 #pragma once
-/*
+
 class CAmebaZone :
 	public CVisualZone,
 	public CPHUpdateObject
@@ -19,4 +19,3 @@ protected:
 	virtual				void		Load				(LPCSTR section)		;
 	virtual				float		distance_to_center	(CObject* O)			;	
 };
-*/

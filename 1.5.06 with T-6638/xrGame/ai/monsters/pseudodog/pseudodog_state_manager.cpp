@@ -27,7 +27,6 @@ CStateManagerPseudodog::CStateManagerPseudodog(CAI_PseudoDog *monster) : inherit
 		xr_new<CStateMonsterAttackMoveToHomePoint<CAI_PseudoDog> >(monster, true);
 
 	add_state(eStateAttack,					xr_new<CStateMonsterAttack<CAI_PseudoDog> >				(monster, move2home));
-//	add_state(eStateAttack,					xr_new<CStateMonsterAttack<CAI_PseudoDog> >				(monster));
 
 	add_state(eStateEat,					xr_new<CStateMonsterEat<CAI_PseudoDog> >				(monster));
 	add_state(eStateHearInterestingSound,	xr_new<CStateMonsterHearInterestingSound<CAI_PseudoDog> >(monster));

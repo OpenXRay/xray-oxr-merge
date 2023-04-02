@@ -12,7 +12,8 @@
 #include "detail_path_manager.h"
 #include "level.h"
 #include "custommonster.h"
-#include "IColisiondamageInfo.h"
+#include "../xrphysics/IColisiondamageInfo.h"
+
 #include "profiler.h"
 
 // Lain: added 
@@ -20,6 +21,7 @@
 
 #ifdef DEBUG
 #	include "PHDebug.h"
+
 #	define	DBG_PH_MOVE_CONDITIONS(c)				c
 #else // DEBUG
 #	define	DBG_PH_MOVE_CONDITIONS(c)					
@@ -47,10 +49,10 @@ void dump_collision_hit(CPHMovementControl *movement_control)
 	if( !dbg_dump_collision_hit )
 		return;
 	VERIFY( movement_control );
-	CPHCharacter * phch = movement_control->PHCharacter();
-	VERIFY( phch );
-	CPhysicsShellHolder  *obj = phch->PhysicsRefObject();
-	VERIFY( obj );
+	IPhysicsShellHolder  *iobj = movement_control->PhysicsRefObject();
+	VERIFY( iobj );
+	VERIFY( smart_cast<CPhysicsShellHolder*>(iobj) );
+	CPhysicsShellHolder *obj = static_cast<CPhysicsShellHolder	*>(iobj);
 	Msg( "ai unit: %s hited by collision; power: %f, spawn frame %d, current frame %d ", obj->cName().c_str(), movement_control->gcontact_HealthLost, obj->spawn_time(), Device.dwFrame ); 
 	//CPhysicsShellHolder* object =static_cast<CPhysicsShellHolder*>(Level().Objects.net_Find(m_collision_damage_info.m_obj_id));
 	//const ICollisionDamageInfo * di=movement_control->CollisionDamageInfo();
@@ -72,8 +74,15 @@ void CMovementManager::apply_collision_hit	(CPHMovementControl *movement_control
 		Fvector dir;
 		di->HitDir(dir);
 
-//		object().Hit	(movement_control->gcontact_HealthLost,dir,di->DamageInitiator(),movement_control->ContactBone(),di->HitPos(), 0.f,ALife::eHitTypeStrike);
-		SHit	HDS = SHit(movement_control->gcontact_HealthLost,0.0f,dir,di->DamageInitiator(),movement_control->ContactBone(),di->HitPos(), 0.f,di->HitType());
+		SHit	HDS = SHit(	movement_control->gcontact_HealthLost,
+							dir,
+							di->DamageInitiator(),
+							movement_control->ContactBone(),
+							di->HitPos(),
+							0.f,
+							di->HitType(),
+							0.0f,
+							false);
 		object().Hit(&HDS);
 	}
 }
@@ -286,7 +295,7 @@ void CMovementManager::move_along_path		(CPHMovementControl *movement_control, F
 	velocity.normalize_safe();							  //как не странно, mdir - не нормирован
 	velocity.mul						(desirable_speed);//*1.25f
 
-	if(!movement_control->PhyssicsOnlyMode())
+	if(!movement_control->PhysicsOnlyMode())
 		movement_control->SetCharacterVelocity(velocity);
 
 	if (DBG_PH_MOVE_CONDITIONS(ph_dbg_draw_mask.test(phDbgNeverUseAiPhMove)||!ph_dbg_draw_mask.test(phDbgAlwaysUseAiPhMove)&&)!(m_nearest_objects.empty())) {  //  физ. объект
@@ -332,7 +341,7 @@ void CMovementManager::move_along_path		(CPHMovementControl *movement_control, F
 
 	// Физика устанавливает позицию в соответствии с нулевой скоростью 
 	if (detail().completed(dest_position,true)) {
-		if(!movement_control->PhyssicsOnlyMode()) {
+		if(!movement_control->PhysicsOnlyMode()) {
 			Fvector velocity				= {0.f,0.f,0.f};
 			movement_control->SetVelocity	(velocity);
 			m_speed							= 0.f;

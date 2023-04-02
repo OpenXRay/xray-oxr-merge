@@ -8,7 +8,6 @@
 #include "../../level.h"
 #include "../../gameobject.h"
 
-
 #define KEEP_IMPULSE_UPDATE 200
 #define FIRE_TIME			3000
 #define RAISE_MAX_TIME		5000

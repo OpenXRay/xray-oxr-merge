@@ -10,6 +10,7 @@ class CMapManager
 {
 	CMapLocationWrapper*	m_locations_wrapper;
 	Locations*				m_locations;
+	xr_vector<CMapLocation*> m_deffered_destroy_queue;
 public:
 
 							CMapManager					();

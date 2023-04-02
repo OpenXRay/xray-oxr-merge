@@ -53,6 +53,8 @@ public:
 	
 	bool				see_enemy_now				();
 	bool                see_enemy_now               (const CEntityAlive* enemy);
+	bool				see_enemy_recently			();
+	bool				see_enemy_recently			(const CEntityAlive* enemy);
 	bool				enemy_see_me_now			();
 
 	// вернуть количество врагов

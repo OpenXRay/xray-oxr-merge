@@ -8,6 +8,8 @@
 
 #include "ximajpg.h"
 
+#pragma warning(disable:4995)
+
 #if CXIMAGEJPG_SUPPORT_EXIF
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -876,3 +878,4 @@ void* CxImageJPG::CxExifInfo::FindSection(int SectionType)
 ////////////////////////////////////////////////////////////////////////////////
 #endif 	// CXIMAGEJPG_SUPPORT_EXIF
 
+#pragma warning(default:4995)

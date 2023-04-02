@@ -6,14 +6,14 @@
 CUI3tButton::CUI3tButton()
 {
 	m_bTextureEnable	= false;
-	m_bUseTextColor[D]	= true;
-	m_bUseTextColor[H]	= false;
-	m_bUseTextColor[T]	= false;	
+	m_bUseTextColor[S_Disabled]		= true;
+	m_bUseTextColor[S_Highlighted]	= false;
+	m_bUseTextColor[S_Touched]		= false;	
 
-	m_dwTextColor[E] 	= 0xFFFFFFFF;
-	m_dwTextColor[D] 	= 0xFFAAAAAA;
-	m_dwTextColor[H] 	= 0xFFFFFFFF;
-	m_dwTextColor[T] 	= 0xFFFFFFFF;
+	m_dwTextColor[S_Enabled] 		= 0xFFFFFFFF;
+	m_dwTextColor[S_Disabled] 		= 0xFFAAAAAA;
+	m_dwTextColor[S_Highlighted]	= 0xFFFFFFFF;
+	m_dwTextColor[S_Touched] 		= 0xFFFFFFFF;
 
 	m_background		= NULL;
 	m_back_frameline	= NULL;
@@ -159,20 +159,20 @@ void CUI3tButton::InitTexture(LPCSTR tex_name)
 	string_path 		tex_highlighted;
 
 	// enabled state texture
-	strcpy_s				(tex_enabled,    tex_name);
-	strcat				(tex_enabled,   "_e");
+	xr_strcpy				(tex_enabled,    tex_name);
+	xr_strcat				(tex_enabled,   "_e");
 
 	// pressed state texture
-	strcpy_s				(tex_disabled,   tex_name);
-	strcat				(tex_disabled,   "_d");
+	xr_strcpy				(tex_disabled,   tex_name);
+	xr_strcat				(tex_disabled,   "_d");
 
 	// touched state texture
-	strcpy_s				(tex_touched, tex_name);
-	strcat				(tex_touched, "_t");
+	xr_strcpy				(tex_touched, tex_name);
+	xr_strcat				(tex_touched, "_t");
 
 	// touched state texture
-	strcpy_s				(tex_highlighted, tex_name);
-	strcat				(tex_highlighted, "_h");
+	xr_strcpy				(tex_highlighted, tex_name);
+	xr_strcat				(tex_highlighted, "_h");
 
 	this->InitTexture	(tex_enabled, tex_disabled, tex_touched, tex_highlighted);		
 }
@@ -184,40 +184,20 @@ void CUI3tButton::InitTexture(LPCSTR tex_enabled,
 {
 	if ( m_background )
 	{
-		m_background->InitEnabledState		(tex_enabled);
-		m_background->InitDisabledState		(tex_disabled);
-		m_background->InitTouchedState		(tex_touched);
-		m_background->InitHighlightedState	(tex_highlighted);
+		m_background->InitState				(S_Enabled,		tex_enabled);
+		m_background->InitState				(S_Disabled,	tex_disabled);
+		m_background->InitState				(S_Touched,		tex_touched);
+		m_background->InitState				(S_Highlighted, tex_highlighted);
 	}
 	else if ( m_back_frameline )
 	{
-		m_back_frameline->InitEnabledState		(tex_enabled);
-		m_back_frameline->InitDisabledState		(tex_disabled);
-		m_back_frameline->InitTouchedState		(tex_touched);
-		m_back_frameline->InitHighlightedState	(tex_highlighted);
+		m_back_frameline->InitState				(S_Enabled,		tex_enabled);
+		m_back_frameline->InitState				(S_Disabled,	tex_disabled);
+		m_back_frameline->InitState				(S_Touched,		tex_touched);
+		m_back_frameline->InitState				(S_Highlighted, tex_highlighted);
 	}
 
 	this->m_bTextureEnable = true;
-}
-
-void CUI3tButton::SetTextColor(u32 color)
-{
-    m_dwTextColor[E] = color;
-}
-
-void CUI3tButton::SetTextColorD(u32 color)
-{
-	SetTextColor(color, CUIStatic::D);
-}
-
-void CUI3tButton::SetTextColorH(u32 color)
-{
-	SetTextColor(color, CUIStatic::H);
-}
-
-void CUI3tButton::SetTextColorT(u32 color)
-{
-	SetTextColor(color, CUIStatic::T);
 }
 
 void CUI3tButton::SetTextureOffset(float x, float y)

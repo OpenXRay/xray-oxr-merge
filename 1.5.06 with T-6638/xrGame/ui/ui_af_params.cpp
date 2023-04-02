@@ -27,9 +27,10 @@ CUIArtefactParams::CUIArtefactParams()
 
 CUIArtefactParams::~CUIArtefactParams()
 {
-	delete_data( m_immunity_item );
-	delete_data( m_restore_item );
-	xr_delete( m_additional_weight );
+	delete_data	( m_immunity_item );
+	delete_data	( m_restore_item );
+	xr_delete	( m_additional_weight );
+	xr_delete	( m_Prop_line );
 }
 
 LPCSTR af_immunity_section_names[] = // ALife::EInfluenceType
@@ -102,6 +103,11 @@ void CUIArtefactParams::InitFromXml( CUIXml& xml )
 	CUIXmlInit::InitWindow( xml, base, 0, this );
 	xml.SetLocalRoot( base_node );
 	
+	m_Prop_line = xr_new<CUIStatic>();
+	AttachChild( m_Prop_line );
+	m_Prop_line->SetAutoDelete( false );	
+	CUIXmlInit::InitStatic( xml, "prop_line", 0, m_Prop_line );
+
 	for ( u32 i = 0; i < ALife::infl_max_count; ++i )
 	{
 		m_immunity_item[i] = xr_new<UIArtefactParamItem>();
@@ -258,14 +264,14 @@ void UIArtefactParamItem::Init( CUIXml& xml, LPCSTR section )
 
 void UIArtefactParamItem::SetCaption( LPCSTR name )
 {
-	m_caption->SetText( name );
+	m_caption->TextItemControl()->SetText( name );
 }
 
 void UIArtefactParamItem::SetValue( float value )
 {
 	value *= m_magnitude;
 	string32	buf;
-	sprintf_s( buf, "%+.0f", value );
+	xr_sprintf( buf, "%+.0f", value );
 	
 	LPSTR		str;
 	if ( m_unit_str.size() )

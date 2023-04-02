@@ -47,7 +47,6 @@ CWeapon::CWeapon()
 	iAmmoElapsed			= -1;
 	iMagazineSize			= -1;
 	m_ammoType				= 0;
-	m_ammoName				= NULL;
 
 	eHandDependence			= hdNone;
 
@@ -233,10 +232,7 @@ void CWeapon::Load		(LPCSTR section)
 			_GetItem				(S,it,_ammoItem);
 			m_ammoTypes.push_back	(_ammoItem);
 		}
-		m_ammoName = pSettings->r_string(*m_ammoTypes[0],"inv_name_short");
 	}
-	else
-		m_ammoName = 0;
 
 	iAmmoElapsed		= pSettings->r_s32		(section,"ammo_elapsed"		);
 	iMagazineSize		= pSettings->r_s32		(section,"ammo_mag_size"	);
@@ -355,11 +351,20 @@ void CWeapon::Load		(LPCSTR section)
 	m_pdm.m_fPDM_disp_crouch_no_acc	= pSettings->r_float( section, "PDM_disp_crouch_no_acc" );
 	m_crosshair_inertion			= READ_IF_EXISTS(pSettings, r_float, section, "crosshair_inertion",	5.91f);
 	m_first_bullet_controller.load	(section);
-
 	fireDispersionConditionFactor = pSettings->r_float(section,"fire_dispersion_condition_factor"); 
-	misfireProbability			  = pSettings->r_float(section,"misfire_probability"); 
-	misfireConditionK			  = READ_IF_EXISTS(pSettings, r_float, section, "misfire_condition_k",	1.0f);
+
+// modified by Peacemaker [17.10.08]
+//	misfireProbability			  = pSettings->r_float(section,"misfire_probability"); 
+//	misfireConditionK			  = READ_IF_EXISTS(pSettings, r_float, section, "misfire_condition_k",	1.0f);
+	misfireStartCondition			= pSettings->r_float(section, "misfire_start_condition");
+	misfireEndCondition				= READ_IF_EXISTS(pSettings, r_float, section, "misfire_end_condition", 0.f);
+	misfireStartProbability			= READ_IF_EXISTS(pSettings, r_float, section, "misfire_start_prob", 0.f);
+	misfireEndProbability			= pSettings->r_float(section, "misfire_end_prob");
 	conditionDecreasePerShot	  = pSettings->r_float(section,"condition_shot_dec"); 
+	conditionDecreasePerQueueShot	= READ_IF_EXISTS(pSettings, r_float, section, "condition_queue_shot_dec", conditionDecreasePerShot); 
+
+
+
 		
 	vLoadedFirePoint	= pSettings->r_fvector3		(section,"fire_point"		);
 	
@@ -1707,13 +1712,6 @@ bool CWeapon::unlimited_ammo()
 			m_DefaultCartridge.m_flags.test(CCartridge::cfCanBeUnlimited)); 
 			
 };
-
-LPCSTR	CWeapon::GetCurrentAmmo_ShortName	()
-{
-	if (m_magazine.empty()) return ("");
-	CCartridge &l_cartridge = m_magazine.back();
-	return *(l_cartridge.m_InvShortName);
-}
 
 float CWeapon::Weight() const
 {

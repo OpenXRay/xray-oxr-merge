@@ -49,6 +49,9 @@ public:
 	virtual		void	Load							(LPCSTR section);
 	virtual		void	net_Destroy						();
 	
+	virtual		void	save							(NET_Packet &output_packet);
+	virtual		void	load							(IReader &input_packet);
+	
 	virtual		void	UpdateCL						();
 	virtual		void	UpdateWorkload					(u32 dt);
 	virtual		void	shedule_Update					(u32 dt);
@@ -59,7 +62,7 @@ public:
 	virtual		BOOL	feel_touch_contact				(CObject* O);
 	virtual		BOOL	feel_touch_on_contact			(CObject* O);
 				
-				float	effective_radius				();
+				float	effective_radius				(float nearest_shape_radius);
 	virtual		void	net_Relcase						(CObject* O);
 	virtual		void	OnEvent							(NET_Packet& P, u16 type);
 
@@ -68,9 +71,9 @@ public:
 
 	//вычисление силы хита в зависимости от расстояния до центра зоны
 	//относительный размер силы (от 0 до 1)
-				float	RelativePower					(float dist);
+				float	RelativePower					(float dist, float nearest_shape_radius);
 	//абсолютный размер
-				float	Power							(float dist);
+				float	Power							(float dist, float nearest_shape_radius);
 
 	virtual CCustomZone	*cast_custom_zone				()							{return this;}
 
@@ -105,6 +108,7 @@ protected:
 		eAffectPickDOF			=(1<<14),
 		eIdleLightR1			=(1<<15),
 		eBoltEntranceParticles	=(1<<16),
+		eUseSecondaryHit		=(1<<17),
 	};
 	u32					m_owner_id;
 	u32					m_ttl;
@@ -112,6 +116,8 @@ protected:
 
 	//максимальная сила заряда зоны
 	float				m_fMaxPower;
+	//сила постоянного небольшого демеджа (для огненных и ядовитых мин)
+	float				m_fSecondaryHitPower;
 
 	//линейный коэффициент затухания в зависимости от расстояния
 	float				m_fAttenuation;
@@ -149,8 +155,10 @@ protected:
 	virtual		bool		BlowoutState				();
 	virtual		bool		AccumulateState				();
 
-				bool		Enable						();
-				bool		Disable						();
+	virtual		void		UpdateSecondaryHit			() {};
+
+	virtual		bool		Enable						();
+	virtual		bool		Disable						();
 				void		UpdateOnOffState			();
 	virtual		void		GoEnabledState				();
 	virtual		void		GoDisabledState				();
@@ -204,6 +212,7 @@ protected:
 	shared_str				m_sIdleParticles;
 	//выброс зоны
 	shared_str				m_sBlowoutParticles;
+	BOOL					m_bBlowoutOnce;
 	shared_str				m_sAccumParticles;
 	shared_str				m_sAwakingParticles;
 
@@ -264,7 +273,6 @@ protected:
 															u16 id_from, 
 															const Fvector& hit_dir, 
 															float hit_power, 
-															float hit_power_critical, 
 															s16 bone_id, 
 															const Fvector& pos_in_bone, 
 															float hit_impulse, 
@@ -296,9 +304,6 @@ protected:
 	Fvector					m_vPrevPos;
 	u32						m_dwLastTimeMoved;
 
-protected:
-	virtual BOOL		AlwaysTheCrow		();
-
 	//расстояние от зоны до текущего актера
 	float					m_fDistanceToCurEntity;
 protected:
@@ -312,6 +317,7 @@ public:
 
 	// optimization FAST/SLOW mode
 public:	
+	virtual BOOL			AlwaysTheCrow				();
 	void					o_switch_2_fast				();
 	void					o_switch_2_slow				();
 

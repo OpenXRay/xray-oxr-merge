@@ -205,7 +205,7 @@ bool xrGameSpyServer::Check_ServerAccess( IClient* CL, string512& reason )
 {
 	if( !HasProtected() )
 	{
-		strcpy_s( reason, "Access successful by server. " );
+		xr_strcpy( reason, "Access successful by server. " );
 		return true;
 	}
 
@@ -213,20 +213,20 @@ bool xrGameSpyServer::Check_ServerAccess( IClient* CL, string512& reason )
 	FS.update_path( fn, "$app_data_root$", "server_users.ltx" );
 	if( FS.exist(fn) == NULL )
 	{
-		strcpy_s( reason, "Access denied by server. " );
+		xr_strcpy( reason, "Access denied by server. " );
 		return false;
 	}
 
 	CInifile inif( fn );
 	if( inif.section_exist( "users" ) == FALSE )
 	{
-		strcpy_s( reason, "Access denied by server. " );
+		xr_strcpy( reason, "Access denied by server. " );
 		return false;
 	}
 
 	if( inif.line_count( "users" ) == 0 )
 	{
-		strcpy_s( reason, "Access denied by server. " );
+		xr_strcpy( reason, "Access denied by server. " );
 		return false;
 	}
 	
@@ -234,22 +234,22 @@ bool xrGameSpyServer::Check_ServerAccess( IClient* CL, string512& reason )
 	{
 		if( game->NewPlayerName_Exists( CL, CL->name.c_str() ) )
 		{
-			strcpy_s( reason, "! Access denied by server. Login \"" );
-			strcat_s( reason, CL->name.c_str() );
-			strcat_s( reason, "\" exist already. " );
+			xr_strcpy( reason, "! Access denied by server. Login \"" );
+			xr_strcat( reason, CL->name.c_str() );
+			xr_strcat( reason, "\" exist already. " );
 			return false;
 		}
 
 		shared_str pass1 = inif.r_string_wb( "users", CL->name.c_str() );
 		if( xr_strcmp( pass1, CL->pass ) == 0 )
 		{
-			strcpy_s( reason, "- User \"" );
-			strcat_s( reason, CL->name.c_str() );
-			strcat_s( reason, "\" access successful by server. " );
+			xr_strcpy( reason, "- User \"" );
+			xr_strcat( reason, CL->name.c_str() );
+			xr_strcat( reason, "\" access successful by server. " );
 			return true;
 		}
 	}
-	strcpy_s( reason, "! Access denied by server. Wrong login/password. " );
+	xr_strcpy( reason, "! Access denied by server. Wrong login/password. " );
 	return false;
 }
 

@@ -47,9 +47,6 @@ void dump_collision_hit(CPHMovementControl *movement_control)
 	if( !dbg_dump_collision_hit )
 		return;
 	VERIFY( movement_control );
-	//CPHCharacter * phch = movement_control->PHCharacter();
-	//VERIFY( phch );
-
 	IPhysicsShellHolder  *iobj = movement_control->PhysicsRefObject();
 	VERIFY( iobj );
 	VERIFY( smart_cast<CPhysicsShellHolder*>(iobj) );

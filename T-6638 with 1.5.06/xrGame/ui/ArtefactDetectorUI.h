@@ -80,7 +80,6 @@ public:
 	void		RegisterItemToDraw	(const Fvector& p, const shared_str& palette_idx);
 };
 
-
 class CUIArtefactDetectorAdv :public CUIArtefactDetectorBase
 {
 	typedef CUIArtefactDetectorBase	inherited;

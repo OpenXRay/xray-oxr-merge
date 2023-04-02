@@ -23,7 +23,7 @@ CSE_ALifeItemWeapon	*CSE_ALifeAnomalousZone::tpfGetBestWeapon(ALife::EHitType &t
 {
 	m_tpCurrentBestWeapon		= 0;
 	m_tTimeID					= ai().alife().time_manager().game_time();
-	fHitPower					= 1.0f;//m_maxPower;
+	fHitPower					= m_maxPower;
 	tHitType					= m_tHitType;
 	return						(m_tpCurrentBestWeapon);
 }
@@ -35,7 +35,7 @@ ALife::EMeetActionType CSE_ALifeAnomalousZone::tfGetActionType(CSE_ALifeSchedula
 
 bool CSE_ALifeAnomalousZone::bfActive()
 {
-	return						(false/*fis_zero(m_maxPower,EPS_L)*/ || !interactive());
+	return						(fis_zero(m_maxPower,EPS_L) || !interactive());
 }
 
 CSE_ALifeDynamicObject *CSE_ALifeAnomalousZone::tpfGetBestDetector()
@@ -46,7 +46,7 @@ CSE_ALifeDynamicObject *CSE_ALifeAnomalousZone::tpfGetBestDetector()
 	return						(0);
 #endif
 }
-/*
+
 void CSE_ALifeAnomalousZone::spawn_artefacts				()
 {
 	VERIFY2					(!m_bOnline,"Cannot spawn artefacts in online!");
@@ -123,10 +123,10 @@ void CSE_ALifeAnomalousZone::spawn_artefacts				()
 			l_tpALifeItemArtefact->m_fAnomalyValue = m_maxPower*(1.f - i->o_Position.distance_to(o_Position)/m_offline_interactive_radius);
 		}
 	}
-}*/
+}
 
 void CSE_ALifeAnomalousZone::on_spawn						()
 {
 	inherited::on_spawn		();
-//	spawn_artefacts			();
+	spawn_artefacts			();
 }

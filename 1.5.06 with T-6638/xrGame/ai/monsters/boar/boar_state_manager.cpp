@@ -27,8 +27,6 @@ CStateManagerBoar::CStateManagerBoar(CAI_Boar *monster) : inherited(monster)
  		xr_new<CStateMonsterAttackMoveToHomePoint<CAI_Boar> >(monster, true);
  
  	add_state(eStateAttack,					xr_new<CStateMonsterAttack<CAI_Boar> >				(monster, move2home));
-//	add_state(eStateAttack,					xr_new<CStateMonsterAttack<CAI_Boar> >				(monster));
-
 	add_state(eStateEat,					xr_new<CStateMonsterEat<CAI_Boar> >					(monster));
 	add_state(eStateHearInterestingSound,	xr_new<CStateMonsterHearInterestingSound<CAI_Boar> >(monster));
 	add_state(eStateHearDangerousSound,		xr_new<CStateMonsterHearDangerousSound<CAI_Boar> >	(monster));

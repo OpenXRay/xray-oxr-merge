@@ -1,9 +1,7 @@
 #include "pch_script.h"
 #include "actor.h"
 #include "UIGameSP.h"
-#include "UI.h"
 #include "PDA.h"
-#include "HUDManager.h"
 #include "level.h"
 #include "string_table.h"
 #include "PhraseDialog.h"
@@ -28,6 +26,8 @@
 #include "GameTaskManager.h"
 #include "GameTaskdefs.h"
 #include "infoportion.h"
+#include "inventory.h"
+#include "CustomDetector.h"
 #include "ai/monsters/basemonster/base_monster.h"
 #include "ai/trader/ai_trader.h"
 
@@ -89,7 +89,6 @@ void CActor::AddEncyclopediaArticle	 (const CInfoPortion* info_portion) const
 
 }
 
-
 void  CActor::AddGameNews			 (GAME_NEWS_DATA& news_data)
 {
 
@@ -97,9 +96,9 @@ void  CActor::AddGameNews			 (GAME_NEWS_DATA& news_data)
 	news_data.receive_time			= Level().GetGameTime();
 	news_vector.push_back			(news_data);
 
-	if ( HUD().GetUI() )
+	if ( CurrentGameUI() )
 	{
-		HUD().GetUI()->UIMainIngameWnd->ReceiveNews(&news_data);
+		CurrentGameUI()->UIMainIngameWnd->ReceiveNews(&news_data);
 	}
 }
 
@@ -116,10 +115,10 @@ bool CActor::OnReceiveInfo(shared_str info_id) const
 
 	callback(GameObject::eInventoryInfo)(lua_game_object(), *info_id);
 
-	if(!HUD().GetUI())
+	if(!CurrentGameUI())
 		return false;
 	//только если находимся в режиме single
-	CUIGameSP* pGameSP = smart_cast<CUIGameSP*>(HUD().GetUI()->UIGame());
+	CUIGameSP* pGameSP = smart_cast<CUIGameSP*>(CurrentGameUI());
 	if(!pGameSP) return false;
 
 	if(pGameSP->TalkMenu->IsShown())
@@ -136,11 +135,11 @@ void CActor::OnDisableInfo(shared_str info_id) const
 {
 	CInventoryOwner::OnDisableInfo(info_id);
 
-	if(!HUD().GetUI())
+	if(!CurrentGameUI())
 		return;
 
 	//только если находимся в режиме single
-	CUIGameSP* pGameSP = smart_cast<CUIGameSP*>(HUD().GetUI()->UIGame());
+	CUIGameSP* pGameSP = smart_cast<CUIGameSP*>(CurrentGameUI());
 	if(!pGameSP) return;
 
 	if(pGameSP->TalkMenu->IsShown())
@@ -150,7 +149,7 @@ void CActor::OnDisableInfo(shared_str info_id) const
 void  CActor::ReceivePhrase		(DIALOG_SHARED_PTR& phrase_dialog)
 {
 	//только если находимся в режиме single
-	CUIGameSP* pGameSP = smart_cast<CUIGameSP*>(HUD().GetUI()->UIGame());
+	CUIGameSP* pGameSP = smart_cast<CUIGameSP*>(CurrentGameUI());
 	if(!pGameSP) return;
 
 	if(pGameSP->TalkMenu->IsShown())
@@ -201,14 +200,12 @@ void CActor::RunTalkDialog(CInventoryOwner* talk_partner, bool disable_break)
 	if(talk_partner->OfferTalk(this))
 	{	
 		StartTalk(talk_partner);
-		//только если находимся в режиме single
-		CUIGameSP* pGameSP = smart_cast<CUIGameSP*>(HUD().GetUI()->UIGame());
-		if(pGameSP)
-		{
-			if(pGameSP->MainInputReceiver())
-				Game().StartStopMenu(pGameSP->MainInputReceiver(),true);
-			pGameSP->StartTalk(disable_break);
-		}
+
+		if(CurrentGameUI()->TopInputReceiver())
+			CurrentGameUI()->TopInputReceiver()->HideDialog();
+
+//		smart_cast<CUIGameSP*>(CurrentGameUI())->StartTalk(disable_break);
+		smart_cast<CUIGameSP*>(CurrentGameUI())->StartTalk(talk_partner->bDisableBreakDialog);
 	}
 }
 
@@ -223,7 +220,7 @@ void CActor::NewPdaContact		(CInventoryOwner* pInvOwner)
 	if(!IsGameTypeSingle()) return;
 
 	bool b_alive = !!(smart_cast<CEntityAlive*>(pInvOwner))->g_Alive();
-	HUD().GetUI()->UIMainIngameWnd->AnimateContacts(b_alive);
+	CurrentGameUI()->UIMainIngameWnd->AnimateContacts(b_alive);
 
 	Level().MapManager().AddRelationLocation		( pInvOwner );
 }
