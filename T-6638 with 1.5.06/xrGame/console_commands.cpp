@@ -351,7 +351,6 @@ public:
 		else
 			Log("!Not a single player game!");
 	}
-
 };
 
 

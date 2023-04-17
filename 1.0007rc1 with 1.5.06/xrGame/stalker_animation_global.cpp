@@ -12,7 +12,7 @@
 #include "inventory.h"
 #include "fooditem.h"
 #include "property_storage.h"
-#include "stalker_movement_manager.h"
+#include "stalker_movement_manager_smart_cover.h"
 #include "ai/stalker/ai_stalker_space.h"
 #include "stalker_animation_data.h"
 #include "weapon.h"
@@ -26,8 +26,17 @@ void CStalkerAnimationManager::global_play_callback			(CBlend *blend)
 	CAI_Stalker				*object = (CAI_Stalker*)blend->CallbackParam;
 	VERIFY					(object);
 
-	CStalkerAnimationPair	&pair = object->animation().global();
+	CStalkerAnimationManager	&manager = object->animation();
+	CStalkerAnimationPair		&pair = manager.global();
 	pair.on_animation_end	();
+
+//	std::pair<LPCSTR,LPCSTR>	pair_id = smart_cast<IKinematicsAnimated*>(object->Visual())->LL_MotionDefName_dbg(blend->motionID);
+//	Msg							("[%6d] global callback [%s][%s]", Device.dwTimeGlobal, pair_id.first, pair_id.second);
+
+	if (!manager.m_global_callback)
+		return;
+
+	manager.m_call_global_callback	= true;
 }
 
 MotionID CStalkerAnimationManager::global_critical_hit		()
@@ -65,8 +74,13 @@ MotionID CStalkerAnimationManager::global_critical_hit		()
 	);
 }
 
-MotionID CStalkerAnimationManager::assign_global_animation	()
+MotionID CStalkerAnimationManager::assign_global_animation	(bool &animation_movement_controller)
 {
+	if (m_global_selector)
+		return					(m_global_selector(animation_movement_controller));
+
+	animation_movement_controller	= false;
+
 	if (eMentalStatePanic != object().movement().mental_state())
 		return				(global_critical_hit());
 

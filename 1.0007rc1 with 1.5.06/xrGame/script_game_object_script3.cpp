@@ -29,6 +29,9 @@
 #include "relation_registry.h"
 #include "GameTask.h"
 #include "car.h"
+#include "ZoneCampfire.h"
+#include "physicobject.h"
+#include "artefact.h"
 
 using namespace luabind;
 
@@ -133,15 +136,20 @@ class_<CScriptGameObject> &script_register_game_object2(class_<CScriptGameObject
 		.def("get_task_state",				&CScriptGameObject::GetGameTaskState)
 		.def("set_task_state",				&CScriptGameObject::SetGameTaskState)
 		.def("give_task",					&CScriptGameObject::GiveTaskToActor,		adopt(_2))
+		.def("get_task",					&CScriptGameObject::GetTask)
 
 		.def("is_talking",					&CScriptGameObject::IsTalking)
 		.def("stop_talk",					&CScriptGameObject::StopTalk)
 		.def("enable_talk",					&CScriptGameObject::EnableTalk)
 		.def("disable_talk",				&CScriptGameObject::DisableTalk)
 		.def("is_talk_enabled",				&CScriptGameObject::IsTalkEnabled)
+
 		.def("enable_trade",				&CScriptGameObject::EnableTrade)
 		.def("disable_trade",				&CScriptGameObject::DisableTrade)
 		.def("is_trade_enabled",			&CScriptGameObject::IsTradeEnabled)
+		.def("enable_inv_upgrade",			&CScriptGameObject::EnableInvUpgrade)
+		.def("disable_inv_upgrade",			&CScriptGameObject::DisableInvUpgrade)
+		.def("is_inv_upgrade_enabled",		&CScriptGameObject::IsInvUpgradeEnabled)
 
 		.def("inventory_for_each",			&CScriptGameObject::ForEachInventoryItems)
 		.def("drop_item",					&CScriptGameObject::DropItem)
@@ -150,10 +158,13 @@ class_<CScriptGameObject> &script_register_game_object2(class_<CScriptGameObject
 		.def("transfer_money",				&CScriptGameObject::TransferMoney)
 		.def("give_money",					&CScriptGameObject::GiveMoney)
 		.def("money",						&CScriptGameObject::Money)
+		.def("make_item_active",			&CScriptGameObject::MakeItemActive)
 
 		.def("switch_to_trade",				&CScriptGameObject::SwitchToTrade)
+		.def("switch_to_upgrade",			&CScriptGameObject::SwitchToUpgrade)
 		.def("switch_to_talk",				&CScriptGameObject::SwitchToTalk)
 		.def("run_talk_dialog",				&CScriptGameObject::RunTalkDialog)
+		.def("allow_break_talk_dialog",		&CScriptGameObject::AllowBreakTalkDialog)
 //		.def("actor_sleep",					&CScriptGameObject::ActorSleep)
 //		.def("actor_fake_sleep",			&CScriptGameObject::ActorFakeSleep)
 //		.def("is_actor_sleeping",			&CScriptGameObject::IsActorSleepeng)
@@ -161,11 +172,19 @@ class_<CScriptGameObject> &script_register_game_object2(class_<CScriptGameObject
 		.def("hide_weapon",					&CScriptGameObject::HideWeapon)
 		.def("restore_weapon",				&CScriptGameObject::RestoreWeapon)
 		
+		.def("weapon_is_grenadelauncher",	&CScriptGameObject::Weapon_IsGrenadeLauncherAttached)
+		.def("weapon_is_scope",				&CScriptGameObject::Weapon_IsScopeAttached)
+		.def("weapon_is_silencer",			&CScriptGameObject::Weapon_IsSilencerAttached)
+
+		.def("weapon_grenadelauncher_status",	&CScriptGameObject::Weapon_GrenadeLauncher_Status)
+		.def("weapon_scope_status",				&CScriptGameObject::Weapon_Scope_Status)
+		.def("weapon_silencer_status",			&CScriptGameObject::Weapon_Silencer_Status)
+
+		.def("allow_sprint",				&CScriptGameObject::AllowSprint)
+
 		.def("set_start_dialog",			&CScriptGameObject::SetStartDialog)
 		.def("get_start_dialog",			&CScriptGameObject::GetStartDialog)
 		.def("restore_default_start_dialog",&CScriptGameObject::RestoreDefaultStartDialog)
-
-		//////////////////////////////////////////////////////////////////////////
 
 		.def("goodwill",					&CScriptGameObject::GetGoodwill)
 		.def("set_goodwill",				&CScriptGameObject::SetGoodwill)
@@ -174,11 +193,16 @@ class_<CScriptGameObject> &script_register_game_object2(class_<CScriptGameObject
 		.def("general_goodwill",			&CScriptGameObject::GetAttitude)
 		.def("set_relation",				&CScriptGameObject::SetRelation)
 
+		.def("community_goodwill",			&CScriptGameObject::GetCommunityGoodwill_obj)
+		.def("set_community_goodwill",		&CScriptGameObject::SetCommunityGoodwill_obj)
 
+		.def("sympathy",					&CScriptGameObject::GetSympathy)
+		.def("set_sympathy",				&CScriptGameObject::SetSympathy)
 
 		//////////////////////////////////////////////////////////////////////////
 		.def("profile_name",				&CScriptGameObject::ProfileName)
 		.def("character_name",				&CScriptGameObject::CharacterName)
+		.def("character_icon",				&CScriptGameObject::CharacterIcon)
 		.def("character_rank",				&CScriptGameObject::CharacterRank)
 		.def("set_character_rank",			&CScriptGameObject::SetCharacterRank)
 		.def("character_reputation",		&CScriptGameObject::CharacterReputation)
@@ -251,6 +275,7 @@ class_<CScriptGameObject> &script_register_game_object2(class_<CScriptGameObject
 		.def("wounded",						(void (CScriptGameObject::*)(bool))(&CScriptGameObject::wounded))
 
 		.def("iterate_inventory",			&CScriptGameObject::IterateInventory)
+		.def("iterate_inventory_box",		&CScriptGameObject::IterateInventoryBox)
 		.def("mark_item_dropped",			&CScriptGameObject::MarkItemDropped)
 		.def("marked_dropped",				&CScriptGameObject::MarkedDropped)
 		.def("unload_magazine",				&CScriptGameObject::UnloadMagazine)
@@ -261,6 +286,32 @@ class_<CScriptGameObject> &script_register_game_object2(class_<CScriptGameObject
 		.def("movement_enabled",			&CScriptGameObject::movement_enabled)
 
 		.def("critically_wounded",			&CScriptGameObject::critically_wounded)
+		.def("get_campfire",				&CScriptGameObject::get_campfire)
+		.def("get_artefact",				&CScriptGameObject::get_artefact)
+		.def("get_physics_object",			&CScriptGameObject::get_physics_object)
+		.def("aim_time",					(void (CScriptGameObject::*) (CScriptGameObject*, u32))&CScriptGameObject::aim_time)
+		.def("aim_time",					(u32 (CScriptGameObject::*) (CScriptGameObject*))&CScriptGameObject::aim_time)
+
+		.def("special_danger_move",			(void (CScriptGameObject::*) (bool))&CScriptGameObject::special_danger_move)
+		.def("special_danger_move",			(bool (CScriptGameObject::*) ())&CScriptGameObject::special_danger_move)
+
+		.def("sniper_update_rate",			(void (CScriptGameObject::*) (bool))&CScriptGameObject::sniper_update_rate)
+		.def("sniper_update_rate",			(bool (CScriptGameObject::*) () const)&CScriptGameObject::sniper_update_rate)
+
+		.def("sniper_fire_mode",			(void (CScriptGameObject::*) (bool))&CScriptGameObject::sniper_fire_mode)
+		.def("sniper_fire_mode",			(bool (CScriptGameObject::*) () const)&CScriptGameObject::sniper_fire_mode)
+
+		.def("aim_bone_id",					(void (CScriptGameObject::*) (LPCSTR))&CScriptGameObject::aim_bone_id)
+		.def("aim_bone_id",					(LPCSTR (CScriptGameObject::*) () const)&CScriptGameObject::aim_bone_id)
+
+		.def("actor_look_at_point",			&CScriptGameObject::ActorLookAtPoint)
+		.def("enable_level_changer",		&CScriptGameObject::enable_level_changer)
+		.def("is_level_changer_enabled",	&CScriptGameObject::is_level_changer_enabled)
+
+		.def("set_level_changer_invitation",&CScriptGameObject::set_level_changer_invitation)
+		.def("start_particles",				&CScriptGameObject::start_particles)
+		.def("stop_particles",				&CScriptGameObject::stop_particles)
+
 
 	;return	(instance);
 }

@@ -116,7 +116,6 @@ void CUIMessagesWindow::Init(float x, float y, float width, float height){
 			m_pending_chat_log_pos		= m_inprogress_chat_log_pos;
 			m_pending_chat_log_wnd_size	= m_inprogress_chat_log_wnd_size;
 		}
-		
 
 		CUIXmlInit::InitFont(xml, "chat_log_list:font", 0, color, pFont);
 		m_pChatLog->SetTextAtrib(pFont, color);

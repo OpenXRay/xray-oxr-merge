@@ -2,9 +2,11 @@
 #define IRenderDetailModelH
 #pragma once
 
+#include "../../Include/xrRender/RenderDetailModel.h"
+
 //////////////////////////////////////////////////////////////////////////
 // definition (Detail Model)
-class	ENGINE_API	IRender_DetailModel
+class		IRender_DetailModel
 {
 public:
 	struct fvfVertexIn	{

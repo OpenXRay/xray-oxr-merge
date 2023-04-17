@@ -30,8 +30,6 @@ hit_animation_global_params::hit_animation_global_params( )
 
 }
 
-
-
 void character_hit_animation_controller::SetupHitMotions(IKinematicsAnimated &ca)
 {
 	//IKinematicsAnimated* ca = smart_cast<IKinematicsAnimated*>(m_EntityAlife.Visual());

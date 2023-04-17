@@ -31,6 +31,16 @@ static const float end_delta = 0.5f * max_collide_timedelta;
 static const float collide_adwance_delta = 2.f*max_collide_timedelta;
 static const float depth_resolve = 0.01f;
 
+imotion_position::imotion_position(): 
+interactive_motion(), 
+time_to_end(0.f), 
+saved_visual_callback( 0 ), 
+blend(0), 
+shell_motion_has_history( false )
+{
+
+};
+
 static void interactive_motion_diag( LPCSTR message, const CBlend &b, CPhysicsShell *s, float time_left )
 {
 #ifdef	DEBUG
@@ -378,7 +388,7 @@ float imotion_position::collide_animation	( float dt, IKinematicsAnimated& k )
 #ifdef	DEBUG
 	collide_anim_dbg_draw ( shell, dt );
 #endif
-	shell->ToAnimBonesPositions( );
+	shell->ToAnimBonesPositions( shell_motion_has_history ? mh_not_clear : mh_unspecified );
 	depth = 0;
 #ifdef DEBUG
 	if( dbg_imotion_collide_debug )
@@ -504,7 +514,8 @@ float imotion_position::move( float dt, IKinematicsAnimated& KA )
 			time_to_end -= ad;
 			force_calculate_bones( KA );
 			//advance_time += advance_animation( -( end_delta ), KA );//+ ad
-			shell->ToAnimBonesPositions( );
+			shell->ToAnimBonesPositions( shell_motion_has_history ? mh_not_clear : mh_unspecified );
+			shell_motion_has_history = true;
 
 #ifdef DEBUG
 		if( dbg_imotion_collide_debug )
@@ -596,7 +607,7 @@ float imotion_position::motion_collide( float dt, IKinematicsAnimated& KA )
 		time_to_end += (dt-advance_time);
 		advance_time += (dt-advance_time);
 		force_calculate_bones( KA );
-		shell->ToAnimBonesPositions( );
+		shell->ToAnimBonesPositions( shell_motion_has_history ? mh_clear : mh_unspecified );
 
 #ifdef DEBUG
 		if( dbg_imotion_collide_debug )

@@ -19,6 +19,8 @@
 #include "../InfoPortion.h"
 #include "../string_table.h"
 #include "../game_cl_artefacthunt.h"
+#include "../game_news.h"
+#include "UIInventoryUtilities.h"
 
 CUIMessagesWindow::CUIMessagesWindow(){
 	m_pChatLog = NULL;
@@ -39,13 +41,40 @@ void CUIMessagesWindow::AddLogMessage(const shared_str& msg){
 	m_pGameLog->AddLogMessage(*msg);
 }
 
+void CUIMessagesWindow::PendingMode(bool const is_pending_mode)
+{
+	if (is_pending_mode)
+	{
+		if (m_in_pending_mode)
+			return;
+		
+		m_pChatWnd->PendingMode	(is_pending_mode);
+		m_pChatLog->SetWndPos	(m_pending_chat_log_pos);
+		m_pChatLog->SetWndSize	(m_pending_chat_log_wnd_size);
+		m_in_pending_mode		= true;
+		return;
+	}
+	if (!m_in_pending_mode)
+		return;
+	
+	m_pChatWnd->PendingMode	(is_pending_mode);
+	m_pChatLog->SetWndPos	(m_inprogress_chat_log_pos);
+	m_pChatLog->SetWndSize	(m_inprogress_chat_log_wnd_size);
+	m_in_pending_mode		= false;
+}
+
+#define CHAT_LOG_LIST_PENDING "chat_log_list_pending"
 void CUIMessagesWindow::Init(float x, float y, float width, float height){
 
 	CUIXml		 xml;
 	u32			color;
 	CGameFont*	pFont;
 
-	xml.Init(CONFIG_PATH, UI_PATH, "messages_window.xml");
+	m_game_color_time    = color_argb( 255, 255, 255, 255 );
+	m_game_color_caption = color_argb( 255, 189, 189, 224 );
+	m_game_color_text    = color_argb( 255, 255, 255, 255 );
+
+	xml.Load		(CONFIG_PATH, UI_PATH, "messages_window.xml");
 
 	m_pGameLog = xr_new<CUIGameLog>();m_pGameLog->SetAutoDelete(true);
 	m_pGameLog->Show(true);
@@ -53,6 +82,9 @@ void CUIMessagesWindow::Init(float x, float y, float width, float height){
 	if ( IsGameTypeSingle() )
 	{
 		CUIXmlInit::InitScrollView(xml, "sp_log_list", 0, m_pGameLog);
+		m_game_color_time    = CUIXmlInit::GetColor(xml, "game_time_color",    0, m_game_color_time);
+		m_game_color_caption = CUIXmlInit::GetColor(xml, "game_caption_color", 0, m_game_color_caption);
+		m_game_color_text    = CUIXmlInit::GetColor(xml, "game_text_color",    0, m_game_color_text);
 	}
 	else
 	{
@@ -67,6 +99,24 @@ void CUIMessagesWindow::Init(float x, float y, float width, float height){
 		m_pGameLog->SetTextAtrib(pFont, color);
 
 		CUIXmlInit::InitScrollView(xml, "chat_log_list", 0, m_pChatLog);
+		m_inprogress_chat_log_pos		=	m_pChatLog->GetWndPos();
+		m_inprogress_chat_log_wnd_size	=	m_pChatLog->GetWndSize();
+
+		m_in_pending_mode				= false;
+		
+		XML_NODE* pending_chat_list		= xml.NavigateToNode(CHAT_LOG_LIST_PENDING);
+		if (pending_chat_list)
+		{
+			m_pending_chat_log_pos.x	= xml.ReadAttribFlt(CHAT_LOG_LIST_PENDING, 0, "x");
+			m_pending_chat_log_pos.y	= xml.ReadAttribFlt(CHAT_LOG_LIST_PENDING, 0, "y");
+			m_pending_chat_log_wnd_size.x	= xml.ReadAttribFlt(CHAT_LOG_LIST_PENDING, 0, "width");
+			m_pending_chat_log_wnd_size.y	= xml.ReadAttribFlt(CHAT_LOG_LIST_PENDING, 0, "height");
+		} else
+		{
+			m_pending_chat_log_pos		= m_inprogress_chat_log_pos;
+			m_pending_chat_log_wnd_size	= m_inprogress_chat_log_wnd_size;
+		}
+
 		CUIXmlInit::InitFont(xml, "chat_log_list:font", 0, color, pFont);
 		m_pChatLog->SetTextAtrib(pFont, color);
 		
@@ -75,7 +125,8 @@ void CUIMessagesWindow::Init(float x, float y, float width, float height){
 
 }
 
-void CUIMessagesWindow::AddIconedPdaMessage(LPCSTR textureName, Frect originalRect, LPCSTR message, int iDelay){
+void CUIMessagesWindow::AddIconedPdaMessage(LPCSTR textureName, Frect originalRect, LPCSTR message, int iDelay)
+{
 	
 	CUIPdaMsgListItem *pItem			= m_pGameLog->AddPdaMessage(message, float(iDelay));
 	pItem->SetTextComplexMode			(true);

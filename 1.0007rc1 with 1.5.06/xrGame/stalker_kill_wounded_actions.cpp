@@ -304,6 +304,9 @@ void CStalkerActionKillWounded::execute					()
 	object().sight().setup	(CSightAction(enemy,true));
 	object().set_goal		(eObjectActionFire1,weapon_to_kill(&object()),MIN_QUEUE,MAX_QUEUE,MIN_INTERVAL,MAX_INTERVAL);
 
+	if (!object().inventory().ActiveItem())
+		return;
+
 	if (object().memory().visual().visible_now(enemy) && object().can_kill_enemy() && !object().can_kill_member())
 		return;
 

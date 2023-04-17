@@ -11,10 +11,10 @@
 #include "WeaponAmmo.h"
 
 #include "actor.h"
+#include "spectator.h"
 #include "game_cl_base.h"
 #include "level.h"
 #include "level_bullet_manager.h"
-#include "clsid_game.h"
 #include "game_cl_single.h"
 
 #define HIT_POWER_EPSILON 0.05f

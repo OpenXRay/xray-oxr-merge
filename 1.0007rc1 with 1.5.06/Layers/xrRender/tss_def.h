@@ -3,7 +3,7 @@
 
 #pragma once
 
-class	ENGINE_API SimulatorStates
+class	 SimulatorStates
 {
 private:
 	struct State
@@ -42,5 +42,12 @@ public:
 	BOOL					equal	(SimulatorStates& S);
 	void					clear	();
 	IDirect3DStateBlock9*	record	();
+#ifdef	USE_DX10
+	void	UpdateState( dx10State &state) const;
+	void	UpdateDesc( D3D10_RASTERIZER_DESC &desc ) const;
+	void	UpdateDesc( D3D10_DEPTH_STENCIL_DESC &desc ) const;
+	void	UpdateDesc( D3D10_BLEND_DESC &desc ) const;
+	void	UpdateDesc( D3D10_SAMPLER_DESC descArray[D3D10_COMMONSHADER_SAMPLER_SLOT_COUNT], bool SamplerUsed[D3D10_COMMONSHADER_SAMPLER_SLOT_COUNT], int iBaseSamplerIndex ) const;
+#endif	//	USE_DX10
 };
 #endif

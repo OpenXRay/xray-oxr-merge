@@ -398,17 +398,18 @@ void CKinematics::LL_Validate()
 }
 
 #define PCOPY(a)	a = pFrom->a
-void CKinematics::Copy(IRender_Visual *P) 
+void CKinematics::Copy(dxRender_Visual *P) 
 {
 	inherited::Copy	(P);
 
-	CKinematics* pFrom = (CKinematics*)P;
-    PCOPY(pUserData	);
-	PCOPY(bones		);
-	PCOPY(iRoot		);
-	PCOPY(bone_map_N);
-	PCOPY(bone_map_P);
-    PCOPY(visimask	);
+	CKinematics* pFrom = dynamic_cast<CKinematics*>(P);
+	VERIFY(pFrom);
+	pUserData  = pFrom->pUserData;
+	bones	   = pFrom->bones;
+	iRoot	   = pFrom->iRoot;
+	bone_map_N = pFrom->bone_map_N;
+	bone_map_P = pFrom->bone_map_P;
+	visimask   = pFrom->visimask;
 
 	IBoneInstances_Create	();
 
@@ -417,7 +418,7 @@ void CKinematics::Copy(IRender_Visual *P)
 
 	CalculateBones_Invalidate	();
 
-    m_lod 			= (pFrom->m_lod)?::Render->model_Duplicate	(pFrom->m_lod):0;
+    m_lod 	   = (pFrom->m_lod)?(dxRender_Visual*)::Render->model_Duplicate	(pFrom->m_lod):0;
 }
 
 void CKinematics::CalculateBones_Invalidate	()
@@ -449,7 +450,9 @@ void CKinematics::Depart		()
 	visimask.zero				();
 	if(bones)
 	{
-		for (u32 b=0; b<bones->size(); b++) visimask.set((u64(1)<<b),TRUE);
+		u32 count = bones->size();
+		for (u32 b=0; b<count; b++)
+		  visimask.set((u64(1)<<b),TRUE);
 	}
 	// visibility
 	children.insert				(children.end(),children_invisible.begin(),children_invisible.end());
@@ -690,7 +693,8 @@ void CKinematics::CalculateWallmarks()
 			if (w<1.f){
 				// append wm to WallmarkEngine
 				if (::Render->ViewBase.testSphere_dirty(wm->m_Bounds.P,wm->m_Bounds.R))
-					::Render->add_SkeletonWallmark	(wm);
+					//::Render->add_SkeletonWallmark	(wm);
+					::RImplementation.add_SkeletonWallmark	(wm);
 			}else{
 				// remove wallmark				
 				need_remove							= true;

@@ -8,7 +8,7 @@
 
 #include "stdafx.h"
 #include "script_particles.h"
-#include "../objectanimator.h"
+#include "../xrEngine/objectanimator.h"
 
 CScriptParticlesCustom::CScriptParticlesCustom(CScriptParticles* owner, LPCSTR caParticlesName):CParticlesObject(caParticlesName,FALSE,true)
 {
@@ -65,6 +65,7 @@ void CScriptParticlesCustom::PausePath(bool val)
 	VERIFY						(m_animator);
 	m_animator->Pause			(val);
 }
+
 void CScriptParticlesCustom::StopPath()
 {
 	VERIFY						(m_animator);
@@ -89,7 +90,7 @@ CScriptParticles::~CScriptParticles()
 void CScriptParticles::Play()
 {
 	VERIFY						(m_particles);
-	m_particles->Play			();
+	m_particles->Play			(false);
 }
 
 void CScriptParticles::PlayAtPos(const Fvector &position)

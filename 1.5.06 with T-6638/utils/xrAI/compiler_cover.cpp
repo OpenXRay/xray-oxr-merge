@@ -377,7 +377,7 @@ void compute_cover_nodes	()
 	Fbox					aabb;
 	CalculateHeight			(aabb);
 	VERIFY					(!g_covers);
-	g_covers				= xr_new<CPointQuadTree>(aabb,g_params.fPatchSize*.5f,4*65536,2*65536);
+	g_covers				= xr_new<CPointQuadTree>(aabb,g_params.fPatchSize*.5f,8*65536,4*65536);
 
 	g_cover_nodes.assign	(g_nodes.size(),false);
 
@@ -458,7 +458,7 @@ void compute_non_covers		()
 		Fbox					aabb;
 		CalculateHeight			(aabb);
 		VERIFY					(!g_covers);
-		g_covers				= xr_new<CPointQuadTree>(aabb,g_params.fPatchSize*.5f,4*65536,2*65536);
+		g_covers				= xr_new<CPointQuadTree>(aabb,g_params.fPatchSize*.5f,8*65536,4*65536);
 
 		Nodes::iterator			B = g_nodes.begin(), I = B;
 		Nodes::iterator			E = g_nodes.end();

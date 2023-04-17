@@ -207,6 +207,8 @@ void CSkeletonX::_Copy		(CSkeletonX *B)
 	ChildIDX				= B->ChildIDX;
 	Vertices1W				= B->Vertices1W;
 	Vertices2W				= B->Vertices2W;
+	Vertices3W				= B->Vertices3W;
+	Vertices4W				= B->Vertices4W;
 	BonesUsed				= B->BonesUsed;
 
 	// caution - overlapped (union)
@@ -216,6 +218,10 @@ void CSkeletonX::_Copy		(CSkeletonX *B)
 	RenderMode				= B->RenderMode;
 	RMS_boneid				= B->RMS_boneid;
 	RMS_bonecount			= B->RMS_bonecount;
+
+#ifdef	USE_DX10
+	m_Indices				= B->m_Indices;
+#endif	//	USE_DX10
 }
 //////////////////////////////////////////////////////////////////////
 void CSkeletonX::_Render	(ref_geom& hGeom, u32 vCount, u32 iOffset, u32 pCount)
@@ -238,11 +244,14 @@ void CSkeletonX::_Render	(ref_geom& hGeom, u32 vCount, u32 iOffset, u32 pCount)
 		break;
 	case RM_SKINNING_1B:
 	case RM_SKINNING_2B:
+	case RM_SKINNING_3B:
+	case RM_SKINNING_4B:
 		{
 			// transfer matrices
 			ref_constant			array	= RCache.get_c				(s_bones_array_const);
 			u32						count	= RMS_bonecount;
-			for (u32 mid = 0; mid<count; mid++)	{
+			for (u32 mid = 0; mid<count; mid++)	
+			{
 				Fmatrix&	M				= Parent->LL_GetTransform_R				(u16(mid));
 				u32			id				= mid*3;
 				RCache.set_ca	(&*array,id+0,M._11,M._21,M._31,M._41);
@@ -253,8 +262,17 @@ void CSkeletonX::_Render	(ref_geom& hGeom, u32 vCount, u32 iOffset, u32 pCount)
 			// render
 			RCache.set_Geometry		(hGeom);
 			RCache.Render			(D3DPT_TRIANGLELIST,0,0,vCount,iOffset,pCount);
-			if (RM_SKINNING_1B==RenderMode)	RCache.stat.r.s_dynamic_1B.add	(vCount);
-			else							RCache.stat.r.s_dynamic_2B.add	(vCount);
+			if (RM_SKINNING_1B==RenderMode)	
+				RCache.stat.r.s_dynamic_1B.add	(vCount);
+			else
+			if (RM_SKINNING_2B==RenderMode)	
+				RCache.stat.r.s_dynamic_2B.add	(vCount);
+			else
+			if (RM_SKINNING_3B==RenderMode)	
+				RCache.stat.r.s_dynamic_3B.add	(vCount);
+			else
+			if (RM_SKINNING_4B==RenderMode)	
+				RCache.stat.r.s_dynamic_4B.add	(vCount);
 		}
 		break;
 	}
@@ -280,14 +298,36 @@ void CSkeletonX::_Render_soft	(ref_geom& hGeom, u32 vCount, u32 iOffset, u32 pCo
 				vCount,										// count
 				Parent->bone_instances						// bones
 				);
-		} else {
+		}else 
+		if(*Vertices2W)
+		{
 			PSGP.skin2W(
 				Dest,										// dest
 				*Vertices2W,								// source
 				vCount,										// count
 				Parent->bone_instances						// bones
 				);
-		}
+		}else
+		if(*Vertices3W)
+		{
+			PSGP.skin3W(
+				Dest,										// dest
+				*Vertices3W,								// source
+				vCount,										// count
+				Parent->bone_instances						// bones
+				);
+		}else
+		if(*Vertices4W)
+		{
+			PSGP.skin4W(
+				Dest,										// dest
+				*Vertices4W,								// source
+				vCount,										// count
+				Parent->bone_instances						// bones
+				);
+		}else
+			R_ASSERT2(0,"unsupported soft rendering");
+
 		Device.Statistic->RenderDUMP_SKIN.End	();
 		_VS.Unlock			(vCount,hGeom->vb_stride);
 	}
@@ -296,7 +336,6 @@ void CSkeletonX::_Render_soft	(ref_geom& hGeom, u32 vCount, u32 iOffset, u32 pCo
 	RCache.Render			(D3DPT_TRIANGLELIST,vOffset,0,vCount,iOffset,pCount);
 }
 
-//////////////////////////////////////////////////////////////////////
 void CSkeletonX::_Load	(const char* N, IReader *data, u32& dwVertCount) 
 {	
 	s_bones_array_const	= "sbones_array";

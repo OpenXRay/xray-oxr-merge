@@ -2,29 +2,31 @@
 #define FBasicVisualH
 #pragma once
 
-#include "vis_common.h"
+#include "../../xrEngine/vis_common.h"
+
+#include "../../Include/xrRender/RenderVisual.h"
 
 #define VLOAD_NOVERTICES		(1<<0)
 #define VLOAD_NOINDICES			(1<<1)
 #define VLOAD_FORCESOFTWARE		(1<<2)
 
 // The class itself
-class	ENGINE_API				CKinematicsAnimated;
-class	ENGINE_API				CKinematics;
-class	ENGINE_API				IParticleCustom;
+class					CKinematicsAnimated;
+class					CKinematics;
+class					IParticleCustom;
 
-struct	ENGINE_API				IRender_Mesh	
+struct					IRender_Mesh	
 {
 	// format
 	ref_geom					rm_geom;
 
 	// verts
-	IDirect3DVertexBuffer9*		p_rm_Vertices;
+	ID3DVertexBuffer*		p_rm_Vertices;
 	u32							vBase;
 	u32							vCount;
 
 	// indices
-	IDirect3DIndexBuffer9*		p_rm_Indices;
+	ID3DIndexBuffer*		p_rm_Indices;
 	u32							iBase;
 	u32							iCount;
 	u32							dwPrimitives;
@@ -37,7 +39,7 @@ private:
 };
 
 // The class itself
-class	ENGINE_API				IRender_Visual
+class		ECORE_API			dxRender_Visual : public IRenderVisual
 {
 public:
 #ifdef _EDITOR
@@ -45,6 +47,7 @@ public:
 #endif
 #ifdef DEBUG
 	shared_str					dbg_name	;
+	virtual shared_str			getDebugName() { return dbg_name; }
 #endif
 public:
 	// Common data for rendering
@@ -55,16 +58,19 @@ public:
 	virtual void				Render						(float LOD)		{};		// LOD - Level Of Detail  [0..1], Ignored
 	virtual void				Load						(const char* N, IReader *data, u32 dwFlags);
 	virtual void				Release						();						// Shared memory release
-	virtual void				Copy						(IRender_Visual* from);
+	virtual void				Copy						(dxRender_Visual* from);
 	virtual void				Spawn						()				{};
 	virtual void				Depart						()				{};
 
-	virtual	CKinematics*		dcast_PKinematics			()				{ return 0;	}
-	virtual	CKinematicsAnimated*dcast_PKinematicsAnimated	()				{ return 0;	}
-	virtual IParticleCustom*	dcast_ParticleCustom		()				{ return 0;	}
+//	virtual	CKinematics*		dcast_PKinematics			()				{ return 0;	}
+//	virtual	CKinematicsAnimated*dcast_PKinematicsAnimated	()				{ return 0;	}
+//	virtual IParticleCustom*	dcast_ParticleCustom		()				{ return 0;	}
 
-	IRender_Visual				();
-	virtual ~IRender_Visual		();
+	virtual vis_data&	getVisData() { return vis;}
+	virtual u32			getType()	 { return Type;}
+
+	dxRender_Visual				();
+	virtual ~dxRender_Visual		();
 };
 
 #endif // !FBasicVisualH

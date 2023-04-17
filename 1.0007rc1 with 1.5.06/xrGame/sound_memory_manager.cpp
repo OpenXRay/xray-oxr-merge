@@ -23,10 +23,10 @@
 #include "profiler.h"
 #include "client_spawn_manager.h"
 #include "memory_manager.h"
-#include "../IGame_Persistent.h"
+#include "../xrEngine/IGame_Persistent.h"
 
 #ifndef MASTER_GOLD
-#	include "clsid_game.h"
+#	include "actor.h"
 #	include "ai_debug.h"
 #endif // MASTER_GOLD
 
@@ -128,7 +128,7 @@ IC	bool is_sound_type(int s, const ESoundTypes &t)
 void CSoundMemoryManager::feel_sound_new(CObject *object, int sound_type, CSound_UserDataPtr user_data, const Fvector &position, float sound_power)
 {
 #ifndef MASTER_GOLD
-	if (object && (object->CLS_ID == CLSID_OBJECT_ACTOR) && psAI_Flags.test(aiIgnoreActor))
+	if (object && smart_cast<CActor*>(object) && psAI_Flags.test(aiIgnoreActor))
 		return;
 #endif // MASTER_GOLD
 
@@ -384,8 +384,7 @@ void CSoundMemoryManager::save	(NET_Packet &packet) const
 	SOUNDS::const_iterator		I = objects().begin();
 	SOUNDS::const_iterator		E = objects().end();
 	for ( ; I != E; ++I) {
-		VERIFY					((*I).m_object);
-		packet.w_u16			((*I).m_object->ID());
+		packet.w_u16			((*I).m_object ? (*I).m_object->ID() : ALife::_OBJECT_ID(-1));
 		// object params
 		packet.w_u32			((*I).m_object_params.m_level_vertex_id);
 		packet.w_vec3			((*I).m_object_params.m_position);
@@ -431,7 +430,11 @@ void CSoundMemoryManager::load	(IReader &packet)
 		delayed_object.m_object_id	= packet.r_u16();
 
 		CSoundObject				&object = delayed_object.m_sound_object;
-		object.m_object				= smart_cast<CGameObject*>(Level().Objects.net_Find(delayed_object.m_object_id));
+		if (delayed_object.m_object_id != ALife::_OBJECT_ID(-1))
+			object.m_object			= smart_cast<CGameObject*>(Level().Objects.net_Find(delayed_object.m_object_id));
+		else
+			object.m_object			= 0;
+
 		// object params
 		object.m_object_params.m_level_vertex_id	= packet.r_u32();
 		packet.r_fvector3			(object.m_object_params.m_position);
@@ -466,7 +469,7 @@ void CSoundMemoryManager::load	(IReader &packet)
 		object.m_sound_type			= (ESoundTypes)packet.r_u32();
 		object.m_power				= packet.r_float();
 
-		if (object.m_object) {
+		if (object.m_object || (delayed_object.m_object_id == ALife::_OBJECT_ID(-1)) ) {
 			add						(object,true);
 			continue;
 		}

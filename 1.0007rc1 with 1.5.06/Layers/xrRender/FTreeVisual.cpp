@@ -1,10 +1,10 @@
 #include "stdafx.h"
 #pragma hdrstop
 
-#include "..\igame_persistent.h"
-#include "..\igame_level.h"
-#include "..\environment.h"
-#include "..\fmesh.h"
+#include "../../xrEngine/igame_persistent.h"
+#include "../../xrEngine/igame_level.h"
+#include "../../xrEngine/environment.h"
+#include "../../xrEngine/fmesh.h"
 
 #include "ftreevisual.h"
 
@@ -27,12 +27,12 @@ FTreeVisual::~FTreeVisual	(void)
 
 void FTreeVisual::Release	()
 {
-	IRender_Visual::Release	();
+	dxRender_Visual::Release	();
 }
 
 void FTreeVisual::Load		(const char* N, IReader *data, u32 dwFlags)
 {
-	IRender_Visual::Load		(N,data,dwFlags);
+	dxRender_Visual::Load		(N,data,dwFlags);
 
 	D3DVERTEXELEMENT9*	vFormat	= NULL;
 
@@ -117,32 +117,32 @@ void FTreeVisual::Render	(float LOD)
 	static FTreeVisual_setup	tvs;
 	if (tvs.dwFrame!=Device.dwFrame)	tvs.calculate();
 	// setup constants
-#if RENDER==R_R2
+#if RENDER!=R_R1
 	Fmatrix					xform_v			;
 							xform_v.mul_43	(RCache.get_xform_view(),xform);
-							RCache.set_c	(m_xform_v,	xform_v);									// matrix
+							RCache.tree.set_m_xform_v	(xform_v);									// matrix
 #endif
 	float	s				= ps_r__Tree_SBC;
-	RCache.set_c			(m_xform,	xform);														// matrix
-	RCache.set_c			(c_consts,	tvs.scale,tvs.scale,0,0);									// consts/scale
-	RCache.set_c			(c_wave,	tvs.wave);													// wave
-	RCache.set_c			(c_wind,	tvs.wind);													// wind
-#if RENDER==R_R2
+	RCache.tree.set_m_xform	(xform);														// matrix
+	RCache.tree.set_consts	(tvs.scale,tvs.scale,0,0);									// consts/scale
+	RCache.tree.set_wave	(tvs.wave);													// wave
+	RCache.tree.set_wind	(tvs.wind);													// wind
+#if RENDER!=R_R1
 	s *= 1.3333f;
-	RCache.set_c			(c_c_scale,	s*c_scale.rgb.x,	s*c_scale.rgb.y,	s*c_scale.rgb.z,	s*c_scale.hemi);	// scale
-	RCache.set_c			(c_c_bias,	s*c_bias.rgb.x,		s*c_bias.rgb.y,		s*c_bias.rgb.z,		s*c_bias.hemi);		// bias
+	RCache.tree.set_c_scale	(s*c_scale.rgb.x,	s*c_scale.rgb.y,	s*c_scale.rgb.z,	s*c_scale.hemi);	// scale
+	RCache.tree.set_c_bias	(s*c_bias.rgb.x,	s*c_bias.rgb.y,		s*c_bias.rgb.z,		s*c_bias.hemi);		// bias
 #else
-	CEnvDescriptor&	desc	= g_pGamePersistent->Environment().CurrentEnv;
-	RCache.set_c			(c_c_scale,	s*c_scale.rgb.x,					s*c_scale.rgb.y,					s*c_scale.rgb.z,				s*c_scale.hemi);	// scale
-	RCache.set_c			(c_c_bias,	s*c_bias.rgb.x + desc.ambient.x,	s*c_bias.rgb.y + desc.ambient.y,	s*c_bias.rgb.z+desc.ambient.z,	s*c_bias.hemi);		// bias
+	CEnvDescriptor&	desc	= *g_pGamePersistent->Environment().CurrentEnv;
+	RCache.tree.set_c_scale	(s*c_scale.rgb.x,					s*c_scale.rgb.y,					s*c_scale.rgb.z,				s*c_scale.hemi);	// scale
+	RCache.tree.set_c_bias	(s*c_bias.rgb.x + desc.ambient.x,	s*c_bias.rgb.y + desc.ambient.y,	s*c_bias.rgb.z+desc.ambient.z,	s*c_bias.hemi);		// bias
 #endif
-	RCache.set_c			(c_c_sun,	s*c_scale.sun,  s*c_bias.sun,0,0);							// sun
+	RCache.tree.set_c_sun	(s*c_scale.sun,  s*c_bias.sun,0,0);							// sun
 }
 
 #define PCOPY(a)	a = pFrom->a
-void	FTreeVisual::Copy	(IRender_Visual *pSrc)
+void	FTreeVisual::Copy	(dxRender_Visual *pSrc)
 {
-	IRender_Visual::Copy	(pSrc);
+	dxRender_Visual::Copy	(pSrc);
 
 	FTreeVisual	*pFrom		= dynamic_cast<FTreeVisual*> (pSrc);
 
@@ -188,7 +188,7 @@ void FTreeVisual_ST::Render		(float LOD)
 	RCache.Render				(D3DPT_TRIANGLELIST,vBase,0,vCount,iBase,dwPrimitives);
 	RCache.stat.r.s_flora.add	(vCount);
 }
-void FTreeVisual_ST::Copy		(IRender_Visual *pSrc)
+void FTreeVisual_ST::Copy		(dxRender_Visual *pSrc)
 {
 	inherited::Copy				(pSrc);
 }
@@ -231,7 +231,7 @@ void FTreeVisual_PM::Render		(float LOD)
 	RCache.Render				(D3DPT_TRIANGLELIST,vBase,0,SW.num_verts,iBase+SW.offset,SW.num_tris);
 	RCache.stat.r.s_flora.add	(SW.num_verts);
 }
-void FTreeVisual_PM::Copy		(IRender_Visual *pSrc)
+void FTreeVisual_PM::Copy		(dxRender_Visual *pSrc)
 {
 	inherited::Copy				(pSrc);
 	FTreeVisual_PM	*pFrom		= dynamic_cast<FTreeVisual_PM*> (pSrc);

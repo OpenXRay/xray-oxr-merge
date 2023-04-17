@@ -12,16 +12,22 @@
 #include "game_object_space.h"
 #include "script_callback_ex.h"
 #include "profiler.h"
-#include "stalker_movement_manager.h"
+#include "stalker_movement_manager_smart_cover.h"
 
 IC	void CStalkerAnimationManager::play_delayed_callbacks	()
 {
-	if (!m_call_script_callback)
-		return;
-
+	if (m_call_script_callback) {
 	m_call_script_callback	= false;
 	object().callback		(GameObject::eScriptAnimation)	();
+		return;
+	}
 
+	if (m_call_global_callback) {
+		m_call_global_callback	= false;
+		if (m_global_callback)
+			m_global_callback	();
+		return;
+	}
 }
 
 IC	bool CStalkerAnimationManager::script_callback			() const
@@ -51,27 +57,53 @@ IC	void CStalkerAnimationManager::update_tracks			()
 #ifdef USE_HEAD_BONE_PART_FAKE
 IC	void CStalkerAnimationManager::play_script_impl			()
 {
+	clear_unsafe_callbacks	();
 	global().reset			();
 	torso().reset			();
 	legs().reset			();
 
 	const CStalkerAnimationScript	&selected = assign_script_animation();
 	script().animation		(selected.animation());
-	script().play			(m_skeleton_animated,script_play_callback,&object(),selected.use_movement_controller(),false,m_script_bone_part_mask);
+	if (selected.use_movement_controller()) {
+		script().target_matrix	(selected.transform(object()));
+	}
+
+//	head().reset			();
+
+	script().play			(
+		m_skeleton_animated,
+		script_play_callback,
+		selected.use_movement_controller(),
+		selected.local_animation(),
+		false,
+		m_script_bone_part_mask
+	);
+
+//	if (selected.use_movement_controller())
+//		return;
 
 	head().animation		(assign_head_animation());
-	head().play				(m_skeleton_animated,head_play_callback,&object(),false);
+	head().play				(m_skeleton_animated,head_play_callback,false,false);
 }
 #else // USE_HEAD_BONE_PART_FAKE
 IC	void CStalkerAnimationManager::play_script_impl			()
 {
+	clear_unsafe_callbacks	();
 	global().reset			();
 	head().reset			();
 	torso().reset			();
 	legs().reset			();
 
-	script().animation		(assign_script_animation());
-	script().play			(m_skeleton_animated,script_play_callback,&object(),false);
+	const CStalkerAnimationScript	&selected = assign_script_animation();
+	script().animation		(selected.animation());
+	script().play			(
+		m_skeleton_animated,
+		script_play_callback,
+		selected.use_movement_controller(),
+		selected.local_animation(),
+		false,
+		m_script_bone_part_mask
+	);
 }
 #endif // USE_HEAD_BONE_PART_FAKE
 
@@ -88,38 +120,57 @@ bool CStalkerAnimationManager::play_script					()
 }
 
 #ifdef USE_HEAD_BONE_PART_FAKE
-IC	void CStalkerAnimationManager::play_global_impl			(const MotionID &animation)
+IC	void CStalkerAnimationManager::play_global_impl			(const MotionID &animation, bool const &animation_movement_controller)
 {
 	torso().reset			();
 	legs().reset			();
 
+//	if (animation_movement_controller)
+//		head().reset		();
+
 	global().animation		(animation);
-	global().play			(m_skeleton_animated,global_play_callback,&object(),false,false,m_script_bone_part_mask);
+	global().play			(
+		m_skeleton_animated,
+		global_play_callback,
+		animation_movement_controller,
+		true,
+		false,
+		m_script_bone_part_mask,
+		true
+	);
+
+	if (m_global_modifier)
+		m_global_modifier	(global().blend());
+
+//	if (animation_movement_controller)
+//		return;
 
 	head().animation		(assign_head_animation());
-	head().play				(m_skeleton_animated,head_play_callback,&object(),false);
+	head().play				(m_skeleton_animated,head_play_callback,false,false);
 }
 #else // USE_HEAD_BONE_PART_FAKE
-IC	void CStalkerAnimationManager::play_global_impl			(const MotionID &animation)
+IC	void CStalkerAnimationManager::play_global_impl			(const MotionID &animation, bool const &animation_movement_controller)
 {
 	head().reset			();
 	torso().reset			();
 	legs().reset			();
 
 	global().animation		(animation);
-	global().play			(m_skeleton_animated,global_play_callback,&object(),false);
+	global().play			(m_skeleton_animated,global_play_callback,false,false,false);
 }
 #endif // USE_HEAD_BONE_PART_FAKE
 
 bool CStalkerAnimationManager::play_global					()
 {
-	const MotionID			&global_animation = assign_global_animation();
+	bool					animation_movement_controller = false;
+	const MotionID			&global_animation = assign_global_animation(animation_movement_controller);
 	if (!global_animation) {
+		clear_unsafe_callbacks	();
 		global().reset		();
 		return				(false);
 	}
 
-	play_global_impl		(global_animation);
+	play_global_impl		(global_animation, animation_movement_controller);
 
 	return					(true);
 }
@@ -127,13 +178,13 @@ bool CStalkerAnimationManager::play_global					()
 IC	void CStalkerAnimationManager::play_head				()
 {
 	head().animation		(assign_head_animation());
-	head().play				(m_skeleton_animated,head_play_callback,&object(),false);
+	head().play				(m_skeleton_animated,head_play_callback,false,false);
 }
 
 IC	void CStalkerAnimationManager::play_torso				()
 {
 	torso().animation		(assign_torso_animation());
-	torso().play			(m_skeleton_animated,torso_play_callback,&object(),false);
+	torso().play			(m_skeleton_animated,torso_play_callback,false,false);
 }
 
 void CStalkerAnimationManager::play_legs					()
@@ -144,14 +195,14 @@ void CStalkerAnimationManager::play_legs					()
 	
 	if (!first_time && !result && legs().blend()) {
 		float				amount = legs().blend()->blendAmount;
-		m_previous_speed	= (m_current_speed - m_previous_speed)*amount + m_previous_speed;
+		m_previous_speed	= (m_target_speed - m_previous_speed)*amount + m_previous_speed;
 	}
 
-	legs().play				(m_skeleton_animated,legs_play_callback,&object(),!fis_zero(m_current_speed),false);
+	legs().play				(m_skeleton_animated,legs_play_callback,false,false,!fis_zero(m_target_speed));
 	
 	if (result && legs().blend()) {
 		float				amount = legs().blend()->blendAmount;
-		speed				= (m_current_speed - m_previous_speed)*amount + m_previous_speed;
+		speed				= (m_target_speed - m_previous_speed)*amount + m_previous_speed;
 	}
 
 	if (fis_zero(speed))
@@ -168,8 +219,8 @@ void CStalkerAnimationManager::update_impl					()
 	if (!object().g_Alive())
 		return;
 
-	play_delayed_callbacks	();
 	update_tracks			();
+	play_delayed_callbacks	();
 
 	if (play_script())
 		return;

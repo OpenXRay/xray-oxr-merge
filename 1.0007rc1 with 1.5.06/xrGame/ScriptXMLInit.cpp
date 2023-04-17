@@ -47,7 +47,7 @@ CScriptXmlInit& CScriptXmlInit::operator =(const CScriptXmlInit& other){
 }
 
 void CScriptXmlInit::ParseFile(LPCSTR xml_file){
-	m_xml.Init(CONFIG_PATH, UI_PATH, xml_file);
+	m_xml.Load(CONFIG_PATH, UI_PATH, xml_file);
 }
 
 void CScriptXmlInit::InitWindow(LPCSTR path, int index, CUIWindow* pWnd){
@@ -89,7 +89,6 @@ CUIEditBox* CScriptXmlInit::InitEditBox(LPCSTR path, CUIWindow* parent){
 	CUIXmlInit::InitEditBox(m_xml, path, 0, pWnd);
 	pWnd->SetAutoDelete(true);
 	_attach_child(pWnd, parent);
-//.	if(parent) parent->AttachChild(pWnd);
 	return pWnd;
 }
 
@@ -98,7 +97,6 @@ CUIStatic* CScriptXmlInit::InitStatic(LPCSTR path, CUIWindow* parent){
 	CUIXmlInit::InitStatic(m_xml, path, 0, pWnd);
 	pWnd->SetAutoDelete(true);
 	_attach_child(pWnd, parent);
-//.	if(parent) parent->AttachChild(pWnd);
 	return pWnd;
 }
 
@@ -190,6 +188,13 @@ CUI3tButton* CScriptXmlInit::Init3tButton(LPCSTR path, CUIWindow* parent){
 	return pWnd;	
 }
 
+CUI3tButtonEx* CScriptXmlInit::Init3tButtonEx(LPCSTR path, CUIWindow* parent){
+	CUI3tButtonEx* pWnd = xr_new<CUI3tButtonEx>();
+	pWnd->SetAutoDelete(true);
+	pWnd->init_from_xml(m_xml, path);
+	_attach_child(pWnd, parent);
+	return pWnd;	
+}
 
 CUIListWnd* CScriptXmlInit::InitList(LPCSTR path, CUIWindow* parent){
 	CUIListWnd* pWnd = xr_new<CUIListWnd>();
@@ -234,10 +239,9 @@ CUIMapList* CScriptXmlInit::InitMapList(LPCSTR path, CUIWindow* parent){
 
 CUIMMShniaga* CScriptXmlInit::InitMMShniaga(LPCSTR path, CUIWindow* parent){
 	CUIMMShniaga* pWnd = xr_new<CUIMMShniaga>();
-	pWnd->Init(m_xml, path);
+	pWnd->InitShniaga	(m_xml, path);
 	pWnd->SetAutoDelete(true);
 	_attach_child(pWnd, parent);
-//.	if(parent) parent->AttachChild(pWnd);
 	return pWnd;
 }
 
@@ -246,7 +250,6 @@ CUIMapInfo* CScriptXmlInit::InitMapInfo(LPCSTR path, CUIWindow* parent){
 	CUIXmlInit::InitWindow(m_xml,path,0,pWnd);
 	pWnd->SetAutoDelete(true);
 	_attach_child(pWnd, parent);
-//.	if(parent) parent->AttachChild(pWnd);
 	return pWnd;	
 }
 
@@ -283,6 +286,14 @@ CUIEditBox* CScriptXmlInit::InitCDkey(LPCSTR path, CUIWindow* parent){
 	return							pWnd;	
 }
 
+CUIEditBox* CScriptXmlInit::InitMPPlayerName(LPCSTR path, CUIWindow* parent){
+	CUIMPPlayerName* pWnd			= xr_new<CUIMPPlayerName>();
+	CUIXmlInit::InitEditBox			(m_xml, path, 0, pWnd);
+	pWnd->SetAutoDelete				(true);
+	_attach_child					(pWnd, parent);
+	return							pWnd;	
+}
+
 #pragma optimize("s",on)
 void CScriptXmlInit::script_register(lua_State *L){
 	module(L)
@@ -304,7 +315,8 @@ void CScriptXmlInit::script_register(lua_State *L){
 		.def("InitSpinText",			&CScriptXmlInit::InitSpinText)
 		.def("InitComboBox",			&CScriptXmlInit::InitComboBox)		
 		.def("InitButton",				&CScriptXmlInit::InitButton)
-		.def("Init3tButton",			&CScriptXmlInit::Init3tButton)
+		.def("Init3tButton",			&CScriptXmlInit::Init3tButtonEx) // Init3tButton
+//		.def("Init3tButtonEx",			&CScriptXmlInit::Init3tButtonEx)
 		.def("InitList",				&CScriptXmlInit::InitList)
 		.def("InitTab",					&CScriptXmlInit::InitTab)
 		.def("InitServerList",			&CScriptXmlInit::InitServerList)
@@ -312,6 +324,7 @@ void CScriptXmlInit::script_register(lua_State *L){
 		.def("InitMapInfo",				&CScriptXmlInit::InitMapInfo)
 		.def("InitTrackBar",			&CScriptXmlInit::InitTrackBar)
 		.def("InitCDkey",				&CScriptXmlInit::InitCDkey)
+		.def("InitMPPlayerName",		&CScriptXmlInit::InitMPPlayerName)
 		.def("InitKeyBinding",			&CScriptXmlInit::InitKeyBinding)
 		.def("InitMMShniaga",			&CScriptXmlInit::InitMMShniaga)
 		.def("InitScrollView",			&CScriptXmlInit::InitScrollView)

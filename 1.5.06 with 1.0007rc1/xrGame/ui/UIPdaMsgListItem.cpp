@@ -37,14 +37,15 @@ void CUIPdaMsgListItem::InitPdaMsgListItem(Fvector2 pos, Fvector2 size)
 	AttachChild				(&UIIcon);
 	xml_init.InitStatic		(uiXml, "icon_static", 0, &UIIcon);
 
-	/*AttachChild(&UIName);
+	AttachChild(&UIName);
 	if(uiXml.NavigateToNode	("name_static",0))
 		xml_init.InitStatic	(uiXml, "name_static", 0, &UIName);
 	else
 	{
 		UIName.Show			(false);
 		UIName.Enable		(false);
-	}*/
+	}
+
 	AttachChild				(&UITimeText);
 	xml_init.InitStatic		(uiXml, "time_static", 0, &UITimeText);
 
@@ -77,13 +78,12 @@ void CUIPdaMsgListItem::InitCharacterInv(CInventoryOwner* pInvOwner)
 //	UIName.SetText			(str);
 
 	UIIcon.InitTexture		( pInvOwner->CharacterInfo().IconName().c_str() );
-/*
-	UIIcon.SetShader(GetCharIconsShader());
-	UIIcon.GetUIStaticItem().SetOriginalRect(
-					float(pInvOwner->CharacterInfo().TradeIconX()*ICON_GRID_WIDTH),
-					float(pInvOwner->CharacterInfo().TradeIconY()*ICON_GRID_HEIGHT),
-					float(pInvOwner->CharacterInfo().TradeIconX()+CHAR_ICON_WIDTH*ICON_GRID_WIDTH),
-					float(pInvOwner->CharacterInfo().TradeIconY()+CHAR_ICON_HEIGHT*ICON_GRID_HEIGHT));
-*
+
+//	UIIcon.SetShader(GetCharIconsShader());
+//	UIIcon.GetUIStaticItem().SetOriginalRect(
+//					float(pInvOwner->CharacterInfo().TradeIconX()*ICON_GRID_WIDTH),
+//					float(pInvOwner->CharacterInfo().TradeIconY()*ICON_GRID_HEIGHT),
+//					float(pInvOwner->CharacterInfo().TradeIconX()+CHAR_ICON_WIDTH*ICON_GRID_WIDTH),
+//					float(pInvOwner->CharacterInfo().TradeIconY()+CHAR_ICON_HEIGHT*ICON_GRID_HEIGHT));
 }
 */

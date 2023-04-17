@@ -8,10 +8,10 @@
 #include "xrUIXmlParser.h"
 #include "UIXmlInit.h"
 
-#include "../character_info.h"
+#include "../../xrServerEntities/character_info.h"
 
 #include "UIFrameWindow.h"
-#include "..\InventoryOwner.h"
+#include "../InventoryOwner.h"
 #include "UICharacterInfo.h"
 #include "UIStatic.h"
 
@@ -27,19 +27,19 @@ CUIPdaListItem::~CUIPdaListItem()
 {
 }
 
-void CUIPdaListItem::Init(float x, float y, float width, float height)
+void CUIPdaListItem::InitPdaListItem(Fvector2 pos, Fvector2 size)
 {
-	inherited::Init								(x, y, width, height);
+	inherited::SetWndPos						(pos);
+	inherited::SetWndSize						(size);
 
 	CUIXml uiXml;
-	bool xml_result = uiXml.Init				(CONFIG_PATH, UI_PATH, PDA_CONTACT_CHAR);
-	R_ASSERT2									(xml_result, "xml file not found");
+	uiXml.Load									(CONFIG_PATH, UI_PATH, PDA_CONTACT_CHAR);
 
 	CUIXmlInit xml_init;
 	UIInfo = xr_new<CUICharacterInfo>			();
 	UIInfo->SetAutoDelete						(true);
 	AttachChild									(UIInfo);
-	UIInfo->Init								(0, 0, width, height, PDA_CONTACT_CHAR);
+	UIInfo->InitCharacterInfo					(Fvector2().set(0,0), size, PDA_CONTACT_CHAR);
 
 	if (uiXml.NavigateToNode					("mask_frame_window", 0))
 	{

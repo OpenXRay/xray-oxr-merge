@@ -25,12 +25,15 @@
 #include "game_location_selector.h"
 #include "sight_manager.h"
 #include "ai_object_location.h"
-#include "stalker_movement_manager.h"
+#include "stalker_movement_manager_smart_cover.h"
 #include "ai/stalker/ai_stalker_space.h"
 #include "ai_space.h"
 #include "xrServer_Objects_ALife_Monsters.h"
 #include "alife_human_brain.h"
 #include "alife_smart_terrain_task.h"
+
+#include "pch_script.h"
+#include "patrol_path_manager.h"
 
 using namespace StalkerSpace;
 using namespace StalkerDecisionSpace;

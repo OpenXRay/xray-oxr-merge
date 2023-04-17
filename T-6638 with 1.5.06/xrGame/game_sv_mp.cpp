@@ -793,6 +793,7 @@ void game_sv_mp::ChargeGrenades(CSE_ALifeItemWeapon* weapon, LPCSTR grenade_stri
 		).c_str()
 	);
 	weapon->a_elapsed_grenades.unpack_from_byte(0);
+
 	string512	temp_ammo_class;
 	for (int i = 0; i < grenades_count; ++i)
 	{

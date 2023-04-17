@@ -67,8 +67,6 @@ std::pair<LPCSTR,LPCSTR> CKinematicsAnimated::LL_MotionDefName_dbg	(MotionID ID)
 	return std::make_pair((LPCSTR)0,(LPCSTR)0);
 }
 
-
-
 static LPCSTR name_bool( BOOL v )
 {
 	static  xr_token token_bool[] = { { "false", 0 }, { "true", 1 } };
@@ -151,7 +149,6 @@ LPCSTR CKinematicsAnimated::LL_MotionDefName_dbg	(LPVOID ptr)
 	return 0;
 }
 */
-
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -395,7 +392,7 @@ CBlend*	CKinematicsAnimated::PlayFX			(LPCSTR  N, float power_scale)
 	MotionID motion_ID		= ID_FX(N);
     return PlayFX 			(motion_ID,power_scale);
 }
-//u16 part,u8 channel, MotionID motion_ID, BOOL  bMixing, float blendAccrue, float blendFalloff, float Speed, BOOL noloop, PlayCallback callback(), LPVOID CallbackParam)
+//u16 part,u8 channel, MotionID motion_ID, BOOL  bMixing, float blendAccrue, float blendFalloff, float Speed, BOOL noloop, PlayCallback callback, LPVOID CallbackParam)
 
 CBlend*	CKinematicsAnimated::LL_PlayFX		(u16 bone, MotionID motion_ID, float blendAccrue, float blendFalloff, float Speed, float Power)
 {
@@ -682,8 +679,8 @@ void CKinematicsAnimated::Load(const char* N, IReader *data, u32 dwFlags)
                 Msg					("! error in model [%s]. Unable to load motion file '%s'.", N, nm);
                 }
     	}
-    }else
-    if (data->find_chunk(OGF_S_MOTION_REFS2))
+    }
+    else if (data->find_chunk(OGF_S_MOTION_REFS2))
     {
 		u32 set_cnt		= data->r_u32();
 		m_Motions.reserve(set_cnt);
@@ -721,7 +718,8 @@ void CKinematicsAnimated::Load(const char* N, IReader *data, u32 dwFlags)
                 Msg					("! error in model [%s]. Unable to load motion file '%s'.", N, nm);
                 }
     	}
-    }else    
+    }
+    else    
 	{
 		string_path	nm;
 		strconcat			(sizeof(nm),nm,N,".ogf");

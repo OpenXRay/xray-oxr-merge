@@ -336,6 +336,10 @@ void CActor::Load	(LPCSTR section )
 	m_fPickupInfoRadius	= pSettings->r_float(section,"pickup_info_radius");
 	m_fSleepTimeFactor	= pSettings->r_float(section,"sleep_time_factor");
 
+	m_fFeelGrenadeRadius		= pSettings->r_float(section,"feel_grenade_radius");
+	m_fFeelGrenadeTime			= pSettings->r_float(section,"feel_grenade_time");
+	m_fFeelGrenadeTime			*= 1000.0f;
+
 	character_physics_support()->in_Load		(section);
 	
 	//загрузить параметры эффектора
@@ -639,21 +643,28 @@ void CActor::HitMark	(float P,
 			float _s3 = _s2+PI_DIV_4;
 			float _s4 = _s3+PI_DIV_4;
 
-			if(ang_diff<=_s1){
+		if ( ang_diff <= _s1 )
+		{
 				id = 2;
-			}else
-			if(ang_diff>_s1 && ang_diff<=_s2){
+		}
+		else if ( ang_diff > _s1 && ang_diff <= _s2 )
+		{
 				id = (bUp)?5:7;
-			}else
-			if(ang_diff>_s2 && ang_diff<=_s3){
+		}
+		else if ( ang_diff > _s2 && ang_diff <= _s3 )
+		{
 				id = (bUp)?3:1;
-			}else
-			if(ang_diff>_s3 && ang_diff<=_s4){
+		}
+		else if ( ang_diff > _s3 && ang_diff <= _s4 )
+		{
 				id = (bUp)?4:6;
-			}else
-			if(ang_diff>_s4){
+		}
+		else if( ang_diff > _s4 )
+		{
 				id = 0;
-			}else{
+		}
+		else
+		{
 				VERIFY(0);
 			}
 
@@ -685,10 +696,12 @@ void CActor::HitSignal(float perc, Fvector& vLocalDir, CObject* who, s16 element
 
 		float	yaw, pitch;
 		D.getHP(yaw,pitch);
-		CKinematicsAnimated *tpKinematics = smart_cast<CKinematicsAnimated*>(Visual());
+		IRenderVisual *pV = Visual();
+		IKinematicsAnimated *tpKinematics = smart_cast<IKinematicsAnimated*>(pV);
+		IKinematics *pK = smart_cast<IKinematics*>(pV);
 		VERIFY(tpKinematics);
 #pragma todo("Dima to Dima : forward-back bone impulse direction has been determined incorrectly!")
-		MotionID motion_ID = m_anims->m_normal.m_damage[iFloor(tpKinematics->LL_GetBoneInstance(element).get_param(1) + (angle_difference(r_model_yaw + r_model_yaw_delta,yaw) <= PI_DIV_2 ? 0 : 1))];
+		MotionID motion_ID = m_anims->m_normal.m_damage[iFloor(pK->LL_GetBoneInstance(element).get_param(1) + (angle_difference(r_model_yaw + r_model_yaw_delta,yaw) <= PI_DIV_2 ? 0 : 1))];
 		float power_factor = perc/100.f; clamp(power_factor,0.f,1.f);
 		VERIFY(motion_ID.valid());
 		tpKinematics->PlayFX(motion_ID,power_factor);
@@ -697,6 +710,9 @@ void CActor::HitSignal(float perc, Fvector& vLocalDir, CObject* who, s16 element
 void start_tutorial(LPCSTR name);
 void CActor::Die(CObject* who)
 {
+#ifdef DEBUG
+	Msg("--- Actor [%s] dies !", this->Name());
+#endif // #ifdef DEBUG
 	inherited::Die		(who);
 
 	if (OnServer())
@@ -744,7 +760,7 @@ void CActor::Die(CObject* who)
 			TIItemContainer &l_rlist	= inventory().m_ruck;
 			for(TIItemContainer::iterator l_it = l_rlist.begin(); l_rlist.end() != l_it; ++l_it)
 			{
-				if (GameID() == GAME_ARTEFACTHUNT)
+				if (GameID() == eGameIDArtefactHunt)
 				{
 					CArtefact* pArtefact = smart_cast<CArtefact*> (*l_it);
 					if (pArtefact)
@@ -801,10 +817,10 @@ void CActor::g_Physics(Fvector& _accel, float jump, float dt)
 	// Correct accel
 	Fvector						accel;
 	accel.set					(_accel);
-	hit_slowmo					-=	dt;
-	if (hit_slowmo<0)			hit_slowmo = 0.f;
+	m_hit_slowmo				-=	dt;
+	if(m_hit_slowmo<0)			m_hit_slowmo = 0.f;
 
-	accel.mul					(1.f-hit_slowmo);
+	accel.mul					(1.f-m_hit_slowmo);
 	
 	if(g_Alive())
 	{
@@ -875,18 +891,16 @@ void CActor::UpdateCL	()
 
 	m_snd_noise -= 0.3f*Device.fTimeDelta;
 
-	VERIFY2								(_valid(renderable.xform),*cName());
 	inherited::UpdateCL();
-	VERIFY2								(_valid(renderable.xform),*cName());
 	m_pPhysics_support->in_UpdateCL	();
-	VERIFY2								(_valid(renderable.xform),*cName());
+
 
 	if (g_Alive()) 
 		PickupModeUpdate	();	
 
 	PickupModeUpdate_COD();
 
-	m_bZoomAimingMode = false;
+	SetZoomAimingMode		(false);
 	CWeapon* pWeapon = smart_cast<CWeapon*>(inventory().ActiveItem());	
 
 	Device.Statistic->TEST1.Begin		();
@@ -905,9 +919,10 @@ void CActor::UpdateCL	()
 			float full_fire_disp = pWeapon->GetFireDispersion(true);
 
 			CEffectorZoomInertion* S = smart_cast<CEffectorZoomInertion*>	(Cameras().GetCamEffector(eCEZoom));
-			if(S) S->SetParams(full_fire_disp);
+			if(S)
+				S->SetParams(full_fire_disp);
 
-			m_bZoomAimingMode = true;
+			SetZoomAimingMode		(true);
 		}
 
 		if(Level().CurrentEntity() && this->ID()==Level().CurrentEntity()->ID() )
@@ -1131,6 +1146,7 @@ void CActor::shedule_Update	(u32 DT)
 	//если в режиме HUD, то сама модель актера не рисуется
 	if(!character_physics_support()->IsRemoved())
 										setVisible				(!HUDview	());
+
 	//что актер видит перед собой
 	collide::rq_result& RQ = HUD().GetCurrentRayQuery();
 	

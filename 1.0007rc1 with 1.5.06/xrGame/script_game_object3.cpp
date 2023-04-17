@@ -28,7 +28,7 @@
 #include "sound_memory_manager.h"
 #include "hit_memory_manager.h"
 #include "sight_manager.h"
-#include "stalker_movement_manager.h"
+#include "stalker_movement_manager_smart_cover.h"
 #include "movement_manager_space.h"
 #include "detail_path_manager_space.h"
 #include "level_debug.h"
@@ -37,6 +37,7 @@
 #include "script_ini_file.h"
 #include "sound_player.h"
 #include "stalker_decision_space.h"
+#include "space_restriction_manager.h"
 
 namespace MemorySpace {
 	struct CVisibleObject;
@@ -226,7 +227,49 @@ void CScriptGameObject::add_animation			(LPCSTR animation, bool hand_usage, bool
 		return;
 	}
 	
+	
+	if (stalker->movement().current_params().cover()) {
+		ai().script_engine().script_log(eLuaMessageTypeError,"Cannot add animation [%s]: object [%s] is in smart_cover!", animation, stalker->cName().c_str());
+	}
+
+	if (stalker->animation().global_selector()) {
+		ai().script_engine().script_log(
+			eLuaMessageTypeError,
+			"Cannot add animation [%s]: global selector is set for object [%s], in_smart_cover returned [%s]!",
+			animation,
+			stalker->cName().c_str(),
+			in_smart_cover() ? "true" : "false"
+		);
+		return;
+	}
+	
 	stalker->animation().add_script_animation(animation,hand_usage,use_movement_controller);
+}
+
+void CScriptGameObject::add_animation			(LPCSTR animation, bool hand_usage, Fvector position, Fvector rotation, bool local_animation)
+{
+	CAI_Stalker			*stalker = smart_cast<CAI_Stalker*>(&object());
+	if (!stalker) {
+		ai().script_engine().script_log		(ScriptStorage::eLuaMessageTypeError,"CGameObject : cannot access class member add_animation!");
+		return;
+	}
+	
+	if (stalker->movement().current_params().cover()) {
+		ai().script_engine().script_log(eLuaMessageTypeError,"Cannot add animation [%s]: object [%s] is in smart_cover!", animation, stalker->cName().c_str());
+	}
+
+	if (stalker->animation().global_selector()) {
+		ai().script_engine().script_log(
+			eLuaMessageTypeError,
+			"Cannot add animation [%s]: global selector is set for object [%s], in_smart_cover returned [%s]!",
+			animation,
+			stalker->cName().c_str(),
+			in_smart_cover() ? "true" : "false"
+		);
+		return;
+	}
+	
+	stalker->animation().add_script_animation( animation, hand_usage, position, rotation, local_animation);
 }
 
 void CScriptGameObject::clear_animations		()
@@ -729,7 +772,7 @@ void CScriptGameObject::make_object_visible_somewhen	(CScriptGameObject *object)
 		return;
 	}
 
-	CEntityAlive	*entity_alive = smart_cast<CEntityAlive*>(object);
+	CEntityAlive	*entity_alive = smart_cast<CEntityAlive*>(&object->object());
 	if (!entity_alive) {
 		ai().script_engine().script_log			(ScriptStorage::eLuaMessageTypeError,"CEntityAlive : cannot access class member make_object_visible_somewhen!");
 		return;

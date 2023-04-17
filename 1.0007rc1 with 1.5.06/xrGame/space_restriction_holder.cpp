@@ -176,6 +176,8 @@ void CSpaceRestrictionHolder::unregister_restrictor			(CSpaceRestrictor *space_r
 	shared_str				restrictor_id = space_restrictor->cName();
 	RESTRICTIONS::iterator	I = m_restrictions.find(restrictor_id);
 	VERIFY					(I != m_restrictions.end());
+
+	CSpaceRestrictionBridge	*bridge	= (*I).second;
 	m_restrictions.erase	(I);
 
 	if (try_remove_string(m_default_out_restrictions,restrictor_id))
@@ -186,7 +188,7 @@ void CSpaceRestrictionHolder::unregister_restrictor			(CSpaceRestrictor *space_r
 	}
 
 	CSpaceRestrictionBase	*composition = xr_new<CSpaceRestrictionComposition>(this,restrictor_id);
-	CSpaceRestrictionBridge	*bridge = xr_new<CSpaceRestrictionBridge>(composition);
+	bridge->change_implementation	(composition);
 	m_restrictions.insert	(std::make_pair(restrictor_id,bridge));
 
 	collect_garbage			();

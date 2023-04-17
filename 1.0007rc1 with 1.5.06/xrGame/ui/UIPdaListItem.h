@@ -17,7 +17,7 @@ private:
 public:
 					CUIPdaListItem		();
 	virtual			~CUIPdaListItem		();
-	virtual void	Init				(float x, float y, float width, float height);
+			void	InitPdaListItem		(Fvector2 pos, Fvector2 size);
 	virtual void	InitCharacter		(CInventoryOwner* pInvOwner);
 	
 	void*					m_data;

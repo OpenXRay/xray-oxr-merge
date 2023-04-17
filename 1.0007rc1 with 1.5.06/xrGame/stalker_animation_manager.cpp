@@ -11,7 +11,7 @@
 #include "ai/stalker/ai_stalker.h"
 #include "stalker_animation_data_storage.h"
 #include "stalker_animation_data.h"
-#include "stalker_movement_manager.h"
+#include "stalker_movement_manager_smart_cover.h"
 
 // TODO:
 // stalker animation manager consists of 5 independent managers,
@@ -21,6 +21,16 @@
 //    * legs
 //    * globals
 //    * script
+
+CStalkerAnimationManager::CStalkerAnimationManager	(CAI_Stalker *object) :
+	m_object					(object),
+	m_global					(object),
+	m_head						(object),
+	m_torso						(object),
+	m_legs						(object),
+	m_script					(object)
+{
+}
 
 void CStalkerAnimationManager::reinit				()
 {
@@ -51,12 +61,14 @@ void CStalkerAnimationManager::reinit				()
 	m_call_script_callback		= false;
 
 	m_previous_speed			= 0.f;
-	m_current_speed				= 0.f;
+	m_target_speed				= 0.f;
+	m_last_non_zero_speed		= m_target_speed;
+
+	m_special_danger_move		= false;
 }
 
-void CStalkerAnimationManager::reload				(CAI_Stalker *_object)
+void CStalkerAnimationManager::reload				()
 {
-	m_object					= _object;
 	m_visual					= object().Visual();
 
 	m_crouch_state_config		= object().SpecificCharacter().crouch_type();
@@ -66,7 +78,7 @@ void CStalkerAnimationManager::reload				(CAI_Stalker *_object)
 	if (object().already_dead())
 		return;
 
-	m_skeleton_animated			= smart_cast<CKinematicsAnimated*>(m_visual);
+	m_skeleton_animated			= smart_cast<IKinematicsAnimated*>(m_visual);
 	VERIFY						(m_skeleton_animated);
 
 	m_data_storage				= stalker_animation_data_storage().object(m_skeleton_animated);

@@ -59,8 +59,8 @@ private:
 
 private:
 	CAI_Stalker						*m_object;
-	IRender_Visual					*m_visual;
-	CKinematicsAnimated				*m_skeleton_animated;
+	IRenderVisual					*m_visual;
+	IKinematicsAnimated				*m_skeleton_animated;
 
 private:
 	CWeapon							*m_weapon;
@@ -68,6 +68,7 @@ private:
 
 private:
 	bool							m_call_script_callback;
+	bool							m_call_global_callback;
 
 #ifdef USE_HEAD_BONE_PART_FAKE
 private:
@@ -76,11 +77,53 @@ private:
 
 private:
 	float							m_previous_speed;
-	float							m_current_speed;
+	float							m_target_speed;
+	float							m_last_non_zero_speed;
+	bool							m_special_danger_move;
+
+public:
+	typedef fastdelegate::FastDelegate<MotionID (bool&)>	AnimationSelector;
+	typedef fastdelegate::FastDelegate<void ()>				AnimationCallback;
+	typedef fastdelegate::FastDelegate<void (CBlend*)>		AnimationModifier;
 
 private:
+	AnimationSelector				m_global_selector;
+	AnimationCallback				m_global_callback;
+	AnimationModifier				m_global_modifier;
+
+public:
+	struct callback_params {
+		Fmatrix const*				m_rotation;
+		CAI_Stalker const*			m_object;
+		CBlend const* const*		m_blend;
+		bool						m_forward;
+
+							callback_params	()
+		{
+			invalidate				();
+		}
+
+		inline	void		invalidate		()
+		{
+			m_rotation				= 0;
+			m_object				= 0;
+			m_blend					= 0;
+			m_forward				= false;
+		}
+	}; // struct callback_params
+
+private:
+	callback_params					m_spine_params;
+	callback_params					m_shoulder_params;
+	callback_params					m_head_params;
+	
+private:
 	IC		bool					strapped				() const;
+
+public:
 	IC		bool					standing				() const;
+
+private:
 	IC		void					fill_object_info		();
 	IC		u32						object_slot				() const;
 	IC		EBodyState				body_state				() const;
@@ -89,6 +132,7 @@ private:
 			bool					need_look_back			() const;
 
 private:
+			MotionID				aim_animation			(const u32 &slot, const xr_vector<CAniVector> &animation, const u32 &index) const;
 			MotionID				no_object_animation		(const EBodyState &body_state) const;
 			MotionID				unknown_object_animation(u32 slot, const EBodyState &body_state) const;
 			MotionID				weapon_animation		(u32 slot, const EBodyState &body_state);
@@ -110,9 +154,11 @@ private:
 			MotionID				assign_head_animation	();
 			MotionID				assign_torso_animation	();
 			MotionID				assign_legs_animation	();
-	const CStalkerAnimationScript	&assign_script_animation() const;
+	const CStalkerAnimationScript	&assign_script_animation();
+			void					clear_unsafe_callbacks	();
 
 public:
+			MotionID				assign_global_animation	(bool &animation_movement_controller);
 	IC		bool					non_script_need_update	() const;
 
 private:
@@ -125,7 +171,7 @@ private:
 			bool 					play_script				();
 
 private:
-	IC		void					play_global_impl		(const MotionID &animation);
+	IC		void					play_global_impl		(const MotionID &animation, bool const &animation_movement_controller);
 			bool 					play_global				();
 
 private:
@@ -142,17 +188,20 @@ private:
 	static	void					script_play_callback	(CBlend *blend);
 
 public:
+									CStalkerAnimationManager(CAI_Stalker *object);
 	virtual	void					reinit					();
-	virtual	void					reload					(CAI_Stalker *object);
+	virtual	void					reload					();
 	virtual void					update					();
 			void					play_fx					(float power_factor, int fx_index);
 			void 					play_delayed_callbacks	();
 
 public:
 			void					add_script_animation	(LPCSTR animation, bool hand_usage = false, bool use_movement_controller = false);
+			void					add_script_animation	(LPCSTR animation, bool hand_usage, Fvector position, Fvector rotation, bool local_animation);
 	IC		void					clear_script_animations	();
 	IC		void					pop_script_animation	();
 	IC		const SCRIPT_ANIMATIONS	&script_animations		() const;
+	IC		void					special_danger_move		(const bool &value);
 
 public:
 	IC		CStalkerAnimationPair	&global					();
@@ -161,6 +210,8 @@ public:
 	IC		CStalkerAnimationPair	&legs					();
 	IC		CStalkerAnimationPair	&script					();
 	IC		CAI_Stalker				&object					() const;
+	IC		const float				&target_speed			() const;
+	IC		const bool				&special_danger_move	() const;
 
 #ifdef DEBUG
 private:

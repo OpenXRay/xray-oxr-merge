@@ -80,9 +80,7 @@ void CKinematics::CalculateBones			(BOOL bForceExact)
 		if(vis.sphere.R>1000.f)
 		{
 			for(u16 ii=0; ii<LL_BoneCount();++ii){
-				Fmatrix tr;
-
-				tr = LL_GetTransform(ii);
+				Fmatrix tr = LL_GetTransform(ii);
 				Log("bone ",LL_BoneName_dbg(ii));
 				Log("bone_matrix",tr);
 			}

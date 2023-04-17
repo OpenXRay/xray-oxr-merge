@@ -214,6 +214,9 @@ CUITabControl* CScriptXmlInit::InitTab(LPCSTR path, CUIWindow* parent){
 	return pWnd;	
 }
 
+void CScriptXmlInit::ParseShTexInfo(LPCSTR xml_file){
+	CUITextureMaster::ParseShTexInfo(xml_file);
+}
 
 CServerList* CScriptXmlInit::InitServerList(LPCSTR path, CUIWindow* parent){
 	CServerList* pWnd = xr_new<CServerList>();
@@ -299,6 +302,7 @@ void CScriptXmlInit::script_register(lua_State *L){
 		class_<CScriptXmlInit>			("CScriptXmlInit")
 		.def(							constructor<>())
 		.def("ParseFile",				&CScriptXmlInit::ParseFile)
+		.def("ParseShTexInfo",			&CScriptXmlInit::ParseShTexInfo)
 		.def("InitWindow",				&CScriptXmlInit::InitWindow)
 		.def("InitFrame",				&CScriptXmlInit::InitFrame)
 		.def("InitFrameLine",			&CScriptXmlInit::InitFrameLine)

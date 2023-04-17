@@ -9,14 +9,16 @@
 #include <d3dx9.h>
 #pragma warning(default:4995)
 
-#include "../fmesh.h"
+#include "../../xrEngine/fmesh.h"
 #include "fvisual.h"
+
+#include "../xrRenderDX10/dx10BufferUtils.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-Fvisual::Fvisual()  : IRender_Visual()
+Fvisual::Fvisual()  : dxRender_Visual()
 {
 	m_fast	=	0;
 }
@@ -28,12 +30,12 @@ Fvisual::~Fvisual()
 
 void Fvisual::Release	()
 {
-	IRender_Visual::Release	();
+	dxRender_Visual::Release	();
 }
 
 void Fvisual::Load		(const char* N, IReader *data, u32 dwFlags)
 {
-	IRender_Visual::Load		(N,data,dwFlags);
+	dxRender_Visual::Load		(N,data,dwFlags);
 
 	D3DVERTEXELEMENT9	dcl		[MAX_FVF_DECL_SIZE];
 	D3DVERTEXELEMENT9*	vFormat	= 0;
@@ -64,7 +66,7 @@ void Fvisual::Load		(const char* N, IReader *data, u32 dwFlags)
 		p_rm_Indices		= RImplementation.getIB		(ID);
 		p_rm_Indices->AddRef();
 #endif
-#if RENDER==R_R2
+#if (RENDER==R_R2) || (RENDER==R_R3)
 		// check for fast-vertices
 		if (data->find_chunk(OGF_FASTPATH))		{
 			destructor<IReader>	geomdef	(data->open_chunk		(OGF_FASTPATH));
@@ -121,6 +123,10 @@ void Fvisual::Load		(const char* N, IReader *data, u32 dwFlags)
 			vCount				= data->r_u32				();
 			u32 vStride			= D3DXGetFVFVertexSize		(fvf);
 
+#ifdef	USE_DX10
+			VERIFY				(NULL==p_rm_Vertices);
+			R_CHK				(dx10BufferUtils::CreateVertexBuffer(&p_rm_Vertices, data->pointer(), vCount*vStride));
+#else	//	USE_DX10
 			BOOL	bSoft		= HW.Caps.geometry.bSoftware || (dwFlags&VLOAD_FORCESOFTWARE);
 			u32		dwUsage		= D3DUSAGE_WRITEONLY | (bSoft?D3DUSAGE_SOFTWAREPROCESSING:0);
 			BYTE*	bytes		= 0;
@@ -129,6 +135,7 @@ void Fvisual::Load		(const char* N, IReader *data, u32 dwFlags)
 			R_CHK				(p_rm_Vertices->Lock(0,0,(void**)&bytes,0));
 			CopyMemory			(bytes, data->pointer(), vCount*vStride);
 			p_rm_Vertices->Unlock	();
+#endif	//	USE_DX10
 		}
 	}
 
@@ -151,6 +158,19 @@ void Fvisual::Load		(const char* N, IReader *data, u32 dwFlags)
 			iCount				= data->r_u32();
 			dwPrimitives		= iCount/3;
 
+#ifdef	USE_DX10
+			//BOOL	bSoft		= HW.Caps.geometry.bSoftware || (dwFlags&VLOAD_FORCESOFTWARE);
+			//u32		dwUsage		= /*D3DUSAGE_WRITEONLY |*/ (bSoft?D3DUSAGE_SOFTWAREPROCESSING:0);	// indices are read in model-wallmarks code
+			//BYTE*	bytes		= 0;
+
+			//VERIFY				(NULL==p_rm_Indices);
+			//R_CHK				(HW.pDevice->CreateIndexBuffer(iCount*2,dwUsage,D3DFMT_INDEX16,D3DPOOL_MANAGED,&p_rm_Indices,0));
+			//R_CHK				(p_rm_Indices->Lock(0,0,(void**)&bytes,0));
+			//CopyMemory		(bytes, data->pointer(), iCount*2);
+
+			VERIFY				(NULL==p_rm_Indices);
+			R_CHK				(dx10BufferUtils::CreateIndexBuffer(&p_rm_Indices, data->pointer(), iCount*2));
+#else	//	USE_DX10
 			BOOL	bSoft		= HW.Caps.geometry.bSoftware || (dwFlags&VLOAD_FORCESOFTWARE);
 			u32		dwUsage		= /*D3DUSAGE_WRITEONLY |*/ (bSoft?D3DUSAGE_SOFTWAREPROCESSING:0);	// indices are read in model-wallmarks code
 			BYTE*	bytes		= 0;
@@ -160,6 +180,7 @@ void Fvisual::Load		(const char* N, IReader *data, u32 dwFlags)
 			R_CHK				(p_rm_Indices->Lock(0,0,(void**)&bytes,0));
 			CopyMemory		(bytes, data->pointer(), iCount*2);
 			p_rm_Indices->Unlock	();
+#endif	//	USE_DX10
 		}
 	}
 
@@ -170,7 +191,7 @@ void Fvisual::Load		(const char* N, IReader *data, u32 dwFlags)
 
 void Fvisual::Render		(float )
 {
-#if RENDER==R_R2
+#if (RENDER==R_R2) || (RENDER==R_R3)
 	if (m_fast && RImplementation.phase==CRender::PHASE_SMAP)
 	{
 		RCache.set_Geometry		(m_fast->rm_geom);
@@ -189,9 +210,9 @@ void Fvisual::Render		(float )
 }
 
 #define PCOPY(a)	a = pFrom->a
-void	Fvisual::Copy			(IRender_Visual *pSrc)
+void	Fvisual::Copy			(dxRender_Visual *pSrc)
 {
-	IRender_Visual::Copy		(pSrc);
+	dxRender_Visual::Copy		(pSrc);
 
 	Fvisual	*pFrom				= dynamic_cast<Fvisual*> (pSrc);
 

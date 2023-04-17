@@ -26,6 +26,7 @@
 #include "script_zone.h"
 #include "relation_registry.h"
 #include "danger_object.h"
+#include "smart_cover_object.h"
 
 using namespace luabind;
 
@@ -164,6 +165,10 @@ class_<CScriptGameObject> &script_register_game_object1(class_<CScriptGameObject
 		.def("set_invisible",				&CScriptGameObject::set_invisible)
 		.def("set_manual_invisibility",		&CScriptGameObject::set_manual_invisibility)
 		.def("set_alien_control",			&CScriptGameObject::set_alien_control)
+		.def("set_enemy",					&CScriptGameObject::set_enemy)
+		.def("set_vis_state",				&CScriptGameObject::set_vis_state)
+		.def("set_collision_off",			&CScriptGameObject::off_collision)
+		.def("set_capture_anim",			&CScriptGameObject::bloodsucker_drag_jump)
 
 		// zombie
 		.def("fake_death_fall_down",		&CScriptGameObject::fake_death_fall_down)
@@ -213,6 +218,7 @@ class_<CScriptGameObject> &script_register_game_object1(class_<CScriptGameObject
 		.def("level_vertex_light",			&CScriptGameObject::level_vertex_light)
 		.def("game_vertex_id",				&CScriptGameObject::game_vertex_id)
 		.def("add_animation",				(void (CScriptGameObject::*)(LPCSTR, bool, bool))(&CScriptGameObject::add_animation))
+		.def("add_animation",				(void (CScriptGameObject::*)(LPCSTR, bool, Fvector, Fvector, bool))(&CScriptGameObject::add_animation))
 		.def("clear_animations",			&CScriptGameObject::clear_animations)
 		.def("animation_count",				&CScriptGameObject::animation_count)
 		.def("animation_slot",				&CScriptGameObject::animation_slot)
@@ -248,6 +254,69 @@ class_<CScriptGameObject> &script_register_game_object1(class_<CScriptGameObject
 #endif // DEBUG
 		.def("invulnerable",				(bool (CScriptGameObject::*)() const)&CScriptGameObject::invulnerable)
 		.def("invulnerable",				(void (CScriptGameObject::*)(bool))&CScriptGameObject::invulnerable)
+
+		.def("can_throw_grenades",			(bool (CScriptGameObject::*)	() const)&CScriptGameObject::can_throw_grenades)
+		.def("can_throw_grenades",			(void (CScriptGameObject::*)	(bool ))&CScriptGameObject::can_throw_grenades)
+
+		.def("group_throw_time_interval",	(u32 (CScriptGameObject::*)		() const)&CScriptGameObject::group_throw_time_interval)
+		.def("group_throw_time_interval",	(void (CScriptGameObject::*)	(u32 ))&CScriptGameObject::group_throw_time_interval)
+
+		.def("register_in_combat",			&CScriptGameObject::register_in_combat)
+		.def("unregister_in_combat",		&CScriptGameObject::unregister_in_combat)
+		.def("find_best_cover",				&CScriptGameObject::find_best_cover)
+
+		.def("use_smart_covers_only",		(bool (CScriptGameObject::*)	() const)&CScriptGameObject::use_smart_covers_only)
+		.def("use_smart_covers_only",		(void (CScriptGameObject::*)	(bool ))&CScriptGameObject::use_smart_covers_only)
+
+		.def("in_smart_cover",				&CScriptGameObject::in_smart_cover)
+
+		.def("set_dest_smart_cover",		(void (CScriptGameObject::*)	(LPCSTR))&CScriptGameObject::set_dest_smart_cover)
+		.def("set_dest_smart_cover",		(void (CScriptGameObject::*)	())&CScriptGameObject::set_dest_smart_cover)
+		.def("get_dest_smart_cover",		(CCoverPoint const* (CScriptGameObject::*) ())&CScriptGameObject::get_dest_smart_cover)
+
+		.def("set_dest_loophole",			(void (CScriptGameObject::*)	(LPCSTR))&CScriptGameObject::set_dest_loophole)
+		.def("set_dest_loophole",			(void (CScriptGameObject::*)	())&CScriptGameObject::set_dest_loophole)
+
+		.def("set_smart_cover_target",		(void (CScriptGameObject::*)	(Fvector))&CScriptGameObject::set_smart_cover_target)
+		.def("set_smart_cover_target",		(void (CScriptGameObject::*)	(CScriptGameObject*))&CScriptGameObject::set_smart_cover_target)
+		.def("set_smart_cover_target",		(void (CScriptGameObject::*)	())&CScriptGameObject::set_smart_cover_target)
+
+		.def("set_smart_cover_target_selector",	(void (CScriptGameObject::*)(luabind::functor<void>))&CScriptGameObject::set_smart_cover_target_selector)
+		.def("set_smart_cover_target_selector",	(void (CScriptGameObject::*)(luabind::functor<void>, luabind::object))&CScriptGameObject::set_smart_cover_target_selector)
+		.def("set_smart_cover_target_selector",	(void (CScriptGameObject::*)())&CScriptGameObject::set_smart_cover_target_selector)
+
+		.def("set_smart_cover_target_idle",				&CScriptGameObject::set_smart_cover_target_idle)
+		.def("set_smart_cover_target_lookout",			&CScriptGameObject::set_smart_cover_target_lookout)
+		.def("set_smart_cover_target_fire",				&CScriptGameObject::set_smart_cover_target_fire)
+		.def("set_smart_cover_target_fire_no_lookout",	&CScriptGameObject::set_smart_cover_target_fire_no_lookout)
+		.def("set_smart_cover_target_idle",				&CScriptGameObject::set_smart_cover_target_idle)
+		.def("set_smart_cover_target_default",			&CScriptGameObject::set_smart_cover_target_default)
+
+		.def("idle_min_time",				(void (CScriptGameObject::*)	(float))&CScriptGameObject::idle_min_time)
+		.def("idle_min_time",				(float (CScriptGameObject::*)	() const)&CScriptGameObject::idle_min_time)
+
+		.def("idle_max_time",				(void (CScriptGameObject::*)	(float))&CScriptGameObject::idle_max_time)
+		.def("idle_max_time",				(float (CScriptGameObject::*)	() const)&CScriptGameObject::idle_max_time)
+
+		.def("lookout_min_time",			(void (CScriptGameObject::*)	(float))&CScriptGameObject::lookout_min_time)
+		.def("lookout_min_time",			(float (CScriptGameObject::*)	() const)&CScriptGameObject::lookout_min_time)
+
+		.def("lookout_max_time",			(void (CScriptGameObject::*)	(float))&CScriptGameObject::lookout_max_time)
+		.def("lookout_max_time",			(float (CScriptGameObject::*)	() const)&CScriptGameObject::lookout_max_time)
+
+		.def("in_loophole_fov",				&CScriptGameObject::in_loophole_fov)
+		.def("in_current_loophole_fov",		&CScriptGameObject::in_current_loophole_fov)
+		.def("in_loophole_range",			&CScriptGameObject::in_loophole_range)
+		.def("in_current_loophole_range",	&CScriptGameObject::in_current_loophole_range)
+
+		.def("apply_loophole_direction_distance",	(void (CScriptGameObject::*)	(float))&CScriptGameObject::apply_loophole_direction_distance)
+		.def("apply_loophole_direction_distance",	(float (CScriptGameObject::*)	() const)&CScriptGameObject::apply_loophole_direction_distance)
+
+		.def("movement_target_reached",		&CScriptGameObject::movement_target_reached)
+		.def("suitable_smart_cover",		&CScriptGameObject::suitable_smart_cover)
+
+		.def("take_items_enabled",			(void (CScriptGameObject::*)	(bool))&CScriptGameObject::take_items_enabled)
+		.def("take_items_enabled",			(bool (CScriptGameObject::*)	() const)&CScriptGameObject::take_items_enabled)
 
 	;return	(instance);
 }

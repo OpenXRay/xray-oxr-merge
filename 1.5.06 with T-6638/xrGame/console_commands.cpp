@@ -23,8 +23,8 @@
 #include "script_process.h"
 #include "xrServer_Objects.h"
 #include "ui/UIMainIngameWnd.h"
-#include "PhysicsGamePars.h"
-#include "phworld.h"
+//#include "../xrphysics/PhysicsGamePars.h"
+#include "../xrphysics/iphworld.h"
 #include "string_table.h"
 #include "autosave_manager.h"
 #include "ai_space.h"
@@ -34,13 +34,14 @@
 #include "ui/UIOptConCom.h"
 #include "UIGameSP.h"
 #include "ui/UIActorMenu.h"
+#include "ui/UIStatic.h"
 #include "zone_effector.h"
 #include "GameTask.h"
 #include "MainMenu.h"
 #include "saved_game_wrapper.h"
 #include "level_graph.h"
 //#include "../xrEngine/resourcemanager.h"
-#include "doug_lea_memory_allocator.h"
+#include "../xrEngine/doug_lea_memory_allocator.h"
 #include "cameralook.h"
 #include "character_hit_animations_params.h"
 #include "inventory_upgrade_manager.h"
@@ -48,13 +49,14 @@
 #include "GameSpy/GameSpy_Full.h"
 #include "GameSpy/GameSpy_Patching.h"
 
+#include "ai_debug_variables.h"
+#include "../xrphysics/console_vars.h"
 #ifdef DEBUG
 #	include "PHDebug.h"
 #	include "ui/UIDebugFonts.h" 
 #	include "game_graph.h"
+#	include "CharacterPhysicsSupport.h"
 #endif // DEBUG
-
-#include "hudmanager.h"
 
 string_path		g_last_saved_game;
 
@@ -83,7 +85,7 @@ extern	int		g_dwInputUpdateDelta	;
 extern	BOOL	g_ShowAnimationInfo		;
 #endif // DEBUG
 extern	BOOL	g_bShowHitSectors		;
-extern	BOOL	g_bDebugDumpPhysicsStep	;
+//extern	BOOL	g_bDebugDumpPhysicsStep	;
 extern	ESingleGameDifficulty g_SingleGameDifficulty;
 extern	BOOL	g_show_wnd_rect2			;
 //-----------------------------------------------------------
@@ -94,6 +96,10 @@ extern	BOOL	b_toggle_weapon_aim;
 extern float	g_smart_cover_factor;
 extern int		g_upgrades_log;
 extern float	g_smart_cover_animation_speed_factor;
+
+extern	BOOL	g_ai_use_old_vision;
+float			g_aim_predict_time = 0.44f;
+int				g_keypress_on_start	= 1;
 
 ENGINE_API extern float	g_console_sensitive;
 
@@ -203,7 +209,7 @@ public:
 	}
 	virtual void	Info	(TInfo& I)		
 	{
-		strcpy_s(I,"game difficulty"); 
+		xr_strcpy(I,"game difficulty"); 
 	}
 };
 

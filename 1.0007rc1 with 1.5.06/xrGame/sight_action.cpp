@@ -11,7 +11,7 @@
 #include "ai/stalker/ai_stalker.h"
 #include "sight_manager.h"
 #include "ai_object_location.h"
-#include "stalker_movement_manager.h"
+#include "stalker_movement_manager_smart_cover.h"
 #include "inventory.h"
 
 //#define SIGHT_TEST
@@ -240,6 +240,45 @@ void CSightAction::initialize_fire_object		()
 	m_state_fire_object		= 0;
 }
 
+void CSightAction::on_frame						()
+{
+	switch (m_sight_type) {
+		case SightManager::eSightTypeCurrentDirection : {
+			break;
+		}
+		case SightManager::eSightTypePathDirection : {
+			break;
+		}
+		case SightManager::eSightTypeDirection : {
+			break;
+		}
+		case SightManager::eSightTypePosition : {
+			break;
+		}
+		case SightManager::eSightTypeObject : {
+			break;
+		}
+		case SightManager::eSightTypeCover : {
+			break;
+		}
+		case SightManager::eSightTypeSearch : {
+			break;
+		}
+		case SightManager::eSightTypeCoverLookOver : {
+			execute_cover_look_over	();
+			break;
+		}
+		case SightManager::eSightTypeFireObject : {
+			execute_fire_object		();
+			break;
+		}
+		case SightManager::eSightTypeAnimationDirection : {
+			break;
+		}
+		default	: NODEFAULT;
+	}
+}
+
 void CSightAction::execute_fire_object			()
 {
 	switch (m_state_fire_object) {
@@ -273,4 +312,9 @@ void CSightAction::execute_fire_object			()
 		}
 		default : NODEFAULT;
 	}
+}
+
+void CSightAction::execute_animation_direction	()
+{
+	object().movement().m_head.target	= object().movement().m_body.current;
 }

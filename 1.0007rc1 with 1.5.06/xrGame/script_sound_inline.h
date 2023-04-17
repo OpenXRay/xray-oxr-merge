@@ -72,7 +72,8 @@ IC	const float	CScriptSound::GetVolume		() const
 
 IC	bool CScriptSound::IsPlaying			() const
 {
-	VERIFY				(m_sound._handle());
+//  commented for comfort work with -nosound command line option
+//	VERIFY				(m_sound._handle());
 	return				(!!m_sound._feedback());
 }
 

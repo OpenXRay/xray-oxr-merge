@@ -185,6 +185,7 @@ void CCharacterPhysicsSupport::in_NetSpawn( CSE_Abstract* e )
 		ka->CalculateBones( TRUE );
 		return;
 	}
+
 	CPHDestroyable::Init();//this zerows colbacks !!;
 	IRenderVisual *pVisual = m_EntityAlife.Visual();
 	IKinematicsAnimated*ka= smart_cast<IKinematicsAnimated*>( pVisual );
@@ -202,6 +203,7 @@ void CCharacterPhysicsSupport::in_NetSpawn( CSE_Abstract* e )
 		ka->PlayCycle( "death_init" );///непонятно зачем это вообще надо запускать
 									  ///этот хак нужен, потому что некоторым монстрам 
 									  ///анимация после спона, может быть вообще не назначена
+	}
 	pK->CalculateBones_Invalidate( );
 	pK->CalculateBones( TRUE );
 	
@@ -230,7 +232,8 @@ bool		CCharacterPhysicsSupport::CollisionCorrectObjPos( )
 
 void CCharacterPhysicsSupport::CreateCharacterSafe( )
 {
-	if( m_PhysicMovementControl->CharacterExist( ) )return;
+	if( m_PhysicMovementControl->CharacterExist( ) )
+	    return;
 	CollisionCorrectObjPos( m_EntityAlife.Position( ), true );
 	CreateCharacter	( );
 }
@@ -286,18 +289,6 @@ void		CCharacterPhysicsSupport::					SpawnCharacterCreate			( )
 	if( HACK_TERRIBLE_DONOT_COLLIDE_ON_SPAWN( m_EntityAlife ) ) //||  m_EntityAlife.animation_movement_controlled( )
 		return;
 	CreateCharacterSafe();
-	//if( m_eType != etStalker )
-	//	CreateCharacterSafe();
-	//VERIFY( movement() );
-
-	//if( movement()->CharacterExist() )
-	//	return;
-	//else
-	//{
-	//	VERIFY( !m_collision_activating_delay );
-	//	m_collision_activating_delay = xr_new<activating_character_delay>(this);
-	//}
-		
 }
 
 void CCharacterPhysicsSupport::in_NetDestroy( )
@@ -348,8 +339,6 @@ void CCharacterPhysicsSupport::UpdateCollisionActivatingDellay( )
 
 void CCharacterPhysicsSupport::in_shedule_Update( u32 DT )
 {
-	///VERIFY( 0 );
-
 	//CPHSkeleton::Update(DT);
 	if(m_collision_activating_delay)
 			UpdateCollisionActivatingDellay();
@@ -475,7 +464,7 @@ void CCharacterPhysicsSupport::in_Hit( SHit &H, bool is_killing )
 	}
 
 	//is_killing = is_killing || ( m_eState==esAlive && !m_EntityAlife.g_Alive( ) );
-	if( m_EntityAlife.g_Alive( ) && is_killing && H.type( ) == ALife::eHitTypeExplosion && H.damage( ) > 70.f )
+	if( m_EntityAlife.g_Alive( ) && is_killing && H.type() == ALife::eHitTypeExplosion && H.damage() > 70.f )
 		CPHDestroyable::Destroy( );
 	
 	if( ( !m_EntityAlife.g_Alive() || is_killing ) )
