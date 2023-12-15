@@ -48,7 +48,7 @@ void	CSoundRender_Emitter::fill_data(u8* _dest, u32 offset, u32 size)
 	// prepare for first line (it can be unaligned)
 	u32		line_offs						= offset - line*line_size;
 	u32		line_amount						= line_size - line_offs;
-	
+
 	while	(size)
 	{
 		// cache access
@@ -84,12 +84,14 @@ void	CSoundRender_Emitter::fill_block	(void* ptr, u32 size)
 		switch (m_current_state)
 		{
 		case stPlaying:
-			{	// Fill as much data as we can, zeroing remainder
+			{
+			 	// Fill as much data as we can, zeroing remainder
 				if(get_cursor(true) >= dwBytesTotal)
 				{
 					// ??? We requested the block after remainder - just zero
 					Memory.mem_fill	(dest,0,size);
-				}else 
+				}
+				else
 				{
 					// Calculate remainder
 					u32	sz_data		= dwBytesTotal - get_cursor(true);
@@ -140,7 +142,8 @@ void	CSoundRender_Emitter::fill_block	(void* ptr, u32 size)
 			Msg							("recurce from next source %d", size-rem);
 #endif // #ifdef DEBUG
 			fill_block					(dest+rem,	size-rem);
-		}else
+		}
+		else
 		{
 			// Everything OK, just stream
 			fill_data					(dest, get_cursor(false), size);

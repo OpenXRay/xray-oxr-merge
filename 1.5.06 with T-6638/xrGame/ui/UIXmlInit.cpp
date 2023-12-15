@@ -284,8 +284,8 @@ bool CUIXmlInit::InitText(CUIXml& xml_doc, LPCSTR path, int index, CUIStatic* pW
 	return true;
 }
 
-
-bool CUIXmlInit::InitText(CUIXml& xml_doc, const char* path, int index, IUITextControl* pWnd){
+bool CUIXmlInit::InitText(CUIXml& xml_doc, LPCSTR path, int index, IUITextControl* pWnd)
+{
 	u32 color;
 	CGameFont *pTmpFont = NULL;
 	InitFont(xml_doc, path, index, color, pTmpFont);
@@ -302,17 +302,15 @@ bool CUIXmlInit::InitText(CUIXml& xml_doc, const char* path, int index, IUITextC
 		pWnd->SetTextAlignment(CGameFont::alLeft);
 
 	shared_str text = xml_doc.Read(path, index, NULL);
-	CStringTable st;
-	if (!!text){
-        pWnd->SetText(*st.translate(*text));
-	}
+	if (text.size())
+        pWnd->SetText(CStringTable().translate(*text));
 
 	return true;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////
 extern int keyname_to_dik(LPCSTR);
 
-bool CUIXmlInit::Init3tButton(CUIXml& xml_doc, const char* path, int index, CUI3tButton* pWnd)
+bool CUIXmlInit::Init3tButton(CUIXml& xml_doc, LPCSTR path, int index, CUI3tButton* pWnd)
 {
 	R_ASSERT4(xml_doc.NavigateToNode(path,index), "XML node not found", path, xml_doc.m_xml_file_name);
 

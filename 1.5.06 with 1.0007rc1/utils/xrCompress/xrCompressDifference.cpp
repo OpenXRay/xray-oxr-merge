@@ -77,8 +77,6 @@ struct file_comparer{
 	}
 };
 
-
-
 int ProcessDifference()
 {
 	LPCSTR params = GetCommandLine();

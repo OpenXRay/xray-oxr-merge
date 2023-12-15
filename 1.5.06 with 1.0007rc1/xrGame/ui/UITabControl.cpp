@@ -1,3 +1,5 @@
+// Реализация окна с закладками.
+
 #include "StdAfx.h"
 #include "UITabControl.h"
 #include "UITabButton.h"

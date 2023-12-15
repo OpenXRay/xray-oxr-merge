@@ -12,8 +12,7 @@
 #include "../../../ActorEffector.h"
 #include "../ai_monster_effector.h"
 #include "../../../hudmanager.h"
-#include "../../../clsid_game.h"
-#include "../../../../skeletonanimated.h"
+#include "../../../../Include/xrRender/KinematicsAnimated.h"
 #include "../../../sound_player.h"
 #include "../../../level.h"
 #include "../../../script_callback_ex.h"
@@ -26,7 +25,7 @@
 #include "../../../ai_object_location.h"
 #include "../../../profiler.h"
 #include "../../../ActorEffector.h"
-#include "../../../../CameraBase.h"
+#include "../../../../xrEngine/CameraBase.h"
 
 void CBaseMonster::feel_sound_new(CObject* who, int eType, CSound_UserDataPtr user_data, const Fvector &Position, float power)
 {
@@ -99,7 +98,7 @@ void CBaseMonster::HitEntity(const CEntity *pEntity, float fDamage, float impuls
 		HS.weaponID			= (ID());															//		l_P.w_u16	(ID());
 		HS.dir				= (hit_dir);														//		l_P.w_dir	(hit_dir);
 		HS.power			= (fDamage);														//		l_P.w_float	(fDamage);
-		HS.boneID			= (smart_cast<CKinematics*>(pEntityNC->Visual())->LL_GetBoneRoot());//		l_P.w_s16	(smart_cast<CKinematics*>(pEntityNC->Visual())->LL_GetBoneRoot());
+		HS.boneID			= (smart_cast<IKinematics*>(pEntityNC->Visual())->LL_GetBoneRoot());//		l_P.w_s16	(smart_cast<IKinematics*>(pEntityNC->Visual())->LL_GetBoneRoot());
 		HS.p_in_bone_space	= (position_in_bone_space);											//		l_P.w_vec3	(position_in_bone_space);
 		HS.impulse			= (impulse);														//		l_P.w_float	(impulse);
 		HS.hit_type			= (ALife::eHitTypeWound);											//		l_P.w_u16	( u16(ALife::eHitTypeWound) );
@@ -118,7 +117,7 @@ void CBaseMonster::HitEntity(const CEntity *pEntity, float fDamage, float impuls
 			hd.mul(-1);
 			float d = -h1 + hd.getH();
 			s->wnd()->SetHeading	(d);
-			s->wnd()->SetHeadingPivot(Fvector2().set(256,512));
+			s->wnd()->SetHeadingPivot(Fvector2().set(256,512), Fvector2().set(0,0), false);
 			STOP_PROFILE;
 
 			//SetAttackEffector			();
@@ -292,7 +291,7 @@ void CBaseMonster::Hit_Wound(CObject *object, float value, const Fvector &dir, f
 	HS.weaponID			= (ID());															//	P.w_u16		(ID());
 	HS.dir				= (dir);															//	P.w_dir		(dir);
 	HS.power			= (value);															//	P.w_float	(value);
-	HS.boneID			= (smart_cast<CKinematics*>(object->Visual())->LL_GetBoneRoot());	//	P.w_s16		(smart_cast<CKinematics*>(object->Visual())->LL_GetBoneRoot());
+	HS.boneID			= (smart_cast<IKinematics*>(object->Visual())->LL_GetBoneRoot());	//	P.w_s16		(smart_cast<IKinematics*>(object->Visual())->LL_GetBoneRoot());
 	HS.p_in_bone_space	= (Fvector().set(0.f,0.f,0.f));										//	P.w_vec3	(Fvector().set(0.f,0.f,0.f));
 	HS.impulse			= (impulse);														//	P.w_float	(impulse);
 	HS.hit_type			= (ALife::eHitTypeWound);											//	P.w_u16		(u16(ALife::eHitTypeWound));

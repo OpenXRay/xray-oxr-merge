@@ -41,7 +41,6 @@ bool CBaseMonster::bfAssignMovement (CScriptEntityAction *tpEntityAction)
 	if (control().path_builder().detail().time_path_built() >= tpEntityAction->m_tActionCondition.m_tStartTime) {
 		if ((l_tMovementAction.m_fDistToEnd > 0) && control().path_builder().is_path_end(l_tMovementAction.m_fDistToEnd))  {
 			l_tMovementAction.m_bCompleted = true;
-			
 		}
 		if (control().path_builder().actual_all() && control().path_builder().path_completed()) {
 			l_tMovementAction.m_bCompleted = true;
@@ -56,6 +55,7 @@ bool CBaseMonster::bfAssignMovement (CScriptEntityAction *tpEntityAction)
 	case eMA_Run:		anim().m_tAction = ACT_RUN;			break;
 	case eMA_Drag:		anim().m_tAction = ACT_DRAG;			break;
 	case eMA_Steal:		anim().m_tAction = ACT_STEAL;		break;
+//		case eMA_Jump:		anim().m_tAction = ACT_JUMP;		break;
 	}
 
 	m_force_real_speed = (l_tMovementAction.m_tSpeedParam == eSP_ForceSpeed);
@@ -86,6 +86,13 @@ bool CBaseMonster::bfAssignMovement (CScriptEntityAction *tpEntityAction)
 		case CScriptMovementAction::eGoalTypePathNodePosition :
 			path().set_target_point	(l_tMovementAction.m_tDestinationPosition, l_tMovementAction.m_tNodeID);
 			break;
+		case CScriptMovementAction::eGoalTypeJumpToPosition : {
+//			control().deactivate	(ControlCom::eControlRunAttack);
+//			control().deactivate	(ControlCom::eControlRunAttack);
+//			control().deactivate	(ControlCom::eControlRunAttack);
+			com_man().script_jump	(l_tMovementAction.m_tDestinationPosition, l_tMovementAction.m_fDistToEnd);
+			break;
+		}
 	}
 	
 	return	(true);
@@ -160,6 +167,7 @@ bool CBaseMonster::bfAssignAnimation(CScriptEntityAction *tpEntityAction)
 	// translate animation.action into anim().action
 	switch (l_tAnimAction.m_tAnimAction) {
 	case eAA_StandIdle:		anim().m_tAction = ACT_STAND_IDLE;	break;
+	case eAA_CapturePrepare:anim().m_tAction = ACT_CAPTURE_PREPARE;	break;
 	case eAA_SitIdle:		anim().m_tAction = ACT_SIT_IDLE;		break;
 	case eAA_LieIdle:		anim().m_tAction = ACT_LIE_IDLE;		break;
 	case eAA_Eat:			anim().m_tAction = ACT_EAT;			break;
@@ -318,10 +326,20 @@ CEntity *CBaseMonster::GetCurrentCorpse()
 
 	return (corpse);
 }
+void CBaseMonster::SetEnemy(const CEntityAlive *sent)
+{
+	EnemyMan.script_enemy(*sent);
+}
 
 void CBaseMonster::SetScriptControl(const bool bScriptControl, shared_str caScriptName)
 {
 	if (StateMan) StateMan->critical_finalize();
+
+	if ( !m_bScriptControl && bScriptControl )
+	{
+		control().path_builder().patrol().make_inactual();
+		control().path_builder().detail().make_inactual();
+	}	
 
 	CScriptEntity::SetScriptControl(bScriptControl, caScriptName);
 }

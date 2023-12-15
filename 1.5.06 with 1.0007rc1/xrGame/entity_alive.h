@@ -33,6 +33,7 @@ private:
 	bool					m_is_start_attack;
 	//m_PhysicMovementControl
 	//CPHMovementControl		*m_PhysicMovementControl;
+
 public:
 	// General
 							CEntityAlive			();

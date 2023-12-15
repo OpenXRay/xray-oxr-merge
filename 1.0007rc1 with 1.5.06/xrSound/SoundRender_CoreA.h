@@ -4,10 +4,10 @@
 
 #include "SoundRender_Core.h"            
 
-#include <al.h>
-#include <alc.h>
-//.#include <alut.h>
-#include <eax.h>
+#include <openal/al.h>
+#include <openal/alc.h>
+//.#include <openal/alut.h>
+#include <eax/eax.h>
 
 #include "OpenALDeviceList.h"
 
@@ -44,8 +44,9 @@ public:
 						    CSoundRender_CoreA		();
     virtual					~CSoundRender_CoreA		();
 
-	virtual void			_initialize				( u64 window );
+	virtual void			_initialize				(int stage);
 	virtual void			_clear					( );
+	virtual void			_restart				( );
     
 	virtual void			set_master_volume		( float f		);
 

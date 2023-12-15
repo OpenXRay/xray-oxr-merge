@@ -62,6 +62,7 @@ bool CScriptGameObject::DisableInfoPortion(LPCSTR info_id)
 }
 
 void _AddIconedTalkMessage(LPCSTR text, LPCSTR texture_name, const Frect& tex_rect, LPCSTR templ_name);
+void _AddIconedTalkMessage(LPCSTR caption, LPCSTR text, LPCSTR texture_name, LPCSTR templ_name);
 
 void  CScriptGameObject::AddIconedTalkMessage		(LPCSTR text, LPCSTR texture_name, Frect tex_rect, LPCSTR templ_name)
 {
@@ -69,6 +70,11 @@ void  CScriptGameObject::AddIconedTalkMessage		(LPCSTR text, LPCSTR texture_name
 									texture_name, 
 									tex_rect, 
 									templ_name); 
+}
+
+void  CScriptGameObject::AddIconedTalkMessage(LPCSTR caption, LPCSTR text, LPCSTR texture_name, LPCSTR templ_name)
+{
+	_AddIconedTalkMessage( caption, text, texture_name, templ_name );
 }
 
 void _AddIconedTalkMessage(LPCSTR text, LPCSTR texture_name, const Frect& tex_rect, LPCSTR templ_name)
@@ -79,7 +85,20 @@ void _AddIconedTalkMessage(LPCSTR text, LPCSTR texture_name, const Frect& tex_re
 	if(pGameSP->TalkMenu->IsShown())
 		pGameSP->TalkMenu->AddIconedMessage(text, texture_name, tex_rect, templ_name?templ_name:"iconed_answer_item" );
 }
+
+void _AddIconedTalkMessage(LPCSTR caption, LPCSTR text, LPCSTR texture_name, LPCSTR templ_name)
+{
+	CUIGameSP* pGameSP = smart_cast<CUIGameSP*>(HUD().GetUI()->UIGame());
+	if(!pGameSP) return;
+
+	if(pGameSP->TalkMenu->IsShown())
+	{
+		pGameSP->TalkMenu->AddIconedMessage( caption, text, texture_name, templ_name ? templ_name : "iconed_answer_item" );
+	}
+}
+
 bool _give_news	(LPCSTR news, LPCSTR texture_name, const Frect& tex_rect, int delay, int show_time);
+void _give_news	(LPCSTR caption, LPCSTR news, LPCSTR texture_name, int delay, int show_time, int type);
 
 bool  CScriptGameObject::GiveGameNews		(LPCSTR news, LPCSTR texture_name, Frect tex_rect, int delay, int show_time)
 {
@@ -89,9 +108,22 @@ bool  CScriptGameObject::GiveGameNews		(LPCSTR news, LPCSTR texture_name, Frect 
 									delay, 
 									show_time);
 }
-bool _give_news	(LPCSTR text, LPCSTR texture_name, const Frect& tex_rect, int delay, int show_time)
+
+void  CScriptGameObject::GiveGameNews(LPCSTR caption, LPCSTR news, LPCSTR texture_name, int delay, int show_time)
+{
+	GiveGameNews(caption, news,	texture_name, delay, show_time, 0);
+}
+
+void  CScriptGameObject::GiveGameNews(LPCSTR caption, LPCSTR news, LPCSTR texture_name, int delay, int show_time, int type)
+{
+	_give_news(caption, news, texture_name, delay, show_time, type);	
+}
+
+void _give_news	(LPCSTR caption, LPCSTR text, LPCSTR texture_name, const Frect& tex_rect, int delay, int show_time, int type)
 {
 	GAME_NEWS_DATA				news_data;
+	news_data.m_type			= (GAME_NEWS_DATA::eNewsType)type;
+	news_data.news_caption		= caption;
 	news_data.news_text			= text;
 	if(show_time!=0)
 		news_data.show_time		= show_time;// override default
@@ -106,8 +138,6 @@ bool _give_news	(LPCSTR text, LPCSTR texture_name, const Frect& tex_rect, int de
 		Actor()->AddGameNews(news_data);
 	else
 		Actor()->AddGameNews_deffered(news_data,delay);
-
-	return true;
 }
 
 bool  CScriptGameObject::HasInfo				(LPCSTR info_id)

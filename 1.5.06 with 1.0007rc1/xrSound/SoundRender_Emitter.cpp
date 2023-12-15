@@ -43,7 +43,7 @@ CSoundRender_Emitter::CSoundRender_Emitter(void)
 	bRewind						= FALSE;
 	iPaused						= 0;
 	fTimeStarted				= 0.0f;
-	fTimeToStop				= 0.0f;
+	fTimeToStop					= 0.0f;
 	fTimeToPropagade			= 0.0f;
 	marker						= 0xabababab;
 	starting_delay				= 0.f;

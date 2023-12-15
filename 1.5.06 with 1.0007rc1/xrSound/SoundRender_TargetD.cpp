@@ -3,7 +3,7 @@
 /*
 #include "soundrender_targetD.h"
 #include "soundrender.h"
-//. #include "soundrender_coreD.h"
+#include "soundrender_coreD.h"
 #include "soundrender_emitter.h"
 
 CSoundRender_TargetD::CSoundRender_TargetD():CSoundRender_Target()

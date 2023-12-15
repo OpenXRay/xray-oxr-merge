@@ -69,7 +69,7 @@ xr_multimap<u32,ALIAS>	aliases;
 
 xr_vector<shared_str>	exclude_exts;
 
-BOOL	testSKIP		(LPCSTR path)
+bool xrCompressor::testSKIP(LPCSTR path)
 {
 	string256			p_name;
 	string256			p_ext;
@@ -94,47 +94,41 @@ BOOL	testSKIP		(LPCSTR path)
 	return FALSE;
 }
 
-BOOL	testVFS			(LPCSTR path)
+bool xrCompressor::testVFS(LPCSTR path)
 {
 	if (bStoreFiles)
-		return			(TRUE);
+		return			(true);
 
 	string256			p_ext;
 	_splitpath			(path,0,0,0,p_ext);
 
 	if (!stricmp(p_ext,".xml"))
-		return			(FALSE);
+		return			(false);
 
 	if (!stricmp(p_ext,".ltx"))
-		return			(FALSE);
+		return			(false);
 
 	if (!stricmp(p_ext,".script"))
-		return			(FALSE);
+		return			(false);
 
-	return				(TRUE);
-	/**
-	// if (0==stricmp(p_name,"level") && (0==stricmp(p_ext,".") || 0==p_ext[0]) )	return TRUE;	// level.
-	if (0==stricmp(p_name,"level") && 0==stricmp(p_ext,".ai"))					return TRUE;
-	if (0==stricmp(p_name,"level") && 0==stricmp(p_ext,".gct"))					return TRUE;
-	if (0==stricmp(p_name,"level") && 0==stricmp(p_ext,".details"))				return TRUE;
-	if (0==stricmp(p_ext,".ogg"))												return TRUE;
-	if (0==stricmp(p_name,"game") && 0==stricmp(p_ext,".graph"))				return TRUE;
-	if (0==stricmp(p_name,"game") && 0==stricmp(p_ext,".graph"))				return TRUE;
-	return				(FALSE);
-	/**/
+	return				(true);
 }
 
-BOOL	testEqual		(LPCSTR path, IReader* base)
+bool xrCompressor::testEqual(LPCSTR path, IReader* base)
 {
+	bool res			= false;
 	IReader*	test	= FS.r_open	(path);
-	if (test->length() != base->length())
+	
+	if(test->length() == base->length())
 	{
-		return FALSE;
+		if( 0==memcmp(test->pointer(),base->pointer(),base->length()) )
+			res			= TRUE;
 	}
-	return 0==memcmp(test->pointer(),base->pointer(),base->length());
+	FS.r_close			(test);
+	return				res;
 }
 
-ALIAS*	testALIAS		(IReader* base, u32 crc, u32& a_tests)
+xrCompressor::ALIAS* xrCompressor::testALIAS(IReader* base, u32 crc, u32& a_tests)
 {
 	xr_multimap<u32,ALIAS>::iterator I = aliases.lower_bound(base->length());
 
@@ -222,6 +216,7 @@ void	Compress			(LPCSTR path, LPCSTR base, BOOL bFast)
 		Msg			("%-80s   - CAN'T OPEN",path);
 		return;
 	}
+
 	bytesSRC						+=	src->length	();
 	u32			c_crc32				=	crc32		(src->pointer(),src->length());
 	u32			c_ptr				=	0;
@@ -248,30 +243,30 @@ void	Compress			(LPCSTR path, LPCSTR base, BOOL bFast)
 			filesVFS			++;
 
 			// Write into BaseFS
-			c_ptr				= fs->tell	();
+			c_ptr				= fs_pack_writer->tell	();
 			c_size_real			= src->length();
 			c_size_compressed	= src->length();
-			fs->w				(src->pointer(),c_size_real);
+			fs_pack_writer->w	(src->pointer(),c_size_real);
 			printf				("VFS");
 			Msg					("%-80s   - VFS",path);
 		} else 
-		{
+		{ //if(testVFS(path))
 			// Compress into BaseFS
-			c_ptr				=	fs->tell();
+			c_ptr				=	fs_pack_writer->tell();
 			c_size_real			=	src->length();
 			if (0!=c_size_real)
 			{
 				u32 c_size_max		=	rtc_csize		(src->length());
 				u8*	c_data			=	xr_alloc<u8>	(c_size_max);
+
 				t_compress.Begin	();
+				c_size_compressed	= c_size_max;
+				if (bFast)
+				{		
+					R_ASSERT(LZO_E_OK == lzo1x_1_compress	((u8*)src->pointer(),c_size_real,c_data,&c_size_compressed,c_heap));
+				}else
 				{
-					// c_size_compressed	=	rtc_compress	(c_data,c_size_max,src->pointer(),c_size_real);
-					c_size_compressed	= c_size_max;
-					if (bFast){		
-						R_ASSERT(LZO_E_OK == lzo1x_1_compress	((u8*)src->pointer(),c_size_real,c_data,&c_size_compressed,c_heap));
-					}else{
-						R_ASSERT(LZO_E_OK == lzo1x_999_compress	((u8*)src->pointer(),c_size_real,c_data,&c_size_compressed,c_heap));
-					}
+					R_ASSERT(LZO_E_OK == lzo1x_999_compress	((u8*)src->pointer(),c_size_real,c_data,&c_size_compressed,c_heap));
 				}
 				t_compress.End		();
 
@@ -280,20 +275,21 @@ void	Compress			(LPCSTR path, LPCSTR base, BOOL bFast)
 					// Failed to compress - revert to VFS
 					filesVFS			++;
 					c_size_compressed	= c_size_real;
-					fs->w				(src->pointer(),c_size_real);
+					fs_pack_writer->w	(src->pointer(),c_size_real);
 					printf				("VFS (R)");
 					Msg					("%-80s   - VFS (R)",path);
 				} else 
 				{
 					// Compressed OK - optimize
-					if (!bFast){
+					if (!bFast)
+					{
 						u8*		c_out	= xr_alloc<u8>	(c_size_real);
 						u32		c_orig	= c_size_real;
 						R_ASSERT		(LZO_E_OK	== lzo1x_optimize	(c_data,c_size_compressed,c_out,&c_orig, NULL));
 						R_ASSERT		(c_orig		== c_size_real		);
 						xr_free			(c_out);
-					}
-					fs->w				(c_data,c_size_compressed);
+					}//bFast
+					fs_pack_writer->w	(c_data,c_size_compressed);
 					printf				("%3.1f%%",	100.f*float(c_size_compressed)/float(src->length()));
 					Msg					("%-80s   - OK (%3.1f%%)",path,100.f*float(c_size_compressed)/float(src->length()));
 				}
@@ -301,10 +297,10 @@ void	Compress			(LPCSTR path, LPCSTR base, BOOL bFast)
 				// cleanup
 				xr_free		(c_data);
 			}else
-			{
+			{ //0!=c_size_real
 				filesVFS				++;
 				c_size_compressed		= c_size_real;
-				//				fs->w					(src->pointer(),c_size_real);
+				//fs_pack_writer->w		(src->pointer(),c_size_real);
 				printf					("VFS (R)");
 				Msg						("%-80s   - EMPTY",path);
 			}
@@ -329,9 +325,9 @@ void	Compress			(LPCSTR path, LPCSTR base, BOOL bFast)
 	FS.r_close	(src);
 }
 
-void	OpenPack			(LPCSTR tgt_folder, int num)
+void xrCompressor::OpenPack(LPCSTR tgt_folder, int num)
 {
-	VERIFY			(0==fs);
+	VERIFY			(0==fs_pack_writer);
 
 	string_path		fname;
 	string128		s_num;
@@ -341,7 +337,7 @@ void	OpenPack			(LPCSTR tgt_folder, int num)
 	strconcat		(sizeof(fname),fname,tgt_folder,".pack_#",itoa(num,s_num,10));
 #endif
 	unlink			(fname);
-	fs				= FS.w_open	(fname);
+	fs_pack_writer	= FS.w_open	(fname);
 	fs_desc.clear	();
 	aliases.clear	();
 
@@ -356,25 +352,25 @@ void	OpenPack			(LPCSTR tgt_folder, int num)
 	fs->open_chunk	(0);
 }
 
-void	ClosePack			()
+void xrCompressor::ClosePack()
 {
-	fs->close_chunk	(); 
+	fs_pack_writer->close_chunk	(); 
 	// save list
-	bytesDST		= fs->tell	();
-	Log				("...Writing pack desc");
+	bytesDST		= fs_pack_writer->tell	();
+	Msg				("...Writing pack desc");
 #ifdef MOD_COMPRESS
 	DUMMY_STUFF*		_dummy_stuff_tmp;
 	_dummy_stuff_tmp	= g_dummy_stuff;
 	g_dummy_stuff		 = NULL;
 #endif
-	fs->w_chunk		(1|CFS_CompressMark, fs_desc.pointer(),fs_desc.size());
+	fs_pack_writer->w_chunk		(1|CFS_CompressMark, fs_desc.pointer(),fs_desc.size());
 #ifdef MOD_COMPRESS
 	g_dummy_stuff	= _dummy_stuff_tmp;
 #endif
 
 	Msg				("Data size: %d. Desc size: %d.",bytesDST,fs_desc.size());
-	FS.w_close		(fs);
-	Log				("Pack saved.");
+	FS.w_close		(fs_pack_writer);
+	Msg				("Pack saved.");
 	u32	dwTimeEnd	= timeGetTime();
 	printf			("\n\nFiles total/skipped/VFS/aliased: %d/%d/%d/%d\nOveral: %dK/%dK, %3.1f%%\nElapsed time: %d:%d\nCompression speed: %3.1f Mb/s",
 		filesTOTAL,filesSKIP,filesVFS,filesALIAS,
@@ -396,7 +392,8 @@ void	ClosePack			()
 
 void CompressList(LPCSTR in_name, xr_vector<char*>* list, xr_vector<char*>* fl_list, BOOL bFast, BOOL make_pack, LPCSTR copy_path)
 {
-	if (!list->empty() && in_name && in_name[0]){
+	if (!list->empty() && in_name && in_name[0])
+	{
 		string256		caption;
 
 		VERIFY			('\\'!=in_name[xr_strlen(in_name)-1]);
@@ -411,19 +408,23 @@ void CompressList(LPCSTR in_name, xr_vector<char*>* list, xr_vector<char*>* fl_l
 			write_file_header	((*fl_list)[it],0,0,0,0);
 
 		c_heap			= xr_alloc<u8> (LZO1X_999_MEM_COMPRESS);
-		//***main process***: BEGIN
-		for (u32 it=0; it<list->size(); it++){
+
+		for (u32 it=0; it<list->size(); it++)
+		{
 			sprintf				(caption,"Compress files: %d/%d - %d%%",it,list->size(),(it*100)/list->size());
 			SetWindowText		(GetConsoleWindow(),caption);
 			printf				("\n%-80s   ",(*list)[it]);
-			if (make_pack){
-				if (fs->tell()>XRP_MAX_SIZE){
+			if (make_pack)
+			{
+				if (fs->tell()>XRP_MAX_SIZE)
+				{
 					ClosePack	();
 					OpenPack	(tgt_folder,pack_num++);
 				}
 				Compress		((*list)[it],in_name,bFast);
 			}
-			if (copy_path && copy_path[0]){
+			if (copy_path && copy_path[0])
+			{
 				string_path		src_fn, dst_fn; 
 				strconcat		(sizeof(src_fn),src_fn,in_name,"\\",(*list)[it]);
 				strconcat		(sizeof(dst_fn),dst_fn,copy_path,tgt_folder,"\\",(*list)[it]);
@@ -437,8 +438,8 @@ void CompressList(LPCSTR in_name, xr_vector<char*>* list, xr_vector<char*>* fl_l
 			ClosePack			();
 
 		xr_free					(c_heap);
-		//***main process***: END
-	} else {
+	} else
+	{
 		Msg						("ERROR: folder not found.");
 	}
 }
@@ -469,9 +470,11 @@ void ProcessFolder(xr_vector<char*>& list, LPCSTR path)
 	}
 	xr_vector<char*>::iterator it	= i_list->begin();
 	xr_vector<char*>::iterator itE	= i_list->end();
-	for (;it!=itE;++it){ 
+	for (;it!=itE;++it)
+	{ 
 		xr_string		tmp_path	= xr_string(path)+xr_string(*it);
-		if (!testSKIP(tmp_path.c_str())){
+		if (!testSKIP(tmp_path.c_str()))
+		{
 			list.push_back	(xr_strdup(tmp_path.c_str()));
 //.			Msg				("+f: %s",tmp_path.c_str());
 		}else{
@@ -481,18 +484,23 @@ void ProcessFolder(xr_vector<char*>& list, LPCSTR path)
 	FS.file_list_close	(i_list);
 }
 
-bool IsFolderAccepted(CInifile& ltx, LPCSTR path, BOOL& recurse)
+bool xrCompressor::IsFolderAccepted(CInifile& ltx, LPCSTR path, BOOL& recurse)
 {
 	// exclude folders
 	if( ltx.section_exist("exclude_folders") )
 	{
 		CInifile::Sect& ef_sect	= ltx.r_section("exclude_folders");
-		for (CInifile::SectCIt ef_it=ef_sect.Data.begin(); ef_it!=ef_sect.Data.end(); ef_it++){
+		for (CInifile::SectCIt ef_it=ef_sect.Data.begin(); ef_it!=ef_sect.Data.end(); ef_it++)
+		{
 			recurse	= CInifile::IsBOOL(ef_it->second.c_str());
-			if (recurse)	{
-				if (path==strstr(path,ef_it->first.c_str()))	return false;
-			}else{
-				if (0==xr_strcmp(path,ef_it->first.c_str()))	return false;
+			if (recurse)
+			{
+				if (path==strstr(path,ef_it->first.c_str()))
+					return false;
+			}else
+			{
+				if (0==xr_strcmp(path,ef_it->first.c_str()))
+					return false;
 			}
 		}
 	}
@@ -532,78 +540,82 @@ void ProcessLTX(LPCSTR tgt_name, LPCSTR params, BOOL bFast)
 	xr_vector<char*> fl_list;
 	if(ltx.section_exist("include_folders"))
 	{
-	CInifile::Sect& if_sect	= ltx.r_section("include_folders");
-	for (CInifile::SectCIt if_it=if_sect.Data.begin(); if_it!=if_sect.Data.end(); if_it++)
-	{
-		BOOL ifRecurse		= CInifile::IsBOOL(if_it->second.c_str());
-		u32 folder_mask		= FS_ListFolders | (ifRecurse?0:FS_RootOnly);
+		CInifile::Sect& if_sect	= ltx.r_section("include_folders");
 
-		string_path path;
-		LPCSTR _path		= 0==xr_strcmp(if_it->first.c_str(),".\\")?"":if_it->first.c_str();
-		strcpy				(path,_path);
-		u32 path_len		= xr_strlen(path);
-		if ((0!=path_len)&&(path[path_len-1]!='\\')) strcat(path,"\\");
+		for (CInifile::SectCIt if_it=if_sect.Data.begin(); if_it!=if_sect.Data.end(); ++if_it)
+		{
+			BOOL ifRecurse		= CInifile::IsBOOL(if_it->second.c_str());
+			u32 folder_mask		= FS_ListFolders | (ifRecurse?0:FS_RootOnly);
 
-		Log					("");
-		OUT_LOG				("Processing folder: '%s'",path);
-		BOOL efRecurse;
-		BOOL val			= IsFolderAccepted(ltx,path,efRecurse);
-		if (val || (!val&&!efRecurse))
-		{ 
-			if (val)		ProcessFolder	(list,path);
+			string_path path;
+			LPCSTR _path		= 0==xr_strcmp(if_it->first.c_str(),".\\")?"":if_it->first.c_str();
+			strcpy_s			(path,_path);
+			u32 path_len		= xr_strlen(path);
+			if ((0!=path_len)&&(path[path_len-1]!='\\')) strcat(path,"\\");
 
-			xr_vector<char*>*	i_fl_list	= FS.file_list_open	("$target_folder$",path,folder_mask);
-			if (!i_fl_list)
-			{
-				Log			("ERROR: Unable to open folder list:", path);
-				continue;
-			}
-
-			xr_vector<char*>::iterator it	= i_fl_list->begin();
-			xr_vector<char*>::iterator itE	= i_fl_list->end();
-			for (;it!=itE;++it){ 
-				xr_string tmp_path	= xr_string(path)+xr_string(*it);
-				bool val		= IsFolderAccepted(ltx,tmp_path.c_str(),efRecurse);
+			Msg					("");
+			Msg					("Processing folder: '%s'",path);
+			BOOL efRecurse;
+			BOOL val			= IsFolderAccepted(ltx,path,efRecurse);
+			if (val || (!val&&!efRecurse))
+			{ 
 				if (val)
+					ProcessFolder	(list,path);
+
+				xr_vector<char*>*	i_fl_list	= FS.file_list_open	("$target_folder$",path,folder_mask);
+				if (!i_fl_list)
 				{
-					fl_list.push_back(xr_strdup(tmp_path.c_str()));
-					Msg			("+F: %s",tmp_path.c_str());
-					// collect files
-					if (ifRecurse) 
-						ProcessFolder (list,tmp_path.c_str());
-				}else
-				{
-					Msg			("-F: %s",tmp_path.c_str());
+					Log			("ERROR: Unable to open folder list:", path);
+					continue;
 				}
-			}
-			FS.file_list_close	(i_fl_list);
-		}else
-		{
-			Msg					("-F: %s",path);
-		}
-	}
-}//if(ltx.section_exist("include_folders"))
-	// compress
-	{
-		if(ltx.section_exist("include_files"))
-		{
-		CInifile::Sect& if_sect	= ltx.r_section("include_files");
-		for (CInifile::SectCIt if_it=if_sect.Data.begin(); if_it!=if_sect.Data.end(); if_it++)
+
+				xr_vector<char*>::iterator it	= i_fl_list->begin();
+				xr_vector<char*>::iterator itE	= i_fl_list->end();
+				for (;it!=itE;++it)
+				{ 
+					xr_string tmp_path	= xr_string(path)+xr_string(*it);
+					bool val		= IsFolderAccepted(ltx,tmp_path.c_str(),efRecurse);
+					if (val)
+					{
+						fl_list.push_back(xr_strdup(tmp_path.c_str()));
+						Msg			("+F: %s",tmp_path.c_str());
+						// collect files
+						if (ifRecurse) 
+							ProcessFolder (list,tmp_path.c_str());
+					}else
+					{
+						Msg			("-F: %s",tmp_path.c_str());
+					}
+				}
+				FS.file_list_close	(i_fl_list);
+			}else
 			{
-				  list.push_back	(xr_strdup(if_it->first.c_str()));
-			}	
+				Msg					("-F: %s",path);
+			}
 		}
+	}//if(ltx.section_exist("include_folders"))
 	
+	if(ltx.section_exist("include_files"))
+	{
+		CInifile::Sect& if_sect	= ltx.r_section("include_files");
+		for (CInifile::SectCIt if_it=if_sect.Data.begin(); if_it!=if_sect.Data.end(); ++if_it)
+		{
+			list.push_back	(xr_strdup(if_it->first.c_str()));
+		}	
 	}
+
 	CompressList	(tgt_name,&list,&fl_list,bFast,make_pack,copy_path);
 
 	// free
 	xr_vector<char*>::iterator it	= list.begin();
 	xr_vector<char*>::iterator itE	= list.end();
-	for (;it!=itE;++it) xr_free(*it);
+	for (;it!=itE;++it)
+		xr_free(*it);
+
 	it				= fl_list.begin();
 	itE				= fl_list.end();
-	for (;it!=itE;++it) xr_free(*it);
+	for (;it!=itE;++it)
+		xr_free(*it);
 
 	exclude_exts.clear_and_free();
 }

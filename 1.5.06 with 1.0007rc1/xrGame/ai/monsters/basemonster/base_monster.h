@@ -266,8 +266,6 @@ public:
 	// Lain: added
 	bool                    check_eated_corpse_draggable();
 
-
-
 	bool					hear_dangerous_sound;
 	bool					hear_interesting_sound;
 

@@ -319,6 +319,4 @@ IC void	ref_sound::set_params					( CSound_params* p )
         _feedback()->set_volume   	(p->volume);
     }
 }
-
-
 #endif

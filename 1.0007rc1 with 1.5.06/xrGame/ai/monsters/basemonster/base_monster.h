@@ -44,6 +44,14 @@ class CMonsterCoverManager;
 
 class CMonsterHome;
 
+// Lain: added
+class CMonsterSquad;
+class squad_grouping_behaviour;
+
+#ifdef DEBUG
+namespace debug { class text_tree; }
+#endif
+
 class CBaseMonster : public CCustomMonster, public CStepManager, public CInventoryOwner 
 {
 	typedef	CCustomMonster								inherited;
@@ -55,6 +63,7 @@ public:
 public:
 	virtual	Feel::Sound*				dcast_FeelSound				()	{ return this;	}
 	virtual	CCharacterPhysicsSupport*	character_physics_support	()	{return m_pPhysics_support;}
+	virtual const	CCharacterPhysicsSupport*	character_physics_support()const{return m_pPhysics_support;}
 	virtual CPHDestroyable*				ph_destroyable				();
 	virtual CEntityAlive*				cast_entity_alive			()	{return this;}
 	virtual CEntity*					cast_entity					()	{return this;}
@@ -73,7 +82,7 @@ public:
 	virtual void			Die								(CObject* who);
 	virtual void			HitSignal						(float amount, Fvector& vLocalDir, CObject* who, s16 element);
 	virtual	void			Hit								(SHit* pHDS);
-	virtual	void			PHHit							(float P,Fvector &dir, CObject *who,s16 element,Fvector p_in_object_space, float impulse, ALife::EHitType hit_type = ALife::eHitTypeWound);
+	virtual	void			PHHit							( SHit &H );
 	virtual void			SelectAnimation					(const Fvector& _view, const Fvector& _move, float speed );
 
 	virtual void			Load							(LPCSTR section);
@@ -158,7 +167,7 @@ public:
 	
 	virtual void			SetScriptControl				(const bool bScriptControl, shared_str caSciptName);
 
-
+	virtual void			SetEnemy						(const CEntityAlive *sent);
 	bool					m_force_real_speed;
 	bool					m_script_processing_active;
 	bool					m_script_state_must_execute;
@@ -252,6 +261,10 @@ public:
 
 	CMonsterEnemyManager	EnemyMan;
 	CMonsterCorpseManager	CorpseMan;
+
+	const CEntityAlive		*EatedCorpse;
+	// Lain: added
+	bool                    check_eated_corpse_draggable();
 
 	bool					hear_dangerous_sound;
 	bool					hear_interesting_sound;
@@ -349,7 +362,7 @@ public:
 
 
 	u32						m_prev_sound_type;
-	u32						get_attack_rebuild_time	();
+	virtual u32				get_attack_rebuild_time	();
 
 	IC	virtual	EAction		CustomVelocityIndex2Action	(u32 velocity_index) {return ACT_STAND_IDLE;}
 		virtual	void		TranslateActionToPathParams ();
@@ -446,6 +459,7 @@ public:
 	u8						m_show_debug_info;	// 0 - none, 1 - first column, 2 - second column
 	void					set_show_debug_info	(u8 show = 1){m_show_debug_info = show;}
 	virtual	SDebugInfo		show_debug_info		();
+	virtual void            add_debug_info      (debug::text_tree& root_s);
 
 	void					debug_fsm			();
 #endif
@@ -454,6 +468,26 @@ public:
 	virtual void			debug_on_key		(int key) {}
 #endif
 //////////////////////////////////////////////////////////////////////////
+
+
+// Lain: added
+	steering_behaviour::manager*    get_steer_manager ();
+
+	float get_feel_enemy_who_just_hit_max_distance () { return m_feel_enemy_who_just_hit_max_distance; }
+	float get_feel_enemy_max_distance			   () { return m_feel_enemy_max_distance; }
+	virtual bool  can_use_agressive_jump (const CObject*) { return false; }
+
+private:
+	steering_behaviour::manager*    m_steer_manager;
+	squad_grouping_behaviour*       m_grouping_behaviour; // freed by manager
+
+	// updates position by applying little "pushing" force
+	// so that monsters rarely intersect
+	void update_pos_by_grouping_behaviour (); 
+	TTime m_last_grouping_behaviour_update_tick;
+
+	float m_feel_enemy_who_just_hit_max_distance;
+	float m_feel_enemy_max_distance;
 
 };
 

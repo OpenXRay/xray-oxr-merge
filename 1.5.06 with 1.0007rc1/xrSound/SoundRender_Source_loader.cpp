@@ -75,7 +75,7 @@ void CSoundRender_Source::LoadWave	(LPCSTR pName)
 	{
 		Msg("stereo sound source [%s]", pName);
 	}
-#endif // #ifdef DEBUG
+#endif
 
 	ZeroMemory					( &m_wformat, sizeof( WAVEFORMATEX ) );
 

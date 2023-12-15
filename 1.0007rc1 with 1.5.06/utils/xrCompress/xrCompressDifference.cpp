@@ -1,5 +1,7 @@
 #include "stdafx.h"
 
+#ifndef MOD_COMPRESS
+
 string_path target_folder;
 string_path new_folder, old_folder;
 
@@ -20,8 +22,8 @@ struct file_comparer{
 		m_fs_old=fs2;
 		m_freader=0;
 		m_crc32=0;
-//		strcpy(m_short_name,c+xr_strlen(arget_folder)+1);
-		strcpy(m_full_name,c);
+//		strcpy_s(m_short_name,c+xr_strlen(arget_folder)+1);
+		strcpy_s(m_full_name,c);
 
 		const CLocatorAPI::file* f = m_fs_new->exist("$target_folder$",m_full_name);
 		if(f)
@@ -74,9 +76,6 @@ struct file_comparer{
 		return true;
 	}
 };
-
-
-#ifndef MOD_COMPRESS
 
 int ProcessDifference()
 {

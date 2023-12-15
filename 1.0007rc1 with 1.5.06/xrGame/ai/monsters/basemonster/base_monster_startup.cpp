@@ -25,7 +25,21 @@
 #include "../../../alife_object_registry.h"
 #include "../../../xrServer.h"
 #include "../../../inventory_item.h"
-#include "../../../xrServer_Objects_ALife.h"
+#include "../../../../xrServerEntities/xrServer_objects_ALife.h"
+#include "../../../phMovementControl.h"
+#include "../ai_monster_squad.h"
+
+namespace detail
+{
+
+namespace base_monster
+{
+	const float feel_enemy_who_just_hit_max_distance = 20;
+	const float feel_enemy_max_distance = 3;
+
+} // namespace base_monster
+
+} // namespace detail
 
 void CBaseMonster::Load(LPCSTR section)
 {
@@ -61,6 +75,37 @@ void CBaseMonster::Load(LPCSTR section)
 
 	m_melee_rotation_factor			= READ_IF_EXISTS(pSettings,r_float,section,"Melee_Rotation_Factor", 1.5f);
 	berserk_always					= !!READ_IF_EXISTS(pSettings,r_bool,section,"berserk_always", false);
+
+	m_feel_enemy_who_just_hit_max_distance = READ_IF_EXISTS(pSettings, r_float, section, 
+		                                        "feel_enemy_who_just_hit_max_distance", 
+												detail::base_monster::feel_enemy_who_just_hit_max_distance);
+
+	m_feel_enemy_max_distance			   = READ_IF_EXISTS(pSettings, r_float, section, 
+		                                        "feel_enemy_max_distance", 
+												detail::base_monster::feel_enemy_max_distance);
+	
+	
+	//------------------------------------
+	// Lain: added: separation behaviour 
+	//------------------------------------
+	float    separate_factor        = READ_IF_EXISTS(pSettings, r_float, section, "separate_factor", 0.f);
+	float    separate_range         = READ_IF_EXISTS(pSettings, r_float, section, "separate_range" , 0.f);
+	
+	if ( (separate_factor > 0.0001f) && (separate_range > 0.01f) )
+	{
+		m_steer_manager = xr_new<steering_behaviour::manager>();
+
+		m_grouping_behaviour = xr_new<squad_grouping_behaviour>
+			(this, Fvector3().set(0.f, 0.f, 0.f), Fvector3().set(0.f, separate_factor, 0.f), separate_range);
+
+		get_steer_manager()->add( xr_new<steering_behaviour::grouping>(m_grouping_behaviour) );
+	}
+}
+
+steering_behaviour::manager*   CBaseMonster::get_steer_manager ()
+{
+	VERIFY(m_steer_manager);
+	return m_steer_manager; 
 }
 
 // if sound is absent just do not load that one

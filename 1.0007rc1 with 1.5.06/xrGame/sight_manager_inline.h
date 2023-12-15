@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////
 //	Module 		: sight_manager_inline.h
 //	Created 	: 27.12.2003
-//  Modified 	: 27.12.2003
+//  Modified 	: 08.04.2008
 //	Author		: Dmitriy Iassenev
 //	Description : Sight manager inline functions
 ////////////////////////////////////////////////////////////////////////////
@@ -26,11 +26,6 @@ IC	bool CSightManager::enabled			() const
 	return					(m_enabled);
 }
 
-IC	void CSightManager::enable			(bool value)
-{
-	m_enabled				= value;
-}
-
 template <typename T1, typename T2, typename T3>
 IC	void CSightManager::setup			(T1 _1, T2 _2, T3 _3)
 {
@@ -49,3 +44,36 @@ IC	void CSightManager::setup			(T1 _1)
 	setup(CSightAction(_1));
 }
 
+IC	Fmatrix	const& CSightManager::current_spine_rotation	() const
+{
+	return				(m_current.m_spine.m_rotation);
+}
+
+IC	Fmatrix	const& CSightManager::current_shoulder_rotation	() const
+{
+	return				(m_current.m_shoulder.m_rotation);
+}
+
+IC	Fmatrix	const& CSightManager::current_head_rotation		() const
+{
+	return				(m_current.m_head.m_rotation);
+}
+
+IC	void CSightManager::bone_aiming					()
+{
+	m_animation_id		= "";
+	m_aiming_type		= aiming_none;
+}
+
+IC	void CSightManager::bone_aiming					(
+		shared_str const& animation_id,
+		animation_frame_type const animation_frame,
+		aiming_type const aiming_type
+	)
+{
+	VERIFY				(aiming_none != aiming_type);
+
+	m_animation_id		= animation_id;
+	m_animation_frame	= animation_frame;
+	m_aiming_type		= aiming_type;
+}

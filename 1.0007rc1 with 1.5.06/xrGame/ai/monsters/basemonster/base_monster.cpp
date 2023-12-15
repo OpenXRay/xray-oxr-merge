@@ -8,7 +8,7 @@
 #include "../../../game_graph.h"
 #include "../../../phmovementcontrol.h"
 #include "../ai_monster_squad_manager.h"
-#include "../../../xrserver_objects_alife_monsters.h"
+#include "../../../../xrServerEntities/xrserver_objects_alife_monsters.h"
 #include "../corpse_cover.h"
 #include "../../../cover_evaluators.h"
 #include "../../../seniority_hierarchy_holder.h"
@@ -16,7 +16,7 @@
 #include "../../../squad_hierarchy_holder.h"
 #include "../../../group_hierarchy_holder.h"
 #include "../../../phdestroyable.h"
-#include "../../../../skeletoncustom.h"
+#include "../../../../Include/xrRender/KinematicsAnimated.h"
 #include "../../../detail_path_manager.h"
 #include "../../../hudmanager.h"
 #include "../../../memory_manager.h"
@@ -41,7 +41,15 @@
 #include "../../../actor.h"
 #include "../../../ai_object_location.h"
 #include "../../../ai_space.h"
-#include "../../../script_engine.h"
+#include "../../../../xrServerEntities/script_engine.h"
+
+// Lain: added 
+#include "../../../level_debug.h"
+#include "../../../../xrEngine/xrLevel.h"
+#include "../../../level_graph.h"
+#ifdef DEBUG
+#include "debug_text_tree.h"
+#endif
 
 CBaseMonster::CBaseMonster()
 {
@@ -71,7 +79,6 @@ CBaseMonster::CBaseMonster()
 
 	m_controlled					= 0;
 
-	
 	control().add					(&m_com_manager,  ControlCom::eControlCustom);
 	
 	m_com_manager.add_ability		(ControlCom::eControlSequencer);
@@ -84,8 +91,16 @@ CBaseMonster::CBaseMonster()
 	Home							= xr_new<CMonsterHome>(this);
 
 	com_man().add_ability			(ControlCom::eComCriticalWound);
-}
 
+	EatedCorpse = NULL;
+
+	m_steer_manager                 = NULL;
+	m_grouping_behaviour            = NULL;
+
+	m_last_grouping_behaviour_update_tick  = 0;
+	m_feel_enemy_who_just_hit_max_distance = 0;
+	m_feel_enemy_max_distance			   = 0;
+}
 
 CBaseMonster::~CBaseMonster()
 {
@@ -104,19 +119,111 @@ CBaseMonster::~CBaseMonster()
 	xr_delete(m_anomaly_detector);
 	xr_delete(CoverMan);
 	xr_delete(Home);
+
+	xr_delete(m_steer_manager);
+}
+
+void CBaseMonster::update_pos_by_grouping_behaviour ()
+{
+	if ( !m_grouping_behaviour )
+	{
+		return;
+	}
+
+	Fvector acc = get_steer_manager()->calc_acceleration();
+
+	acc.y = 0; // remove vertical component
+
+	if ( !m_last_grouping_behaviour_update_tick )
+	{
+		m_last_grouping_behaviour_update_tick = Device.dwTimeGlobal;
+	}	
+
+	const float dt = 0.001f * (Device.dwTimeGlobal - m_last_grouping_behaviour_update_tick);
+	
+	m_last_grouping_behaviour_update_tick = Device.dwTimeGlobal;
+
+	const Fvector old_pos  = Position();
+	Fvector       offs     = acc*dt;
+	const float   offs_mag = magnitude(offs);
+
+	if ( offs_mag < 0.000001f )
+	{
+		// too little force applied, ignore it and save cpu
+		return;
+	}
+
+	// this control maximum offset
+	// higher values allow stronger forces, but can lead to jingling
+	const float max_offs = 0.005f;
+	if ( offs_mag > max_offs )
+	{
+		offs.set_length(0.005f);
+	}
+
+	Fvector   new_pos    = old_pos + offs;
+
+
+	const u32 old_vertex = ai_location().level_vertex_id();
+	u32       new_vertex = ai().level_graph().check_position_in_direction(old_vertex, old_pos, new_pos);
+
+	if ( !ai().level_graph().valid_vertex_id(new_vertex) )
+	{
+		// aiming out of ai-map, ignore
+		return;
+	}
+
+	// use physics simulation to slide along obstacles
+	character_physics_support()->movement()->VirtualMoveTo(new_pos, new_pos);
+
+	if ( !ai().level_graph().valid_vertex_position(new_pos) )
+	{
+		// aiming out of ai-map, ignore
+		return;
+	}
+
+	new_vertex = ai().level_graph().check_position_in_direction(old_vertex, old_pos, new_pos);
+
+	if ( !ai().level_graph().valid_vertex_id(new_vertex) )
+	{
+		return;
+	}
+
+	// finally, new position is valid on the ai-map, we can use it
+	character_physics_support()->movement()->SetPosition(new_pos);
+	Position() = new_pos;
+	ai_location().level_vertex(new_vertex);
 }
 
 void CBaseMonster::UpdateCL()
 {
+	if ( EatedCorpse && !CorpseMemory.is_valid_corpse(EatedCorpse) )
+	{
+		EatedCorpse = NULL;
+	}
+
 	inherited::UpdateCL();
 	
-	if (g_Alive()) {
+	if (g_Alive()) 
+	{
 		CStepManager::update				();
+
+		update_pos_by_grouping_behaviour();
 	}
 
 	control().update_frame();
 
 	m_pPhysics_support->in_UpdateCL();
+
+#ifdef DEBUG
+	if ( Level().CurrentEntity() == this ) 
+	{
+		// Lain: added
+		DBG().get_text_tree().clear();
+		add_debug_info(DBG().get_text_tree());
+	}
+
+#endif
 }
 
 void CBaseMonster::shedule_Update(u32 dt)
@@ -154,6 +261,11 @@ void CBaseMonster::Die(CObject* who)
 
 	monster_squad().remove_member	((u8)g_Team(),(u8)g_Squad(),(u8)g_Group(),this);
 	
+	if ( m_grouping_behaviour )
+	{
+		m_grouping_behaviour->set_squad(NULL);
+	}
+
 	if (m_controlled)			m_controlled->on_die();
 }
 
@@ -176,9 +288,9 @@ void	CBaseMonster::Hit							(SHit* pHDS)
 	inherited::Hit(pHDS);
 }
 
-void CBaseMonster::PHHit(float P,Fvector &dir, CObject *who,s16 element,Fvector p_in_object_space, float impulse, ALife::EHitType hit_type /*=ALife::eHitTypeWound*/)
+void CBaseMonster::PHHit(SHit &H)
 {
-	m_pPhysics_support->in_Hit(P,dir,who,element,p_in_object_space,impulse,hit_type);
+	m_pPhysics_support->in_Hit( H );
 }
 
 CPHDestroyable*	CBaseMonster::	ph_destroyable	()
@@ -188,16 +300,42 @@ CPHDestroyable*	CBaseMonster::	ph_destroyable	()
 
 bool CBaseMonster::useful(const CItemManager *manager, const CGameObject *object) const
 {
-	if (!movement().restrictions().accessible(object->Position()))
-		return				(false);
+	const Fvector& object_pos = object->Position();
+	if (!movement().restrictions().accessible(object_pos))
+	{
+		return false;
+	}
+
+	// Lain: added (temp?) guard due to bug http://tiger/bugz/view.php?id=15983
+	// sometimes accessible(object->Position())) returns true
+	// but accessible(ai_location().level_vertex_id()) crashes 
+	// because level_vertex_id is not valid, so this code syncs vertex_id with position
+	if ( !ai().level_graph().valid_vertex_id(object->ai_location().level_vertex_id()) )
+	{
+		u32 vertex_id = ai().level_graph().vertex_id(object_pos);
+		if ( !ai().level_graph().valid_vertex_id(vertex_id) )
+		{
+			return false;
+		}
+		object->ai_location().level_vertex(vertex_id);
+	}
 
 	if (!movement().restrictions().accessible(object->ai_location().level_vertex_id()))
-		return				(false);
+	{
+		return false;
+	}
 
 	const CEntityAlive *pCorpse = smart_cast<const CEntityAlive *>(object); 
-	if (!pCorpse) return false;
+	if ( !pCorpse ) 
+	{
+		return false;
+	}
 	
-	if (!pCorpse->g_Alive()) return true;
+	if ( !pCorpse->g_Alive() )
+	{
+		return true;
+	}
+	
 	return false;
 }
 
@@ -223,8 +361,12 @@ void CBaseMonster::ChangeTeam(int team, int squad, int group)
 	monster_squad().remove_member	((u8)g_Team(),(u8)g_Squad(),(u8)g_Group(),this);
 	inherited::ChangeTeam			(team,squad,group);
 	monster_squad().register_member	((u8)g_Team(),(u8)g_Squad(),(u8)g_Group(), this);
-}
 
+	if ( m_grouping_behaviour )
+	{
+		m_grouping_behaviour->set_squad( monster_squad().get_squad(this) );
+	}	
+}
 
 void CBaseMonster::SetTurnAnimation(bool turn_left)
 {
@@ -306,11 +448,22 @@ void CBaseMonster::TranslateActionToPathParams()
 	case ACT_EAT:
 	case ACT_SLEEP:
 	case ACT_REST:
+	//jump
+	//case ACT_JUMP:
 	case ACT_LOOK_AROUND:
 	case ACT_ATTACK:
 		bEnablePath = false;
 		break;
 
+	case ACT_HOME_WALK_GROWL:
+		vel_mask = MonsterMovement::eVelocityParamsWalkGrowl;
+		des_mask = MonsterMovement::eVelocityParameterWalkGrowl;
+		break;
+
+	case ACT_HOME_WALK_SMELLING:
+		vel_mask = MonsterMovement::eVelocityParamsWalkSmelling;
+		des_mask = MonsterMovement::eVelocityParameterWalkSmelling;
+		break;
 	case ACT_WALK_FWD:
 		if (m_bDamaged) {
 			vel_mask = MonsterMovement::eVelocityParamsWalkDamaged;
@@ -414,11 +567,12 @@ void CBaseMonster::net_Relcase(CObject *O)
 {
 	inherited::net_Relcase(O);
 
+	StateMan->remove_links			(O);
+
 	// TODO: do not clear, remove only object O
 	if (g_Alive()) {
 		EnemyMemory.remove_links	(O);
 		SoundMemory.remove_links	(O);
-		CorpseMemory.remove_links	(O);
 		HitMemory.remove_hit_info	(O);
 
 		EnemyMan.reinit				();
@@ -428,6 +582,7 @@ void CBaseMonster::net_Relcase(CObject *O)
 		
 		monster_squad().remove_links(O);
 	}
+	CorpseMemory.remove_links		(O);
 	m_pPhysics_support->in_NetRelcase(O);
 }
 	
@@ -457,7 +612,7 @@ CParticlesObject* CBaseMonster::PlayParticles(const shared_str& name, const Fvec
 	matrix.translate_over	(position);
 	
 	(xformed) ?				ps->SetXFORM (matrix) : ps->UpdateParent(matrix,zero_vel); 
-	ps->Play				();
+	ps->Play				(false);
 
 	return ps;
 }
@@ -514,6 +669,7 @@ void CBaseMonster::OnEvent(NET_Packet& P, u16 type)
 
 	u16			id;
 	switch (type){
+	case GE_TRADE_BUY:
 	case GE_OWNERSHIP_TAKE:
 		{
 			P.r_u16		(id);
@@ -523,14 +679,13 @@ void CBaseMonster::OnEvent(NET_Packet& P, u16 type)
 			CGameObject			*GO = smart_cast<CGameObject*>(O);
 			CInventoryItem		*pIItem = smart_cast<CInventoryItem*>(GO);
 			VERIFY				(inventory().CanTakeItem(pIItem));
-			pIItem->m_eItemPlace = eItemPlaceRuck;
+			pIItem->m_eItemCurrPlace = eItemPlaceRuck;
 
 			O->H_SetParent		(this);
 			inventory().Take	(GO, true, true);
 		break;
 		}
 	case GE_TRADE_SELL:
-
 	case GE_OWNERSHIP_REJECT:
 		{
 			P.r_u16		(id);
@@ -538,10 +693,12 @@ void CBaseMonster::OnEvent(NET_Packet& P, u16 type)
 			VERIFY		(O);
 
 			bool just_before_destroy	= !P.r_eof() && P.r_u8();
+			bool dont_create_shell			= (type==GE_TRADE_SELL) || just_before_destroy;
+
 			O->SetTmpPreDestroy				(just_before_destroy);
-			if (inventory().DropItem(smart_cast<CGameObject*>(O)) && !O->getDestroy()) 
+			if (inventory().DropItem(smart_cast<CGameObject*>(O), dont_create_shell) && !O->getDestroy()) 
 			{
-				O->H_SetParent	(0,just_before_destroy);
+				//O->H_SetParent	(0,just_before_destroy); //moved to DropItem
 				feel_touch_deny	(O,2000);
 			}
 		}
@@ -560,4 +717,22 @@ void CBaseMonster::OnEvent(NET_Packet& P, u16 type)
 	}
 }
 
+// Lain: added
+bool   CBaseMonster::check_eated_corpse_draggable()
+{
+	const CEntity* p_corpse = EatedCorpse;
+	if ( !p_corpse || !p_corpse->Visual() )
+	{
+		return false;
+	}
 
+	if ( IKinematics* K = p_corpse->Visual()->dcast_PKinematics() )
+	{
+		if ( CInifile* ini = K->LL_UserData() )
+		{
+			return ini->section_exist("capture_used_bones") && ini->line_exist("capture_used_bones", "bones");
+		}
+	}
+
+	return false;	
+}

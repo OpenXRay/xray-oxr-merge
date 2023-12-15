@@ -150,50 +150,6 @@ public:
 		Log("- --- Command listing: end ----");
 	}
 };
-//-----------------------------------------------------------------------
-void 			crashthread			( void* )
-{
-	Sleep		(1000);
-	Msg			("~ crash thread activated")	;
-	u64			clk		= CPU::GetCLK		()	;
-	CRandom		rndg;
-	rndg.seed	(s32(clk));
-	for (;;)	{
-		Sleep	(1);
-		__try	{
-			//try {
-				union	{
-					struct {
-						u8	_b0;
-						u8	_b1;
-						u8	_b2;
-						u8	_b3;
-					};
-					uintptr_t	_ptri;
-					u32*		_ptr;
-				}		rndptr;
-				rndptr._b0		=	u8(rndg.randI(0,256));
-				rndptr._b1		=	u8(rndg.randI(0,256));
-				rndptr._b2		=	u8(rndg.randI(0,256));
-				rndptr._b3		=	u8(rndg.randI(0,256));
-				rndptr._ptri	&=  (1ul<31ul)-1;
-				*rndptr._ptr	=	0xBAADF00D;
-			//} catch(...) {
-			//	// OK
-			//}
-		} __except	(EXCEPTION_EXECUTE_HANDLER)	{
-			// OK
-		}
-	}
-}
-class CCC_Crash : public IConsole_Command
-{
-public:
-	CCC_Crash(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = TRUE; };
-	virtual void Execute(LPCSTR args) {
-		thread_spawn	(crashthread,"crash",0,0);
-	}
-};
 
 class CCC_DumpResources : public IConsole_Command
 {
@@ -484,7 +440,7 @@ public:
 //-----------------------------------------------------------------------
 ENGINE_API float	psHUD_FOV=0.45f;
 
-extern int			psSkeletonUpdate;
+//extern int			psSkeletonUpdate;
 extern int			rsDVB_Size;
 extern int			rsDIB_Size;
 extern int			psNET_ClientUpdate;
@@ -494,10 +450,9 @@ extern int			psNET_ServerPending;
 extern int			psNET_DedicatedSleep;
 extern char			psNET_Name[32];
 extern Flags32		psEnvFlags;
-extern float		r__dtex_range;
+//extern float		r__dtex_range;
 
 extern int			g_ErrorLineCount;
-
 
 ENGINE_API int			ps_r__Supersample			= 1;
 void CCC_Register()
@@ -511,8 +466,6 @@ void CCC_Register()
 	CMD1(CCC_LoadCFG,	"cfg_load"				);
 
 #ifdef DEBUG
-//	CMD1(CCC_Crash,		"crash"					);
-
 	CMD1(CCC_MotionsStat,	"stat_motions"		);
 	CMD1(CCC_TexturesStat,	"stat_textures"		);
 #endif
@@ -541,7 +494,7 @@ void CCC_Register()
 	CMD3(CCC_Mask,		"rs_occlusion",			&psDeviceFlags,		rsOcclusion);
 
 	CMD3(CCC_Mask,		"rs_detail",			&psDeviceFlags,		rsDetails	);
-	CMD4(CCC_Float,		"r__dtex_range",		&r__dtex_range,		5,		175	);
+	//CMD4(CCC_Float,		"r__dtex_range",		&r__dtex_range,		5,		175	);
 
 	CMD3(CCC_Mask,		"rs_constant_fps",		&psDeviceFlags,		rsConstantFPS			);
 	CMD3(CCC_Mask,		"rs_render_statics",	&psDeviceFlags,		rsDrawStatic			);
@@ -559,11 +512,11 @@ void CCC_Register()
 	CMD3(CCC_Mask,		"rs_stats",				&psDeviceFlags,		rsStatistic				);
 	CMD4(CCC_Float,		"rs_vis_distance",		&psVisDistance,		0.4f,	1.5f			);
 
-#ifdef DEBUG
 	CMD3(CCC_Mask,		"rs_cam_pos",			&psDeviceFlags,		rsCameraPos				);
+#ifdef DEBUG
 	CMD3(CCC_Mask,		"rs_occ_draw",			&psDeviceFlags,		rsOcclusionDraw			);
 	CMD3(CCC_Mask,		"rs_occ_stats",			&psDeviceFlags,		rsOcclusionStats		);
-	CMD4(CCC_Integer,	"rs_skeleton_update",	&psSkeletonUpdate,	2,		128	);
+	//CMD4(CCC_Integer,	"rs_skeleton_update",	&psSkeletonUpdate,	2,		128	);
 #endif // DEBUG
 
 	CMD2(CCC_Gamma,		"rs_c_gamma"			,&ps_gamma			);

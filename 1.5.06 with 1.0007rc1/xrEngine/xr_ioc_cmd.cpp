@@ -387,13 +387,9 @@ public:
 	virtual void Execute(LPCSTR args)
 	{
 		CCC_Float::Execute		(args);
-		//Device.Gamma.Gamma		(ps_gamma);
 		Device.m_pRender->setGamma(ps_gamma);
-		//Device.Gamma.Brightness	(ps_brightness);
 		Device.m_pRender->setBrightness(ps_brightness);
-		//Device.Gamma.Contrast	(ps_contrast);
 		Device.m_pRender->setContrast(ps_contrast);
-		//Device.Gamma.Update		();
 		Device.m_pRender->updateGamma();
 	}
 };
@@ -623,7 +619,7 @@ void CCC_Register()
 #ifdef DEBUG
 	CMD1(CCC_MotionsStat,	"stat_motions"		);
 	CMD1(CCC_TexturesStat,	"stat_textures"		);
-#endif // DEBUG
+#endif
 
 #ifdef DEBUG_MEMORY_MANAGER
 	CMD1(CCC_MemStat,		"dbg_mem_dump"		);

@@ -151,7 +151,7 @@ BOOL CBulletManager::test_callback(const collide::ray_defs& rd, CObject* object,
 void CBulletManager::FireShotmark (SBullet* bullet, const Fvector& vDir, const Fvector &vEnd, collide::rq_result& R, u16 target_material, const Fvector& vNormal, bool ShowMark)
 {
 	SGameMtlPair* mtl_pair	= GMLib.GetMaterialPair(bullet->bullet_material_idx, target_material);
-	Fvector particle_dir	= vNormal;
+	Fvector particle_dir;
 
 	if (R.O)
 	{
@@ -180,6 +180,7 @@ void CBulletManager::FireShotmark (SBullet* bullet, const Fvector& vDir, const F
 	else 
 	{
 		//вычислить нормаль к пораженной поверхности
+		particle_dir		= vNormal;
 		Fvector*	pVerts	= Level().ObjectSpace.GetStaticVerts();
 		CDB::TRI*	pTri	= Level().ObjectSpace.GetStaticTris()+R.element;
 
@@ -442,9 +443,10 @@ bool CBulletManager::ObjectHit( SBullet_Hit* hit_res, SBullet* bullet, const Fve
 	new_dir.reflect	( bullet->dir,hit_normal );
 	Fvector			tgt_dir;
 	random_dir		( tgt_dir, new_dir, deg2rad( 10.0f ) );
+
 	float ricoshet_factor = bullet->dir.dotproduct( tgt_dir );
 
-	float f			= Random.randF( 0.5f, 0.8f ); //(0.5f,1.f);
+	float f			= Random.randF( 0.5f, 0.8f );
 	if ( (f < ricoshet_factor) && !mtl->Flags.test(SGameMtl::flNoRicoshet) && bullet->flags.allow_ricochet )	
 	{
 		// уменьшение скорости полета в зависимости от угла падения пули (чем прямее угол, тем больше потеря)

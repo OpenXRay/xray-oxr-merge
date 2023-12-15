@@ -312,8 +312,8 @@ bool CUIXmlInit::InitText(CUIXml& xml_doc, LPCSTR path, int index, CUILines* pLi
 	CGameFont *pTmpFont		= NULL;
 	InitFont				(xml_doc, path, index, color, pTmpFont);
 	pLines->SetTextColor	(color);
-	R_ASSERT				(pTmpFont);
-	pLines->SetFont			(pTmpFont);	
+	if (pTmpFont)
+		pWnd->SetFont(pTmpFont);
 
 	// Load font alignment
 	shared_str al = xml_doc.ReadAttrib(path, index, "align");

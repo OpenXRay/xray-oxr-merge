@@ -88,8 +88,10 @@ void CSoundRender_CoreA::_initialize(int stage)
 	}
 	
 	pDeviceList->SelectBestDevice	();
+
 	R_ASSERT						(snd_device_id>=0 && snd_device_id<pDeviceList->GetNumDevices());
 	const ALDeviceDesc& deviceDesc	= pDeviceList->GetDeviceDesc(snd_device_id);
+
     // OpenAL device
     pDevice						= alcOpenDevice		(deviceDesc.name.c_str());
 	if (pDevice == NULL)
@@ -152,7 +154,8 @@ void CSoundRender_CoreA::_initialize(int stage)
 			if (T->_initialize())
 			{
 				s_targets.push_back	(T);
-			}else
+			}
+			else
 			{
         		Log					("! SOUND: OpenAL: Max targets - ",tit);
 				T->_destroy			();

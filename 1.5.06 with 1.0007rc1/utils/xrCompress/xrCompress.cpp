@@ -104,12 +104,12 @@ bool xrCompressor::testVFS(LPCSTR path)
 		return			(false);
 
 	if (!stricmp(p_ext,".ltx"))
-		return			(FALSE);
+		return			(false);
 
 	if (!stricmp(p_ext,".script"))
-		return			(FALSE);
+		return			(false);
 
-	return				(TRUE);
+	return				(true);
 }
 
 bool xrCompressor::testEqual(LPCSTR path, IReader* base)
@@ -248,7 +248,6 @@ void xrCompressor::CompressOne(LPCSTR path)
 				u8*	c_data			=	xr_alloc<u8>	(c_size_max);
 
 				t_compress.Begin	();
-
 				c_size_compressed	= c_size_max;
 				if (bFast)
 				{		
@@ -257,7 +256,6 @@ void xrCompressor::CompressOne(LPCSTR path)
 				{
 					R_ASSERT(LZO_E_OK == lzo1x_999_compress	((u8*)src->pointer(),c_size_real,c_data,&c_size_compressed,c_heap));
 				}
-
 				t_compress.End		();
 
 				if ((c_size_compressed+16) >= c_size_real)
@@ -589,7 +587,7 @@ void xrCompressor::ProcessLTX(CInifile& ltx)
 		CInifile::Sect& if_sect	= ltx.r_section("include_files");
 		for (CInifile::SectCIt if_it=if_sect.Data.begin(); if_it!=if_sect.Data.end(); ++if_it)
 		{
-		  files_list->push_back	(xr_strdup(if_it->first.c_str()));
+			files_list->push_back	(xr_strdup(if_it->first.c_str()));
 		}	
 	}
 

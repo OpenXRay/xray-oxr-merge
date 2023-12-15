@@ -265,8 +265,7 @@ void CBaseMonster::Die(CObject* who)
 	{
 		m_grouping_behaviour->set_squad(NULL);
 	}
-	
-	
+
 	if (m_controlled)			m_controlled->on_die();
 }
 
@@ -449,7 +448,7 @@ void CBaseMonster::TranslateActionToPathParams()
 	case ACT_EAT:
 	case ACT_SLEEP:
 	case ACT_REST:
-		//jump
+	//jump
 	//case ACT_JUMP:
 	case ACT_LOOK_AROUND:
 	case ACT_ATTACK:

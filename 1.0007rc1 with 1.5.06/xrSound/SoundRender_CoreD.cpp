@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #pragma hdrstop
-
+/*
 #include "soundrender_coreD.h"
 #include "soundrender_targetD.h"
-#include <eax.h>
+#include <eax/eax.h>
 
 CSoundRender_CoreD*	SoundRenderD= 0;
 
@@ -221,3 +221,4 @@ void CSoundRender_CoreD::update_listener( const Fvector& P, const Fvector& D, co
     // commit deffered settings
     pListener->CommitDeferredSettings	();
 }
+*/

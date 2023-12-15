@@ -125,20 +125,29 @@ void CUIMessagesWindow::Init(float x, float y, float width, float height){
 
 }
 
-void CUIMessagesWindow::AddIconedPdaMessage(LPCSTR textureName, Frect originalRect, LPCSTR message, int iDelay)
+void CUIMessagesWindow::AddIconedPdaMessage(GAME_NEWS_DATA* news)
 {
+	CUIPdaMsgListItem *pItem			= m_pGameLog->AddPdaMessage();
 	
-	CUIPdaMsgListItem *pItem			= m_pGameLog->AddPdaMessage(message, float(iDelay));
+	LPCSTR time_str = InventoryUtilities::GetTimeAsString( news->receive_time, InventoryUtilities::etpTimeToMinutes ).c_str();
+	pItem->UITimeText.SetText			(time_str);
+	pItem->UITimeText.AdjustWidthToText	();
+	Fvector2 p							= pItem->UICaptionText.GetWndPos();
+	p.x									= pItem->UITimeText.GetWndPos().x + pItem->UITimeText.GetWidth() + 3.0f;
+	pItem->UICaptionText.SetWndPos		(p);
+	pItem->UICaptionText.SetTextST		(news->news_caption.c_str());
+	pItem->UIMsgText.SetTextST			(news->news_text.c_str());
+	
+	pItem->SetClrAnimDelay				(float(news->show_time));
 	pItem->SetTextComplexMode			(true);
-	pItem->UIIcon.InitTexture			(textureName);
-	pItem->UIIcon.SetOriginalRect		(originalRect.left, originalRect.top, originalRect.right, originalRect.bottom);
+	pItem->UIIcon.InitTexture			(news->texture_name.c_str());
+	pItem->UIIcon.SetOriginalRect		(news->tex_rect.left, news->tex_rect.top, news->tex_rect.right, news->tex_rect.bottom);
 	pItem->UIMsgText.SetWndPos			(pItem->UIIcon.GetWidth(), pItem->UIMsgText.GetWndPos().y);
 	pItem->UIMsgText.AdjustHeightToText	();
 
-	if (pItem->UIIcon.GetHeight() > pItem->UIMsgText.GetHeight())
-		pItem->SetHeight(pItem->UIIcon.GetHeight());
-	else
-		pItem->SetHeight(pItem->UIMsgText.GetHeight());
+	float h1 = _max( pItem->UIIcon.GetHeight(), pItem->UIMsgText.GetWndPos().y + pItem->UIMsgText.GetHeight() );
+	pItem->SetHeight( h1 + 3.0f );
+
 	m_pGameLog->SendMessage(pItem,CHILD_CHANGED_SIZE);
 }
 

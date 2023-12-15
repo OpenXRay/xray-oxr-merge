@@ -22,7 +22,7 @@ BOOL CLevel::Load_GameSpecific_Before()
 	g_pGamePersistent->LoadTitle		("st_loading_ai_objects");
 	string_path							fn_game;
 	
-	if (GamePersistent().GameType() == GAME_SINGLE && !ai().get_alife() && FS.exist(fn_game,"$level$","level.ai"))
+	if (GamePersistent().GameType() == eGameIDSingle && !ai().get_alife() && FS.exist(fn_game,"$level$","level.ai"))
 		ai().load						(net_SessionName());
 
 	if (!g_dedicated_server && !ai().get_alife() && ai().get_game_graph() && FS.exist(fn_game, "$level$", "level.game")) {
@@ -38,20 +38,24 @@ BOOL CLevel::Load_GameSpecific_After()
 {
 	// loading static particles
 	string_path		fn_game;
-	if (FS.exist(fn_game, "$level$", "level.ps_static")) {
+	if (FS.exist(fn_game, "$level$", "level.ps_static"))
+	{
 		IReader *F = FS.r_open	(fn_game);
 		CParticlesObject* pStaticParticles;
 		u32				chunk = 0;
 		string256		ref_name;
 		Fmatrix			transform;
 		Fvector			zero_vel={0.f,0.f,0.f};
-		for (IReader *OBJ = F->open_chunk_iterator(chunk); OBJ; OBJ = F->open_chunk_iterator(chunk,OBJ)) {
+		for (IReader *OBJ = F->open_chunk_iterator(chunk); OBJ; OBJ = F->open_chunk_iterator(chunk,OBJ))
+		{
 			OBJ->r_stringZ				(ref_name,sizeof(ref_name));
 			OBJ->r						(&transform,sizeof(Fmatrix));transform.c.y+=0.01f;
-			pStaticParticles			= CParticlesObject::Create(ref_name,FALSE,false);
-			pStaticParticles->UpdateParent	(transform,zero_vel);
-			pStaticParticles->Play			();
-			m_StaticParticles.push_back		(pStaticParticles);
+			{
+				pStaticParticles				= CParticlesObject::Create(ref_name,FALSE,false);
+				pStaticParticles->UpdateParent	(transform,zero_vel);
+				pStaticParticles->Play			(false);
+				m_StaticParticles.push_back		(pStaticParticles);
+			}
 		}
 		FS.r_close		(F);
 	}
@@ -86,6 +90,29 @@ BOOL CLevel::Load_GameSpecific_After()
 			}
 			Sounds_Random_dwNextTime= Device.TimerAsync	()	+ 50000;
 			Sounds_Random_Enabled	= FALSE;
+		}
+
+		if ( FS.exist(fn_game, "$level$", "level.fog_vol")) 
+		{
+			IReader *F				= FS.r_open	(fn_game);
+			u16 version				= F->r_u16();
+			if(version == 2)
+			{
+				u32 cnt					= F->r_u32();
+
+				Fmatrix					volume_matrix;
+				for(u32 i=0; i<cnt; ++i)
+				{
+					F->r				(&volume_matrix, sizeof(volume_matrix));
+					u32 sub_cnt			= F->r_u32();
+					for(u32 is=0; is<sub_cnt; ++is)
+					{
+						F->r			(&volume_matrix, sizeof(volume_matrix));
+					}
+
+				}
+			}
+			FS.r_close				(F);
 		}
 	}	
 
@@ -190,5 +217,8 @@ void CLevel::Load_GameSpecific_CFORM	( CDB::TRI* tris, u32 count )
 
 void CLevel::BlockCheatLoad()
 {
-	if( game && (GameID() != GAME_SINGLE) ) phTimefactor=1.f;
+#ifndef	DEBUG
+	if( game && (GameID() != eGameIDSingle)
+	    phTimefactor=1.f;
+#endif
 }

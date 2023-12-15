@@ -1,7 +1,7 @@
 #pragma once
 
 #include "uiwindow.h"
-#include "../script_export_space.h"
+#include "../../xrServerEntities/script_export_space.h"
 #include "UIOptionsItem.h"
 
 class CUITabButton;
@@ -9,7 +9,8 @@ class CUIButton;
 
 DEF_VECTOR (TABS_VECTOR, CUITabButton*)
 
-class CUITabControl: public CUIWindow, public CUIOptionsItem {
+class CUITabControl: public CUIWindow, public CUIOptionsItem
+{
 	typedef				CUIWindow inherited;
 public:
 						CUITabControl				();

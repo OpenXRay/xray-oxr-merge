@@ -40,7 +40,6 @@ bool ov_error(int res)
     case OV_ENOSEEK:	Msg("The given stream is not seekable"); return false;
     }
     return false;
-
 }
 
 void CSoundRender_Source::i_decompress_fr(OggVorbis_File* ovf, char* _dest, u32 left)
@@ -98,8 +97,7 @@ void CSoundRender_Source::i_decompress_fr(OggVorbis_File* ovf, char* _dest, u32 
                   	val				= iFloor(src[j]*32768.f);
                     if(val>32767)
 						val			= 32767;
-                    else 
-					if(val<-32768)
+                    else if(val<-32768)
 						val			= -32768;
 
                     *dest			= short(val);

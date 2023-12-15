@@ -82,7 +82,8 @@ void CSoundRender_Emitter::update(float dt)
 			m_current_state		  			= stPlayingLooped;
 			set_cursor						(0);
 			SoundRender->i_start			(this);
-		}else 
+		}
+		else 
 			m_current_state		  			= stSimulatingLooped;
 		break;
 	case stPlaying:
@@ -109,7 +110,8 @@ void CSoundRender_Emitter::update(float dt)
 				// switch to: SIMULATE
 				m_current_state				= stSimulating;		// switch state
 				SoundRender->i_stop			(this);
-			}else
+			}
+			else
 			{
 				// We are still playing
 				update_environment			(dt);
@@ -167,7 +169,8 @@ void CSoundRender_Emitter::update(float dt)
 			// switch to: SIMULATE
 			m_current_state					= stSimulatingLooped;	// switch state
 			SoundRender->i_stop				(this);
-		}else
+		}
+		else
 		{
 			// We are still playing
 			update_environment				(dt);
@@ -208,8 +211,8 @@ void CSoundRender_Emitter::update(float dt)
 	{
 		if (fTime	>=	fTimeToPropagade)		
 			Event_Propagade					();
-	}else 
-	if (owner_data)	
+	}
+	else if (owner_data)	
 	{
 		VERIFY(this==owner_data->feedback);
 		owner_data->feedback				= 0; 
@@ -229,7 +232,6 @@ IC void	volume_lerp(float& c, float t, float s, float dt)
 #include "..\xrServerEntities\ai_sounds.h"
 BOOL CSoundRender_Emitter::update_culling(float dt)
 {
-	
 	if (b2D)
 	{
 		occluder_volume		= 1.f;
@@ -271,5 +273,4 @@ void CSoundRender_Emitter::update_environment(float dt)
 {
 	if (bMoved)			e_target	= *SoundRender->get_environment	(p_source.position);
 	e_current.lerp		(e_current,e_target, dt);
-
 }
