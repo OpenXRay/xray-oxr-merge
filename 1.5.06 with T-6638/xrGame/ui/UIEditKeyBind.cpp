@@ -1,48 +1,43 @@
 #include "stdafx.h"
 
 #include "UIEditKeyBind.h"
-#include "UIColorAnimatorWrapper.h"
 #include "../xr_level_controller.h"
 #include "object_broker.h"
+#include "../../xrEngine/xr_ioconsole.h"
 
 CUIEditKeyBind::CUIEditKeyBind(bool bPrim)
 {
 	m_bPrimary					= bPrim;
     m_bIsEditMode				= false;
-
-	m_pAnimation				= xr_new<CUIColorAnimatorWrapper>("ui_map_area_anim");
-	m_pAnimation->Cyclic		(true);
-	m_bChanged					= false;
 	SetTextComplexMode			(false);
 	m_keyboard					= NULL;
+	m_opt_backup_value			= NULL;
 	m_action					= NULL;
 }
 CUIEditKeyBind::~CUIEditKeyBind()
-{
-	delete_data(m_pAnimation);
-}
+{}
 
 u32 cut_string_by_length(CGameFont* pFont, LPCSTR src, LPSTR dst, u32 dst_size, float length)
 {
 	if ( pFont->IsMultibyte() ) {
 		u16 nPos = pFont->GetCutLengthPos( length, src );
 		VERIFY( nPos < dst_size );
-		strncpy( dst, src , nPos );
+		strncpy_s( dst, dst_size, src , nPos );
 		dst[ nPos ] = '\0';
 		return nPos;
 	} else {
 
 		float	text_len					= pFont->SizeOf_(src);
-		UI()->ClientToScreenScaledWidth		(text_len);
+		UI().ClientToScreenScaledWidth		(text_len);
 		VERIFY								(xr_strlen(src)<=dst_size);
-		strcpy_s								(dst, dst_size, src);
+		xr_strcpy							(dst, dst_size, src);
 
 		while(text_len > length)
 		{
 			dst[xr_strlen(dst)-1]			= 0;
 			VERIFY							(xr_strlen(dst));
 			text_len						= pFont->SizeOf_(dst);
-			UI()->ClientToScreenScaledWidth	(text_len);
+			UI().ClientToScreenScaledWidth	(text_len);
 		}
 
 		return xr_strlen(dst);
@@ -52,13 +47,13 @@ u32 cut_string_by_length(CGameFont* pFont, LPCSTR src, LPSTR dst, u32 dst_size, 
 void CUIEditKeyBind::SetText(const char* text)
 {
 	if (!text || 0 == xr_strlen(text))
-		CUIStatic::SetText("---");
+		TextItemControl()->SetText("---");
 	else{
 		string256 buff;
 
-		cut_string_by_length(GetFont(), text, buff, sizeof(buff), GetWidth());
+		cut_string_by_length(TextItemControl()->GetFont(), text, buff, sizeof(buff), GetWidth());
 
-		CUIStatic::SetText	(buff);
+		TextItemControl()->SetText	(buff);
 	}
 }
 
@@ -87,13 +82,12 @@ bool CUIEditKeyBind::OnMouseDown(int mouse_btn)
 		
 		m_keyboard				= dik_to_ptr(mouse_btn, true);
 		if(!m_keyboard)			return true;
-		SetText					(m_keyboard->key_local_name.c_str());
+		SetValue				();
 		OnFocusLost				();
-		m_bChanged				= true;
 
-		strcpy_s				(message, m_action->action_name);
-		strcat				(message, "=");
-		strcat				(message, m_keyboard->key_name);		
+		xr_strcpy				(message, m_action->action_name);
+		xr_strcat				(message, "=");
+		xr_strcat				(message, m_keyboard->key_name);		
 		SendMessage2Group	("key_binding",message);
 
 		return					true;
@@ -105,10 +99,12 @@ bool CUIEditKeyBind::OnMouseDown(int mouse_btn)
 	return CUIStatic::OnMouseDown(mouse_btn);
 }
 
-bool CUIEditKeyBind::OnKeyboard(int dik, EUIMessages keyboard_action){
+bool CUIEditKeyBind::OnKeyboardAction(int dik, EUIMessages keyboard_action)
+{
 	if (dik == MOUSE_1 || dik == MOUSE_2 || dik == MOUSE_3)
 		return false;
-	if (CUIStatic::OnKeyboard(dik, keyboard_action))
+
+	if (CUIStatic::OnKeyboardAction(dik, keyboard_action))
 		return true;
 
 	string64 message;
@@ -117,12 +113,12 @@ bool CUIEditKeyBind::OnKeyboard(int dik, EUIMessages keyboard_action){
 		m_keyboard			= dik_to_ptr(dik, true);
 		if(!m_keyboard)			return true;
 
-		strcpy_s				(message, m_action->action_name);
-		strcat				(message, "=");
-		strcat				(message, m_keyboard->key_name);		
-		SetText				(m_keyboard->key_local_name.c_str());
+		SetValue			();
+
+		xr_strcpy			(message, m_action->action_name);
+		xr_strcat			(message, "=");
+		xr_strcat			(message, m_keyboard->key_name);		
 		OnFocusLost			();
-		m_bChanged			= true;
 		SendMessage2Group	("key_binding",message);
 		return				true;
 	}
@@ -132,22 +128,22 @@ bool CUIEditKeyBind::OnKeyboard(int dik, EUIMessages keyboard_action){
 void CUIEditKeyBind::Update()
 {
 	CUIStatic::Update();
-
-	m_bTextureAvailable = m_bCursorOverWindow;
-	if (m_bIsEditMode)
-	{
-		m_pAnimation->Update();
-		SetTextColor((subst_alpha(GetTextColor(), color_get_A(m_pAnimation->GetColor()))));
-	}
 }
+
 void CUIEditKeyBind::SetEditMode(bool b)
 {
 	m_bIsEditMode = b;
 
 	if(b)
+	{
+		SetColorAnimation	("ui_map_area_anim", LA_CYCLIC|LA_ONLYALPHA|LA_TEXTCOLOR);
 		TextureOn();
+	}
 	else
+	{
+		SetColorAnimation	(NULL, 0);
 		TextureOff();
+	}
 }
 
 void CUIEditKeyBind::AssignProps(const shared_str& entry, const shared_str& group)
@@ -156,7 +152,15 @@ void CUIEditKeyBind::AssignProps(const shared_str& entry, const shared_str& grou
 	m_action		= action_name_to_ptr	(entry.c_str());
 }
 
-void CUIEditKeyBind::SetCurrentValue()
+void CUIEditKeyBind::SetValue()
+{
+	if(m_keyboard)
+		SetText				(m_keyboard->key_local_name.c_str());
+	else
+		SetText				(NULL);
+}
+
+void CUIEditKeyBind::SetCurrentOptValue()
 {
 	string64				buff;
 	ZeroMemory				(buff,sizeof(buff));
@@ -167,21 +171,32 @@ void CUIEditKeyBind::SetCurrentValue()
 	int idx					= (m_bPrimary)?0:1;
 	m_keyboard				= pbinding->m_keyboard[idx];
 
-	if(m_keyboard)
-		SetText				(m_keyboard->key_local_name.c_str());
-	else
-		SetText				(NULL);
+	SetValue				();
 }
 
-void CUIEditKeyBind::SaveValue()
+void CUIEditKeyBind::SaveOptValue()
 {
-	CUIOptionsItem::SaveValue();
-
+	CUIOptionsItem::SaveOptValue();
     BindAction2Key		();
-	m_bChanged			= false;
 }
 
-#include "../../xrEngine/xr_ioconsole.h"
+void CUIEditKeyBind::SaveBackUpOptValue()
+{
+	CUIOptionsItem::SaveBackUpOptValue();
+	m_opt_backup_value	= m_keyboard;
+}
+
+void CUIEditKeyBind::UndoOptValue()
+{
+	m_keyboard = m_opt_backup_value;
+	CUIOptionsItem::UndoOptValue();
+}
+
+bool CUIEditKeyBind::IsChangedOptValue() const
+{
+	return m_keyboard != m_opt_backup_value;
+}
+
 void CUIEditKeyBind::BindAction2Key()
 {
 	xr_string comm_unbind	= (m_bPrimary)?"unbind ":"unbind_sec ";
@@ -198,10 +213,6 @@ void CUIEditKeyBind::BindAction2Key()
 	}	
 }
 
-bool CUIEditKeyBind::IsChanged(){
-	return m_bChanged;
-}
-
 void CUIEditKeyBind::OnMessage(LPCSTR message)
 {
 	// message = "command=key"
@@ -214,7 +225,7 @@ void CUIEditKeyBind::OnMessage(LPCSTR message)
 		return;
 
 	string64			command;
-	strcpy_s				(command, message);
+	xr_strcpy			(command, message);
 	command[eq]			= 0;
 
     if (0 == xr_strcmp(m_action->action_name, command))

@@ -385,7 +385,7 @@ LPCSTR InventoryUtilities::GetTimePeriodAsString(LPSTR _buff, u32 buff_sz, ALife
 
 //////////////////////////////////////////////////////////////////////////
 
-void InventoryUtilities::UpdateWeightStr(CUITextWnd &wnd, CUITextWnd &wnd_max, CInventoryOwner *pInvOwner)
+void InventoryUtilities::UpdateWeightStr(CUIStatic &wnd, CUIStatic &wnd_max, CInventoryOwner *pInvOwner)
 {
 	R_ASSERT		(pInvOwner);
 	string128		buf;

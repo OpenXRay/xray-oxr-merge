@@ -20,6 +20,9 @@
 #include "../xrGameSpy/xrGameSpy_MainDefs.h"
 
 EGameIDs ParseStringToGameType(LPCSTR str);
+LPCSTR		GameTypeToString		(EGameIDs gt, bool bShort);
+LPCSTR		AddHyphens				(LPCSTR c);
+LPCSTR		DelHyphens				(LPCSTR c);
 
 extern	float	g_cl_lvInterp;
 extern	int		g_cl_InterpolationType; //0 - Linear, 1 - BSpline, 2 - HSpline
@@ -110,7 +113,7 @@ public:
 			Level().Server->game->OnRoundEnd();
 		}
 	}
-	virtual void	Info	(TInfo& I){strcpy_s(I,"restart game");}
+	virtual void	Info	(TInfo& I){xr_strcpy(I,"restart game");}
 };
 
 class CCC_RestartFast : public IConsole_Command {
@@ -126,7 +129,7 @@ public:
 			Level().Server->game->OnRoundEnd();
 		}
 	}
-	virtual void	Info			(TInfo& I) {strcpy_s(I,"restart game fast");}
+	virtual void	Info			(TInfo& I) {xr_strcpy(I,"restart game fast");}
 };
 
 class CCC_Kill : public IConsole_Command {
@@ -152,7 +155,7 @@ public:
 			l_pPlayer->u_EventSend		(P);
 		}
 	}
-	virtual void	Info	(TInfo& I)	{ strcpy_s(I,"player kill"); }
+	virtual void	Info	(TInfo& I)	{ xr_strcpy(I,"player kill"); }
 };
 
 class CCC_Net_CL_Resync : public IConsole_Command {
@@ -162,7 +165,7 @@ public:
 	{
 		Level().net_Syncronize();
 	}
-	virtual void	Info	(TInfo& I)		{strcpy_s(I,"resyncronize client");}
+	virtual void	Info	(TInfo& I)		{xr_strcpy(I,"resyncronize client");}
 };
 
 class CCC_Net_CL_ClearStats : public IConsole_Command {
@@ -172,7 +175,7 @@ public:
 	{
 		Level().ClearStatistic();
 	}
-	virtual void		Info	(TInfo& I){strcpy_s(I,"clear client net statistic");}
+	virtual void		Info	(TInfo& I){xr_strcpy(I,"clear client net statistic");}
 };
 
 class CCC_Net_SV_ClearStats : public IConsole_Command {
@@ -182,7 +185,7 @@ public:
 	{
 		Level().Server->ClearStatistic();
 	}
-	virtual void	Info	(TInfo& I){strcpy_s(I,"clear server net statistic"); }
+	virtual void	Info	(TInfo& I){xr_strcpy(I,"clear server net statistic"); }
 };
 
 #ifdef DEBUG
@@ -244,7 +247,7 @@ public:
 		Msg("Client Objects : %d", CLObjNum);
 		Msg("Server Objects : %d", SVObjNum);
 	}
-	virtual void	Info	(TInfo& I){strcpy_s(I,"dbg Num Objects"); }
+	virtual void	Info	(TInfo& I){xr_strcpy(I,"dbg Num Objects"); }
 };
 #endif // DEBUG
 
@@ -263,7 +266,7 @@ public:
 		}
 		else
 		{
-			strcpy_s(cdkey, arguments);
+			xr_strcpy(cdkey, arguments);
 		}
 
 		u32 cdkey_len = xr_strlen( cdkey );
@@ -271,8 +274,8 @@ public:
 		{
 			if ( (cdkey_len > 5) && cdkey[4] != '-' )
 			{
-				LPCSTR res = CMainMenu::AddHyphens( cdkey );
-				strcpy_s( cdkey, res );
+				LPCSTR res = AddHyphens( cdkey );
+				xr_strcpy( cdkey, res );
 			}
 
 			CCC_String::Execute( cdkey );	
@@ -287,11 +290,12 @@ public:
 		}
 	}//Execute
 	virtual void		Save			(IWriter *F)	{};
-	/*virtual void		get_tips		(xr_vector<shared_str>& tips)
+
+	virtual void	fill_tips			(vecTips& tips, u32 mode)
 	{
 		tips.push_back( "xxxx-xxxx-xxxx-xxxx" );
 		tips.push_back( "clear" );
-	}*/
+	}
 };
 
 //most useful predicates 
@@ -331,12 +335,13 @@ public:
 			return;
 		}
 		string4096 PlayerName	= "";
-		if (xr_strlen(args)>17)
+		u32 const max_name_length	=	GP_UNIQUENICK_LEN - 1;
+		if (xr_strlen(args)>max_name_length)
 		{
-			strncpy				(PlayerName, args, 17);
-			PlayerName[17]		= 0;
+			strncpy_s				(PlayerName, args, max_name_length);
+			PlayerName[max_name_length]		= 0;
 		}else
-			strcpy_s(PlayerName, args);
+			xr_strcpy(PlayerName, args);
 
 		xr_strlwr			(PlayerName);
 		IClient*	tmp_client = Level().Server->FindClient(SearcherClientByName(PlayerName));
@@ -357,7 +362,7 @@ public:
 		}
 	};
 
-	virtual void	Info	(TInfo& I)	{strcpy_s(I,"Kick Player by name"); }
+	virtual void	Info	(TInfo& I)	{xr_strcpy(I,"Kick Player by name"); }
 };
 
 static ClientID last_printed_player;
@@ -413,7 +418,7 @@ public:
 		}
 	};
 
-	virtual void	Info	(TInfo& I)	{ strcpy_s(I, "Kick player by ID."); }
+	virtual void	Info	(TInfo& I)	{ xr_strcpy(I, "Kick player by ID."); }
 };
 
 
@@ -437,7 +442,7 @@ static xrClientData* exclude_command_initiator(LPCSTR args)
 };
 static char const * exclude_raid_from_args(LPCSTR args, LPSTR dest, size_t dest_size)
 {
-	strncpy(dest, args, dest_size - 1);
+	strncpy_s(dest, dest_size, args, dest_size - 1);
 	char* tmp_str = strrchr(dest, ' ');
 	if (!tmp_str)
 		tmp_str = dest;
@@ -490,7 +495,7 @@ public:
 	}
 	virtual void	Info		(TInfo& I)
 	{
-		strcpy_s(I, 
+		xr_strcpy(I, 
 			make_string(
 				"Make screenshot. Format: \"make_screenshot <player session id | \'%s\'> <ban_time_in_sec>\". To receive list of players ids see sv_listplayers",
 				LAST_PRINTED_PLAYER_STR
@@ -537,7 +542,7 @@ public:
 	}
 	virtual void	Info		(TInfo& I)
 	{
-		strcpy_s(I, 
+		xr_strcpy(I, 
 			make_string(
 				"Make config dump. Format: \"make_config_dump <player session id | \'%s\'> <ban_time_in_sec>\". To receive list of players ids see sv_listplayers",
 				LAST_PRINTED_PLAYER_STR
@@ -562,7 +567,7 @@ public:
 		Level().SetDemoPlaySpeed(new_speed);
 	};
 
-	virtual void	Info	(TInfo& I){strcpy_s(I,"Set demo play speed (0.0, 8.0]"); }
+	virtual void	Info	(TInfo& I){xr_strcpy(I,"Set demo play speed (0.0, 8.0]"); }
 };
 
 /*
@@ -579,7 +584,7 @@ public:
 		Level().SetDemoPlaySpeed(Level().GetDemoPlaySpeed() * 2);
 	};
 
-	virtual void	Info	(TInfo& I){strcpy_s(I,"Increases demo play speed"); };
+	virtual void	Info	(TInfo& I){xr_strcpy(I,"Increases demo play speed"); };
 };
 
 class CCC_DivDemoPlaySpeed : public IConsole_Command {
@@ -595,7 +600,7 @@ public:
 		Level().SetDemoPlaySpeed(Level().GetDemoPlaySpeed() / 2);
 	};
 
-	virtual void	Info	(TInfo& I){strcpy_s(I,"Decreases demo play speed"); };
+	virtual void	Info	(TInfo& I){xr_strcpy(I,"Decreases demo play speed"); };
 };
 */
 class CCC_ScreenshotAllPlayers : public IConsole_Command {
@@ -623,7 +628,7 @@ public:
 	}
 	virtual void	Info		(TInfo& I)
 	{
-		strcpy_s(I, 
+		xr_strcpy(I, 
 			"Make screenshot of each player in the game. Format: \"screenshot_all");
 	}
 
@@ -654,11 +659,10 @@ public:
 	}
 	virtual void	Info		(TInfo& I)
 	{
-		strcpy_s(I, 
+		xr_strcpy(I, 
 			"Make config dump of each player in the game. Format: \"config_dump_all");
 	}
 }; //class CCC_ConfigsDumpAll
-
 
 
 #ifdef DEBUG
@@ -733,7 +737,7 @@ public:
 	}
 	virtual void	Info		(TInfo& I)
 	{
-		strcpy_s(I, 
+		xr_strcpy(I, 
 			make_string(
 				"Ban player. Format: \"sv_banplayer <player session id | \'%s\'> <ban_time_in_sec>\". To receive list of players ids see sv_listplayers",
 				LAST_PRINTED_PLAYER_STR
@@ -771,7 +775,7 @@ public:
 	}
 	virtual void	Info		(TInfo& I)
 	{
-		strcpy_s(I, 
+		xr_strcpy(I, 
 			"Ban player by hex digest (CAREFULLY: low level command). Format: \"sv_banplayer_by_digest <hex digest> <ban_time_in_sec>\". To get player hex digest you can enter: sv_listplayers_banned"
 		);
 	}
@@ -809,7 +813,7 @@ public:
 	}
 	virtual void	Info		(TInfo& I)
 	{
-		strcpy_s(I,
+		xr_strcpy(I,
 			make_string(
 				"Unban player. Format: \"sv_unbanplayer <banned player index | \'%s\'>. To receive list of banned players see sv_listplayers_banned",
 				LAST_PRINTED_PLAYER_BANNED_STR
@@ -826,7 +830,7 @@ public:
 	{
 		if (!g_pGameLevel || !Level().Server || !Level().Server->game) return;
 		string4096				buff;
-		strcpy_s					(buff, args_);
+		xr_strcpy					(buff, args_);
 		u32 len					= xr_strlen(buff);
 		
 		if (0==len) 
@@ -840,7 +844,7 @@ public:
 			--p;
 		}
 		R_ASSERT				(p>=buff);
-		strcpy_s					(digits,p);
+		xr_strcpy					(digits,p);
 		*p						= 0;
 		if (!xr_strlen(buff))
 		{
@@ -855,13 +859,14 @@ public:
 			return;
 		}
 		string4096 PlayerName		= "";
-		if (xr_strlen(buff)>17)
+		u32 const max_name_length	=	GP_UNIQUENICK_LEN - 1;
+		if (xr_strlen(buff)>max_name_length)
 		{
 
-			strncpy				(PlayerName, buff, 17);
-			PlayerName[17]		= 0;
+			strncpy_s				(PlayerName, buff, max_name_length);
+			PlayerName[max_name_length]		= 0;
 		}else
-			strcpy_s				(PlayerName, buff);
+			xr_strcpy				(PlayerName, buff);
 
 		xr_strlwr			(PlayerName);
 
@@ -877,7 +882,7 @@ public:
 		}
 	};
 
-	virtual void	Info	(TInfo& I){strcpy_s(I,"Ban Player by Name"); }
+	virtual void	Info	(TInfo& I){xr_strcpy(I,"Ban Player by Name"); }
 };
 
 
@@ -889,7 +894,7 @@ public:
 		if (!g_pGameLevel || !Level().Server) return;
 //-----------
 		string4096					buff;
-		exclude_raid_from_args		(args_, buff, sizeof(buff)); //strcpy_s(buff, args_);
+		exclude_raid_from_args		(args_, buff, sizeof(buff)); //xr_strcpy(buff, args_);
 		
 		u32 len					= xr_strlen(buff);
 		if (0==len) 
@@ -903,7 +908,7 @@ public:
 			--p;
 		}
 		R_ASSERT				(p>=buff);
-		strcpy_s					(digits,p);
+		xr_strcpy					(digits,p);
 		*p						= 0;
 		if (!xr_strlen(buff))
 		{
@@ -918,7 +923,7 @@ public:
 		}
 
 		string1024				s_ip_addr;
-		strcpy_s					(s_ip_addr, buff);
+		xr_strcpy					(s_ip_addr, buff);
 //-----------
 
 		ip_address							Address;
@@ -928,7 +933,7 @@ public:
 		Level().Server->DisconnectAddress	(Address, STRING_KICKED_BY_SERVER);
 	};
 
-	virtual void	Info	(TInfo& I){strcpy_s(I,"Ban Player by IP. Format: \"sb_banplayer_ip <ip address>\""); }
+	virtual void	Info	(TInfo& I){xr_strcpy(I,"Ban Player by IP. Format: \"sb_banplayer_ip <ip address>\""); }
 };
 
 class CCC_UnBanPlayerByIP : public IConsole_Command {
@@ -941,7 +946,7 @@ public:
 		if (!xr_strlen(args)) return;
 
 		string4096					buff;
-		exclude_raid_from_args		(args, buff, sizeof(buff)); //strcpy_s(buff, args_);
+		exclude_raid_from_args		(args, buff, sizeof(buff)); //xr_strcpy(buff, args_);
 		if (!xr_strlen(buff)) 
 			return;
 
@@ -950,7 +955,7 @@ public:
 		Level().Server->UnBanAddress	(Address);
 	};
 
-	virtual void	Info	(TInfo& I){strcpy_s(I,"UnBan Player by IP. Format: \"sv_unbanplayer_ip <ip address>\"");}
+	virtual void	Info	(TInfo& I){xr_strcpy(I,"UnBan Player by IP. Format: \"sv_unbanplayer_ip <ip address>\"");}
 };
 
 
@@ -980,7 +985,7 @@ public:
 				DWORD dwPort		= 0;
 				Level().Server->GetClientAddress(client->ID, Address, &dwPort);
 				string512 tmp_string;
-				sprintf_s(tmp_string, "- (player session id : %u), (name : %s), (ip: %s), (ping: %u);",
+				xr_sprintf(tmp_string, "- (player session id : %u), (name : %s), (ip: %s), (ping: %u);",
 					client->ID.value(),
 					l_pC->ps->getName(),
 					Address.to_string().c_str(),
@@ -1015,7 +1020,7 @@ public:
 		Msg("- ----player list end-------");
 	};
 
-	virtual void	Info	(TInfo& I){strcpy_s(I,"List Players. Format: \"sv_listplayers [ filter string ]\""); }
+	virtual void	Info	(TInfo& I){xr_strcpy(I,"List Players. Format: \"sv_listplayers [ filter string ]\""); }
 };
 
 class CCC_ListPlayers_Banned : public IConsole_Command {
@@ -1037,7 +1042,7 @@ public:
 		Level().Server->Print_Banned_Addreses();
 	};
 
-	virtual void	Info	(TInfo& I){strcpy_s(I,"List of Banned Players. Format: \"sv_listplayers_banned [ filter string ]\""); }
+	virtual void	Info	(TInfo& I){xr_strcpy(I,"List of Banned Players. Format: \"sv_listplayers_banned [ filter string ]\""); }
 };
 
 class CCC_ChangeLevelGameType : public IConsole_Command {
@@ -1100,7 +1105,7 @@ public:
 		Level().Send		(P);
 	};
 
-	virtual void	Info	(TInfo& I)	{strcpy_s(I,"Changing level, version and game type. Arguments: <level name> <level version> <game type>"); }
+	virtual void	Info	(TInfo& I)	{xr_strcpy(I,"Changing level, version and game type. Arguments: <level name> <level version> <game type>"); }
 };
 
 class CCC_ChangeGameType : public CCC_ChangeLevelGameType {
@@ -1116,7 +1121,7 @@ public:
 		//sscanf				(args,"%s", GameType);
 
 		string1024			argsNew;
-		sprintf_s				(argsNew, "%s %s %s", 
+		xr_sprintf				(argsNew, "%s %s %s", 
 			Level().name().c_str(), 
 			Level().version().c_str(),
 			args);
@@ -1124,7 +1129,22 @@ public:
 		CCC_ChangeLevelGameType::Execute((LPCSTR)argsNew);
 	};
 
-	virtual void	Info	(TInfo& I)	{strcpy_s(I,"Changing Game Type"); };
+	virtual void	Info	(TInfo& I)
+	{
+		xr_strcpy(I,"Changing Game Type : <dm>,<tdm>,<ah>,<cta>");
+	}
+
+	virtual void	fill_tips(vecTips& tips, u32 mode)
+	{
+		if ( g_pGameLevel && Level().Server && OnServer() && Level().Server->game )
+		{
+			EGameIDs type = Level().Server->game->Type();
+			TStatus  str;
+			xr_sprintf( str, sizeof(str), "%s  (current game type)  [dm,tdm,ah,cta]", GameTypeToString( type, true ) );
+			tips.push_back( str );
+		}
+		IConsole_Command::fill_tips( tips, mode );
+	}
 };
 
 class CCC_ChangeLevel : public CCC_ChangeLevelGameType {
@@ -1149,12 +1169,12 @@ public:
 		);
 
 		string1024		argsNew;
-		sprintf_s		(argsNew, "%s %s %s", LevelName, LevelVersion, Level().Server->game->type_name());
+		xr_sprintf		(argsNew, "%s %s %s", LevelName, LevelVersion, Level().Server->game->type_name());
 
 		CCC_ChangeLevelGameType::Execute((LPCSTR)argsNew);
 	};
 
-	virtual void	Info	(TInfo& I){	strcpy_s(I,"Changing Game Type. Arguments: <level name> <level version>"); }
+	virtual void	Info	(TInfo& I){	xr_strcpy(I,"Changing Game Type. Arguments: <level name> <level version>"); }
 };
 
 class CCC_AddMap : public IConsole_Command {
@@ -1164,14 +1184,14 @@ public:
 	{
 		if (!g_pGameLevel || !Level().Server || !Level().Server->game) return;
 
-		string256	MapName, MapVer;
+		string512	MapName, MapVer;
 		LPCSTR c	= strstr(args, "/ver=");
 		if(!c)
-			strcpy_s	(MapName, args);
+			strncpy_s	(MapName, sizeof(MapName), args, sizeof(MapName)-1 );
 		else
 		{
 			strncpy_s	(MapName, sizeof(MapName), args, c-args);
-			strcpy_s	(MapVer, sizeof(MapVer), c+5);
+			xr_strcpy	(MapVer, sizeof(MapVer), c+5);
 		}
 
 		Level().Server->game->MapRotation_AddMap(MapName, MapVer);
@@ -1179,7 +1199,7 @@ public:
 
 	virtual void	Info	(TInfo& I)		
 	{
-		strcpy_s(I,"Adds map to map rotation list"); 
+		xr_strcpy(I,"Adds map to map rotation list"); 
 	}
 };
 
@@ -1192,7 +1212,7 @@ public:
 		Level().Server->game->MapRotation_ListMaps();
 	};
 
-	virtual void	Info	(TInfo& I){strcpy_s(I,"List maps in map rotation list"); }
+	virtual void	Info	(TInfo& I){xr_strcpy(I,"List maps in map rotation list"); }
 };
 
 class CCC_NextMap : public IConsole_Command {
@@ -1205,7 +1225,7 @@ public:
 		Level().Server->game->OnNextMap();
 	};
 
-	virtual void	Info	(TInfo& I){strcpy_s(I,"Switch to Next Map in map rotation list"); }
+	virtual void	Info	(TInfo& I){xr_strcpy(I,"Switch to Next Map in map rotation list"); }
 };
 
 class CCC_PrevMap : public IConsole_Command {
@@ -1218,7 +1238,7 @@ public:
 		Level().Server->game->OnPrevMap();
 	};
 
-	virtual void	Info	(TInfo& I)	{strcpy_s(I,"Switch to Previous Map in map rotation list"); }
+	virtual void	Info	(TInfo& I)	{xr_strcpy(I,"Switch to Previous Map in map rotation list"); }
 };
 
 class CCC_AnomalySet : public IConsole_Command {
@@ -1231,12 +1251,10 @@ public:
 		game_sv_Deathmatch* gameDM = smart_cast<game_sv_Deathmatch *>(Level().Server->game);
 		if (!gameDM) return;
 
-		string256			AnomalySet;		
-		sscanf				(args,"%s", AnomalySet);
-		gameDM->StartAnomalies(atol(AnomalySet));
+		gameDM->StartAnomalies( atol(args) );
 	};
 
-	virtual void	Info	(TInfo& I)	{strcpy_s(I,"Activating pointed Anomaly set"); }
+	virtual void	Info	(TInfo& I)	{xr_strcpy(I,"Activating pointed Anomaly set"); }
 };
 
 class CCC_Vote_Start : public IConsole_Command {
@@ -1271,7 +1289,7 @@ public:
 		Game().SendStartVoteMessage(args);		
 	};
 
-	virtual void	Info	(TInfo& I){strcpy_s(I,"Starts Voting"); };
+	virtual void	Info	(TInfo& I){xr_strcpy(I,"Starts Voting"); };
 };
 
 class CCC_Vote_Stop : public IConsole_Command {
@@ -1308,7 +1326,7 @@ public:
 		Level().Server->game->OnVoteStop();
 	};
 
-	virtual void	Info	(TInfo& I)	{strcpy_s(I,"Stops Current Voting"); };
+	virtual void	Info	(TInfo& I)	{xr_strcpy(I,"Stops Current Voting"); };
 };
 
 class CCC_Vote_Yes : public IConsole_Command {
@@ -1343,7 +1361,7 @@ public:
 		Game().SendVoteYesMessage();
 	};
 
-	virtual void	Info	(TInfo& I){strcpy_s(I,"Vote Yes"); };
+	virtual void	Info	(TInfo& I){xr_strcpy(I,"Vote Yes"); };
 };
 
 class CCC_Vote_No : public IConsole_Command {
@@ -1378,7 +1396,7 @@ public:
 		Game().SendVoteNoMessage();
 	};
 
-	virtual void	Info	(TInfo& I)	{strcpy_s(I,"Vote No"); };
+	virtual void	Info	(TInfo& I)	{xr_strcpy(I,"Vote No"); };
 };
 
 class CCC_StartTimeEnvironment: public IConsole_Command {
@@ -1420,7 +1438,7 @@ public:
 		g_pGamePersistent->Environment().SetWeather(weather_name);		
 	};
 
-	virtual void	Info	(TInfo& I){strcpy_s(I,"Set new weather"); }
+	virtual void	Info	(TInfo& I){xr_strcpy(I,"Set new weather"); }
 };
 
 class CCC_SaveStatistic : public IConsole_Command {
@@ -1438,7 +1456,7 @@ public:
 		sv_game->DumpRoundStatistics();
 		//Game().m_WeaponUsageStatistic->SaveData();
 	}
-	virtual void	Info	(TInfo& I)	{strcpy_s(I,"saving statistic data"); }
+	virtual void	Info	(TInfo& I)	{xr_strcpy(I,"saving statistic data"); }
 };
 
 class CCC_AuthCheck : public CCC_Integer {
@@ -1473,7 +1491,7 @@ public:
 		Msg("Server Address - %s:%i",Address.to_string().c_str(), dwPort);
 	};
 
-	virtual void	Info	(TInfo& I){strcpy_s(I,"List Players"); }
+	virtual void	Info	(TInfo& I){xr_strcpy(I,"List Players"); }
 };
 
 class CCC_StartTeamMoney : public IConsole_Command {
@@ -1486,7 +1504,7 @@ public:
 		game_sv_mp* pGameMP		= smart_cast<game_sv_Deathmatch *>(Level().Server->game);
 		if (!pGameMP)		return;
 
-		string128			Team = "";
+		string512			Team = "";
 		s32 TeamMoney		= 0;
 		sscanf				(args,"%s %i", Team, &TeamMoney);
 
@@ -1514,7 +1532,7 @@ public:
 		}
 	};
 
-	virtual void	Info	(TInfo& I)	{strcpy_s(I,"Set Start Team Money");}
+	virtual void	Info	(TInfo& I)	{xr_strcpy(I,"Set Start Team Money");}
 };
 class CCC_SV_Integer : public CCC_Integer {
 public:
@@ -1555,8 +1573,8 @@ public:
 
 		if(strstr(arguments,"login")==arguments)
 		{
-			string256			user;
-			string256			pass;
+			string512			user;
+			string512			pass;
 			if(2==sscanf		(arguments+xr_strlen("login")+1, "%s %s", user, pass))
 			{
 				NET_Packet		P;			
@@ -1616,7 +1634,7 @@ public:
 			Level().Server->game->OnRoundEnd();
 		}
 	}
-	virtual void	Info	(TInfo& I){strcpy_s(I,"swap teams for artefacthunt game"); }
+	virtual void	Info	(TInfo& I){xr_strcpy(I,"swap teams for artefacthunt game"); }
 };
 
 
@@ -1662,7 +1680,7 @@ public:
 	}
 	virtual void Info( TInfo& I )
 	{
-		strcpy_s( I, "BattlEye Server commands" );
+		xr_strcpy( I, "BattlEye Server commands" );
 	}
 };
 
@@ -1707,7 +1725,7 @@ public:
 
 	virtual void  Info( TInfo& I )
 	{
-		strcpy_s( I, "BattlEye Client commands" );
+		xr_strcpy( I, "BattlEye Client commands" );
 	}
 };
 
@@ -1724,7 +1742,7 @@ public:
 		if (!(&Level()))											return;
 		if (!(&Game()))												return;
 		if (!Game().local_player || !Game().local_player->name )	return;
-		sprintf_s( S, "is \"%s\" ", Game().local_player->name );
+		xr_sprintf( S, "is \"%s\" ", Game().local_player->name );
 	}
 
 	virtual void	Save	(IWriter *F)	{}
@@ -1749,7 +1767,7 @@ public:
 			NewName[17] = 0;
 		}
 		else
-			strcpy_s(NewName, args);
+			xr_strcpy(NewName, args);
 	
 		NET_Packet				P;
 		Game().u_EventGen		(P,GE_GAME_EVENT,Game().local_player->GameID);
@@ -1758,7 +1776,7 @@ public:
 		Game().u_EventSend		(P);
 	}
 
-	virtual void	Info	(TInfo& I)	{strcpy_s(I,"player name"); }
+	virtual void	Info	(TInfo& I)	{xr_strcpy(I,"player name"); }
 };
 
 class CCC_SvStatus : public IConsole_Command {
@@ -1771,7 +1789,7 @@ public:
 			Console->Execute		("cfg_load all_server_settings");
 		}
 	}
-	virtual void	Info	(TInfo& I){strcpy_s(I,"Shows current server settings"); }
+	virtual void	Info	(TInfo& I){xr_strcpy(I,"Shows current server settings"); }
 };
 
 class CCC_SvChat : public IConsole_Command {
@@ -1806,7 +1824,7 @@ public:
 			Level().Server->game->DumpOnlineStatistic	();
 		}
 	}
-	virtual void	Info	(TInfo& I){strcpy_s(I,"Shows current server settings"); }
+	virtual void	Info	(TInfo& I){xr_strcpy(I,"Shows current server settings"); }
 };
 class CCC_CompressorStatus : public IConsole_Command {
 public:
@@ -1821,7 +1839,7 @@ public:
 		else
 			InvalidSyntax		();
 	}
-	virtual void	Info	(TInfo& I){strcpy_s(I,"valid arguments is [info info_full on off]"); }
+	virtual void	Info	(TInfo& I){xr_strcpy(I,"valid arguments is [info info_full on off]"); }
 };
 
 void register_mp_console_commands()

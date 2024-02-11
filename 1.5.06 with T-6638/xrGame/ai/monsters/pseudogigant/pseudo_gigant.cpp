@@ -216,12 +216,19 @@ bool CPseudoGigant::check_start_conditions(ControlCom::EControlType type)
 	if (type == ControlCom::eControlRunAttack)		
 		return true;
 
-	if (type == ControlCom::eControlThreaten) {
-		if (m_time_next_threaten > time()) return false;
+	if (type == ControlCom::eControlThreaten)
+	{
+		if (m_time_next_threaten > time())
+			return false;
 		
+		if ( !EnemyMan.get_enemy() )
+			return false;
+
 		// check distance to enemy
 		float dist = EnemyMan.get_enemy()->Position().distance_to(Position());
-		if ((dist > m_threaten_dist_max) || (dist < m_threaten_dist_min)) return false;
+
+		if ((dist > m_threaten_dist_max) || (dist < m_threaten_dist_min))
+			return false;
 	}
 
 	return true;

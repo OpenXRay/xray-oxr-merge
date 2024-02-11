@@ -9,23 +9,25 @@
 #include "UIXmlInit.h"
 #include "UIHint.h"
 
-CUICheckButton::CUICheckButton(void)
+CUICheckButton::CUICheckButton()
 {	
 	SetTextAlignment(CGameFont::alLeft);
-	m_bCheckMode = true;
+	SetButtonAsSwitch(true);
 	m_pDependControl = NULL;
 	m_hint_owner = NULL;
 }
 
-CUICheckButton::~CUICheckButton(void)
+CUICheckButton::~CUICheckButton()
 {
 }
 
-void CUICheckButton::SetDependControl(CUIWindow* pWnd){
+void CUICheckButton::SetDependControl(CUIWindow* pWnd)
+{
 	m_pDependControl = pWnd;
 }
 
-void CUICheckButton::Update(){
+void CUICheckButton::Update()
+{
 	CUI3tButton::Update();
 	if ( m_hint_owner ) m_hint_owner->Update();
 
@@ -34,43 +36,48 @@ void CUICheckButton::Update(){
 }
 
 
-void CUICheckButton::SetCurrentValue(){
+void CUICheckButton::SetCurrentOptValue()
+{
+	CUIOptionsItem::SetCurrentOptValue();
 	SetCheck(GetOptBoolValue());
 }
 
-void CUICheckButton::SaveValue(){
-	CUIOptionsItem::SaveValue();
+void CUICheckButton::SaveOptValue()
+{
+	CUIOptionsItem::SaveOptValue	();
 	SaveOptBoolValue(GetCheck());
 }
 
-bool CUICheckButton::IsChanged(){
-	return b_backup_val != GetCheck();
+void CUICheckButton::SaveBackUpOptValue()
+{
+	CUIOptionsItem::SaveBackUpOptValue();
+	m_opt_backup_value = GetCheck();
+}
+
+bool CUICheckButton::IsChangedOptValue() const
+{
+	return m_opt_backup_value != GetCheck();
+}
+
+void CUICheckButton::UndoOptValue()
+{
+	SetCheck		(m_opt_backup_value);
+	CUIOptionsItem::UndoOptValue();
 }
 
 void CUICheckButton::InitCheckButton(Fvector2 pos, Fvector2 size, LPCSTR texture_name)
 {
 	InitButton		(pos, size);
 	InitTexture2	(texture_name);
-	m_pLines->SetWndPos(pos);
-	m_pLines->SetWndSize(Fvector2().set(size.x,m_background->GetE()->GetStaticItem()->GetRect().height()));
+	TextItemControl()->m_wndPos.set	(pos);
+	TextItemControl()->m_wndSize.set	(Fvector2().set(size.x,m_background->Get(S_Enabled)->GetStaticItem()->GetSize().y));
 }
 
 void CUICheckButton::InitTexture2(LPCSTR texture_name)
 {
 	CUI3tButton::InitTexture(texture_name); // "ui_checker"
-	Frect r = m_background->GetE()->GetStaticItem()->GetOriginalRect();
-	CUI3tButton::SetTextX( GetTextX() + r.width() );	
-}
-
-void CUICheckButton::SeveBackUpValue()
-{
-	b_backup_val = GetCheck();
-}
-
-void CUICheckButton::Undo()
-{
-	SetCheck		(b_backup_val);
-	SaveValue		();
+	Frect r = m_background->Get(S_Enabled)->GetStaticItem()->GetTextureRect();
+	TextItemControl()->m_TextOffset.x	= TextItemControl()->m_TextOffset.x + r.width();
 }
 
 void CUICheckButton::init_hint_wnd_xml( CUIXml& xml, LPCSTR path )

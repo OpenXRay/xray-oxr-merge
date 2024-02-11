@@ -18,17 +18,18 @@ const int INDENT = 3;
 CUIPdaKillMessage::CUIPdaKillMessage()
 {
 	SetTextComplexMode(true);
-	AttachChild(&m_victim_name);m_victim_name.SetTextComplexMode(false);
-	AttachChild(&m_killer_name);m_killer_name.SetTextComplexMode(false);	
-	AttachChild(&m_initiator);m_initiator.SetTextComplexMode(false);
-	AttachChild(&m_ext_info);m_ext_info.SetTextComplexMode(false);
+	AttachChild(&m_victim_name);
+	m_victim_name.SetTextComplexMode(false);
+	AttachChild(&m_killer_name);
+	m_killer_name.SetTextComplexMode(false);	
+	AttachChild(&m_initiator);
+	m_initiator.SetTextComplexMode(false);
+	AttachChild(&m_ext_info);
+	m_ext_info.SetTextComplexMode(false);
 }
 
-CUIPdaKillMessage::~CUIPdaKillMessage(){
-
-}
-
-void CUIPdaKillMessage::Init(KillMessageStruct& msg){
+void CUIPdaKillMessage::Init(KillMessageStruct& msg)
+{
 #ifdef DEBUG
 	R_ASSERT2(GetWidth(),  "CUIPdaKillMessage::Init(msg) - need to call ::Init(x, y, width, height) before");
 	R_ASSERT2(GetHeight(), "CUIPdaKillMessage::Init(msg) - need to call ::Init(x, y, width, height) before");
@@ -49,20 +50,19 @@ void CUIPdaKillMessage::Init(KillMessageStruct& msg){
 
 float CUIPdaKillMessage::InitText(CUIStatic& refStatic, float x, PlayerInfo& info)
 {
-
 	if ( 0 == xr_strlen(info.m_name))
 		return 0.0f;
 
 	CGameFont* pFont					= GetFont();
 	float _eps							= pFont->SizeOf_(' ');
-	UI()->ClientToScreenScaledWidth		(_eps); //add one letter
+	UI().ClientToScreenScaledWidth		(_eps); //add one letter
 
 	float height						= pFont->CurrentHeight_();
 	float y								= (GetHeight() - height)/2;
 
 	refStatic.SetWndPos					(Fvector2().set(x, y));
 	refStatic.SetHeight					(GetHeight());
-	refStatic.SetEllipsis				(1, 0);
+	refStatic.SetEllipsis				(true);
 	refStatic.SetText					(info.m_name.c_str());
 	refStatic.AdjustWidthToText			();
 	refStatic.SetWidth					(refStatic.GetWidth()+_eps);
@@ -78,17 +78,18 @@ void CUIPdaKillMessage::SetTextColor(u32 color)
 	CUIStatic::SetTextColor(color);
 }
 
-void CUIPdaKillMessage::SetColor(u32 color){	
+void CUIPdaKillMessage::SetColor(u32 color)
+{	
 	m_initiator.SetColor(color);
 	m_ext_info.SetColor(color);
 	CUIStatic::SetColor(color);
 }
 
-float CUIPdaKillMessage::InitIcon(CUIStatic& refStatic, float x, IconInfo& info){
+float CUIPdaKillMessage::InitIcon(CUIStatic& refStatic, float x, IconInfo& info)
+{
 	if ( 0 == info.m_rect.width())
 		return 0;
 
-	//if (info.m_shader == NULL)
 	if (!info.m_shader->inited())
 		return 0;
 
@@ -110,14 +111,15 @@ float CUIPdaKillMessage::InitIcon(CUIStatic& refStatic, float x, IconInfo& info)
 	refStatic.SetWndPos(Fvector2().set(x,y));
 	refStatic.SetWndSize(Fvector2().set(width,height));
 
-	refStatic.SetOriginalRect(info.m_rect);
+	refStatic.SetTextureRect(info.m_rect);
 	refStatic.SetShader(info.m_shader);
 	refStatic.SetStretchTexture(true);
 
 	return width;
 }
 
-void CUIPdaKillMessage::SetFont(CGameFont* pFont){
+void CUIPdaKillMessage::SetFont(CGameFont* pFont)
+{
 	m_victim_name.SetFont(pFont);
 	m_killer_name.SetFont(pFont);
 	CUIStatic::SetFont(pFont);

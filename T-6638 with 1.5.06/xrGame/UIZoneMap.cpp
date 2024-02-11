@@ -92,7 +92,7 @@ void CUIZoneMap::Init()
 	{
 		xml_init.InitStatic			(uiXml, "minimap:static_counter", 0, &m_Counter);
 		m_background.AttachChild	(&m_Counter);
-		xml_init.InitTextWnd		(uiXml, "minimap:static_counter:text_static", 0, &m_Counter_text);
+		xml_init.InitStatic		(uiXml, "minimap:static_counter:text_static", 0, &m_Counter_text);
 		m_Counter.AttachChild		(&m_Counter_text);
 
 		rel_pos						= m_Counter.GetWndPos();

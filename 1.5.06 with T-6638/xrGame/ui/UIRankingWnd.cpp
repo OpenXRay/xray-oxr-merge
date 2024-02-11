@@ -46,7 +46,7 @@ void CUIRankingWnd::Show( bool status )
 		m_actor_ch_info->InitCharacter( Actor()->object_id() );
 		
 		string64 buf;
-		sprintf_s( buf, sizeof(buf), "%d %s", Actor()->get_money(), "RU" );
+		xr_sprintf( buf, sizeof(buf), "%d %s", Actor()->get_money(), "RU" );
 		m_money_value->SetText( buf );
 		m_money_value->AdjustWidthToText();
 		update_info();
@@ -144,8 +144,8 @@ void CUIRankingWnd::Init()
 	xml.SetLocalRoot( stored_root );
 
 	string256 buf;
-	strcpy_s( buf, sizeof(buf), m_center_caption->GetText() );
-	strcat_s( buf, sizeof(buf), CStringTable().translate("ui_ranking_center_caption").c_str() );
+	xr_strcpy( buf, sizeof(buf), m_center_caption->GetText() );
+	xr_strcat( buf, sizeof(buf), CStringTable().translate("ui_ranking_center_caption").c_str() );
 	m_center_caption->SetText( buf );
 
 	// pSettings->[pda_rank_communities] and XML <faction_list>

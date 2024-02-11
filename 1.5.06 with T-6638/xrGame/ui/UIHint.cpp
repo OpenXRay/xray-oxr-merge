@@ -17,7 +17,7 @@
 UIHint::UIHint()
 {
 	m_visible = false;
-	m_rect.set( 0.0f, 0.0f, 1024.0f, 768.0f );
+	m_rect.set( 0.0f, 0.0f, UI_BASE_WIDTH, UI_BASE_HEIGHT );
 }
 
 void UIHint::init_from_xml( CUIXml& xml, LPCSTR path )
@@ -54,25 +54,13 @@ void UIHint::set_text( LPCSTR text )
 	m_background->InitFrameWindow( m_background->GetWndPos(), new_size );
 	m_background->UpdateSize();
 	SetWndSize( m_background->GetWndSize() );
-//	Update();
 }
 
 LPCSTR UIHint::get_text() const
 {
 	return m_text->GetText();
 }
-/*
-void UIHint::Update()
-{
-	inherited::Update();
 
-	if ( !m_visible )
-	{
-		return;
-	}
-	AlignHintWndPos( m_rect, m_border );
-}
-*/
 void UIHint::Draw()
 {
 	if ( m_visible )
@@ -85,12 +73,8 @@ void UIHint::Draw()
 // =================================================================================================
 
 UIHintWindow::UIHintWindow()
-{
-	m_hint_wnd = NULL;
-	m_hint_delay = 1000;
-	m_hint_text._set( NULL );
-	m_enable = false;
-}
+:m_hint_wnd(NULL),m_hint_delay(1000),m_enable(false)
+{}
 
 void UIHintWindow::disable_hint()
 {
@@ -111,7 +95,7 @@ void UIHintWindow::set_hint_text( shared_str const& text )
 	}
 	else
 	{
-		m_hint_text._set( text );
+		m_hint_text		= text;
 	}
 	if ( m_hint_wnd )
 	{
@@ -163,12 +147,8 @@ void UIHintWindow::OnFocusLost()
 	disable_hint();
 }
 
-//void UIHintWindow::OnMouseMove()
-//void UIHintWindow::OnClick()
-
 void UIHintWindow::Show( bool status )
 {
 	inherited::Show( status );
-	// ShowChildren( status );
 	disable_hint();
 }

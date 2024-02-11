@@ -65,7 +65,6 @@ void CUIMMShniaga::InitShniaga(CUIXml& xml_doc, LPCSTR path)
 
 	if (!g_pGameLevel || !g_pGameLevel->bReady) 
 	{
-		
 		if (!*g_last_saved_game || !CSavedGameWrapper::valid_saved_game(g_last_saved_game))
 			CreateList		(m_buttons, xml_doc, "menu_main");
 		else

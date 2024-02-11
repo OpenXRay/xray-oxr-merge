@@ -10,7 +10,7 @@
 class CUIAHuntFragList;
 class CUIAHuntPlayerList;
 class game_cl_ArtefactHunt;
-class CUITextWnd;
+class CUIStatic;
 class CUIMessageBoxEx;
 
 class CUIGameAHunt: public CUIGameTDM
@@ -20,7 +20,7 @@ private:
 	typedef CUIGameTDM inherited;
 
 public:
-	CUITextWnd*	m_pReinforcementInidcator;
+	CUIStatic*	m_pReinforcementInidcator;
 	CUIMessageBoxEx*	m_pBuySpawnMsgBox;
 
 public:
@@ -33,5 +33,5 @@ public:
 			void		SetBuyMsgCaption		(LPCSTR str);
 
 protected:
-	CUITextWnd*	m_buy_msg_caption;		
+	CUIStatic*	m_buy_msg_caption;		
 };

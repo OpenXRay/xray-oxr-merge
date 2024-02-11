@@ -20,8 +20,8 @@ public:
 	virtual void 		Update					();
 	virtual void 		Draw					();
 
-	virtual bool 		OnMouseAction					(float x, float y, EUIMessages mouse_action);
-	virtual bool 		OnKeyboardAction				(int dik, EUIMessages keyboard_action);
+	virtual bool 		OnMouseAction			(float x, float y, EUIMessages mouse_action);
+	virtual bool 		OnKeyboardAction		(int dik, EUIMessages keyboard_action);
 	virtual void 		SendMessage				(CUIWindow* pWnd, s16 msg, void* pData = 0);
 			void 		SetVisibleMagnifier		(bool f);
 	virtual void		OnDeviceReset			();
@@ -50,7 +50,7 @@ protected:
 	void 				ProcessEvent			(EVENT ev);
 
 	bool 				IsButton				(CUIWindow* st);
-	void 				CreateList				(xr_vector<CUITextWnd*>& lst, CUIXml& xml_doc, LPCSTR path);
+	void 				CreateList				(xr_vector<CUIStatic*>& lst, CUIXml& xml_doc, LPCSTR path);
 	void 				ShowMain				();
 	void 				ShowNewGame				();
 	void				ShowNetworkGame			();
@@ -67,9 +67,9 @@ protected:
 	float				m_mag_pos;
 	float				m_offset;
 
-	xr_vector<CUITextWnd*>	m_buttons;
-	xr_vector<CUITextWnd*>	m_buttons_new;
-	xr_vector<CUITextWnd*>	m_buttons_new_network;
+	xr_vector<CUIStatic*>	m_buttons;
+	xr_vector<CUIStatic*>	m_buttons_new;
+	xr_vector<CUIStatic*>	m_buttons_new_network;
 
 	int						m_selected_btn;
 	enum_page_id			m_page;

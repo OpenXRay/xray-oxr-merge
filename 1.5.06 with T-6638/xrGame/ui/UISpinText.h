@@ -6,7 +6,8 @@
 
 #include "UICustomSpin.h"
 
-class CUISpinText : public CUICustomSpin{
+class CUISpinText : public CUICustomSpin
+{
 public:
 	CUISpinText();
 	// CUIOptionsItem
@@ -25,7 +26,7 @@ protected:
 	virtual bool	CanPressDown	();
 	virtual void	IncVal			(){};
 	virtual void	DecVal			(){};
-			void	SetItem();
+			void	SetItem			();
 			struct SInfo{
 				shared_str	_orig;
 				shared_str	_transl;

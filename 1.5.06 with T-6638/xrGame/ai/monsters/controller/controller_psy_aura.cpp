@@ -110,27 +110,29 @@ void CControllerAura::update_schedule()
 
 		bool need_be_active		= (dist_to_actor < aura_radius);
 
-		if (active()) {
-			if (!need_be_active) {
+		if (active())
+		{
+			if (!need_be_active)
+			{
 				m_effector->switch_off	();
 				m_effector				= 0;
 				
 				m_hit_state				= eNone;
 
-			} else {
 			}
-		} else {
-			if (need_be_active) {
+		}
+		else
+		{
+			if (need_be_active)
+			{
 				// create effector
 				m_effector = xr_new<CPPEffectorControllerAura>	(m_state, 5000, aura_sound.left, aura_sound.right);
 				Actor()->Cameras().AddPPEffector				(m_effector);
 				
 				m_hit_state			= eEffectoring;
 				m_time_started		= time();
-			} else {
 			}
 		}
-		
 	}
 
 	if (active()) {
@@ -145,7 +147,8 @@ void CControllerAura::update_schedule()
 
 void CControllerAura::update_frame()
 {
-	if (m_hit_state == eNone) return;
+	if (m_hit_state == eNone)
+		return;
 
 	switch (m_hit_state){
 		case eEffectoring: 

@@ -21,7 +21,7 @@ class CUIProgressBar;
 class CUIFrameLineWnd;
 class CUICharacterInfo;
 class CUIScrollView;
-class CUI3tButtonEx;
+class CUI3tButton;
 class CUICheckButton;
 struct GAME_NEWS_DATA;
 class CUINewsItemWnd;
@@ -49,8 +49,8 @@ private:
 	ALife::_TIME_ID		m_start_game_time;
 	ALife::_TIME_ID		m_selected_period;
 
-	CUI3tButtonEx*		m_prev_period;
-	CUI3tButtonEx*		m_next_period;
+	CUI3tButton*		m_prev_period;
+	CUI3tButton*		m_next_period;
 	bool				m_ctrl_press;
 	
 	CUIScrollView*		m_list;
@@ -74,7 +74,7 @@ public:
 	virtual void		Update				();
 	virtual void		SendMessage			( CUIWindow* pWnd, s16 msg, void* pData );
 
-	virtual bool		OnKeyboard			(int dik, EUIMessages keyboard_action);
+	virtual bool		OnKeyboardAction	(int dik, EUIMessages keyboard_action);
 	virtual bool		OnKeyboardHold		(int dik);
 
 	IC		void		UpdateNews			()	{ m_need_reload = true; }

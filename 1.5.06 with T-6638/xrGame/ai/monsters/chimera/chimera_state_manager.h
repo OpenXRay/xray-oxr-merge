@@ -3,8 +3,9 @@
 
 class CChimera;
 
-class CStateManagerChimera : public CMonsterStateManager<CChimera> {
-	
+class CStateManagerChimera : public CMonsterStateManager<CChimera>
+{
+private:
 	typedef CMonsterStateManager<CChimera> inherited;
 
 public:

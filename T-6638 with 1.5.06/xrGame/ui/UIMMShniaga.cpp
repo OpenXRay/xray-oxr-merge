@@ -103,7 +103,7 @@ void CUIMMShniaga::OnDeviceReset()
 
 extern CActor*		g_actor;
 
-void CUIMMShniaga::CreateList(xr_vector<CUITextWnd*>& lst, CUIXml& xml_doc, LPCSTR path)
+void CUIMMShniaga::CreateList(xr_vector<CUIStatic*>& lst, CUIXml& xml_doc, LPCSTR path)
 {
 	CGameFont* pF;
 	u32	color;
@@ -118,11 +118,11 @@ void CUIMMShniaga::CreateList(xr_vector<CUITextWnd*>& lst, CUIXml& xml_doc, LPCS
 	XML_NODE* tab_node				= xml_doc.NavigateToNode(path,0);
 	xml_doc.SetLocalRoot			(tab_node);
 
-	CUITextWnd* st;
+	CUIStatic* st;
 
 	for (int i = 0; i < nodes_num; ++i)
 	{		
-		st							= xr_new<CUITextWnd>();
+		st							= xr_new<CUIStatic>();
 		st->SetWndPos				(Fvector2().set(0,0));
 		st->SetWndSize				(Fvector2().set(m_view->GetDesiredChildWidth(), button_height));
 		st->SetFont					(pF);
@@ -149,7 +149,7 @@ void CUIMMShniaga::CreateList(xr_vector<CUITextWnd*>& lst, CUIXml& xml_doc, LPCS
 void CUIMMShniaga::SetPage		(enum_page_id page_id, LPCSTR xml_file, LPCSTR xml_path)
 {
 	VERIFY(m_page != page_id);
-	xr_vector<CUITextWnd*>*		lst = NULL;
+	xr_vector<CUIStatic*>*		lst = NULL;
 	switch (page_id)
 	{
 	case epi_main:

@@ -89,7 +89,7 @@ void CUIMapInfo::InitMap(LPCSTR map_name, LPCSTR map_ver)
 		CUIXmlInit::InitFont	(xml_doc,"header",0,header_color, txt_font);
 		txt_color				= CUIXmlInit::GetColor(xml_doc,"txt:text", 0, 0x00);
 		string64				txt_color_tag;
-		sprintf_s				(	txt_color_tag, 
+		xr_sprintf				(	txt_color_tag, 
 									"%s[%u,%u,%u,%u]", "%c", 
 									color_get_A(txt_color), 
 									color_get_R(txt_color), 
@@ -147,9 +147,6 @@ void CUIMapInfo::InitMap(LPCSTR map_name, LPCSTR map_ver)
 		st->AdjustHeightToText();
 		m_view->AddWindow(st, true);
 	}
-
-//.	if (!m_large_desc)
-//.       m_large_desc = str_tbl.translate("no_desc_for_this_map");
 }
 
 const char*	 CUIMapInfo::GetLargeDesc(){

@@ -399,14 +399,6 @@ void CUIActorMenu::InitCellForSlot( u16 slot_idx )
 	curr_list->SetItem( cell_item );
 	if ( m_currMenuMode == mmTrade && m_pPartnerInvOwner )
 		ColorizeItem( cell_item, !CanMoveToPartner( item ) );
-
-	//CCustomOutfit* outfit = smart_cast<CCustomOutfit*>(item);
-	//if(outfit)
-	//	outfit->ReloadBonesProtection();
-
-	//CHelmet* helmet = smart_cast<CHelmet*>(item);
-	//if(helmet)
-	//	helmet->ReloadBonesProtection();
 }
 
 void CUIActorMenu::InitInventoryContents(CUIDragDropListEx* pBagList)
@@ -454,14 +446,6 @@ void CUIActorMenu::InitInventoryContents(CUIDragDropListEx* pBagList)
 		curr_list->SetItem(itm);
 		if ( m_currMenuMode == mmTrade && m_pPartnerInvOwner )
 			ColorizeItem( itm, !CanMoveToPartner( *itb ) );
-
-		//CCustomOutfit* outfit = smart_cast<CCustomOutfit*>(*itb);
-		//if(outfit)
-		//	outfit->ReloadBonesProtection();
-
-		//CHelmet* helmet = smart_cast<CHelmet*>(*itb);
-		//if(helmet)
-		//	helmet->ReloadBonesProtection();
 	}
 	m_pQuickSlot->ReloadReferences(m_pActorInvOwner);
 }
@@ -679,6 +663,7 @@ bool CUIActorMenu::ToBelt(CUICellItem* itm, bool b_use_cursor_pos)
 		return result;
 	}
 }
+
 CUIDragDropListEx* CUIActorMenu::GetSlotList(u16 slot_idx)
 {
 	if ( slot_idx == NO_ACTIVE_SLOT )
@@ -767,7 +752,6 @@ bool CUIActorMenu::ToQuickSlot(CUICellItem* itm)
 	xr_strcpy(ACTOR_DEFS::g_quick_use_slots[slot_idx], iitem->m_section_id.c_str());
 	return true;
 }
-
 
 bool CUIActorMenu::OnItemDropped(PIItem itm, CUIDragDropListEx* new_owner, CUIDragDropListEx* old_owner)
 {
@@ -880,8 +864,9 @@ void CUIActorMenu::PropertiesBoxForSlots( PIItem item, bool& b_show )
 				m_UIPropertiesBox->AddItem( "st_undress_helmet",  NULL, INVENTORY_TO_BAG_ACTION );
 		}
 		else
+		{
 			m_UIPropertiesBox->AddItem( "st_undress_outfit",  NULL, INVENTORY_TO_BAG_ACTION );
-
+		}
 		bAlreadyDressed = true;
 		b_show			= true;
 	}
@@ -915,9 +900,6 @@ void CUIActorMenu::PropertiesBoxForWeapon( CUICellItem* cell_item, PIItem item, 
 			m_UIPropertiesBox->AddItem( "st_detach_gl",  NULL, INVENTORY_DETACH_GRENADE_LAUNCHER_ADDON );
 			b_show			= true;
 		}
-		else
-		{
-		}
 	}
 	if ( pWeapon->ScopeAttachable() )
 	{
@@ -926,9 +908,6 @@ void CUIActorMenu::PropertiesBoxForWeapon( CUICellItem* cell_item, PIItem item, 
 			m_UIPropertiesBox->AddItem( "st_detach_scope",  NULL, INVENTORY_DETACH_SCOPE_ADDON );
 			b_show			= true;
 		}
-		else
-		{
-		}
 	}
 	if ( pWeapon->SilencerAttachable() )
 	{
@@ -936,9 +915,6 @@ void CUIActorMenu::PropertiesBoxForWeapon( CUICellItem* cell_item, PIItem item, 
 		{
 			m_UIPropertiesBox->AddItem( "st_detach_silencer",  NULL, INVENTORY_DETACH_SILENCER_ADDON );
 			b_show			= true;
-		}
-		else
-		{
 		}
 	}
 	if ( smart_cast<CWeaponMagazined*>(pWeapon) && IsGameTypeSingle() )
@@ -963,7 +939,9 @@ void CUIActorMenu::PropertiesBoxForWeapon( CUICellItem* cell_item, PIItem item, 
 		}
 	}
 }
+
 #include "../string_table.h"
+
 void CUIActorMenu::PropertiesBoxForAddon( PIItem item, bool& b_show )
 {
 	//присоединение аддонов к активному слоту (2 или 3)
@@ -1275,8 +1253,8 @@ void CUIActorMenu::UpdateOutfit()
 	}
 
 	Ivector2 afc;
-	afc.x = af_count;//1;
-	afc.y = 1;//af_count;
+	afc.x = af_count;//m_pInventoryBeltList->GetCellsCapacity().x;
+	afc.y = 1;
 
 	m_pInventoryBeltList->SetCellsCapacity( afc );
 
@@ -1284,7 +1262,6 @@ void CUIActorMenu::UpdateOutfit()
 	{
 		m_belt_list_over[i]->SetVisible( false );
 	}
-
 }
 
 void CUIActorMenu::MoveArtefactsToBag()

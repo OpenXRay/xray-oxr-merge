@@ -76,7 +76,7 @@ IC			bool	NeedShowScrollBar	();		// no comment
 	cmp_function	m_sort_function;
 };
 
-#define ADD_TEXT_TO_VIEW3(txt,st,view)		st = xr_new<CUITextWnd>();						\
+#define ADD_TEXT_TO_VIEW3(txt,st,view)		st = xr_new<CUIStatic>();						\
 											st->SetFont(UI().Font().pFontLetterica16Russian); \
 											st->SetText(txt);								\
 											st->SetTextComplexMode(true);					\
@@ -84,5 +84,5 @@ IC			bool	NeedShowScrollBar	();		// no comment
 											st->AdjustHeightToText();						\
 											view->AddWindow(st, true)
 
-#define ADD_TEXT_TO_VIEW2(txt,view)			CUITextWnd*	pSt;								\
+#define ADD_TEXT_TO_VIEW2(txt,view)			CUIStatic*	pSt;								\
 											ADD_TEXT_TO_VIEW3(txt,pSt,view)

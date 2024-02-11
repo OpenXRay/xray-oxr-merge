@@ -33,6 +33,7 @@
 #include "../Inventory.h"
 #include "../Artefact.h"
 #include "../string_table.h"
+
 ui_actor_state_wnd::ui_actor_state_wnd()
 {
 }
@@ -353,6 +354,7 @@ void ui_actor_state_item::init_from_xml( CUIXml& xml, LPCSTR path )
 		m_static3 = UIHelper::CreateStatic( xml, "icon3", this );
 		m_static3->TextItemControl()->SetText("");
 	}
+
 	set_arrow( 0.0f );
 	xml.SetLocalRoot( stored_root );
 }
@@ -368,7 +370,7 @@ void ui_actor_state_item::set_text( float value )
 	clamp( v, 0, 99 );
 	string32 text_res;
 	xr_sprintf( text_res, sizeof(text_res), "%d", v );
-	m_static->TextItemControl()->SetText( text_res );
+	m_static->SetText( text_res );
 }
 
 void ui_actor_state_item::set_progress( float value )

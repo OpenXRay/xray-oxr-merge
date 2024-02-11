@@ -32,7 +32,6 @@ CUIGameTDM::CUIGameTDM()
 	m_team2_score			= NULL;
 }
 
-//--------------------------------------------------------------------
 void CUIGameTDM::SetClGame (game_cl_GameState* g)
 {
 	inherited::SetClGame(g);

@@ -69,9 +69,9 @@ void CUIMessageBox::InitMessageBox(LPCSTR box_template)
 
 	strconcat								(sizeof(str),str,box_template,":message_text");
 	if (uiXml.NavigateToNode(str,0)){
-        m_UIStaticText						= xr_new<CUITextWnd>();
+        m_UIStaticText							= xr_new<CUIStatic>();
 		AttachChild							(m_UIStaticText);
-        xml_init.InitTextWnd				(uiXml, str, 0, m_UIStaticText);
+        xml_init.InitStatic						(uiXml, str, 0, m_UIStaticText);
 	}
 
 	xr_strcpy		(str,box_template);
@@ -127,9 +127,9 @@ void CUIMessageBox::InitMessageBox(LPCSTR box_template)
 
 		case MESSAGEBOX_DIRECT_IP:
 			strconcat							(sizeof(str),str,box_template,":cap_host");
-			m_UIStaticHost						= xr_new<CUITextWnd>();
+			m_UIStaticHost						= xr_new<CUIStatic>();
 			AttachChild							(m_UIStaticHost);
-			xml_init.InitTextWnd				(uiXml, str, 0, m_UIStaticHost);
+			xml_init.InitStatic					(uiXml, str, 0, m_UIStaticHost);
 
 			strconcat							(sizeof(str),str,box_template,":edit_host");
 			m_UIEditHost						= xr_new<CUIEditBox>();
@@ -137,9 +137,9 @@ void CUIMessageBox::InitMessageBox(LPCSTR box_template)
 			xml_init.InitEditBox				(uiXml, str, 0, m_UIEditHost);			
 
 			strconcat							(sizeof(str),str,box_template,":cap_password");
-			m_UIStaticPass						= xr_new<CUITextWnd>();
+			m_UIStaticPass						= xr_new<CUIStatic>();
 			AttachChild							(m_UIStaticPass);
-			xml_init.InitTextWnd				(uiXml, str, 0, m_UIStaticPass);
+			xml_init.InitStatic					(uiXml, str, 0, m_UIStaticPass);
 
 			strconcat							(sizeof(str),str,box_template,":edit_password");
 			m_UIEditPass						= xr_new<CUIEditBox>();
@@ -160,14 +160,14 @@ void CUIMessageBox::InitMessageBox(LPCSTR box_template)
 			break;
 		case MESSAGEBOX_PASSWORD:{
 			strconcat							(sizeof(str),str,box_template,":cap_user_password");
-			m_UIStaticUserPass						= xr_new<CUITextWnd>();
+			m_UIStaticUserPass						= xr_new<CUIStatic>();
 			AttachChild							(m_UIStaticUserPass);
-			xml_init.InitTextWnd				(uiXml, str, 0, m_UIStaticUserPass);
+			xml_init.InitStatic					(uiXml, str, 0, m_UIStaticUserPass);
 
 			strconcat							(sizeof(str),str,box_template,":cap_password");
-			m_UIStaticPass						= xr_new<CUITextWnd>();
+			m_UIStaticPass						= xr_new<CUIStatic>();
 			AttachChild							(m_UIStaticPass);
-			xml_init.InitTextWnd				(uiXml, str, 0, m_UIStaticPass);
+			xml_init.InitStatic					(uiXml, str, 0, m_UIStaticPass);
 
 			strconcat							(sizeof(str),str,box_template,":edit_user_password");
 			m_UIEditUserPass					= xr_new<CUIEditBox>();

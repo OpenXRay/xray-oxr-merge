@@ -7,20 +7,18 @@ void CUIRadioButton::InitButton(Fvector2 pos, Fvector2 size)
 {
 	inherited::InitButton(pos, size);
 
-	if (!m_pLines)
-		m_pLines = xr_new<CUILines>();
-	m_pLines->SetTextAlignment(CGameFont::alLeft);
-
+	TextItemControl				();
     CUI3tButton::InitTexture("ui_radio");
-	Frect r = m_background->GetE()->GetStaticItem()->GetRect(); 
-	CUI3tButton::SetTextX(r.width());
+	Fvector2 sz					= m_background->Get(S_Enabled)->GetStaticItem()->GetSize(); 
+	TextItemControl()->m_TextOffset.x = sz.x;
 
-	CUI3tButton::InitButton(pos, Fvector2().set(size.x, r.height()-5.0f));
+	CUI3tButton::InitButton		(pos, Fvector2().set(size.x, sz.y-5.0f));
 
-	m_pLines->SetWndPos(pos);
-	m_pLines->SetWndSize(Fvector2().set(size.x,m_background->GetE()->GetStaticItem()->GetRect().height()));
+	TextItemControl()->m_wndPos.set(pos);
+	TextItemControl()->m_wndSize.set(Fvector2().set(size.x,m_background->Get(S_Enabled)->GetStaticItem()->GetSize().y));
 }
 
-void CUIRadioButton::InitTexture(LPCSTR tex_name){
+void CUIRadioButton::InitTexture(LPCSTR tex_name)
+{
 	// do nothing
 }

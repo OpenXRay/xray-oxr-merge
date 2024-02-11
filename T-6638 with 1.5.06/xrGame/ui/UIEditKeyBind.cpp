@@ -9,7 +9,7 @@ CUIEditKeyBind::CUIEditKeyBind(bool bPrim)
 {
 	m_bPrimary					= bPrim;
     m_bIsEditMode				= false;
-	TextItemControl()->SetTextComplexMode(false);
+	SetTextComplexMode(false);
 	m_keyboard					= NULL;
 	m_opt_backup_value			= NULL;
 	m_action					= NULL;
@@ -72,7 +72,7 @@ void CUIEditKeyBind::OnFocusLost()
 {
 	CUIStatic::OnFocusLost		();
 	SetEditMode					(false);
-	TextItemControl()->SetTextColor	((subst_alpha(TextItemControl()->GetTextColor(), color_get_A(0xffffffff))));
+	SetTextColor	((subst_alpha(GetTextColor(), color_get_A(0xffffffff))));
 }
 
 bool CUIEditKeyBind::OnMouseDown(int mouse_btn)
@@ -87,8 +87,8 @@ bool CUIEditKeyBind::OnMouseDown(int mouse_btn)
 		OnFocusLost				();
 
 		xr_strcpy				(message, m_action->action_name);
-		xr_strcat					(message, "=");
-		xr_strcat					(message, m_keyboard->key_name);		
+		xr_strcat				(message, "=");
+		xr_strcat				(message, m_keyboard->key_name);		
 		SendMessage2Group		("key_binding",message);
 
 		return					true;
@@ -102,7 +102,6 @@ bool CUIEditKeyBind::OnMouseDown(int mouse_btn)
 
 bool CUIEditKeyBind::OnKeyboardAction(int dik, EUIMessages keyboard_action)
 {
-	
 	if (dik == MOUSE_1 || dik == MOUSE_2 || dik == MOUSE_3)
 		return false;
 
@@ -118,8 +117,8 @@ bool CUIEditKeyBind::OnKeyboardAction(int dik, EUIMessages keyboard_action)
 		SetValue			();
 
 		xr_strcpy			(message, m_action->action_name);
-		xr_strcat				(message, "=");
-		xr_strcat				(message, m_keyboard->key_name);		
+		xr_strcat			(message, "=");
+		xr_strcat			(message, m_keyboard->key_name);		
 		OnFocusLost			();
 		SendMessage2Group	("key_binding",message);
 		return				true;
@@ -140,7 +139,8 @@ void CUIEditKeyBind::SetEditMode(bool b)
 	{
 		SetColorAnimation	("ui_map_area_anim", LA_CYCLIC|LA_ONLYALPHA|LA_TEXTCOLOR);
 		TextureOn			();
-	}else
+	}
+	else
 	{
 		SetColorAnimation	(NULL, 0);
 		TextureOff			();

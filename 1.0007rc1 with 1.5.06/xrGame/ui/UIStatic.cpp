@@ -161,7 +161,8 @@ void  CUIStatic::Draw()
 }
 
 
-void CUIStatic::DrawText(){
+void CUIStatic::DrawText()
+{
 	if (m_pLines)
 	{
 		m_pLines->SetWndSize(m_wndSize);
@@ -177,23 +178,28 @@ void CUIStatic::DrawText(){
 	}
 }
 
-void CUIStatic::DrawTexture(){
-
-	if(m_bAvailableTexture && m_bTextureEnable){
+void CUIStatic::DrawTexture()
+{
+	if(m_bAvailableTexture && m_bTextureEnable)
+	{
 		Frect			rect;
 		GetAbsoluteRect	(rect);
 		m_UIStaticItem.SetPos	(rect.left + m_TextureOffset.x, rect.top + m_TextureOffset.y);
 
 		if(m_bStretchTexture)
+		{
 			m_UIStaticItem.SetRect(0, 0, rect.width(), rect.height());
-		else{
+		}
+		else
+		{
 			Frect r={0.0f,0.0f,
 				m_UIStaticItem.GetOriginalRectScaled().width(),
 				m_UIStaticItem.GetOriginalRectScaled().height()};
 			if (r.width()&&r.height())	m_UIStaticItem.SetRect(r);
 		}
 
-		if( Heading() ){
+		if( Heading() )
+		{
 			m_UIStaticItem.Render( GetHeading() );
 		}else
 			m_UIStaticItem.Render();
@@ -401,7 +407,7 @@ void CUIStatic::ClipperOff()
 	ClipperOff(m_UIStaticItem);
 }
 
-void  CUIStatic::SetShader(const ref_shader& sh)
+void  CUIStatic::SetShader(const ui_shader& sh)
 {
 	m_UIStaticItem.SetShader(sh);
 	m_bAvailableTexture = true;

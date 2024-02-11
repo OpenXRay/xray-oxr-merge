@@ -49,19 +49,12 @@ public:
 			void			UpdateActorInfo			( CInventoryOwner* owner );
 			void			UpdateHitZone			();
 
-//	virtual void			Update					();
 	virtual void			Draw					();
 	virtual void			Show					( bool status );
 
-
-//			void			set_hint_info			( LPCSTR text );
-//			LPCSTR			get_hint_info			() const;
-//			void			set_hint_visible		( bool status );
-//			bool			get_hint_visible		() const;
 private:
 			void			update_round_states		( CActor* actor, ALife::EHitType hit_type, EStateType stt_type );
-
-}; // class ui_actor_state_wnd
+};
 
 class ui_actor_state_item : public UIHintWindow
 {
@@ -80,13 +73,7 @@ public:
 	virtual			~ui_actor_state_item	();
 			void	init_from_xml			( CUIXml& xml, LPCSTR path );
 	
-//	virtual	void	Update					();
-//	virtual	void	Show					( bool status );
-//	virtual	void	OnFocusReceive			();
-//	virtual void	OnFocusLost				();
-//	virtual void 	OnMouseMove				();
-	virtual bool	OnMouse					( float x, float y, EUIMessages mouse_action );
-// 	virtual void	OnClick					();
+	virtual bool	OnMouseAction			( float x, float y, EUIMessages mouse_action );
 			
 			void	set_text				( float value ); // 0..1
 			void	set_progress			( float value ); // 0..1

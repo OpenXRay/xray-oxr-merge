@@ -2,7 +2,8 @@
 #include "../BaseMonster/base_monster.h"
 #include "../../../../xrServerEntities/script_export_space.h"
 
-class CChimera : public CBaseMonster {
+class CChimera : public CBaseMonster
+{
 	typedef		CBaseMonster	inherited;
 
 	bool		b_upper_state;

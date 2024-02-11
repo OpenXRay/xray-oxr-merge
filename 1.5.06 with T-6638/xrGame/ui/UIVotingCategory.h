@@ -3,7 +3,7 @@
 #include "UIDialogWnd.h"
 
 class CUIStatic;
-class CUI3tButtonEx;
+class CUI3tButton;
 class CUIKickPlayer;
 class CUIChangeMap;
 class CUIChangeWeather;
@@ -19,7 +19,7 @@ public:
 						CUIVotingCategory	();
 	virtual				~CUIVotingCategory	();
 
-	virtual bool		OnKeyboard			(int dik, EUIMessages keyboard_action);
+	virtual bool		OnKeyboardAction			(int dik, EUIMessages keyboard_action);
 	virtual void		SendMessage			(CUIWindow* pWnd, s16 msg, void* pData = 0);
 
 	void				OnBtn				(int i);
@@ -31,10 +31,10 @@ protected:
 	void				InitVotingCategory	();
 
 	CUIStatic*			header;
-	CUI3tButtonEx*		btn[7];
+	CUI3tButton*		btn[7];
 	CUIStatic*			txt[7];
 	CUIStatic*			bkgrnd;
-	CUI3tButtonEx*		btn_cancel;
+	CUI3tButton*		btn_cancel;
 
 	CUIKickPlayer*		kick;
 	CUIChangeMap*		change_map;

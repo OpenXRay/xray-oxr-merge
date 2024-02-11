@@ -20,11 +20,11 @@ public:
 						CUIComboBox				();
 	virtual				~CUIComboBox			();
 	// CUIOptionsItem
-	virtual void	SetCurrentOptValue	();	// opt->current
-	virtual void	SaveBackUpOptValue	();	// current->backup
-	virtual void	SaveOptValue		();	// current->opt
-	virtual void	UndoOptValue		();	// backup->current
-	virtual bool	IsChangedOptValue	() const;	// backup!=current
+	virtual void	SetCurrentOptValue			();	// opt->current
+	virtual void	SaveBackUpOptValue			();	// current->backup
+	virtual void	SaveOptValue				();	// current->opt
+	virtual void	UndoOptValue				();	// backup->current
+	virtual bool	IsChangedOptValue			() const;	// backup!=current
 
 	virtual void	OnRender					(); // only for list-box
 
@@ -46,7 +46,7 @@ public:
 			void		disable_id				(int id);
 			void		enable_id				(int id);
 protected:
-	virtual bool		OnMouseAction					(float x, float y, EUIMessages mouse_action);
+	virtual bool		OnMouseAction			(float x, float y, EUIMessages mouse_action);
 	virtual void		OnBtnClicked			();
 			void		ShowList				(bool bShow);
 			void		OnListItemSelect		();
@@ -65,7 +65,7 @@ protected:
 
 
 	CUI_IB_FrameLineWnd	m_frameLine;
-	CUITextWnd			m_text;
+	CUIStatic			m_text;
 	CUIFrameWindow		m_list_frame;
 
 	u32					m_textColor[2];

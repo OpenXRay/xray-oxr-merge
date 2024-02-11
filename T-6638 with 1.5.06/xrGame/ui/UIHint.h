@@ -11,7 +11,6 @@
 #include "UIWindow.h"
 
 class CUIStatic;
-class CUITextWnd;
 class CUIFrameWindow;
 class CUIXml;
 
@@ -40,7 +39,7 @@ public:
 
 protected:
 	CUIFrameWindow*	m_background;
-	CUITextWnd*		m_text;
+	CUIStatic*		m_text;
 
 	bool			m_visible;
 	float			m_border;

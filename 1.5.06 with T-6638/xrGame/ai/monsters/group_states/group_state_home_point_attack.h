@@ -10,6 +10,10 @@ protected:
 	u32					m_target_node;
 	bool				m_skip_camp;
 
+	TTime				m_first_tick_enemy_inaccessible;
+	TTime				m_last_tick_enemy_inaccessible;
+	TTime				m_state_started;
+
 public:
 						CStateGroupAttackMoveToHomePoint(_Object *obj);
 	virtual	void		initialize				();
@@ -22,6 +26,8 @@ public:
 
 	virtual	void		reselect_state			();
 	virtual	void		setup_substates			();
+
+			bool		enemy_inaccessible		();
 };
 
 #include "group_state_home_point_attack_inline.h"

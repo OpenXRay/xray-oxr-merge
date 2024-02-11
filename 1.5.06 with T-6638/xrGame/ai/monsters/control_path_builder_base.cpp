@@ -88,7 +88,6 @@ void CControlPathBuilderBase::on_stop_control(ControlCom::EControlType type)
 
 void CControlPathBuilderBase::detour_graph_points(u32 game_graph_vertex_id)
 {
-	
 	m_game_graph_target_vertex	= game_graph_vertex_id;
 	set_game_path_type			();
 }

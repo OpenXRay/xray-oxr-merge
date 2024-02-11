@@ -73,24 +73,24 @@ void CUIActorMenu::Construct()
 	m_PartnerCharacterInfo->InitCharacterInfo( &uiXml, "partner_ch_info" );
 	
 	m_RightDelimiter			= UIHelper::CreateStatic(uiXml, "right_delimiter", this);
-//	m_ActorTradeCaption			= UIHelper::CreateTextWnd(uiXml, "right_delimiter:trade_caption", m_RightDelimiter);
-	m_ActorTradePrice			= UIHelper::CreateTextWnd(uiXml, "right_delimiter:trade_price", m_RightDelimiter);
-	m_ActorTradeWeightMax		= UIHelper::CreateTextWnd(uiXml, "right_delimiter:trade_weight_max", m_RightDelimiter);
+//	m_ActorTradeCaption			= UIHelper::CreateStatic(uiXml, "right_delimiter:trade_caption", m_RightDelimiter);
+	m_ActorTradePrice			= UIHelper::CreateStatic(uiXml, "right_delimiter:trade_price", m_RightDelimiter);
+	m_ActorTradeWeightMax		= UIHelper::CreateStatic(uiXml, "right_delimiter:trade_weight_max", m_RightDelimiter);
 //	m_ActorTradeCaption->AdjustWidthToText();
 	
 	m_LeftDelimiter				= UIHelper::CreateStatic(uiXml, "left_delimiter", this);
-//	m_PartnerTradeCaption		= UIHelper::CreateTextWnd(uiXml, "left_delimiter:trade_caption", m_LeftDelimiter);
-	m_PartnerTradePrice			= UIHelper::CreateTextWnd(uiXml, "left_delimiter:trade_price", m_LeftDelimiter);
-	m_PartnerTradeWeightMax		= UIHelper::CreateTextWnd(uiXml, "left_delimiter:trade_weight_max", m_LeftDelimiter);
+//	m_PartnerTradeCaption		= UIHelper::CreateStatic(uiXml, "left_delimiter:trade_caption", m_LeftDelimiter);
+	m_PartnerTradePrice			= UIHelper::CreateStatic(uiXml, "left_delimiter:trade_price", m_LeftDelimiter);
+	m_PartnerTradeWeightMax		= UIHelper::CreateStatic(uiXml, "left_delimiter:trade_weight_max", m_LeftDelimiter);
 //	m_PartnerTradeCaption->AdjustWidthToText();
 
 	m_ActorBottomInfo			= UIHelper::CreateStatic(uiXml, "actor_weight_caption", this);
-	m_ActorWeight				= UIHelper::CreateTextWnd(uiXml, "actor_weight", this);
-	m_ActorWeightMax			= UIHelper::CreateTextWnd(uiXml, "actor_weight_max", this);
+	m_ActorWeight		= UIHelper::CreateStatic(uiXml, "actor_weight", this);
+	m_ActorWeightMax	= UIHelper::CreateStatic(uiXml, "actor_weight_max", this);
 	m_ActorBottomInfo->AdjustWidthToText();
 
 	m_PartnerBottomInfo			= UIHelper::CreateStatic(uiXml, "partner_weight_caption", this);
-	m_PartnerWeight				= UIHelper::CreateTextWnd(uiXml, "partner_weight", this);
+	m_PartnerWeight		= UIHelper::CreateStatic(uiXml, "partner_weight", this);
 	m_PartnerBottomInfo->AdjustWidthToText();
 	m_PartnerWeight_end_x		= m_PartnerWeight->GetWndPos().x;
 

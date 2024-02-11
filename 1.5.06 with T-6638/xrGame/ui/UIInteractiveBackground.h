@@ -16,7 +16,8 @@
 #include "UIFrameWindow.h"
 #include "UIFrameLineWnd.h"
 
-enum UIState{
+enum UIState
+{
 	S_Enabled,
 	S_Disabled,
 	S_Highlighted,
@@ -59,7 +60,8 @@ protected:
 };
 
 template <class T>
-CUIInteractiveBackground<T>::CUIInteractiveBackground(){
+CUIInteractiveBackground<T>::CUIInteractiveBackground()
+{
 	m_stateCurrent     = NULL;
 	m_stateEnabled     = NULL;
 	m_stateDisabled    = NULL;
@@ -68,7 +70,8 @@ CUIInteractiveBackground<T>::CUIInteractiveBackground(){
 }
 
 template <class T>
-CUIInteractiveBackground<T>::~CUIInteractiveBackground(){
+CUIInteractiveBackground<T>::~CUIInteractiveBackground()
+{
 
 }
 
@@ -80,7 +83,8 @@ void CUIInteractiveBackground<T>::InitIB(Fvector2 pos, Fvector2 size)
 }
 
 template <class T>
-void CUIInteractiveBackground<T>::InitIB(LPCSTR texture_e, Fvector2 pos, Fvector2 size){
+void CUIInteractiveBackground<T>::InitIB(LPCSTR texture_e, Fvector2 pos, Fvector2 size)
+{
 	CUIWindow::SetWndPos	(pos);
 	CUIWindow::SetWndSize	(size);
 
@@ -91,7 +95,8 @@ void CUIInteractiveBackground<T>::InitIB(LPCSTR texture_e, Fvector2 pos, Fvector
 }
 
 template <class T>
-T*	 CUIInteractiveBackground<T>::CreateE(){
+T*	 CUIInteractiveBackground<T>::CreateE()
+{
 	Fvector2 size = GetWndSize();
 	if (!m_stateEnabled)
 	{
@@ -106,7 +111,8 @@ T*	 CUIInteractiveBackground<T>::CreateE(){
 }
 
 template <class T>
-T*	 CUIInteractiveBackground<T>::CreateD(){
+T*	 CUIInteractiveBackground<T>::CreateD()
+{
 	Fvector2 size = GetWndSize();
 	if (!m_stateDisabled)
 	{
@@ -120,7 +126,8 @@ T*	 CUIInteractiveBackground<T>::CreateD(){
 }
 
 template <class T>
-T*	 CUIInteractiveBackground<T>::CreateT(){
+T*	 CUIInteractiveBackground<T>::CreateT()
+{
 	Fvector2 size = GetWndSize();
 	if (!m_stateTouched)
 	{
@@ -134,7 +141,8 @@ T*	 CUIInteractiveBackground<T>::CreateT(){
 }
 
 template <class T>
-T*	 CUIInteractiveBackground<T>::CreateH(){
+T*	 CUIInteractiveBackground<T>::CreateH()
+{
 	Fvector2 size = GetWndSize();
 	if (!m_stateHighlighted)
 	{

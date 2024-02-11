@@ -23,7 +23,7 @@ struct lanim_cont_xf :public lanim_cont{
 	void					set_defaults		();
 };
 
-class CUIStatic : public CUIWindow, public CUISingleTextureOwner, public IUITextControl  
+class CUIStatic : public CUIWindow, public CUISingleTextureOwner, public IUITextControl
 {
 	friend class CUIXmlInit;
 	friend class CUI3tButton;
@@ -43,7 +43,7 @@ public:
 	virtual void	Update					();
 
 	// IUISingleTextureOwner--------------------------------------------------------------------------------
-	virtual void		CreateShader				(const char* tex, const char* sh = "hud\\default");
+	virtual void		CreateShader				(LPCSTR tex, LPCSTR sh = "hud\\default");
 	ui_shader&			GetShader					()							{return m_UIStaticItem.GetShader();};
 	virtual void		SetTextureColor				(u32 color);
 	virtual u32			GetTextureColor				() const;
@@ -58,8 +58,8 @@ public:
 	virtual void		InitTexture					(LPCSTR tex_name);
 	virtual void		InitTextureEx				(LPCSTR tex_name, LPCSTR sh_name="hud\\default");
 	CUIStaticItem*		GetStaticItem				()							{return &m_UIStaticItem;}
-			void		SetOriginalRect_script		(Frect* pr)					{m_UIStaticItem.SetOriginalRect(*pr);}
-	const	Frect*		GetOriginalRect_script		()							{return &m_UIStaticItem.GetOriginalRect();}
+			void			SetTextureRect_script	(Frect* pr)					{m_UIStaticItem.SetTextureRect(*pr);}
+	const	Frect*			GetTextureRect_script	()							{return &m_UIStaticItem.GetTextureRect();}
 
 			void		SetHeadingPivot				(const Fvector2& p, const Fvector2& offset, bool fixedLT)				{m_UIStaticItem.SetHeadingPivot(p,offset,fixedLT);}
 			void		ResetHeadingPivot			()				{m_UIStaticItem.ResetHeadingPivot();}
@@ -184,7 +184,3 @@ protected:
 public:
 	DECLARE_SCRIPT_REGISTER_FUNCTION
 };
-
-add_to_type_list(CUIStatic)
-#undef script_type_list
-#define script_type_list save_type_list(CUIStatic)

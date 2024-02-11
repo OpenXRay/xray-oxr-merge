@@ -19,7 +19,3 @@ protected:
 	CUIScrollView*	m_view;
 	shared_str		m_large_desc;
 };
-
-add_to_type_list(CUIMapInfo)
-#undef script_type_list
-#define script_type_list save_type_list(CUIMapInfo)

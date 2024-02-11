@@ -38,17 +38,6 @@ public:
 	virtual void 	OnClick						();
 	virtual void 	OnFocusReceive				();
 	virtual void	OnFocusLost					();
-
-	/*// check button
-	IC bool			GetCheck					()
-	{
-		return m_eButtonState == BUTTON_PUSHED;
-	}
-	IC void			SetCheck					(bool ch)
-	{
-		m_eButtonState = ch ? BUTTON_PUSHED : BUTTON_NORMAL;
-		SeveBackUpValue();
-	}*/
 	
 	// behavior
 	virtual void	DrawTexture					();
@@ -63,6 +52,7 @@ public:
 
 	CUIStatic*				m_hint;
 	bool					m_frameline_mode;
+	bool					vertical;
 	CUI_IB_Static*			m_background;
 	CUI_IB_FrameLineWnd*	m_back_frameline;
 	void					CreateHint				();

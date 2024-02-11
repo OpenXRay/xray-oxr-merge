@@ -104,7 +104,8 @@ void CUILine::Clear(){
 
 void CUILine::ProcessNewLines()
 {
-	for (u32 i=0; i < m_subLines.size(); i++){
+	for (u32 i=0; i < m_subLines.size(); i++)
+	{
 		StrSize pos = m_subLines[i].m_text.find("\\n");
 		if (pos != npos)
 		{
@@ -129,7 +130,7 @@ void CUILine::Draw(CGameFont* pFont, float x, float y) const{
 	{
 		m_subLines[i].Draw(pFont, x+length, y);
 		float ll = pFont->SizeOf_(m_subLines[i].m_text.c_str()); //. all ok
-		UI()->ClientToScreenScaledWidth(ll);
+		UI().ClientToScreenScaledWidth(ll);
 		length	+= ll;
 	}
 }
@@ -150,8 +151,8 @@ const CUILine* CUILine::GetEmptyLine(){
     return m_tmpLine;
 }
 
-
-bool CUILine::GetWord(Word& w, const xr_string& text, int begin) const{
+bool CUILine::GetWord(Word& w, const xr_string& text, int begin) const
+{
 
 	if (text.empty())
 		return false;

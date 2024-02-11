@@ -36,8 +36,8 @@ public:
 							CUICellItem				();
 	virtual					~CUICellItem			();
 
-	virtual		bool		OnKeyboard				(int dik, EUIMessages keyboard_action);
-	virtual		bool		OnMouse					(float x, float y, EUIMessages mouse_action);
+	virtual		bool		OnKeyboardAction		(int dik, EUIMessages keyboard_action);
+	virtual		bool		OnMouseAction			(float x, float y, EUIMessages mouse_action);
 	virtual		void		Draw					();
 	virtual		void		Update					();
 	virtual		void		SetOriginalRect			(const Frect& r);
@@ -78,7 +78,6 @@ public:
 
 class CUIDragItem: public CUIWindow, public pureRender, public pureFrame
 {
-private:
 	typedef		CUIWindow	inherited;
 	CUIStatic				m_static;
 	CUICellItem*			m_pParent;
@@ -89,10 +88,11 @@ public:
 	virtual		void		Init(const ui_shader& sh, const Frect& rect, const Frect& text_rect);
 	virtual					~CUIDragItem();
 			CUIStatic*		wnd						() {return &m_static;}
-	virtual		bool		OnMouse					(float x, float y, EUIMessages mouse_action);
+	virtual		bool		OnMouseAction			(float x, float y, EUIMessages mouse_action);
 	virtual		void		Draw					();
 	virtual		void		OnRender				();
 	virtual		void		OnFrame					();
+
 		CUICellItem*		ParentItem				()							{return m_pParent;}
 				void		SetBackList				(CUIDragDropListEx*l);
 	CUIDragDropListEx*		BackList				()							{return m_back_list;}

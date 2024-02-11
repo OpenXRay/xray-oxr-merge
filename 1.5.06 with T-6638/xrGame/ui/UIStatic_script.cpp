@@ -4,10 +4,19 @@
 using namespace luabind;
 
 #pragma optimize("s",on)
+
 void CUIStatic::script_register(lua_State *L)
 {
 	module(L)
 	[
+		class_<CUILines>("CUILines")
+		.def("SetFont",				&CUILines::SetFont)
+		.def("SetText",				&CUILines::SetText)
+		.def("SetTextST",			&CUILines::SetTextST)
+		.def("GetText",				&CUILines::GetText)
+		.def("SetElipsis",			&CUILines::SetEllipsis)
+		.def("SetTextColor",		&CUILines::SetTextColor),
+
 		class_<CUIStatic, CUIWindow>("CUIStatic")
 		.def(						constructor<>())
 
@@ -15,10 +24,10 @@ void CUIStatic::script_register(lua_State *L)
 		.def("SetTextST",			(void (CUIStatic::*)(LPCSTR)) (&CUIStatic::SetTextST) )
 		.def("GetText",				&CUIStatic::GetText)
 
-		.def("SetTextX",				&CUIStatic::SetTextX)
-		.def("SetTextY",				&CUIStatic::SetTextY)
-		.def("GetTextX",				&CUIStatic::GetTextX)
-		.def("GetTextY",				&CUIStatic::GetTextY)
+		.def("SetTextX",			&CUIStatic::SetTextX)
+		.def("SetTextY",			&CUIStatic::SetTextY)
+		.def("GetTextX",			&CUIStatic::GetTextX)
+		.def("GetTextY",			&CUIStatic::GetTextY)
 		
 		.def("SetColor",			&CUIStatic::SetColor)
 		.def("GetColor",			&CUIStatic::GetColor)

@@ -60,7 +60,6 @@ public:
 
 private:
 			void			update_round_states		( CActor* actor, ALife::EHitType hit_type, EStateType stt_type );
-
 };
 
 class ui_actor_state_item : public UIHintWindow

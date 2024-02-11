@@ -8,13 +8,12 @@ class CUIFrameLineWnd;
 class CUI3tButton;
 class CUITabControl;
 class CUIStatic;
-class CUITextWnd;
 class CUIXml;
 class CUIFrameWindow;
 class UIHint;
 
 class CUITaskWnd;
-//-class CUIFactionWarWnd;
+class CUIFactionWarWnd;
 class CUIRankingWnd;
 class CUILogsWnd;
 class CUIAnimatedStatic;
@@ -31,10 +30,10 @@ protected:
 	CUIStatic*				UIMainPdaFrame;
 	CUIStatic*				UINoice;
 	
-	CUITextWnd*				m_caption;
+	CUIStatic*				m_caption;
 	shared_str				m_caption_const;
 //	CUIAnimatedStatic*		m_anim_static;
-	CUITextWnd*				m_clock;
+	CUIStatic*				m_clock;
 
 	// Текущий активный диалог
 	CUIWindow*				m_pActiveDialog;
@@ -44,7 +43,7 @@ protected:
 
 public:
 	CUITaskWnd*				pUITaskWnd;
-//-	CUIFactionWarWnd*		pUIFactionWarWnd;
+	CUIFactionWarWnd*		pUIFactionWarWnd;
 	CUIRankingWnd*			pUIRankingWnd;
 	CUILogsWnd*				pUILogsWnd;
 
@@ -61,8 +60,8 @@ public:
 	virtual void 			Draw				();
 	virtual void 			Update				();
 	virtual void 			Show				(bool status);
-	virtual bool			OnMouseAction				(float x, float y, EUIMessages mouse_action) {CUIDialogWnd::OnMouseAction(x,y,mouse_action);return true;} //always true because StopAnyMove() == false
-	virtual bool			OnKeyboardAction			(int dik, EUIMessages keyboard_action);
+	virtual bool			OnMouseAction		(float x, float y, EUIMessages mouse_action) {CUIDialogWnd::OnMouseAction(x,y,mouse_action);return true;} //always true because StopAnyMove() == false
+	virtual bool			OnKeyboardAction	(int dik, EUIMessages keyboard_action);
 		
 			UIHint*			get_hint_wnd		() const { return m_hint_wnd; }
 			void			DrawHint			();

@@ -18,6 +18,7 @@ CUI3tButton::CUI3tButton()
 	m_background		= NULL;
 	m_back_frameline	= NULL;
 	m_frameline_mode	= false;
+	m_bCheckMode		= false;
 }
 
 
@@ -31,8 +32,28 @@ void CUI3tButton::OnClick()
     PlaySoundT			();
 }
 
+bool CUI3tButton::OnMouseAction(float x, float y, EUIMessages mouse_action)
+{
+	if (m_bCheckMode)
+		return CUIWindow::OnMouse(x,y,mouse_action);
+	else
+		return CUIButton::OnMouse(x,y,mouse_action);
+}
+
 bool CUI3tButton::OnMouseDown(int mouse_btn)
 {
+	if (m_bCheckMode)
+	{
+		if (mouse_btn==MOUSE_1)
+		{
+			if (m_eButtonState == BUTTON_NORMAL)
+				m_eButtonState = BUTTON_PUSHED;
+			else
+				m_eButtonState = BUTTON_NORMAL;
+		}
+		GetMessageTarget()->SendMessage(this, BUTTON_CLICKED, NULL);
+		return true;
+	}
 	return CUIButton::OnMouseDown(mouse_btn);
 }
 
@@ -221,18 +242,19 @@ void CUI3tButton::Update()
 	if (!m_bIsEnabled)
 	{
 		textColor = m_bUseTextColor[S_Disabled] ? m_dwTextColor[S_Disabled] : m_dwTextColor[S_Enabled];
-	}else 
-	if (CUIButton::BUTTON_PUSHED == GetButtonState())
+	}
+	else if (CUIButton::BUTTON_PUSHED == GetButtonState())
 	{
 		textColor = m_bUseTextColor[S_Touched] ? m_dwTextColor[S_Touched] : m_dwTextColor[S_Enabled];
-	}else 
-	if (m_bCursorOverWindow)
+	}
+	else if (m_bCursorOverWindow)
 	{
 		textColor = m_bUseTextColor[S_Highlighted] ? m_dwTextColor[S_Highlighted] : m_dwTextColor[S_Enabled];
-	}else
+	}
+	else
 	{
 		textColor = m_dwTextColor[S_Enabled];
 	}
 
-	TextItemControl()->SetTextColor		(textColor);
+	SetTextColor		(textColor);
 }

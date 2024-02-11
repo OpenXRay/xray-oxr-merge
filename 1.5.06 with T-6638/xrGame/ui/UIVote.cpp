@@ -24,9 +24,9 @@ CUIVote::CUIVote()
 		list[i]			= xr_new<CUIListBox>();		list[i]->SetAutoDelete(true);	AttachChild(list[i]);
 	}	
 
-	btn_yes		= xr_new<CUI3tButtonEx>();	btn_yes->SetAutoDelete(true);		AttachChild(btn_yes);
-	btn_no		= xr_new<CUI3tButtonEx>();	btn_no->SetAutoDelete(true);		AttachChild(btn_no);
-	btn_cancel	= xr_new<CUI3tButtonEx>();	btn_cancel->SetAutoDelete(true);	AttachChild(btn_cancel);
+	btn_yes		= xr_new<CUI3tButton>();	btn_yes->SetAutoDelete(true);		AttachChild(btn_yes);
+	btn_no		= xr_new<CUI3tButton>();	btn_no->SetAutoDelete(true);		AttachChild(btn_no);
+	btn_cancel	= xr_new<CUI3tButton>();	btn_cancel->SetAutoDelete(true);	AttachChild(btn_cancel);
 	
 	Init();
 }
@@ -44,17 +44,17 @@ void CUIVote::Init()
 
 	for (int i = 0; i<3; i++)
 	{
-		sprintf_s						(path, "vote:list_cap_%d", i+1);
+		xr_sprintf						(path, "vote:list_cap_%d", i+1);
 		CUIXmlInit::InitStatic		(xml_doc, path, 0, cap[i]);
-		sprintf_s						(path, "vote:list_back_%d", i+1);
+		xr_sprintf						(path, "vote:list_back_%d", i+1);
 		CUIXmlInit::InitFrameWindow	(xml_doc, path, 0, frame[i]);
-		sprintf_s						(path, "vote:list_%d", i+1);
+		xr_sprintf						(path, "vote:list_%d", i+1);
 		CUIXmlInit::InitListBox		(xml_doc, path, 0, list[i]);
 	}	
 
-	CUIXmlInit::Init3tButtonEx(xml_doc, "vote:btn_yes", 0, btn_yes);
-	CUIXmlInit::Init3tButtonEx(xml_doc, "vote:btn_no", 0, btn_no);
-	CUIXmlInit::Init3tButtonEx(xml_doc, "vote:btn_cancel", 0, btn_cancel);
+	CUIXmlInit::Init3tButton(xml_doc, "vote:btn_yes", 0, btn_yes);
+	CUIXmlInit::Init3tButton(xml_doc, "vote:btn_no", 0, btn_no);
+	CUIXmlInit::Init3tButton(xml_doc, "vote:btn_cancel", 0, btn_cancel);
 }
 
 void CUIVote::SetVoting(LPCSTR txt)
@@ -89,11 +89,11 @@ void CUIVote::Update()
 	for (u32 i = 0; i<items.size(); i++){
 		game_PlayerState* p					= items[i];
 		if (p->m_bCurrentVoteAgreed == 1)
-			list[0]->AddItem(p->name);
+			list[0]->AddTextItem(p->getName());
 		else if (p->m_bCurrentVoteAgreed == 0)
-			list[1]->AddItem(p->name);
+			list[1]->AddTextItem(p->getName());
 		else
-			list[2]->AddItem(p->name);
+			list[2]->AddTextItem(p->getName());
 	}
 }
 
@@ -113,19 +113,16 @@ void CUIVote::SendMessage(CUIWindow* pWnd, s16 msg, void* pData)
 void CUIVote::OnBtnYes()
 {
     Console->Execute("cl_voteyes");
-	game_cl_mp* game = smart_cast<game_cl_mp*>(&Game());
-	game->StartStopMenu(this, true);
+	HideDialog							();
 }
 
 void CUIVote::OnBtnNo()
 {
     Console->Execute("cl_voteno");
-	game_cl_mp* game = smart_cast<game_cl_mp*>(&Game());
-	game->StartStopMenu(this, true);
+	HideDialog							();
 }
 
 void CUIVote::OnBtnCancel()
 {
-	game_cl_mp* game = smart_cast<game_cl_mp*>(&Game());
-	game->StartStopMenu(this, true);
+	HideDialog							();
 }

@@ -112,8 +112,8 @@ void CUILogsWnd::Init()
 	m_center_caption	= UIHelper::CreateStatic( m_uiXml, "center_caption", this );
 
 	string256 buf;
-	strcpy_s( buf, sizeof(buf), m_center_caption->GetText() );
-	strcat_s( buf, sizeof(buf), CStringTable().translate("ui_logs_center_caption").c_str() );
+	xr_strcpy( buf, sizeof(buf), m_center_caption->GetText() );
+	xr_strcat( buf, sizeof(buf), CStringTable().translate("ui_logs_center_caption").c_str() );
 	m_center_caption->SetText( buf );
 
 	m_list = xr_new<CUIScrollView>();
@@ -134,18 +134,18 @@ void CUILogsWnd::Init()
 	m_period_caption = UIHelper::CreateStatic( m_uiXml, "period_caption", this );
 	m_period         = UIHelper::CreateStatic( m_uiXml, "period", this );
 
-	m_prev_period = UIHelper::Create3tButtonEx( m_uiXml, "btn_prev_period", this );
-	m_next_period = UIHelper::Create3tButtonEx( m_uiXml, "btn_next_period", this );
+	m_prev_period = UIHelper::Create3tButton( m_uiXml, "btn_prev_period", this );
+	m_next_period = UIHelper::Create3tButton( m_uiXml, "btn_next_period", this );
 
 	Register( m_filter_news );
 	Register( m_filter_talk );
 	Register( m_prev_period );
 	Register( m_next_period );
 
-	AddCallback( m_filter_news->WindowName(), BUTTON_CLICKED, CUIWndCallback::void_function( this, &CUILogsWnd::UpdateChecks ) );
-	AddCallback( m_filter_talk->WindowName(), BUTTON_CLICKED, CUIWndCallback::void_function( this, &CUILogsWnd::UpdateChecks ) );
-	AddCallback( m_prev_period->WindowName(), BUTTON_CLICKED, CUIWndCallback::void_function( this, &CUILogsWnd::PrevPeriod ) );
-	AddCallback( m_next_period->WindowName(), BUTTON_CLICKED, CUIWndCallback::void_function( this, &CUILogsWnd::NextPeriod ) );
+	AddCallback( m_filter_news, BUTTON_CLICKED, CUIWndCallback::void_function( this, &CUILogsWnd::UpdateChecks ) );
+	AddCallback( m_filter_talk, BUTTON_CLICKED, CUIWndCallback::void_function( this, &CUILogsWnd::UpdateChecks ) );
+	AddCallback( m_prev_period, BUTTON_CLICKED, CUIWndCallback::void_function( this, &CUILogsWnd::PrevPeriod ) );
+	AddCallback( m_next_period, BUTTON_CLICKED, CUIWndCallback::void_function( this, &CUILogsWnd::NextPeriod ) );
 
 	m_start_game_time = Level().GetStartGameTime();
 	m_start_game_time = GetShiftPeriod( m_start_game_time, 0 );

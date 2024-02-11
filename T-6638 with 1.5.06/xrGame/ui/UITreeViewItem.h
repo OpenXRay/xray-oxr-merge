@@ -15,7 +15,7 @@
 #include "UIListBoxItem.h"
 #include "UIStatic.h"
 
-class CUITreeViewItem: public CUIListBox
+class CUITreeViewItem : public CUIListBox
 {
 	typedef CUIListBox inherited;
 	// явл€емс€ ли мы началом подыерархии

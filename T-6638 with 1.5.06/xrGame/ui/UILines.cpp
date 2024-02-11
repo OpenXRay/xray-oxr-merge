@@ -83,6 +83,7 @@ void CUILines::SetText(const char* text){
 		Reset();
 	}
 }
+
 void CUILines::SetTextST(LPCSTR str_id)
 {
 	SetText	(*CStringTable().translate(str_id));
@@ -157,7 +158,8 @@ void CUILines::ParseText(bool force)
 			line->Clear();
 			xr_free( line );
 			line=ptmp_line;
-		} else
+		}
+		else
 		{
 			line->ProcessNewLines();
 		}
@@ -348,7 +350,7 @@ void CUILines::Draw(float x, float y)
 
 	static string256 passText;
 
-	if (m_text.size()==0)
+	if (m_text.empty())
 		return;
 
 	R_ASSERT(m_pFont);
@@ -360,10 +362,8 @@ void CUILines::Draw(float x, float y)
 		text_pos.set(0,0);
 
 		text_pos.x = x + GetIndentByAlign();
-//		text_pos.y = y + GetVIndentByAlign();
-		text_pos.y = y;
+		text_pos.y = y + GetVIndentByAlign();
 		UI().ClientToScreenScaled(text_pos);
-		text_pos.y	+= GetVIndentByAlign();
 
 		if (uFlags.test(flPasswordMode))
 		{

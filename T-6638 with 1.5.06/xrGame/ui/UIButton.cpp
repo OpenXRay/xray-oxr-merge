@@ -21,9 +21,9 @@ CUIButton:: CUIButton()
 	m_uAccelerator[2]			= -1;
 	m_uAccelerator[3]			= -1;
 
-	TextItemControl()->SetTextComplexMode			(false);
-	TextItemControl()->SetTextAlignment			(CGameFont::alCenter); // this will create class instance for m_pLines
-	TextItemControl()->SetVTextAlignment			(valCenter);
+	SetTextComplexMode			(false);
+	SetTextAlignment			(CGameFont::alCenter); // this will create class instance for m_pLines
+	SetVTextAlignment			(valCenter);
 }
 
 void CUIButton::Reset()
@@ -65,8 +65,8 @@ bool  CUIButton::OnMouseAction(float x, float y, EUIMessages mouse_action)
 			
 				if (!m_bIsSwitch)
 					SetButtonState(BUTTON_NORMAL);
-			}else 
-			if(mouse_action == WINDOW_MOUSE_MOVE)
+			}
+			else  if (mouse_action == WINDOW_MOUSE_MOVE)
 			{
 				if(!m_bCursorOverWindow && !m_bIsSwitch)
 					SetButtonState(BUTTON_UP);
@@ -78,8 +78,8 @@ bool  CUIButton::OnMouseAction(float x, float y, EUIMessages mouse_action)
 			{
 				if(m_bCursorOverWindow)
 					SetButtonState(BUTTON_PUSHED);
-			}else 
-			if(mouse_action == WINDOW_LBUTTON_UP)
+			}
+			else  if(mouse_action == WINDOW_LBUTTON_UP)
 			{
 				SetButtonState(BUTTON_NORMAL);
 			}
@@ -122,7 +122,7 @@ void CUIButton::DrawText()
 	float right_offset;
 	float down_offset;
 
-	if(GetButtonState() == BUTTON_UP || GetButtonState() == BUTTON_NORMAL)
+	if (GetButtonState() == BUTTON_UP || GetButtonState() == BUTTON_NORMAL)
 	{
 		right_offset	= 0;
 		down_offset		= 0;

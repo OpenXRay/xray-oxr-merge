@@ -16,7 +16,6 @@
 #include "xrUIXmlParser.h"
 
 class CUIStatic;
-class CUITextWnd;
 class CUIXml;
 class CUIProgressBar;
 class CUIFrameLineWnd;
@@ -36,17 +35,17 @@ private:
 	CUIFrameWindow*		m_background;
 	CUIFrameWindow*		m_center_background;
 
-	CUITextWnd*			m_center_caption;
+	CUIStatic*			m_center_caption;
 //	CUICharacterInfo*	m_actor_ch_info;
 
 	CUICheckButton*		m_filter_news;
 	CUICheckButton*		m_filter_talk;
 	
-//	CUITextWnd*			m_date_caption;
-//	CUITextWnd*			m_date;
+//	CUIStatic*			m_date_caption;
+//	CUIStatic*			m_date;
 
-	CUITextWnd*			m_period_caption;
-	CUITextWnd*			m_period;
+	CUIStatic*			m_period_caption;
+	CUIStatic*			m_period;
 
 	ALife::_TIME_ID		m_start_game_time;
 	ALife::_TIME_ID		m_selected_period;
@@ -77,7 +76,7 @@ public:
 	virtual void		Update				();
 	virtual void		SendMessage			( CUIWindow* pWnd, s16 msg, void* pData );
 
-	virtual bool		OnKeyboardAction			(int dik, EUIMessages keyboard_action);
+	virtual bool		OnKeyboardAction	(int dik, EUIMessages keyboard_action);
 	virtual bool		OnKeyboardHold		(int dik);
 
 	IC		void		UpdateNews			()	{ m_need_reload = true; }

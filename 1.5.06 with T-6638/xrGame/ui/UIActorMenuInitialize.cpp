@@ -70,16 +70,16 @@ void CUIActorMenu::Construct()
 	m_PartnerCharacterInfo->InitCharacterInfo( &uiXml, "partner_ch_info" );
 	
 	m_RightDelimiter		= UIHelper::CreateStatic(uiXml, "right_delimiter", this);
-	m_ActorTradeCaption		= UIHelper::CreateStatic(uiXml, "right_delimiter:trade_caption", m_RightDelimiter);
+//	m_ActorTradeCaption			= UIHelper::CreateStatic(uiXml, "right_delimiter:trade_caption", m_RightDelimiter);
 	m_ActorTradePrice		= UIHelper::CreateStatic(uiXml, "right_delimiter:trade_price", m_RightDelimiter);
 	m_ActorTradeWeightMax	= UIHelper::CreateStatic(uiXml, "right_delimiter:trade_weight_max", m_RightDelimiter);
-	m_ActorTradeCaption->AdjustWidthToText();
+//	m_ActorTradeCaption->AdjustWidthToText();
 	
 	m_LeftDelimiter			= UIHelper::CreateStatic(uiXml, "left_delimiter", this);
-	m_PartnerTradeCaption	= UIHelper::CreateStatic(uiXml, "left_delimiter:trade_caption", m_LeftDelimiter);
+//	m_PartnerTradeCaption		= UIHelper::CreateStatic(uiXml, "left_delimiter:trade_caption", m_LeftDelimiter);
 	m_PartnerTradePrice		= UIHelper::CreateStatic(uiXml, "left_delimiter:trade_price", m_LeftDelimiter);
 	m_PartnerTradeWeightMax	= UIHelper::CreateStatic(uiXml, "left_delimiter:trade_weight_max", m_LeftDelimiter);
-	m_PartnerTradeCaption->AdjustWidthToText();
+//	m_PartnerTradeCaption->AdjustWidthToText();
 
 	m_ActorBottomInfo	= UIHelper::CreateStatic(uiXml, "actor_weight_caption", this);
 	m_ActorWeight		= UIHelper::CreateStatic(uiXml, "actor_weight", this);
@@ -94,6 +94,7 @@ void CUIActorMenu::Construct()
 	m_pInventoryBagList			= UIHelper::CreateDragDropListEx(uiXml, "dragdrop_bag", this);
 	m_pInventoryBeltList		= UIHelper::CreateDragDropListEx(uiXml, "dragdrop_belt", this);
 	m_pInventoryOutfitList		= UIHelper::CreateDragDropListEx(uiXml, "dragdrop_outfit", this);
+	m_pInventoryHelmetList		= UIHelper::CreateDragDropListEx(uiXml, "dragdrop_helmet", this);
 	m_pInventoryDetectorList	= UIHelper::CreateDragDropListEx(uiXml, "dragdrop_detector", this);
 	m_pInventoryPistolList		= UIHelper::CreateDragDropListEx(uiXml, "dragdrop_pistol", this);
 	m_pInventoryAutomaticList	= UIHelper::CreateDragDropListEx(uiXml, "dragdrop_automatic", this);
@@ -182,6 +183,7 @@ void CUIActorMenu::Construct()
 	BindDragDropListEvents				(m_pInventoryPistolList);		
 	BindDragDropListEvents				(m_pInventoryAutomaticList);	
 	BindDragDropListEvents				(m_pInventoryOutfitList);	
+	BindDragDropListEvents				(m_pInventoryHelmetList);	
 	BindDragDropListEvents				(m_pInventoryDetectorList);	
 	BindDragDropListEvents				(m_pInventoryBagList);
 	BindDragDropListEvents				(m_pTradeActorBagList);
@@ -189,8 +191,15 @@ void CUIActorMenu::Construct()
 	BindDragDropListEvents				(m_pTradePartnerBagList);
 	BindDragDropListEvents				(m_pTradePartnerList);
 	BindDragDropListEvents				(m_pDeadBodyBagList);
+	BindDragDropListEvents				(m_pQuickSlot);
+
+	m_allowed_drops[iTrashSlot].push_back(iActorBag);
+	m_allowed_drops[iTrashSlot].push_back(iActorSlot);
+	m_allowed_drops[iTrashSlot].push_back(iActorBelt);
+	m_allowed_drops[iTrashSlot].push_back(iQuickSlot);
 
 	m_allowed_drops[iActorSlot].push_back(iActorBag);
+	m_allowed_drops[iActorSlot].push_back(iActorSlot);
 	m_allowed_drops[iActorSlot].push_back(iActorTrade);
 	m_allowed_drops[iActorSlot].push_back(iDeadBodyBag);
 
@@ -199,6 +208,7 @@ void CUIActorMenu::Construct()
 	m_allowed_drops[iActorBag].push_back(iActorTrade);
 	m_allowed_drops[iActorBag].push_back(iDeadBodyBag);
 	m_allowed_drops[iActorBag].push_back(iActorBag);
+	m_allowed_drops[iActorBag].push_back(iQuickSlot);
 	
 	m_allowed_drops[iActorBelt].push_back(iActorBag);
 	m_allowed_drops[iActorBelt].push_back(iActorTrade);
@@ -209,6 +219,7 @@ void CUIActorMenu::Construct()
 	m_allowed_drops[iActorTrade].push_back(iActorBag);
 	m_allowed_drops[iActorTrade].push_back(iActorBelt);
 	m_allowed_drops[iActorTrade].push_back(iActorTrade);
+	m_allowed_drops[iActorTrade].push_back(iQuickSlot);
 
 	m_allowed_drops[iPartnerTradeBag].push_back(iPartnerTrade);
 	m_allowed_drops[iPartnerTradeBag].push_back(iPartnerTradeBag);
@@ -219,6 +230,9 @@ void CUIActorMenu::Construct()
 	m_allowed_drops[iDeadBodyBag].push_back(iActorBag);
 	m_allowed_drops[iDeadBodyBag].push_back(iActorBelt);
 	m_allowed_drops[iDeadBodyBag].push_back(iDeadBodyBag);
+
+	m_allowed_drops[iQuickSlot].push_back(iActorBag);
+	m_allowed_drops[iQuickSlot].push_back(iActorTrade);
 
 	m_upgrade_selected					= NULL;
 	SetCurrentItem						(NULL);
@@ -238,14 +252,14 @@ void CUIActorMenu::Construct()
 
 void CUIActorMenu::BindDragDropListEvents(CUIDragDropListEx* lst)
 {
-	lst->m_f_item_drop				= CUIDragDropListEx::DRAG_DROP_EVENT(this,&CUIActorMenu::OnItemDrop);
-	lst->m_f_item_start_drag		= CUIDragDropListEx::DRAG_DROP_EVENT(this,&CUIActorMenu::OnItemStartDrag);
-	lst->m_f_item_db_click			= CUIDragDropListEx::DRAG_DROP_EVENT(this,&CUIActorMenu::OnItemDbClick);
-	lst->m_f_item_selected			= CUIDragDropListEx::DRAG_DROP_EVENT(this,&CUIActorMenu::OnItemSelected);
-	lst->m_f_item_rbutton_click		= CUIDragDropListEx::DRAG_DROP_EVENT(this,&CUIActorMenu::OnItemRButtonClick);
-	lst->m_f_item_focus_received	= CUIDragDropListEx::DRAG_DROP_EVENT(this,&CUIActorMenu::OnItemFocusReceive);
-	lst->m_f_item_focus_lost		= CUIDragDropListEx::DRAG_DROP_EVENT(this,&CUIActorMenu::OnItemFocusLost);
-	lst->m_f_item_focused_update	= CUIDragDropListEx::DRAG_DROP_EVENT(this,&CUIActorMenu::OnItemFocusedUpdate);
+	lst->m_f_item_drop				= CUIDragDropListEx::DRAG_CELL_EVENT(this,&CUIActorMenu::OnItemDrop);
+	lst->m_f_item_start_drag		= CUIDragDropListEx::DRAG_CELL_EVENT(this,&CUIActorMenu::OnItemStartDrag);
+	lst->m_f_item_db_click			= CUIDragDropListEx::DRAG_CELL_EVENT(this,&CUIActorMenu::OnItemDbClick);
+	lst->m_f_item_selected			= CUIDragDropListEx::DRAG_CELL_EVENT(this,&CUIActorMenu::OnItemSelected);
+	lst->m_f_item_rbutton_click		= CUIDragDropListEx::DRAG_CELL_EVENT(this,&CUIActorMenu::OnItemRButtonClick);
+	lst->m_f_item_focus_received	= CUIDragDropListEx::DRAG_CELL_EVENT(this,&CUIActorMenu::OnItemFocusReceive);
+	lst->m_f_item_focus_lost		= CUIDragDropListEx::DRAG_CELL_EVENT(this,&CUIActorMenu::OnItemFocusLost);
+	lst->m_f_item_focused_update	= CUIDragDropListEx::DRAG_CELL_EVENT(this,&CUIActorMenu::OnItemFocusedUpdate);
 }
 
 void CUIActorMenu::InitCallbacks()

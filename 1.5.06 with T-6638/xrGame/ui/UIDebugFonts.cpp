@@ -9,7 +9,6 @@
 #include "StdAfx.h"
 #include "UIDebugFonts.h"
 #include "dinput.h"
-#include "../hudmanager.h"
 
 
 CUIDebugFonts::CUIDebugFonts()
@@ -32,9 +31,9 @@ void CUIDebugFonts::InitDebugFonts(Frect r)
 	m_background.InitTexture	("ui\\ui_debug_font");
 }
 
-bool CUIDebugFonts::OnKeyboard(int dik, EUIMessages keyboard_action){
+bool CUIDebugFonts::OnKeyboardAction(int dik, EUIMessages keyboard_action){
 	if (DIK_ESCAPE == dik)
-		this->GetHolder()->StartStopMenu(this, true);
+		HideDialog();
 
 	if (DIK_F12 == dik)
 		return false;
@@ -44,7 +43,7 @@ bool CUIDebugFonts::OnKeyboard(int dik, EUIMessages keyboard_action){
 #include "../string_table.h"
 
 void CUIDebugFonts::FillUpList(){
-	CFontManager::FONTS_VEC& v = UI()->Font()->m_all_fonts;
+	CFontManager::FONTS_VEC& v = UI().Font().m_all_fonts;
 	CFontManager::FONTS_VEC_IT it	= v.begin();
 	CFontManager::FONTS_VEC_IT it_e = v.end();
 	Fvector2 pos, sz;
@@ -56,7 +55,7 @@ void CUIDebugFonts::FillUpList(){
 		CUIStatic* pItem		= xr_new<CUIStatic>();
 		pItem->SetWndPos		(pos);
 		pItem->SetWndSize		(sz);
-		sprintf_s					(str, "%s:%s", *F->m_font_name, *CStringTable().translate("Test_Font_String"));
+		xr_sprintf						(str, "%s:%s", F->m_font_name.c_str(), CStringTable().translate("Test_Font_String").c_str());
 		pItem->SetFont			(F);
 		pItem->SetText			(str);
 		pItem->SetTextComplexMode(false);

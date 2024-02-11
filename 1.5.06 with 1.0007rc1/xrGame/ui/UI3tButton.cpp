@@ -72,13 +72,6 @@ bool CUI3tButton::OnMouseDown(int mouse_btn)
 void CUI3tButton::OnFocusLost()
 {
 	CUIButton::OnFocusLost();
-/*	if ( m_eButtonState == BUTTON_PUSHED )
-	{
-		m_eButtonState = BUTTON_NORMAL;
-	}
-*/
-//.	if(BUTTON_PUSHED == m_eButtonState)
-//.		m_eButtonState = BUTTON_NORMAL;
 }
 
 void CUI3tButton::OnFocusReceive()
@@ -159,19 +152,19 @@ void CUI3tButton::InitTexture(LPCSTR tex_name)
 	string_path 		tex_highlighted;
 
 	// enabled state texture
-	strcpy_s				(tex_enabled,    tex_name);
+	strcpy_s			(tex_enabled,    tex_name);
 	strcat				(tex_enabled,   "_e");
 
 	// pressed state texture
-	strcpy_s				(tex_disabled,   tex_name);
+	strcpy_s			(tex_disabled,   tex_name);
 	strcat				(tex_disabled,   "_d");
 
 	// touched state texture
-	strcpy_s				(tex_touched, tex_name);
+	strcpy_s			(tex_touched, tex_name);
 	strcat				(tex_touched, "_t");
 
 	// touched state texture
-	strcpy_s				(tex_highlighted, tex_name);
+	strcpy_s			(tex_highlighted, tex_name);
 	strcat				(tex_highlighted, "_h");
 
 	this->InitTexture	(tex_enabled, tex_disabled, tex_touched, tex_highlighted);		

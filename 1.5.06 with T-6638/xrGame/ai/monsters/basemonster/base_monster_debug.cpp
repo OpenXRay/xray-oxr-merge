@@ -463,22 +463,26 @@ void   add_debug_info (debug::text_tree& root_s, CScriptEntityAction* p_action)
 	TextTree& movement_action_s = root_s.add_line("Movement_Completed", 
 	                                           	  p_action->CheckIfMovementCompleted());
 
-	CScriptMovementAction* p_move_action = const_cast<CScriptMovementAction*>(&p_action->move());
-	if ( p_move_action )
+	CScriptMovementAction&	move_action		=	const_cast<CScriptMovementAction&>(p_action->move());
+	CScriptActionCondition const&	action_condition	=	p_action->cond();
+
+	if ( action_condition.m_dwFlags & CScriptActionCondition::MOVEMENT_FLAG	)
 	{
-		movement_action_s.add_line("Path_Name", *p_move_action->m_path_name);
-		movement_action_s.add_line("Move_Action", (int)p_move_action->m_tMoveAction);
-		movement_action_s.add_line("Dist_To_End", p_move_action->m_fDistToEnd);
-		movement_action_s.add_line("Speed_Param", (int)p_move_action->m_tSpeedParam);
-		movement_action_s.add_line("Prev_Patrol_Point", p_move_action->m_previous_patrol_point);
-		movement_action_s.add_line("Speed", p_move_action->m_fSpeed);
-		movement_action_s.add_line("Goal_Type", p_move_action->m_tGoalType);
-		movement_action_s.add_line("Node_ID", p_move_action->m_tNodeID);
-		movement_action_s.add_line("Patrol_Path_Start", (int)p_move_action->m_tPatrolPathStart);
-		movement_action_s.add_line("Patrol_Path_Stop", (int)p_move_action->m_tPatrolPathStop);
-		movement_action_s.add_line("Path_Type", (int)p_move_action->m_tPathType);
-		movement_action_s.add_line("Body_State", (int)p_move_action->m_tBodyState);
-		movement_action_s.add_line("Movement_Type", (int)p_move_action->m_tMovementType);			
+		pcstr const path_name				=	 move_action.m_path_name.c_str();
+
+		movement_action_s.add_line("Path_Name", path_name ? path_name : "-");
+		movement_action_s.add_line("Move_Action", (int)move_action.m_tMoveAction);
+		movement_action_s.add_line("Dist_To_End", move_action.m_fDistToEnd);
+		movement_action_s.add_line("Speed_Param", (int)move_action.m_tSpeedParam);
+		movement_action_s.add_line("Prev_Patrol_Point", move_action.m_previous_patrol_point);
+		movement_action_s.add_line("Speed", move_action.m_fSpeed);
+		movement_action_s.add_line("Goal_Type", move_action.m_tGoalType);
+		movement_action_s.add_line("Node_ID", move_action.m_tNodeID);
+		movement_action_s.add_line("Patrol_Path_Start", (int)move_action.m_tPatrolPathStart);
+		movement_action_s.add_line("Patrol_Path_Stop", (int)move_action.m_tPatrolPathStop);
+		movement_action_s.add_line("Path_Type", (int)move_action.m_tPathType);
+		movement_action_s.add_line("Body_State", (int)move_action.m_tBodyState);
+		movement_action_s.add_line("Movement_Type", (int)move_action.m_tMovementType);			
 	}
 }
 

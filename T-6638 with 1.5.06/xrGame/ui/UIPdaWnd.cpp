@@ -24,6 +24,7 @@
 #include "UIHint.h"
 #include "UIBtnHint.h"
 #include "UITaskWnd.h"
+#include "UIFactionWarWnd.h"
 #include "UIRankingWnd.h"
 #include "UILogsWnd.h"
 
@@ -36,7 +37,7 @@ void RearrangeTabButtons(CUITabControl* pTab);
 CUIPdaWnd::CUIPdaWnd()
 {
 	pUITaskWnd       = NULL;
-//-	pUIFactionWarWnd = NULL;
+	pUIFactionWarWnd = NULL;
 	pUIRankingWnd    = NULL;
 	pUILogsWnd       = NULL;
 	m_hint_wnd       = NULL;
@@ -46,7 +47,7 @@ CUIPdaWnd::CUIPdaWnd()
 CUIPdaWnd::~CUIPdaWnd()
 {
 	delete_data( pUITaskWnd );
-//-	delete_data( pUIFactionWarWnd );
+	delete_data( pUIFactionWarWnd );
 	delete_data( pUIRankingWnd );
 	delete_data( pUILogsWnd );
 	delete_data( m_hint_wnd );
@@ -64,7 +65,7 @@ void CUIPdaWnd::Init()
 	CUIXmlInit::InitWindow	(uiXml, "main", 0, this);
 
 	UIMainPdaFrame			= UIHelper::CreateStatic	( uiXml, "background_static", this );
-	m_caption				= UIHelper::CreateTextWnd	( uiXml, "caption_static", this );
+	m_caption				= UIHelper::CreateStatic( uiXml, "caption_static", this );
 	m_caption_const			= ( m_caption->GetText() );
 	m_clock					= UIHelper::CreateTextWnd	( uiXml, "clock_wnd", this );
 /*
@@ -83,9 +84,9 @@ void CUIPdaWnd::Init()
 		pUITaskWnd->hint_wnd		= m_hint_wnd;
 		pUITaskWnd->Init			();
 
-//-		pUIFactionWarWnd				= xr_new<CUIFactionWarWnd>();
-//-		pUIFactionWarWnd->hint_wnd		= m_hint_wnd;
-//-		pUIFactionWarWnd->Init			();
+		pUIFactionWarWnd				= xr_new<CUIFactionWarWnd>();
+		pUIFactionWarWnd->hint_wnd		= m_hint_wnd;
+		pUIFactionWarWnd->Init			();
 
 		pUIRankingWnd					= xr_new<CUIRankingWnd>();
 		pUIRankingWnd->Init				();
@@ -181,10 +182,10 @@ void CUIPdaWnd::SetActiveSubdialog(const shared_str& section)
 	{
 		m_pActiveDialog = pUITaskWnd;
 	}
-//-	else if ( section == "eptFractionWar" )
-//-	{
-//-		m_pActiveDialog = pUIFactionWarWnd;
-//-	}
+	else if ( section == "eptFractionWar" )
+	{
+		m_pActiveDialog = pUIFactionWarWnd;
+	}
 	else if ( section == "eptRanking" )
 	{
 		m_pActiveDialog = pUIRankingWnd;
@@ -215,7 +216,7 @@ void CUIPdaWnd::SetActiveCaption()
 	{
 		if ( (*it_b)->m_btn_id == m_sActiveSection )
 		{
-			LPCSTR cur = (*it_b)->TextItemControl()->GetText();
+			LPCSTR cur = (*it_b)->GetText();
 			string256 buf;
 			strconcat( sizeof(buf), buf, m_caption_const.c_str(), cur );
 			SetCaption( buf );
@@ -256,10 +257,10 @@ void CUIPdaWnd::DrawHint()
 	{
 		pUITaskWnd->DrawHint();
 	}
-//-	else if ( m_pActiveDialog == pUIFactionWarWnd )
-//-	{
+	else if ( m_pActiveDialog == pUIFactionWarWnd )
+	{
 //		m_hint_wnd->Draw();
-//-	}
+	}
 	else if ( m_pActiveDialog == pUIRankingWnd )
 	{
 		pUIRankingWnd->DrawHint();
@@ -291,7 +292,7 @@ void CUIPdaWnd::Reset()
 	inherited::ResetAll		();
 
 	if ( pUITaskWnd )		pUITaskWnd->ResetAll();
-//-	if ( pUIFactionWarWnd )	pUITaskWnd->ResetAll();
+	if ( pUIFactionWarWnd )	pUIFactionWarWnd->ResetAll();
 	if ( pUIRankingWnd )	pUIRankingWnd->ResetAll();
 	if ( pUILogsWnd )		pUILogsWnd->ResetAll();
 }

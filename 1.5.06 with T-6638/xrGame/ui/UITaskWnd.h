@@ -9,7 +9,7 @@ class CUIStatic;
 class CGameTask;
 class CUIXml;
 class CUITaskItem;
-class CUI3tButtonEx;
+class CUI3tButton;
 class CUIFrameLineWnd;
 class UISecondTaskWnd;
 class UIMapLegend;
@@ -30,12 +30,12 @@ private:
 	CUITaskItem*			m_pStoryLineTaskItem;
 	CUITaskItem*			m_pSecondaryTaskItem;
 
-	CUI3tButtonEx*			m_BtnSecondaryTaskWnd;
+	CUI3tButton*			m_BtnSecondaryTaskWnd;
 	CUIStatic*				m_second_task_index;
 	u32						m_actual_frame;
 
-	CUI3tButtonEx*			m_btn_focus;
-	CUI3tButtonEx*			m_btn_focus2;
+	CUI3tButton*			m_btn_focus;
+	CUI3tButton*			m_btn_focus2;
 
 	UISecondTaskWnd*		m_second_task_wnd;
 	bool					m_second_task_wnd_show;
@@ -89,7 +89,7 @@ public:
 	virtual void	 			OnFocusLost				();
 	virtual void				Update					();
 	virtual void				OnMouseScroll			(float iDirection);
-	virtual bool				OnMouse					(float x, float y, EUIMessages mouse_action);
+	virtual bool				OnMouseAction					(float x, float y, EUIMessages mouse_action);
 	virtual void				SendMessage				(CUIWindow* pWnd, s16 msg, void* pData);
 
 	void						Init					(CUIXml& uiXml, LPCSTR path);

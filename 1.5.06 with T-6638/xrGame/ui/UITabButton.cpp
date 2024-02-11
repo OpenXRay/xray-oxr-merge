@@ -1,6 +1,5 @@
 #include "StdAfx.h"
 #include "UITabButton.h"
-#include "../HUDManager.h"
 
 CUITabButton::CUITabButton()
 {}
@@ -8,9 +7,9 @@ CUITabButton::CUITabButton()
 CUITabButton::~CUITabButton()
 {}
 
-bool CUITabButton::OnMouse(float x, float y, EUIMessages mouse_action)
+bool CUITabButton::OnMouseAction(float x, float y, EUIMessages mouse_action)
 {
-	return CUIWindow::OnMouse(x, y, mouse_action);
+	return CUIWindow::OnMouseAction(x, y, mouse_action);
 }
 
 bool CUITabButton::OnMouseDown(int mouse_btn)
@@ -33,12 +32,12 @@ void CUITabButton::SendMessage(CUIWindow* pWnd, s16 msg, void* pData)
 	case TAB_CHANGED:
 		if (this == pWnd)
 		{
-            m_eButtonState	= BUTTON_PUSHED;			
+            SetButtonState	(BUTTON_PUSHED);
 			OnClick			();
 		}
 		else		
 		{
-			m_eButtonState = BUTTON_NORMAL;
+			SetButtonState	(BUTTON_NORMAL);
 		}
 		break;
 	default:

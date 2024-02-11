@@ -13,6 +13,7 @@ class CUIEditKeyBind : public CUIStatic, public CUIOptionsItem
 	_action*		m_action;
 	_keyboard*		m_keyboard;
 	_keyboard*		m_opt_backup_value;
+
 public:
 					CUIEditKeyBind			(bool bPrim);
 	virtual			~CUIEditKeyBind			();
@@ -33,7 +34,7 @@ public:
 	virtual void	Update					();
 	virtual bool	OnMouseDown				(int mouse_btn);
 	virtual void	OnFocusLost				();
-	virtual bool	OnKeyboardAction				(int dik, EUIMessages keyboard_action);
+	virtual bool	OnKeyboardAction		(int dik, EUIMessages keyboard_action);
 
 	virtual void	SetText					(LPCSTR text);
 			void	SetEditMode				(bool b);
@@ -41,7 +42,4 @@ protected:
 	void			BindAction2Key			();
 
 	bool			m_bIsEditMode;
-	
-
-//.	CUIColorAnimatorWrapper*				m_pAnimation;
 };

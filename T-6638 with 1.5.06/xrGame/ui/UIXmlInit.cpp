@@ -130,14 +130,11 @@ bool CUIXmlInit::InitOptionsItem(CUIXml& xml_doc, LPCSTR path, int index, CUIOpt
 
 			if(0==stricmp(depends,"vid"))
 				d = CUIOptionsItem::sdVidRestart;
-			else
-			if(0==stricmp(depends,"snd"))
+			else if(0==stricmp(depends,"snd"))
 				d = CUIOptionsItem::sdSndRestart;
-			else
-			if(0==stricmp(depends,"restart"))
+			else if(0==stricmp(depends,"restart"))
 				d = CUIOptionsItem::sdSystemRestart;
-			else
-			if(0==stricmp(depends,"runtime"))
+			else if(0==stricmp(depends,"runtime"))
 				d = CUIOptionsItem::sdApplyOnChange;
 			else
 				Msg("! unknown param [%s] in optionsItem [%s]", depends, entry.c_str());
@@ -195,40 +192,10 @@ bool CUIXmlInit::InitStatic(CUIXml& xml_doc, LPCSTR path,
 
 	bool bComplexMode = xml_doc.ReadAttribInt(path, index, "complex_mode",0)?true:false;
 	if(bComplexMode)
-		pWnd->TextItemControl()->SetTextComplexMode(bComplexMode);
+		pWnd->SetTextComplexMode(bComplexMode);
 
 	pWnd->m_stat_hint_text = xml_doc.ReadAttrib(path, index, "hint", "");
 	
-	return true;
-}
-
-bool CUIXmlInit::InitTextWnd(CUIXml& xml_doc, LPCSTR path, int index, CUITextWnd* pWnd)
-{
-	R_ASSERT4(xml_doc.NavigateToNode(path,index), "XML node not found", path, xml_doc.m_xml_file_name);
-
-	InitWindow			(xml_doc, path, index, pWnd);
-
-	string256			buf;
-	InitText			(xml_doc, strconcat(sizeof(buf),buf,path,":text"), index, &pWnd->TextItemControl());
-
-	LPCSTR str_flag			= xml_doc.ReadAttrib(path, index, "light_anim",		"");
-	int flag_cyclic			= xml_doc.ReadAttribInt(path, index, "la_cyclic",	1);
-	int flag_alpha			= xml_doc.ReadAttribInt(path, index, "la_alpha",	0);
-	
-	u8 flags				= LA_TEXTCOLOR ;
-	if(flag_cyclic)			flags |= LA_CYCLIC;
-	if(flag_alpha)			flags |= LA_ONLYALPHA;
-	pWnd->SetColorAnimation	(str_flag, flags);	
-
-
-	bool bComplexMode = xml_doc.ReadAttribInt(path, index, "complex_mode",0)?true:false;
-	if(bComplexMode)
-		pWnd->SetTextComplexMode(bComplexMode);
-
-	strconcat(sizeof(buf),buf,path,":texture");
-	R_ASSERT3( NULL==xml_doc.NavigateToNode(buf,index), xml_doc.m_xml_file_name, buf );
-
-	R_ASSERT(pWnd->GetChildWndList().size()==0);
 	return true;
 }
 
@@ -389,7 +356,6 @@ bool CUIXmlInit::Init3tButton(CUIXml& xml_doc, LPCSTR path, int index, CUI3tButt
 		pWnd->SetStateTextColor(color,S_Highlighted);
 	}
 
-
 	InitMultiTexture	(xml_doc, path, index, pWnd);
 	InitTextureOffset	(xml_doc, path, index, pWnd);
 	InitSound			(xml_doc, path, index, pWnd);
@@ -516,7 +482,6 @@ bool CUIXmlInit::InitDragDropListEx(CUIXml& xml_doc, LPCSTR path, int index, CUI
 		xr_string vc_horiz_align = xml_doc.ReadAttrib(path, index, "vc_horiz_align", "");
 		pWnd->SetCellsHorizAlignment(vc_horiz_align);
 	}
-
 
 	pWnd->back_color		= GetColor( xml_doc, path, index, 0xFFFFFFFF );
 
@@ -701,6 +666,7 @@ void CUIXmlInit::InitAutoFrameLineGroup(CUIXml& xml_doc, LPCSTR path, int index,
 	{
 		return;
 	}
+
 	XML_NODE* _stored_root				= xml_doc.GetLocalRoot();
 	xml_doc.SetLocalRoot				(xml_doc.NavigateToNode(path,index));
 
@@ -725,11 +691,13 @@ bool CUIXmlInit::InitFont(CUIXml &xml_doc, LPCSTR path, int index, u32 &color, C
 	color = GetColor	(xml_doc, path, index, 0xff);
 
 	LPCSTR font_name = xml_doc.ReadAttrib(path, index, "font", NULL);
+
 	if(!font_name)
 	{
 		pFnt = NULL;
 		return false;
-	}else
+	}
+	else
 	{
 		if(!xr_strcmp(font_name, GRAFFITI19_FONT_NAME))
 		{
@@ -774,9 +742,10 @@ bool CUIXmlInit::InitFont(CUIXml &xml_doc, LPCSTR path, int index, u32 &color, C
 		else if(!xr_strcmp(font_name, DI_FONT_NAME))
 		{
 			pFnt = UI().Font().pFontDI;
-		}else
+		}
+		else
 		{
-			R_ASSERT3(0,"unknown font",font_name);
+			R_ASSERT3(0,"unknown font", font_name);
 			pFnt	= NULL;
 		}
 	}
@@ -858,7 +827,7 @@ bool CUIXmlInit::InitCustomEdit(CUIXml& xml_doc, LPCSTR path, int index, CUICust
 	strconcat				(sizeof(foo),foo,path,":text_color:e");
 	if (xml_doc.NavigateToNode(foo,index)){
 		color				= GetColor	(xml_doc, foo, index, 0x00);
-		pWnd->TextItemControl()->SetTextColor	(color);	
+		pWnd->SetTextColor	(color);	
 	}
 
 	int max_count		= xml_doc.ReadAttribInt(path, index, "max_symb_count", 0);
@@ -921,20 +890,12 @@ bool CUIXmlInit::InitAnimatedStatic(CUIXml &xml_doc, const char *path, int index
 	return true;
 }
 
-bool CUIXmlInit::InitSleepStatic(CUIXml &xml_doc, const char *path, int index, CUISleepStatic *pWnd)
-{
-	R_ASSERT4(xml_doc.NavigateToNode(path,index), "XML node not found", path, xml_doc.m_xml_file_name);
-
-	InitStatic(xml_doc, path, index, pWnd);
-    
-	return true;
-}
-
 bool CUIXmlInit::InitTexture(CUIXml& xml_doc, LPCSTR path, int index, ITextureOwner* pWnd)
 {
 	string256 buf;
 	LPCSTR texture	= NULL;
 	LPCSTR shader	= NULL;
+
 	strconcat	(sizeof(buf),buf, path, ":texture");
 	if (xml_doc.NavigateToNode(buf))
 	{
@@ -948,7 +909,7 @@ bool CUIXmlInit::InitTexture(CUIXml& xml_doc, LPCSTR path, int index, ITextureOw
 		else
 	       pWnd->InitTexture(texture);
 	}
-//--------------------
+
 	Frect			rect;
 	rect.x1			= xml_doc.ReadAttribFlt(buf, index, "x", 0);
 	rect.y1			= xml_doc.ReadAttribFlt(buf, index, "y", 0);
@@ -1064,7 +1025,6 @@ bool CUIXmlInit::InitMultiTexture(CUIXml &xml_doc, LPCSTR path, int index, CUI3t
 
 	return success;
 }
-
 
 float CUIXmlInit::ApplyAlignX(float coord, u32 align)
 {
@@ -1190,7 +1150,7 @@ bool CUIXmlInit::InitScrollView	(CUIXml& xml_doc, LPCSTR path, int index, CUIScr
 
 	for (int i = 0; i < tabsCount; ++i)
 	{
-		CUITextWnd* newText				= xr_new<CUITextWnd>();
+		CUIStatic* newText				= xr_new<CUIStatic>();
 		InitText						(xml_doc, "text", i, &newText->TextItemControl());
 		newText->SetTextComplexMode		(true);
 		newText->SetWidth				(pWnd->GetDesiredChildWidth());

@@ -106,7 +106,7 @@ void CUILogsWnd::Init()
 	//m_actor_ch_info->InitCharacterInfo( &m_uiXml, "actor_ch_info" );
 
 //	m_center_background	= UIHelper::CreateStatic( m_uiXml, "center_background", this );
-	m_center_caption	= UIHelper::CreateTextWnd( m_uiXml, "center_caption", this );
+	m_center_caption	= UIHelper::CreateStatic( m_uiXml, "center_caption", this );
 
 	string256 buf;
 	xr_strcpy( buf, sizeof(buf), m_center_caption->GetText() );
@@ -126,11 +126,11 @@ void CUILogsWnd::Init()
 	m_filter_news->SetCheck( true );
 	m_filter_talk->SetCheck( true );
 
-//	m_date_caption = UIHelper::CreateTextWnd( m_uiXml, "date_caption", this );
-//	m_date         = UIHelper::CreateTextWnd( m_uiXml, "date", this );
+//	m_date_caption = UIHelper::CreateStatic( m_uiXml, "date_caption", this );
+//	m_date         = UIHelper::CreateStatic( m_uiXml, "date", this );
 
-	m_period_caption = UIHelper::CreateTextWnd( m_uiXml, "period_caption", this );
-	m_period         = UIHelper::CreateTextWnd( m_uiXml, "period", this );
+	m_period_caption = UIHelper::CreateStatic( m_uiXml, "period_caption", this );
+	m_period         = UIHelper::CreateStatic( m_uiXml, "period", this );
 
 	m_prev_period = UIHelper::Create3tButton( m_uiXml, "btn_prev_period", this );
 	m_next_period = UIHelper::Create3tButton( m_uiXml, "btn_next_period", this );

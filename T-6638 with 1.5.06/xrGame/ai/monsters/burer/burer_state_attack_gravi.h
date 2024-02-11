@@ -30,7 +30,6 @@ private:
 		ACTION_GRAVI_FIRE,
 		ACTION_WAIT_ANIM_END,
 		ACTION_COMPLETED,
-
 	}						m_action;
 
 	u32						m_time_gravi_started;

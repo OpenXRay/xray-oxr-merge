@@ -15,11 +15,13 @@ CUITabControl::~CUITabControl()
 	RemoveAll();
 }
 
-void CUITabControl::SetCurrentValue()
+void CUITabControl::SetCurrentOptValue()
 {
+	CUIOptionsItem::SetCurrentOptValue();
 	shared_str v			= GetOptStringValue();
 	CUITabButton* b			= GetButtonById(v);
-	if(NULL==b){
+	if(NULL==b)
+	{
 #ifndef MASTER_GOLD
 		Msg("! tab named [%s] doesnt exist", v.c_str());
 #endif // #ifndef MASTER_GOLD
@@ -28,17 +30,27 @@ void CUITabControl::SetCurrentValue()
 	SetActiveTab			(v);
 }
 
-void CUITabControl::SaveValue()
+void CUITabControl::SaveOptValue()
 {
-	CUIOptionsItem::SaveValue	();
+	CUIOptionsItem::SaveOptValue();
 	SaveOptStringValue			(GetActiveId().c_str());
 }
 
-bool CUITabControl::IsChanged()
+void CUITabControl::UndoOptValue()
 {
-	shared_str v = GetOptStringValue ();
+	SetActiveTab		(m_opt_backup_value);
+	CUIOptionsItem::UndoOptValue();
+}
 
-	return GetActiveId() != v;
+void CUITabControl::SaveBackUpOptValue()
+{
+	CUIOptionsItem::SaveBackUpOptValue();
+	m_opt_backup_value	= GetActiveId();
+}
+
+bool CUITabControl::IsChangedOptValue() const
+{
+	return GetActiveId() != m_opt_backup_value;
 }
 
 // добавление кнопки-закладки в список закладок контрола
@@ -50,7 +62,7 @@ bool CUITabControl::AddItem(LPCSTR pItemName, LPCSTR pTexName, Fvector2 pos, Fve
 	pNewButton->InitTexture		(pTexName);
 	pNewButton->SetText			(pItemName);
 	pNewButton->SetTextColor	(m_cGlobalTextColor);
-	pNewButton->GetUIStaticItem	().SetColor(m_cGlobalButtonColor);
+	pNewButton->SetTextureColor	(m_cGlobalButtonColor);
 
 	return AddItem				(pNewButton);
 }
@@ -150,7 +162,7 @@ void CUITabControl::SetActiveTab(const shared_str& sNewTab)
 	m_sPrevPushedId		= m_sPushedId;
 }
 
-bool CUITabControl::OnKeyboard(int dik, EUIMessages keyboard_action)
+bool CUITabControl::OnKeyboardAction(int dik, EUIMessages keyboard_action)
 {
 
 	if (GetAcceleratorsMode() && WINDOW_KEY_PRESSED == keyboard_action)
@@ -202,7 +214,7 @@ void CUITabControl::ResetTab()
 {
 	for (u32 i = 0; i < m_TabsArr.size(); ++i)
 	{
-		m_TabsArr[i]->SetButtonMode	(CUIButton::BUTTON_NORMAL);
+		m_TabsArr[i]->SetButtonState(CUIButton::BUTTON_NORMAL);
 	}
 	m_sPushedId		= "";
 	m_sPrevPushedId	= "";
@@ -212,4 +224,12 @@ LPCSTR CUITabControl::GetActiveId_script()
 { 
 	LPCSTR res = GetActiveId().c_str();
 	return res;
+}
+
+void CUITabControl::Enable(bool status)
+{
+	for(u32 i=0; i<m_TabsArr.size(); ++i)
+		m_TabsArr[i]->Enable(status);
+
+	inherited::Enable(status);
 }

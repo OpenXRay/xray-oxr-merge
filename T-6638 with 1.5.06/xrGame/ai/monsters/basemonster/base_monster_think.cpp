@@ -69,7 +69,8 @@ void CBaseMonster::post_fsm_update()
 	Fvector direction;
 	if ( is_state(state, eStateAttack) && 
 		 control().path_builder().is_moving_on_path() &&
-		 control().path_builder().detail().try_get_direction(direction) ) {
+		 control().path_builder().detail().try_get_direction(direction) )
+	{
 
 		Fvector const self_to_enemy	=	Fvector().sub(EnemyMan.get_enemy()->Position(), Position());
 		if ( magnitude(self_to_enemy) > 3.f ) {

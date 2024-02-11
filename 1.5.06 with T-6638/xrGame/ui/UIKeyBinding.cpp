@@ -39,7 +39,7 @@ void CUIKeyBinding::FillUpList(CUIXml& xml_doc_ui, LPCSTR path_ui)
 
 	int groupsCount = xml_doc.GetNodesNum	("",0,"group");
 
-	for (int i = 0; i<groupsCount; i++)
+	for (int i = 0; i<groupsCount; ++i)
 	{
 		// add group
 		shared_str grp_name					= xml_doc.ReadAttrib("group",i,"name");
@@ -55,7 +55,7 @@ void CUIKeyBinding::FillUpList(CUIXml& xml_doc_ui, LPCSTR path_ui)
 		XML_NODE* tab_node					= xml_doc.NavigateToNode("group",i);
 		xml_doc.SetLocalRoot				(tab_node);
 
-		for (int j = 0; j<commandsCount; j++)
+		for (int j = 0; j<commandsCount; ++j)
 		{
 			// first field of list item
 			shared_str command_id			= xml_doc.ReadAttrib("command",j,"id");
@@ -117,10 +117,9 @@ void CUIKeyBinding::CheckStructure(CUIXml& xml_doc)
 					pItem->SetWndPos		(Fvector2().set(0,0));
 					pItem->SetWndSize		(Fvector2().set(m_scroll_wnd->GetWndSize().x,20.0f));
 					pItem->SetText			("NEXT ITEMS NOT DESCRIBED IN COMMAND DESC LIST");
-					pItem->SetAutoDelete	(true);
-					m_scroll_wnd->AttachChild(pItem);
-
 					first					= false;
+					pItem->SetAutoDelete	(true);
+					m_scroll_wnd->AddWindow	(pItem, true);
 				}
 
 				pItem						= xr_new<CUIStatic>();
@@ -128,7 +127,7 @@ void CUIKeyBinding::CheckStructure(CUIXml& xml_doc)
 				pItem->SetWndSize			(Fvector2().set(m_scroll_wnd->GetWndSize().x,20.0f));
 				pItem->SetText				(action_name);
 				pItem->SetAutoDelete		(true);
-				m_scroll_wnd->AttachChild	(pItem);
+				m_scroll_wnd->AddWindow		(pItem, true);
 			}
 		}
 		else
@@ -141,13 +140,15 @@ bool CUIKeyBinding::IsActionExist(LPCSTR action, CUIXml& xml_doc)
 	bool ret = false;
 	int groupsCount = xml_doc.GetNodesNum("",0,"group");
 
-	for (int i = 0; i<groupsCount; i++){
+	for(int i = 0; i<groupsCount; i++)
+	{
 		// add group items
 		int commandsCount = xml_doc.GetNodesNum("group",i,"command");
 		XML_NODE* tab_node = xml_doc.NavigateToNode("group",i);
 		xml_doc.SetLocalRoot(tab_node);
 
-		for (int j = 0; j<commandsCount; j++){
+		for(int j = 0; j<commandsCount; ++j)
+		{
 			// first field of list item
 			shared_str command_id = xml_doc.ReadAttrib("command",j,"exe");
 			if (0 == xr_strcmp(action, *command_id))

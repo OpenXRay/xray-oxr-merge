@@ -1,6 +1,4 @@
 #pragma once
-
-#pragma once
 #include "UITabButton.h"
 
 class CUIRadioButton : public CUITabButton

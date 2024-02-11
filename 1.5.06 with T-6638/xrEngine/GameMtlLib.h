@@ -48,11 +48,13 @@
 #define GM_NON_GAME
 #endif
 
+#ifndef	MTL_EXPORT_API
 #ifdef _EDITOR
 	#include "ElTree.hpp"
 	#define MTL_EXPORT_API ECORE_API
 #else
 	#define MTL_EXPORT_API ENGINE_API
+#endif
 #endif
 
 #ifdef GM_NON_GAME
@@ -357,4 +359,3 @@ public:
 
 extern MTL_EXPORT_API CGameMtlLibrary GMLib;
 #endif
-

@@ -368,14 +368,14 @@ void CUIActorMenu::UpdatePrices()
 	Fvector2 pos = m_ActorTradePrice->GetWndPos();
 	pos.x = m_ActorTradeWeightMax->GetWndPos().x - m_ActorTradePrice->GetWndSize().x - 5.0f;
 	m_ActorTradePrice->SetWndPos( pos );
-	pos.x = pos.x - m_ActorTradeCaption->GetWndSize().x - 5.0f;
-	m_ActorTradeCaption->SetWndPos( pos );
+//	pos.x = pos.x - m_ActorTradeCaption->GetWndSize().x - 5.0f;
+//	m_ActorTradeCaption->SetWndPos( pos );
 
 	pos = m_PartnerTradePrice->GetWndPos();
 	pos.x = m_PartnerTradeWeightMax->GetWndPos().x - m_PartnerTradePrice->GetWndSize().x - 5.0f;
 	m_PartnerTradePrice->SetWndPos( pos );
-	pos.x = pos.x - m_PartnerTradeCaption->GetWndSize().x - 5.0f;
-	m_PartnerTradeCaption->SetWndPos( pos );
+//	pos.x = pos.x - m_PartnerTradeCaption->GetWndSize().x - 5.0f;
+//	m_PartnerTradeCaption->SetWndPos( pos );
 }
 
 void CUIActorMenu::OnBtnPerformTrade(CUIWindow* w, void* d)

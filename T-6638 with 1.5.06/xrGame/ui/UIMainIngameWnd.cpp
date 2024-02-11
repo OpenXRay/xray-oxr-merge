@@ -133,7 +133,7 @@ void CUIMainIngameWnd::Init()
 	UIZoneMap->Init				();
 
 	// Подсказки, которые возникают при наведении прицела на объект
-	UIStaticQuickHelp			= UIHelper::CreateTextWnd(uiXml, "quick_info", this);
+	UIStaticQuickHelp			= UIHelper::CreateStatic(uiXml, "quick_info", this);
 
 	uiXml.SetLocalRoot			(uiXml.GetRoot());
 
@@ -256,10 +256,10 @@ void CUIMainIngameWnd::Init()
 		xr_sprintf				(path, "%s:counter", path);
 		UIHelper::CreateStatic	(uiXml, path, m_quick_slots_icons.back());
 	}
-	m_QuickSlotText1				= UIHelper::CreateTextWnd(uiXml, "quick_slot0_text", this);
-	m_QuickSlotText2				= UIHelper::CreateTextWnd(uiXml, "quick_slot1_text", this);
-	m_QuickSlotText3				= UIHelper::CreateTextWnd(uiXml, "quick_slot2_text", this);
-	m_QuickSlotText4				= UIHelper::CreateTextWnd(uiXml, "quick_slot3_text", this);
+	m_QuickSlotText1				= UIHelper::CreateStatic(uiXml, "quick_slot0_text", this);
+	m_QuickSlotText2				= UIHelper::CreateStatic(uiXml, "quick_slot1_text", this);
+	m_QuickSlotText3				= UIHelper::CreateStatic(uiXml, "quick_slot2_text", this);
+	m_QuickSlotText4				= UIHelper::CreateStatic(uiXml, "quick_slot3_text", this);
 
 	HUD_SOUND_ITEM::LoadSound				("maingame_ui", "snd_new_contact", m_contactSnd, SOUND_TYPE_IDLE);
 }

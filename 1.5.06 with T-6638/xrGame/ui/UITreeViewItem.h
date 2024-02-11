@@ -15,7 +15,7 @@
 
 class CUIListWnd;
 
-class CUITreeViewItem: public CUIListItem
+class CUITreeViewItem : public CUIListItem
 {
 	typedef CUIListItem inherited;
 	// явл€емс€ ли мы началом подыерархии

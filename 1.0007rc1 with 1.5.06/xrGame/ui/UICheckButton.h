@@ -3,10 +3,11 @@
 #include "ui3tbutton.h"
 #include "UIOptionsItem.h"
 
-class CUICheckButton : public CUI3tButton, public CUIOptionsItem {
+class CUICheckButton : public CUI3tButton, public CUIOptionsItem
+{
 public:
-	CUICheckButton(void);
-	virtual ~CUICheckButton(void);
+	CUICheckButton();
+	virtual ~CUICheckButton();
 
 	virtual void Update();
 

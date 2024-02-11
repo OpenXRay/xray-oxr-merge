@@ -43,7 +43,7 @@ public:
 	void		 SetTextEditURL		(LPCSTR text);
 	LPCSTR		 GetTextEditURL		();
 
-	virtual bool OnMouseAction			(float x, float y, EUIMessages mouse_action);
+	virtual bool OnMouseAction		(float x, float y, EUIMessages mouse_action);
 	virtual void SendMessage		(CUIWindow *pWnd, s16 msg, void *pData);
 
 	void		OnYesOk				();

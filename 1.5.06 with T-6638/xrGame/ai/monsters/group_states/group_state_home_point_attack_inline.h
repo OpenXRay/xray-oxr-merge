@@ -34,6 +34,9 @@ CStateGroupAttackMoveToHomePointAbstract::CStateGroupAttackMoveToHomePoint(_Obje
 {
 	add_state	(eStateAttack_HomePoint_Hide,			xr_new<CStateMonsterMoveToPointEx<_Object> >	(obj));
 	add_state	(eStateAttack_HomePoint_LookOpenPlace,	xr_new<CStateMonsterLookToPoint<_Object> >		(obj));
+
+	m_last_tick_enemy_inaccessible	=	0;
+	m_first_tick_enemy_inaccessible	=	0;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -45,6 +48,9 @@ void CStateGroupAttackMoveToHomePointAbstract::initialize()
 {
 	inherited::initialize	();
 	m_target_node = u32(-1);
+	m_last_tick_enemy_inaccessible	=	0;
+	m_first_tick_enemy_inaccessible	=	0;
+	m_state_started					=	time();
 }
 
 TEMPLATE_SPECIALIZATION
@@ -53,6 +59,8 @@ void CStateGroupAttackMoveToHomePointAbstract::finalize()
 	inherited::finalize();
 	CMonsterSquad* squad = monster_squad().get_squad(object);
 	squad->unlock_cover(m_target_node);
+	m_last_tick_enemy_inaccessible	=	0;
+	m_first_tick_enemy_inaccessible	=	0;
 }
 
 TEMPLATE_SPECIALIZATION

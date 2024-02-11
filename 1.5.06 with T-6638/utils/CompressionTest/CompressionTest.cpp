@@ -233,7 +233,6 @@ _ProcessFile_PPMd( const char* file_name )
         _PPM_TotalUncompressed  += src.tell();
         _PPM_TotalCompressed    += (dst.tell() < src.tell())  ? dst.tell()  : src.tell();
 
-
         // decompress it
 
         unsigned    uncomp_size = src_size * 4;

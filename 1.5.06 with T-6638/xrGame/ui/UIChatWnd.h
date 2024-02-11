@@ -12,38 +12,30 @@ class CUIChatWnd: public CUIDialogWnd
 
 public:
 						CUIChatWnd			(CUIGameLog *pList);
-	virtual				~CUIChatWnd			();
-	virtual void		Show				();
-	virtual void		Hide				();
+	virtual void		Show				(bool status);
 	virtual void		SetKeyboardCapture	(CUIWindow* pChildWindow, bool capture_status);
 	virtual bool		NeedCursor			() {return false;}
 	void				Init				(CUIXml& uiXml);
-	void				SetEditBoxPrefix	(const shared_str &prefix);
+	void				SetEditBoxPrefix	(LPCSTR prefix);
 	void				TeamChat			() { sendNextMessageToTeam = true; }
 	void				AllChat				() { sendNextMessageToTeam = false; }
 	void				PendingMode			(bool const is_pending_mode);
 	void				SetOwner			(game_cl_GameState *pO) { pOwner = pO; }
 	virtual bool		NeedCursor			()const {return false;}
 
-	CUIEditBox			UIEditBox;
 
 protected:
-	CUIGameLog			*pUILogList;
+	CUIEditBox			UIEditBox;
 	CUIStatic			UIPrefix;
+
 	bool				sendNextMessageToTeam;
 	bool				pendingGameMode;
 	
-	Fvector2			pending_prefix_pos;
-	Fvector2			pending_prefix_wnd_size;
-	Fvector2			pending_edit_pos;
-	Fvector2			pending_edit_wnd_size;
+	Frect				pending_prefix_rect;
+	Frect				pending_edit_rect;
 	
-	Fvector2			inprogress_prefix_pos;
-	Fvector2			inprogress_prefix_wnd_size;
-	Fvector2			inprogress_edit_pos;
-	Fvector2			inprogress_edit_wnd_size;
-
-
+	Frect				inprogress_prefix_rect;
+	Frect				inprogress_edit_rect;
 
 	game_cl_GameState	*pOwner;
 };

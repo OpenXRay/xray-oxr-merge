@@ -86,20 +86,20 @@ void CUIRankFaction::rating( u8 new_sn, bool force )
 {
 	if ( force || m_prev_sn == 0xff )
 	{
-		m_rating_up->SetColor( color_clear );
-		m_rating_down->SetColor( color_clear );
+		m_rating_up->SetTextureColor( color_clear );
+		m_rating_down->SetTextureColor( color_clear );
 	}
 
 	if ( m_prev_sn < new_sn )
 	{
-		m_rating_up->SetColor( color_clear );
-		m_rating_down->SetColor( color_red );
+		m_rating_up->SetTextureColor( color_clear );
+		m_rating_down->SetTextureColor( color_red );
 		m_prev_sn = new_sn;
 	}
 	else if ( m_prev_sn > new_sn )
 	{
-		m_rating_up->SetColor( color_green );
-		m_rating_down->SetColor( color_clear );
+		m_rating_up->SetTextureColor( color_green );
+		m_rating_down->SetTextureColor( color_clear );
 		m_prev_sn = new_sn;
 	}
 }

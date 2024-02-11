@@ -46,6 +46,13 @@ void destroy_lua_wpn_params()
 
 CUIWpnParams::CUIWpnParams()
 {
+	AttachChild(&m_Prop_line);
+
+	AttachChild(&m_icon_acc);
+	AttachChild(&m_icon_dam);
+	AttachChild(&m_icon_han);
+	AttachChild(&m_icon_rpm);
+
 	AttachChild(&m_textAccuracy);
 	AttachChild(&m_textDamage);
 	AttachChild(&m_textHandling);
@@ -55,6 +62,14 @@ CUIWpnParams::CUIWpnParams()
 	AttachChild(&m_progressDamage);
 	AttachChild(&m_progressHandling);
 	AttachChild(&m_progressRPM);
+
+	AttachChild(&m_stAmmo);
+	AttachChild(&m_textAmmoCount);
+	AttachChild(&m_textAmmoCount2);
+	AttachChild(&m_textAmmoTypes);
+	AttachChild(&m_textAmmoUsedType);
+	AttachChild(&m_stAmmoType1);
+	AttachChild(&m_stAmmoType2);
 }
 
 CUIWpnParams::~CUIWpnParams()
@@ -65,6 +80,12 @@ void CUIWpnParams::InitFromXml(CUIXml& xml_doc)
 {
 	if (!xml_doc.NavigateToNode("wpn_params", 0))	return;
 	CUIXmlInit::InitWindow			(xml_doc, "wpn_params", 0, this);
+	CUIXmlInit::InitStatic			(xml_doc, "wpn_params:prop_line",			0, &m_Prop_line);
+
+	CUIXmlInit::InitStatic			(xml_doc, "wpn_params:static_accuracy",		0, &m_icon_acc);
+	CUIXmlInit::InitStatic			(xml_doc, "wpn_params:static_damage",		0, &m_icon_dam);
+	CUIXmlInit::InitStatic			(xml_doc, "wpn_params:static_handling",		0, &m_icon_han);
+	CUIXmlInit::InitStatic			(xml_doc, "wpn_params:static_rpm",			0, &m_icon_rpm);
 
 	CUIXmlInit::InitStatic			(xml_doc, "wpn_params:cap_accuracy",		0, &m_textAccuracy);
 	CUIXmlInit::InitStatic			(xml_doc, "wpn_params:cap_damage",			0, &m_textDamage);
@@ -75,9 +96,20 @@ void CUIWpnParams::InitFromXml(CUIXml& xml_doc)
 	m_progressDamage.InitFromXml	( xml_doc, "wpn_params:progress_damage" );
 	m_progressHandling.InitFromXml	( xml_doc, "wpn_params:progress_handling" );
 	m_progressRPM.InitFromXml		( xml_doc, "wpn_params:progress_rpm" );
+
+	if(IsGameTypeSingle())
+	{
+		CUIXmlInit::InitStatic			(xml_doc, "wpn_params:static_ammo",			0, &m_stAmmo);
+		CUIXmlInit::InitStatic			(xml_doc, "wpn_params:cap_ammo_count",		0, &m_textAmmoCount);
+		CUIXmlInit::InitStatic			(xml_doc, "wpn_params:cap_ammo_count2",		0, &m_textAmmoCount2);
+		CUIXmlInit::InitStatic			(xml_doc, "wpn_params:cap_ammo_types",		0, &m_textAmmoTypes);
+		CUIXmlInit::InitStatic			(xml_doc, "wpn_params:cap_ammo_used_type",	0, &m_textAmmoUsedType);
+		CUIXmlInit::InitStatic			(xml_doc, "wpn_params:static_ammo_type1",	0, &m_stAmmoType1);
+		CUIXmlInit::InitStatic			(xml_doc, "wpn_params:static_ammo_type2",	0, &m_stAmmoType2);
+	}
 }
 
-void CUIWpnParams::SetInfo( CInventoryItem const* slot_wpn, CInventoryItem const& cur_wpn )
+void CUIWpnParams::SetInfo( CInventoryItem* slot_wpn, CInventoryItem& cur_wpn )
 {
 	if ( !g_lua_wpn_params )
 	{

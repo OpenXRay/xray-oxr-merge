@@ -16,7 +16,8 @@
 #include "UIFrameWindow.h"
 #include "UIFrameLineWnd.h"
 
-enum IBState{
+enum IBState
+{
 	S_Enabled		=0,
 	S_Disabled,
 	S_Highlighted,

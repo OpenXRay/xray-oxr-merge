@@ -100,8 +100,7 @@ void CUISequencer::Start(LPCSTR tutor_name)
 {
 	VERIFY						(m_sequencer_items.size()==0);
 	Device.seqFrame.Add			(this, REG_PRIORITY_LOW-10000);
-	
-	
+
 	m_UIWindow					= xr_new<CUIWindow>();
 
 	CUIXml uiXml;
@@ -164,7 +163,6 @@ void CUISequencer::Start(LPCSTR tutor_name)
 	pCurrItem->Start			();
 	m_pStoredInputReceiver		= pInput->CurrentIR();
 	IR_Capture					();
-
 
 	m_flags.set					(etsActive, TRUE);
 	m_flags.set					(etsStoredPauseState, Device.Paused());
@@ -255,7 +253,8 @@ void CUISequencer::Stop()
 		{
 			Next				();
 			return;
-		}else
+		}
+		else
 		{
 			CUISequenceItem* pCurrItem	= m_sequencer_items.front();
 			pCurrItem->Stop				(true);
@@ -273,14 +272,17 @@ void CUISequencer::Stop()
 
 void CUISequencer::OnFrame()
 {  
-	if(!Device.b_is_Active)		return;
-	if(!IsActive() )			return;
+	if(!Device.b_is_Active)
+		return;
+	if(!IsActive() )
+		return;
 
 	if(!m_sequencer_items.size())
 	{
 		Stop					();
 		return;
-	}else
+	}
+	else
 	{
 		CUISequenceItem* pCurrItem	= m_sequencer_items.front();
 		if(!pCurrItem->IsPlaying())	

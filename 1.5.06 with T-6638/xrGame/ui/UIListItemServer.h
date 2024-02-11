@@ -33,8 +33,8 @@ struct LIST_SRV_INFO{
 };
 
 struct LIST_SRV_ITEM {
-	u32				color;
-	CGameFont*		font;
+	u32				text_color;
+	CGameFont*		text_font;
 	LIST_SRV_SIZES	size;
 	LIST_SRV_INFO	info;
 };

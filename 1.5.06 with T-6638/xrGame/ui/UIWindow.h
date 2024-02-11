@@ -69,8 +69,6 @@ class	ui_list 		: public std::list<T,uialloc<T> >{ public: u32 size() const {ret
 class CUIWindow  : public CUISimpleWindow
 {
 public:
-//	using CUISimpleWindow::Init;
-
 				CUIWindow						();
 	virtual		~CUIWindow						();
 

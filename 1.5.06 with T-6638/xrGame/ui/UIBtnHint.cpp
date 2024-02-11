@@ -21,11 +21,10 @@ CUIButtonHint::CUIButtonHint	()
 	AttachChild					(m_border);
 	xml_init.InitFrameLine		(uiXml,"button_hint:frame_line",0,m_border);
 
-	m_text						= xr_new<CUIStatic>();m_text->SetAutoDelete(true);
+	m_text						= xr_new<CUIStatic>();
+	m_text->SetAutoDelete		(true);
 	AttachChild					(m_text);
 	xml_init.InitStatic			(uiXml,"button_hint:description",0,m_text);
-
-
 }
 
 CUIButtonHint::~CUIButtonHint	()
@@ -35,7 +34,8 @@ CUIButtonHint::~CUIButtonHint	()
 
 void CUIButtonHint::OnRender	()
 {
-	if(m_enabledOnFrame){
+	if(m_enabledOnFrame)
+	{
 		m_text->Update		();
 		m_border->Update	();
 		m_border->SetColor	(color_rgba(255,255,255,color_get_A(m_text->GetTextColor())));

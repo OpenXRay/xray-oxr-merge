@@ -25,16 +25,14 @@ public:
 	virtual void 	OnFocusReceive		();
 	virtual void	OnFocusLost			();
 	virtual void	Show				( bool status );
-	virtual bool 	OnMouseAction				( float x, float y, EUIMessages mouse_action );
-	virtual bool	OnMouseDown			( int mouse_btn );
 
 			void InitCheckButton		(Fvector2 pos, Fvector2 size, LPCSTR texture_name);
 
 	//состояние кнопки
-	IC	bool	GetCheck					() const {return GetButtonState() == BUTTON_PUSHED;}
+	IC	bool	GetCheck				() const {return GetButtonState() == BUTTON_PUSHED;}
 	IC	void	SetCheck(bool ch)
 	{
-		SetButtonState( ch ? BUTTON_PUSHED : BUTTON_NORMAL);
+		SetButtonState(ch ? BUTTON_PUSHED : BUTTON_NORMAL);
 	}
 
 	void SetDependControl(CUIWindow* pWnd);

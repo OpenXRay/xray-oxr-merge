@@ -25,7 +25,8 @@ typedef enum {
 	valBotton
 } EVTextAlignment;
 
-class IUITextControl : public IUIFontControl{
+class IUITextControl : public IUIFontControl
+{
 public:
 	virtual ~IUITextControl()											 {};
 	virtual void SetText(const char* text)								= 0;
@@ -34,7 +35,8 @@ public:
 
 
 // Texture controls
-class IUISimpleTextureControl{
+class IUISimpleTextureControl
+{
 public:
 	virtual ~IUISimpleTextureControl() {}
 	virtual void		CreateShader(const char* tex, const char* sh = "hud\\default")	= 0;
@@ -46,7 +48,8 @@ public:
 	virtual const Frect& GetOriginalRect()										const	= 0;
 };
 
-class IUIMultiTextureOwner{
+class IUIMultiTextureOwner
+{
 public:
 	virtual ~IUIMultiTextureOwner() {}	
 	virtual void		InitTexture(const char* texture)								= 0;
@@ -56,7 +59,8 @@ public:
 	virtual bool		GetTextureVisible()												= 0;
 };
 
-class CUIMultiTextureOwner : public IUIMultiTextureOwner{
+class CUIMultiTextureOwner : public IUIMultiTextureOwner
+{
 public:
 	CUIMultiTextureOwner(){m_bTextureAvailable = false; m_bTextureVisible = false;}
 	virtual bool		GetTextureAvailability()	{return m_bTextureAvailable;}
@@ -73,7 +77,8 @@ public:
 	virtual bool		GetStretchTexture()												= 0;	
 };
 
-class CUISingleTextureOwner : public IUISingleTextureOwner{
+class CUISingleTextureOwner : public IUISingleTextureOwner
+{
 public:
 	virtual void		SetStretchTexture(bool stretch)	{m_bStretchTexture = stretch;}
 	virtual bool		GetStretchTexture()				{return m_bStretchTexture;}
@@ -91,22 +96,8 @@ enum EWindowAlignment{
 	waCenter	=16
 };
 
-class IUISimpleWindow :public boost::noncopyable{
-public:
-						IUISimpleWindow						()			{};		
-	virtual				~IUISimpleWindow					()			{};
-    
-	virtual void		Draw()											= 0;
-	virtual void		Draw(float x, float y)							= 0;
-	virtual void		Update()										= 0;
-	virtual void		SetWndPos(const Fvector2& pos)					= 0;
-	virtual void		SetWndSize(const Fvector2& size)				= 0;
-	virtual void		SetWndRect(const Frect& rect)					= 0;
-	virtual void		SetHeight(float height)							= 0;
-	virtual void		SetWidth(float width)							= 0;
-};
-
-class CUISimpleWindow : public IUISimpleWindow {
+class CUISimpleWindow : public boost::noncopyable
+{
 public:
 							CUISimpleWindow()							{m_alignment=waNone; m_wndPos.set(0,0); m_wndSize.set(0,0);}
 	virtual void			SetWndPos(const Fvector2& pos)				{m_wndPos.set(pos.x,pos.y);}
@@ -151,7 +142,9 @@ protected:
 	Fvector2				m_wndSize;
 	EWindowAlignment		m_alignment;
 };
-class CUISelectable{
+
+class CUISelectable
+{
 protected:
 	bool m_bSelected;
 public:

@@ -190,7 +190,8 @@ void CUIStatic::DrawTexture()
 				}
 			}
 			m_UIStaticItem.SetRect(0, 0, rect.width(), rect.height());
-		}else
+		}
+		else
 		{
 			Frect r={0.0f,0.0f,
 				m_UIStaticItem.GetOriginalRect().width(),

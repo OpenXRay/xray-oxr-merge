@@ -33,11 +33,11 @@ CUISpeechMenu::~CUISpeechMenu()
 void CUISpeechMenu::InitList(LPCSTR section_name)
 {
 	R_ASSERT2(pSettings->section_exist(section_name), section_name);
-	CUITextWnd* pItem = NULL;
+	CUIStatic* pItem = NULL;
 
 	string64 phrase;
 	string256 str;
-	for (int i = 0; true; ++i)
+	for (int i = 0; true; i++)
 	{
 		xr_sprintf					(phrase,"phrase_%i",i);		
 		if (pSettings->line_exist(section_name, phrase))

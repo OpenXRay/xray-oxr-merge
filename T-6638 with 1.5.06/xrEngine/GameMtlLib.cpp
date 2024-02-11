@@ -3,10 +3,8 @@
 #pragma hdrstop
 
 #include "GameMtlLib.h"
-//#include "../include/xrapi/xrapi.h"
 
 CGameMtlLibrary GMLib;
-//CSound_manager_interface*	Sound = NULL;
 #ifdef	_EDITOR
 CGameMtlLibrary*			PGMLib = NULL;
 #endif

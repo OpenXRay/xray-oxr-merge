@@ -522,27 +522,27 @@ void CServerList::InitHeader()
 	pos.x					+= m_itemInfo.size.icon;
 	m_header[1].SetWidth	(m_itemInfo.size.server);
 	m_header[1].SetWndPos	(pos);
-	m_header[1].TextItemControl()->SetTextST	("server name");
+	m_header[1].SetTextST	("server name");
 	pos.x					+= m_itemInfo.size.server;
 	m_header[2].SetWidth	(m_itemInfo.size.map);
 	m_header[2].SetWndPos	(pos);
-	m_header[2].TextItemControl()->SetTextST		("map");
+	m_header[2].SetTextST		("map");
 	pos.x					+= m_itemInfo.size.map;
 	m_header[3].SetWidth	(m_itemInfo.size.game);
 	m_header[3].SetWndPos	(pos);
-	m_header[3].TextItemControl()->SetTextST	("game type");
+	m_header[3].SetTextST	("game type");
 	pos.x					+= m_itemInfo.size.game;
 	m_header[4].SetWidth	(m_itemInfo.size.players);
 	m_header[4].SetWndPos	(pos);
-	m_header[4].TextItemControl()->SetTextST	("players");
+	m_header[4].SetTextST	("players");
 	pos.x					+= m_itemInfo.size.players;
 	m_header[5].SetWidth	(m_itemInfo.size.ping);
 	m_header[5].SetWndPos	(pos);
-	m_header[5].TextItemControl()->SetTextST	("ping");
+	m_header[5].SetTextST	("ping");
 	pos.x					+= m_itemInfo.size.ping;
 	m_header[6].SetWidth	(m_itemInfo.size.version);
 	m_header[6].SetWndPos	(pos);
-	m_header[6].TextItemControl()->SetTextST	("version");
+	m_header[6].SetTextST	("version");
 
 	for(int i=0; i<LST_COLUMN_COUNT;++i)
 	{

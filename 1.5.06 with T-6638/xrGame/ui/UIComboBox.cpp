@@ -69,11 +69,6 @@ void CUIComboBox::InitComboBox(Fvector2 pos, float width)
 	m_list_frame.Show					(false);
 	m_list_box.SetMessageTarget			(this);
 }
-/*
-void CUIComboBox::Init(float x, float y, float width, float height)
-{
-	this->Init		(x, y, width);
-}*/
 
 #include "uilistboxitem.h"
 CUIListBoxItem* CUIComboBox::AddItem_(LPCSTR str, int _data)
@@ -116,9 +111,10 @@ void CUIComboBox::enable_id(int id)
 		m_disabled.erase(it);
 }
 
-#include "../string_table.h"
-void CUIComboBox::SetCurrentValue()
+void CUIComboBox::SetCurrentOptValue()
 {
+	CUIOptionsItem::SetCurrentOptValue();
+
 	m_list_box.Clear		();
 	xr_token* tok		= GetOptToken();
 

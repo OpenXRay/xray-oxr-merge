@@ -42,7 +42,8 @@ CUISubLine::CUISubLine(const CUISubLine& other){
 #endif
 }
 
-CUISubLine& CUISubLine::operator=(const CUISubLine& other){
+CUISubLine& CUISubLine::operator=(const CUISubLine& other)
+{
 	m_color = other.m_color;
 	m_text = other.m_text;
 	m_last_in_line = other.m_last_in_line;
@@ -50,10 +51,9 @@ CUISubLine& CUISubLine::operator=(const CUISubLine& other){
 	return (*this);
 }
 
-CUISubLine::CUISubLine(){
-	m_color = 0;
-	m_pTempLine = NULL;
-	m_last_in_line = false;
+CUISubLine::CUISubLine()
+:m_color(0),m_pTempLine(NULL),m_last_in_line(false)
+{
 #ifdef LOG_ALL_LINES
 	ListSubLinesCount++;
 	dbg_list_sublines.push_back(DBGList());
@@ -65,7 +65,6 @@ CUISubLine::CUISubLine(){
 
 CUISubLine::~CUISubLine(){
 	xr_delete(m_pTempLine);
-	m_pTempLine = NULL;
 #ifdef LOG_ALL_LINES
 	xr_vector<DBGList>::iterator _it = dbg_list_sublines.begin();
 	bool bOK = false;
@@ -82,10 +81,10 @@ CUISubLine::~CUISubLine(){
 
 }
 
-const CUISubLine* CUISubLine::Cut2Pos(int i){
+const CUISubLine* CUISubLine::Cut2Pos(int i)
+{
 	R_ASSERT2(i < (int)m_text.size(), make_string("CUISubLine::Cut2Pos - invalid parameter [%d][%d]",i,m_text.size()).c_str());
 
-//	xr_delete(m_pTempLine);
 	if (!m_pTempLine) m_pTempLine = xr_new<CUISubLine>();
 	m_pTempLine->m_color = m_color;
 	m_pTempLine->m_text.assign(m_text,0,i+1);	
@@ -94,12 +93,8 @@ const CUISubLine* CUISubLine::Cut2Pos(int i){
 	return m_pTempLine;
 }
 
-void CUISubLine::FreeBuffer()
+void CUISubLine::Draw(CGameFont* pFont, float x, float y) const
 {
-//	xr_delete(m_pTempLine);
-}
-
-void CUISubLine::Draw(CGameFont* pFont, float x, float y) const{
 	pFont->SetColor(m_color);
 	Fvector2			pos;
 	pos.set				(x, y);

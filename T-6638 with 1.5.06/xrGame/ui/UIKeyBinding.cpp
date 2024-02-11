@@ -47,7 +47,7 @@ void CUIKeyBinding::FillUpList(CUIXml& xml_doc_ui, LPCSTR path_ui)
 
 		CUIStatic* pItem					= xr_new<CUIStatic>();
 		CUIXmlInit::InitStatic				(xml_doc_ui, strconcat(sizeof(buf),buf,path_ui,":scroll_view:item_group"),	0, pItem);
-		pItem->TextItemControl()->SetTextST		(grp_name.c_str());
+		pItem->SetTextST					(grp_name.c_str());
 		m_scroll_wnd->AddWindow				(pItem, true);
 
 		// add group items
@@ -62,7 +62,7 @@ void CUIKeyBinding::FillUpList(CUIXml& xml_doc_ui, LPCSTR path_ui)
 
 			pItem							= xr_new<CUIStatic>();
 			CUIXmlInit::InitStatic			(xml_doc_ui, strconcat(sizeof(buf),buf,path_ui,":scroll_view:item_key"),	0, pItem);
-			pItem->TextItemControl()->SetTextST				(command_id.c_str());
+			pItem->SetTextST				(command_id.c_str());
 			m_scroll_wnd->AddWindow			(pItem, true);
 
 			shared_str exe					= xml_doc.ReadAttrib("command",j,"exe");
@@ -100,7 +100,7 @@ void CUIKeyBinding::FillUpList(CUIXml& xml_doc_ui, LPCSTR path_ui)
 void CUIKeyBinding::CheckStructure(CUIXml& xml_doc)
 {
 	bool first = true;
-	CUITextWnd*	pItem = false;
+	CUIStatic*	pItem = false;
 	
 	for (int i=0; true; i++)
 	{
@@ -111,10 +111,9 @@ void CUIKeyBinding::CheckStructure(CUIXml& xml_doc)
 				continue;
 			else
 			{
-
 				if (first)
 				{
-					pItem					= xr_new<CUITextWnd>();
+					pItem					= xr_new<CUIStatic>();
 					pItem->SetWndPos		(Fvector2().set(0,0));
 					pItem->SetWndSize		(Fvector2().set(m_scroll_wnd->GetWndSize().x,20.0f));
 					pItem->SetText			("NEXT ITEMS NOT DESCRIBED IN COMMAND DESC LIST");
@@ -123,7 +122,7 @@ void CUIKeyBinding::CheckStructure(CUIXml& xml_doc)
 					m_scroll_wnd->AddWindow	(pItem, true);
 				}
 				
-				pItem						= xr_new<CUITextWnd>();
+				pItem						= xr_new<CUIStatic>();
 				pItem->SetWndPos			(Fvector2().set(0,0));
 				pItem->SetWndSize			(Fvector2().set(m_scroll_wnd->GetWndSize().x,20.0f));
 				pItem->SetText				(action_name);

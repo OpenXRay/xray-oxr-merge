@@ -8,19 +8,10 @@
 #include "../Level.h"
 #include "../../xrEngine/xr_object.h"
 
-CUIChatWnd::CUIChatWnd(CUIGameLog *pList)
-	:	pUILogList				(pList),
-		sendNextMessageToTeam	(false),
+CUIChatWnd::CUIChatWnd()
+	:	sendNextMessageToTeam	(false),
 		pOwner					(NULL)
-{
-	R_ASSERT(pUILogList);
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-CUIChatWnd::~CUIChatWnd()
-{
-}
+{}
 
 void CUIChatWnd::PendingMode(bool const is_pending_mode)
 {
@@ -29,37 +20,32 @@ void CUIChatWnd::PendingMode(bool const is_pending_mode)
 		if (pendingGameMode)
 			return;
 
-		UIPrefix.SetWndPos	(pending_prefix_pos);
-		UIPrefix.SetWndSize	(pending_prefix_wnd_size);
-		UIEditBox.SetWndPos	(pending_edit_pos);
-		UIEditBox.SetWndSize(pending_edit_wnd_size);
+		UIPrefix.SetWndRect	(pending_prefix_rect);
+		UIEditBox.SetWndRect	(pending_edit_rect);
 		pendingGameMode		= true;
 		return;
 	}
 	if (!pendingGameMode)
 		return;
 
-	UIPrefix.SetWndPos	(inprogress_prefix_pos);
-	UIPrefix.SetWndSize	(inprogress_prefix_wnd_size);
-	UIEditBox.SetWndPos	(inprogress_edit_pos);
-	UIEditBox.SetWndSize(inprogress_edit_wnd_size);
+	UIPrefix.SetWndRect		(inprogress_prefix_rect);
+	UIEditBox.SetWndRect		(inprogress_edit_rect);
 	pendingGameMode		= false;
 }
 
-//////////////////////////////////////////////////////////////////////////
 #define CHAT_PREFIX_PENDING		"chat_prefix_pending"
 #define CHAT_EDITBOX_PENDING	"chat_editbox_pending"
+
 void CUIChatWnd::Init(CUIXml& uiXml)
 {
 	AttachChild(&UIPrefix);
 	CUIXmlInit::InitStatic(uiXml, "chat_prefix", 0, &UIPrefix);
-	inprogress_prefix_pos		=	UIPrefix.GetWndPos();
-	inprogress_prefix_wnd_size	=	UIPrefix.GetWndSize();
+	inprogress_prefix_rect		= UIPrefix.GetWndRect();
 
 	AttachChild(&UIEditBox);
 	CUIXmlInit::InitEditBox(uiXml, "chat_edit_box", 0, &UIEditBox);
-	inprogress_edit_pos			=	UIEditBox.GetWndPos();
-	inprogress_edit_wnd_size	=	UIEditBox.GetWndSize();
+	inprogress_edit_rect		= UIEditBox.GetWndRect();
+	UIEditBox.SetWindowName		("chat_edit_box");
 
 	pendingGameMode				= false;
 	
@@ -86,11 +72,9 @@ void CUIChatWnd::Init(CUIXml& uiXml)
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////
-
-void CUIChatWnd::SetEditBoxPrefix(const shared_str &prefix)
+void CUIChatWnd::SetEditBoxPrefix(LPCSTR prefix)
 {
-	UIPrefix.SetText			(*prefix);
+	UIPrefix.SetText			(prefix);
 	UIPrefix.AdjustWidthToText	();
 	Fvector2					_pos;
 	_pos.x						= UIPrefix.GetWndPos().x + UIPrefix.GetWidth() + 5.0f;
@@ -98,21 +82,11 @@ void CUIChatWnd::SetEditBoxPrefix(const shared_str &prefix)
 	UIEditBox.SetWndPos			(_pos);
 }
 
-void CUIChatWnd::Show()
+void CUIChatWnd::Show(bool status)
 {
-	UIEditBox.CaptureFocus(true);
-	inherited::Show();
+	UIEditBox.CaptureFocus(status);
+	inherited::Show(status);
 }
-
-//////////////////////////////////////////////////////////////////////////
-
-void CUIChatWnd::Hide()
-{
-	UIEditBox.CaptureFocus(false);
-	inherited::Hide();
-}
-
-//////////////////////////////////////////////////////////////////////////
 
 void CUIChatWnd::SetKeyboardCapture(CUIWindow* pChildWindow, bool capture_status)
 {

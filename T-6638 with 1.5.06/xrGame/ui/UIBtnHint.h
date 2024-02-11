@@ -1,13 +1,13 @@
 #pragma once
 #include "UIFrameWindow.h"
 
-class CUITextWnd;
+class CUIStatic;
 
 class CUIButtonHint :public CUIFrameWindow
 {
 	CUIWindow*			m_ownerWnd;
 
-	CUITextWnd*			m_text;
+	CUIStatic*			m_text;
 	bool				m_enabledOnFrame;
 public:
 					CUIButtonHint	();

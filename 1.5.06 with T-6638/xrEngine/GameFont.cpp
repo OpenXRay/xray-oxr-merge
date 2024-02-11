@@ -59,7 +59,7 @@ void CGameFont::Initialize		(LPCSTR cShader, LPCSTR cTextureName)
 	if(_lang && !is_di)
 		strconcat				(sizeof(cTexture),cTexture, cTextureName, _lang);
 	else
-		strcpy_s				(cTexture, sizeof(cTexture), cTextureName);
+		xr_strcpy				(cTexture, sizeof(cTexture), cTextureName);
 
 	uFlags						&=~fsValid;
 	vTS.set						(1.f,1.f); // обязательно !!!
@@ -71,7 +71,7 @@ void CGameFont::Initialize		(LPCSTR cShader, LPCSTR cTextureName)
 
 	// check ini exist
 	string_path fn,buf;
-	strcpy_s		(buf,cTexture); if (strext(buf)) *strext(buf)=0;
+	xr_strcpy		(buf,cTexture); if (strext(buf)) *strext(buf)=0;
 	R_ASSERT2	(FS.exist(fn,"$game_textures$",buf,".ini"),fn);
 	CInifile* ini				= CInifile::Create(fn);
 
@@ -95,7 +95,7 @@ void CGameFont::Initialize		(LPCSTR cShader, LPCSTR cTextureName)
 			vFirstValid.set( v.x , v.y , 1 + v[2] - v[0] );
 		} else 
 		for ( u32 i=0 ; i < nNumChars ; i++ ) {
-			sprintf_s( buf ,sizeof(buf), "%05d" , i );
+			xr_sprintf( buf ,sizeof(buf), "%05d" , i );
 			if ( ini->line_exist( "mb_symbol_coords" , buf ) ) {
 				Fvector v = ini->r_fvector3( "mb_symbol_coords" , buf );
 				vFirstValid.set( v.x , v.y , 1 + v[2] - v[0] );
@@ -106,7 +106,7 @@ void CGameFont::Initialize		(LPCSTR cShader, LPCSTR cTextureName)
 		// Filling entire character table
 
 		for ( u32 i=0 ; i < nNumChars ; i++ ) {
-			sprintf_s( buf ,sizeof(buf), "%05d" , i );
+			xr_sprintf( buf ,sizeof(buf), "%05d" , i );
 			if ( ini->line_exist( "mb_symbol_coords" , buf ) ) {
 				Fvector v = ini->r_fvector3( "mb_symbol_coords" , buf );
 				TCMap[i].set( v.x , v.y , 1 + v[2] - v[0] );
@@ -129,7 +129,7 @@ void CGameFont::Initialize		(LPCSTR cShader, LPCSTR cTextureName)
 
 		fHeight						= ini->r_float("symbol_coords","height");
 		for (u32 i=0; i<nNumChars; i++){
-			sprintf_s				(buf,sizeof(buf),"%03d",i);
+			xr_sprintf				(buf,sizeof(buf),"%03d",i);
 			Fvector v				= ini->r_fvector3("symbol_coords",buf);
 			TCMap[i].set			(v.x,v.y,v[2]-v[0]+d);
 		}
@@ -138,7 +138,7 @@ void CGameFont::Initialize		(LPCSTR cShader, LPCSTR cTextureName)
 		fHeight					= ini->r_float("char widths","height");
 		int cpl					= 16;
 		for (u32 i=0; i<nNumChars; i++){
-			sprintf_s			(buf,sizeof(buf),"%d",i);
+			xr_sprintf			(buf,sizeof(buf),"%d",i);
 			float w				= ini->r_float("char widths",buf);
 			TCMap[i].set		((i%cpl)*fHeight,(i/cpl)*fHeight,w);
 		}
@@ -257,7 +257,7 @@ void CGameFont::MasterOut(
 	BOOL bCheckDevice , BOOL bUseCoords , BOOL bScaleCoords , BOOL bUseSkip , 
 	float _x , float _y , float _skip , LPCSTR fmt , va_list p )
 {
-	if ( bCheckDevice && ( ! Device.b_is_Active ) )
+	if ( bCheckDevice && ( ! RDEVICE.b_is_Active ) )
 		return;
 
 	String rs;
@@ -267,9 +267,11 @@ void CGameFont::MasterOut(
 	rs.c = dwCurrentColor;
 	rs.height = fCurrentHeight;
 	rs.align = eCurrentAlignment;
-
+#ifndef	_EDITOR
 	int vs_sz = vsprintf_s( rs.string , fmt , p );
-
+#else
+	int vs_sz = vsprintf( rs.string , fmt , p );
+#endif
 	//VERIFY( ( vs_sz != -1 ) && ( rs.string[ vs_sz ] == '\0' ) );
 
 	rs.string[ sizeof(rs.string)-1 ] = 0;
@@ -303,11 +305,6 @@ void __cdecl CGameFont::Out( float _x , float _y , LPCSTR fmt , ... )
 void __cdecl CGameFont::OutNext( LPCSTR fmt , ... )
 {
 	MASTER_OUT( TRUE , FALSE , FALSE , TRUE , 0.0f , 0.0f , 1.0f , fmt );
-};
-
-void __cdecl CGameFont::OutPrev( LPCSTR fmt , ... )
-{
-	MASTER_OUT( TRUE , FALSE , FALSE , TRUE , 0.0f , 0.0f , -1.0f , fmt );
 };
 
 
@@ -370,7 +367,7 @@ float CGameFont::CurrentHeight_	()
 void CGameFont::SetHeightI(float S)
 {
 	VERIFY			( uFlags&fsDeviceIndependent );
-	fCurrentHeight	= S*Device.dwHeight;
+	fCurrentHeight	= S*RDEVICE.dwHeight;
 };
 
 void CGameFont::SetHeight(float S)

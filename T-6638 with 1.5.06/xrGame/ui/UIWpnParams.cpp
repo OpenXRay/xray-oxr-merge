@@ -88,10 +88,10 @@ void CUIWpnParams::InitFromXml(CUIXml& xml_doc)
 	CUIXmlInit::InitStatic			(xml_doc, "wpn_params:static_handling",		0, &m_icon_han);
 	CUIXmlInit::InitStatic			(xml_doc, "wpn_params:static_rpm",			0, &m_icon_rpm);
 
-	CUIXmlInit::InitTextWnd			(xml_doc, "wpn_params:cap_accuracy",		0, &m_textAccuracy);
-	CUIXmlInit::InitTextWnd			(xml_doc, "wpn_params:cap_damage",			0, &m_textDamage);
-	CUIXmlInit::InitTextWnd			(xml_doc, "wpn_params:cap_handling",		0, &m_textHandling);
-	CUIXmlInit::InitTextWnd			(xml_doc, "wpn_params:cap_rpm",				0, &m_textRPM);
+	CUIXmlInit::InitStatic			(xml_doc, "wpn_params:cap_accuracy",		0, &m_textAccuracy);
+	CUIXmlInit::InitStatic			(xml_doc, "wpn_params:cap_damage",			0, &m_textDamage);
+	CUIXmlInit::InitStatic			(xml_doc, "wpn_params:cap_handling",		0, &m_textHandling);
+	CUIXmlInit::InitStatic			(xml_doc, "wpn_params:cap_rpm",				0, &m_textRPM);
 
 	m_progressAccuracy.InitFromXml	( xml_doc, "wpn_params:progress_accuracy" );
 	m_progressDamage.InitFromXml	( xml_doc, "wpn_params:progress_damage" );
@@ -101,14 +101,13 @@ void CUIWpnParams::InitFromXml(CUIXml& xml_doc)
 	if(IsGameTypeSingle())
 	{
 		CUIXmlInit::InitStatic			(xml_doc, "wpn_params:static_ammo",			0, &m_stAmmo);
-		CUIXmlInit::InitTextWnd			(xml_doc, "wpn_params:cap_ammo_count",		0, &m_textAmmoCount);
-		CUIXmlInit::InitTextWnd			(xml_doc, "wpn_params:cap_ammo_count2",		0, &m_textAmmoCount2);
-		CUIXmlInit::InitTextWnd			(xml_doc, "wpn_params:cap_ammo_types",		0, &m_textAmmoTypes);
-		CUIXmlInit::InitTextWnd			(xml_doc, "wpn_params:cap_ammo_used_type",	0, &m_textAmmoUsedType);
+		CUIXmlInit::InitStatic			(xml_doc, "wpn_params:cap_ammo_count",		0, &m_textAmmoCount);
+		CUIXmlInit::InitStatic			(xml_doc, "wpn_params:cap_ammo_count2",		0, &m_textAmmoCount2);
+		CUIXmlInit::InitStatic			(xml_doc, "wpn_params:cap_ammo_types",		0, &m_textAmmoTypes);
+		CUIXmlInit::InitStatic			(xml_doc, "wpn_params:cap_ammo_used_type",	0, &m_textAmmoUsedType);
 		CUIXmlInit::InitStatic			(xml_doc, "wpn_params:static_ammo_type1",	0, &m_stAmmoType1);
 		CUIXmlInit::InitStatic			(xml_doc, "wpn_params:static_ammo_type2",	0, &m_stAmmoType2);
 	}
-
 }
 
 void CUIWpnParams::SetInfo( CInventoryItem* slot_wpn, CInventoryItem& cur_wpn )

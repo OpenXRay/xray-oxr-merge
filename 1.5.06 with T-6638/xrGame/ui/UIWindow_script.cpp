@@ -3,7 +3,7 @@
 #include "UIFrameWindow.h"
 #include "UIFrameLineWnd.h"
 #include "UIDialogWnd.h"
-#include "../HUDManager.h"
+#include "UIDialogHolder.h"
 #include "../GamePersistent.h"
 #include "UILabel.h"
 #include "UIMMShniaga.h"
@@ -11,7 +11,7 @@
 #include "UIScrollView.h"
 
 CFontManager& mngr(){
-	return *(UI()->Font());
+	return UI().Font();
 }
 
 // hud font
@@ -42,6 +42,10 @@ CGameFont* GetFontLetterica25()
 int GetARGB(u16 a, u16 r, u16 g, u16 b)
 {return color_argb(a,r,g,b);}
 
+const Fvector2* get_wnd_pos(CUIWindow* w)
+{
+	return &w->GetWndPos();
+}
 
 Frect	get_texture_rect(LPCSTR icon_name)
 {
@@ -95,6 +99,7 @@ void CUIWindow::script_register(lua_State *L)
 		.def("SetWndRect",				(void (CUIWindow::*)(Frect))	&CUIWindow::SetWndRect_script)
 		.def("SetWndPos",				(void (CUIWindow::*)(Fvector2)) &CUIWindow::SetWndPos_script)
 		.def("SetWndSize",				(void (CUIWindow::*)(Fvector2)) &CUIWindow::SetWndSize_script)
+		.def("GetWndPos",				&get_wnd_pos)
 		.def("GetWidth",				&CUIWindow::GetWidth)
 		.def("SetWidth",				&CUIWindow::SetWidth)
 		.def("GetHeight",				&CUIWindow::GetHeight)
@@ -111,8 +116,6 @@ void CUIWindow::script_register(lua_State *L)
 		.def("SetWindowName",			&CUIWindow::SetWindowName)
 		.def("SetPPMode",				&CUIWindow::SetPPMode)
 		.def("ResetPPMode",				&CUIWindow::ResetPPMode),
-
-//		.def("",						&CUIWindow::)
 		
 		class_<CDialogHolder>("CDialogHolder")
 		.def("MainInputReceiver",		&CDialogHolder::MainInputReceiver)
@@ -128,22 +131,25 @@ void CUIWindow::script_register(lua_State *L)
 		.def(					constructor<>())
 		.def("SetWidth",				&CUIFrameWindow::SetWidth)
 		.def("SetHeight",				&CUIFrameWindow::SetHeight)
-		.def("SetColor",				&CUIFrameWindow::SetColor),
+		.def("SetColor",				&CUIFrameWindow::SetTextureColor),
 
 		class_<CUIFrameLineWnd, CUIWindow>("CUIFrameLineWnd")
 		.def(					constructor<>())
 		.def("SetWidth",						&CUIFrameLineWnd::SetWidth)
 		.def("SetHeight",						&CUIFrameLineWnd::SetHeight)
 		.def("SetOrientation",					&CUIFrameLineWnd::SetOrientation)
-		.def("SetColor",						&CUIFrameLineWnd::SetColor),
-/*
-		class_<CUILabel, CUIFrameLineWnd>("CUILabel")
-		.def(					constructor<>())
-		.def("SetText",						&CUILabel::SetText)
-		.def("GetText",						&CUILabel::GetText),
-*/
+		.def("SetColor",						&CUIFrameLineWnd::SetTextureColor),
+
 		class_<CUIMMShniaga, CUIWindow>("CUIMMShniaga")
-		.def("SetVisibleMagnifier",			&CUIMMShniaga::SetVisibleMagnifier),
+		.enum_("enum_page_id")
+		[
+			value("epi_main",				CUIMMShniaga::epi_main),
+			value("epi_new_game",			CUIMMShniaga::epi_new_game),
+			value("epi_new_network_game",	CUIMMShniaga::epi_new_network_game)
+		]
+		.def("SetVisibleMagnifier",			&CUIMMShniaga::SetVisibleMagnifier)
+		.def("SetPage",						&CUIMMShniaga::SetPage)
+		.def("ShowPage",					&CUIMMShniaga::ShowPage),
 
 		class_<CUIScrollView, CUIWindow>("CUIScrollView")
 		.def(							constructor<>())
@@ -240,12 +246,6 @@ void CUIWindow::script_register(lua_State *L)
 	// CUIPdaContactsWnd
 				value("PDA_CONTACTS_WND_CONTACT_SELECTED",			int(PDA_CONTACTS_WND_CONTACT_SELECTED)),
 
-	// CUITradeWnd
-//				value("TRADE_WND_CLOSED",							int(TRADE_WND_CLOSED)),
-
-	// CUISleepWnd
-//				value("SLEEP_WND_PERFORM_BUTTON_CLICKED",			int(SLEEP_WND_PERFORM_BUTTON_CLICKED)),
-
 	// CUIOutfitSlot
 				value("UNDRESS_OUTFIT",								int(UNDRESS_OUTFIT)),
 				value("OUTFIT_RETURNED_BACK",						int(OUTFIT_RETURNED_BACK)),
@@ -259,7 +259,10 @@ void CUIWindow::script_register(lua_State *L)
 				value("INVENTORY_ATTACH_ADDON ",					int(INVENTORY_ATTACH_ADDON )),
 				value("INVENTORY_DETACH_SCOPE_ADDON",				int(INVENTORY_DETACH_SCOPE_ADDON)),
 				value("INVENTORY_DETACH_SILENCER_ADDON",			int(INVENTORY_DETACH_SILENCER_ADDON)),
-				value("INVENTORY_DETACH_GRENADE_LAUNCHER_ADDON",	int(INVENTORY_DETACH_GRENADE_LAUNCHER_ADDON))
+				value("INVENTORY_DETACH_GRENADE_LAUNCHER_ADDON",	int(INVENTORY_DETACH_GRENADE_LAUNCHER_ADDON)),
+
+	// CMainMenu
+				value("MAIN_MENU_RELOADED",				int(MAIN_MENU_RELOADED))
 			]
 	];
 }

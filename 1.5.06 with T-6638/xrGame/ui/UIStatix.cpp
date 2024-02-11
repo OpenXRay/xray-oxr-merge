@@ -11,27 +11,27 @@ CUIStatix::~CUIStatix()
 
 void CUIStatix::start_anim()
 {
-	SetClrLightAnim	("ui_slow_blinking", true, true, true, true);
-	ResetClrAnimation	();
+	SetColorAnimation	("ui_slow_blinking", LA_CYCLIC|LA_ONLYALPHA|LA_TEXTCOLOR|LA_TEXTURECOLOR);
+	ResetColorAnimation	();
 }
 
 void CUIStatix::stop_anim()
 {
-	SetClrLightAnim	(NULL, true, true, true, true);
+	SetColorAnimation	(NULL, 0);
 }
 
-void CUIStatix::Update(){
-
-	SetColor(0xffffffff);
+void CUIStatix::Update()
+{
+	SetTextureColor(0xffffffff);
 
 	if (m_bCursorOverWindow)
 	{
-		SetColor(0xff349F06);
+		SetTextureColor(0xff349F06);
 	}
 
 	if (!IsEnabled())
 	{
-		SetColor(0x80ffffff);
+		SetTextureColor(0x80ffffff);
 	};
 	
 	CUIStatic::Update();
@@ -40,17 +40,17 @@ void CUIStatix::Update(){
 void CUIStatix::OnFocusLost()
 {
 	CUIStatic::OnFocusLost	();
-	SetColor				(0xffffffff);
+	SetTextureColor				(0xffffffff);
 	if (!IsEnabled())
 	{
-		SetColor(0x80ffffff);
+		SetTextureColor(0x80ffffff);
 	};
 }
 
 void CUIStatix::OnFocusReceive()
 {
 	CUIStatic::OnFocusReceive	();
-	ResetClrAnimation				();
+	ResetColorAnimation			();
 }
 
 bool CUIStatix::OnMouseDown(int mouse_btn)

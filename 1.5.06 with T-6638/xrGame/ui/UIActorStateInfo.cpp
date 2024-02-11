@@ -22,8 +22,8 @@
 #include "../Level.h"
 #include "../location_manager.h"
 #include "../player_hud.h"
-#include "../hudmanager.h"
 #include "UIMainIngameWnd.h"
+#include "../UIGameCustom.h"
 
 #include "../Actor.h"
 #include "../ActorCondition.h"
@@ -127,7 +127,7 @@ void ui_actor_state_wnd::update_round_states( CActor* actor, ALife::EHitType hit
 
 void ui_actor_state_wnd::UpdateHitZone()
 {
-	CUIHudStatesWnd* wnd = HUD().GetUI()->UIMainIngameWnd->get_hud_states(); //некрасиво слишком
+	CUIHudStatesWnd* wnd = CurrentGameUI()->UIMainIngameWnd->get_hud_states(); //некрасиво слишком
 	VERIFY( wnd );
 	if ( !wnd )
 	{
@@ -135,19 +135,8 @@ void ui_actor_state_wnd::UpdateHitZone()
 	}
 	wnd->UpdateZones();
 	m_state[stt_main]->set_arrow(  wnd->get_main_sensor_value() );
+}
 
-/*	m_state[stt_fire]->set_arrow(  wnd->get_zone_cur_power( ALife::eHitTypeBurn ) );
-	m_state[stt_radia]->set_arrow( wnd->get_zone_cur_power( ALife::eHitTypeRadiation ) );
-	m_state[stt_acid]->set_arrow(  wnd->get_zone_cur_power( ALife::eHitTypeChemicalBurn ) );
-	m_state[stt_psi]->set_arrow(   wnd->get_zone_cur_power( ALife::eHitTypeTelepatic ) );
-	*/
-}
-/*
-void ui_actor_state_wnd::Update()
-{
-	inherited::Update();
-}
-*/
 void ui_actor_state_wnd::Draw()
 {
 	inherited::Draw();
@@ -220,9 +209,9 @@ void ui_actor_state_item::init_from_xml( CUIXml& xml, LPCSTR path )
 	xml.SetLocalRoot( stored_root );
 }
 
-bool ui_actor_state_item::OnMouse( float x, float y, EUIMessages mouse_action )
+bool ui_actor_state_item::OnMouseAction( float x, float y, EUIMessages mouse_action )
 {
-	if( CUIWindow::OnMouse( x, y, mouse_action ) )
+	if( CUIWindow::OnMouseAction( x, y, mouse_action ) )
 	{
 		return true;
 	}
@@ -234,14 +223,6 @@ bool ui_actor_state_item::OnMouse( float x, float y, EUIMessages mouse_action )
 		return false;
 	}
 
-	/*if ( m_bCursorOverWindow )
-	{
-		if ( mouse_action == WINDOW_LBUTTON_DOWN )
-		{
-			OnClick();
-			return true;
-		}
-	}*/
 	return false;
 }
 
@@ -254,7 +235,7 @@ void ui_actor_state_item::set_text( float value )
 	int v = (int)( value * m_magnitude + 0.49f );// m_magnitude=100
 	clamp( v, 0, 99 );
 	string32 text_res;
-	sprintf_s( text_res, sizeof(text_res), "%d", v );
+	xr_sprintf( text_res, sizeof(text_res), "%d", v );
 	m_static->SetText( text_res );
 }
 

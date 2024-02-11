@@ -2,15 +2,12 @@
 #include <dinput.h>
 #include "UISpawnWnd.h"
 #include "UIXmlInit.h"
-#include "../hudmanager.h"
 #include "../level.h"
 #include "../game_cl_teamdeathmatch.h"
 #include "UIStatix.h"
 #include "UIScrollView.h"
 #include "UI3tButton.h"
 #include "../xr_level_controller.h"
-
-//#include "UIMapDesc.h"
 
 CUISpawnWnd::CUISpawnWnd()
 	:  m_iCurTeam(0)
@@ -69,9 +66,9 @@ void CUISpawnWnd::Init()
 	//m_pImage2->SetStretchTexture(true);
 	//InitTeamLogo();
 
-	CUIXmlInit::Init3tButtonEx(xml_doc,"team_selector:btn_spectator",	0,m_pBtnSpectator);
-	CUIXmlInit::Init3tButtonEx(xml_doc,"team_selector:btn_autoselect",0,m_pBtnAutoSelect);
-	CUIXmlInit::Init3tButtonEx(xml_doc,"team_selector:btn_back",		0,m_pBtnBack);
+	CUIXmlInit::Init3tButton(xml_doc,"team_selector:btn_spectator",	0,m_pBtnSpectator);
+	CUIXmlInit::Init3tButton(xml_doc,"team_selector:btn_autoselect",0,m_pBtnAutoSelect);
+	CUIXmlInit::Init3tButton(xml_doc,"team_selector:btn_back",		0,m_pBtnBack);
 }
 
 void CUISpawnWnd::InitTeamLogo(){
@@ -79,12 +76,8 @@ void CUISpawnWnd::InitTeamLogo(){
 	R_ASSERT(pSettings->line_exist("team_logo", "team1"));
 	R_ASSERT(pSettings->line_exist("team_logo", "team2"));
 
-#pragma todo("Satan -> Satan : adopt to fixed texture size")
-
 	m_pImage1->InitTexture(pSettings->r_string("team_logo", "team1"));
-//.	m_pImage1->RescaleRelative2Rect(m_pImage1->GetStaticItem()->GetOriginalRect());
 	m_pImage2->InitTexture(pSettings->r_string("team_logo", "team2"));
-//.	m_pImage2->RescaleRelative2Rect(m_pImage2->GetStaticItem()->GetOriginalRect());
 }
 
 void CUISpawnWnd::SendMessage(CUIWindow *pWnd, s16 msg, void *pData)
@@ -112,7 +105,7 @@ void CUISpawnWnd::SendMessage(CUIWindow *pWnd, s16 msg, void *pData)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool CUISpawnWnd::OnKeyboard(int dik, EUIMessages keyboard_action)
+bool CUISpawnWnd::OnKeyboardAction(int dik, EUIMessages keyboard_action)
 {
 	if (WINDOW_KEY_PRESSED != keyboard_action)
 	{
@@ -121,7 +114,7 @@ bool CUISpawnWnd::OnKeyboard(int dik, EUIMessages keyboard_action)
 			ShowChildren(true);
 			game_cl_mp* game = smart_cast<game_cl_mp*>(&Game());
 			game->OnKeyboardRelease(kSCORES);
-			UI()->GetUICursor()->Show();
+			UI().GetUICursor().Show();
 		}		
 		return false;
 	}
@@ -131,7 +124,7 @@ bool CUISpawnWnd::OnKeyboard(int dik, EUIMessages keyboard_action)
         ShowChildren(false);
 		game_cl_mp* game = smart_cast<game_cl_mp*>(&Game());
 		game->OnKeyboardPress(kSCORES);
-		UI()->GetUICursor()->Hide();
+		UI().GetUICursor().Hide();
 		return false;
 	}
 
@@ -170,7 +163,7 @@ bool CUISpawnWnd::OnKeyboard(int dik, EUIMessages keyboard_action)
 		return true;
 	}
 
-	return inherited::OnKeyboard(dik, keyboard_action);
+	return inherited::OnKeyboardAction(dik, keyboard_action);
 }
 
 void CUISpawnWnd::SetVisibleForBtn(ETEAMMENU_BTN btn, bool state){

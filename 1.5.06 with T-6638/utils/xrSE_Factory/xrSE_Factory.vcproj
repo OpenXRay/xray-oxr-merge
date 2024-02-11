@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="9.00"
 	Name="xrSE_Factory"
 	ProjectGUID="{3AD26FD3-4F52-4E22-A4CF-AD4C49E74C61}"
 	RootNamespace="xrSE_Factory"
 	Keyword="Win32Proj"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -85,6 +86,8 @@
 				MapFileName=""
 				SubSystem="2"
 				LargeAddressAware="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="..\..\..\..\libraries\$(ProjectName).lib"
 				TargetMachine="1"
 			/>
@@ -105,9 +108,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -197,6 +197,8 @@
 				GenerateMapFile="false"
 				MapFileName="$(OutDir)/$(ProjectName).map"
 				LargeAddressAware="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="..\..\..\..\libraries\$(ProjectName).lib"
 				TargetMachine="1"
 			/>
@@ -217,9 +219,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -301,6 +300,8 @@
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				LinkTimeCodeGeneration="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="..\..\..\..\libraries\$(ProjectName).lib"
 				TargetMachine="1"
 			/>
@@ -321,9 +322,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -594,6 +592,33 @@
 				<File
 					RelativePath="../../xrServerEntities/object_factory_register.cpp"
 					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PrecompiledHeaderThrough="pch_script.h"
+							PrecompiledHeaderFile="$(IntDir)/$(ProjectName)_script.pch"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Mixed|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PrecompiledHeaderThrough="pch_script.h"
+							PrecompiledHeaderFile="$(IntDir)/$(ProjectName)_script.pch"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PrecompiledHeaderThrough="pch_script.h"
+							PrecompiledHeaderFile="$(IntDir)/$(ProjectName)_script.pch"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="../../xrServerEntities/object_factory_script.cpp"
@@ -1574,45 +1599,6 @@
 				</File>
 			</Filter>
 			<Filter
-				Name="memory_manager"
-				>
-				<File
-					RelativePath="../../xrServerEntities/doug_lea_memory_allocator.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-							WarningLevel="2"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Mixed|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-							WarningLevel="2"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-							WarningLevel="2"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="../../xrServerEntities/doug_lea_memory_allocator.h"
-					>
-				</File>
-			</Filter>
-			<Filter
 				Name="lua_studio"
 				>
 				<File
@@ -2377,6 +2363,84 @@
 							>
 						</File>
 					</Filter>
+				</Filter>
+				<Filter
+					Name="objects_alife_smartcover"
+					>
+					<File
+						RelativePath="..\..\xrServerEntities\xrServer_Objects_Alife_Smartcovers.cpp"
+						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								PrecompiledHeaderThrough="pch_script.h"
+								PrecompiledHeaderFile="$(IntDir)/$(ProjectName)_script.pch"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Mixed|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								PrecompiledHeaderThrough="pch_script.h"
+								PrecompiledHeaderFile="$(IntDir)/$(ProjectName)_script.pch"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								PrecompiledHeaderThrough="pch_script.h"
+								PrecompiledHeaderFile="$(IntDir)/$(ProjectName)_script.pch"
+							/>
+						</FileConfiguration>
+					</File>
+					<File
+						RelativePath="..\..\xrServerEntities\xrServer_Objects_Alife_Smartcovers.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\xrServerEntities\xrServer_Objects_Alife_Smartcovers_script.cpp"
+						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								PrecompiledHeaderThrough="pch_script.h"
+								PrecompiledHeaderFile="$(IntDir)/$(ProjectName)_script.pch"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Mixed|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								PrecompiledHeaderThrough="pch_script.h"
+								PrecompiledHeaderFile="$(IntDir)/$(ProjectName)_script.pch"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								PrecompiledHeaderThrough="pch_script.h"
+								PrecompiledHeaderFile="$(IntDir)/$(ProjectName)_script.pch"
+							/>
+						</FileConfiguration>
+					</File>
+				</Filter>
+				<Filter
+					Name="movement_manager_holder"
+					>
+					<File
+						RelativePath="..\..\xrServerEntities\alife_movement_manager_holder.h"
+						>
+					</File>
 				</Filter>
 			</Filter>
 		</Filter>

@@ -5,16 +5,13 @@
 
 class CInventoryOwner;
 class CUIFrameLineWnd;
-class CUIButton;
-class CUI3tButtonEx;
+class CUI3tButton;
 class CUITabControl;
 class CUIStatic;
 class CUIXml;
 class CUIFrameWindow;
 class UIHint;
 
-class CUIActorInfoWnd;
-class CUIPdaContactsWnd;
 class CUITaskWnd;
 class CUIFactionWarWnd;
 class CUIRankingWnd;
@@ -28,14 +25,15 @@ class CUIPdaWnd: public CUIDialogWnd
 	typedef CUIDialogWnd	inherited;
 protected:
 	CUITabControl*			UITabControl;
-	CUI3tButtonEx*			m_btn_close;
+	CUI3tButton*			m_btn_close;
 
 	CUIStatic*				UIMainPdaFrame;
 	CUIStatic*				UINoice;
 	
 	CUIStatic*				m_caption;
 	shared_str				m_caption_const;
-	CUIAnimatedStatic*		m_anim_static;
+//	CUIAnimatedStatic*		m_anim_static;
+	CUIStatic*				m_clock;
 
 	// Текущий активный диалог
 	CUIWindow*				m_pActiveDialog;
@@ -61,9 +59,9 @@ public:
 
 	virtual void 			Draw				();
 	virtual void 			Update				();
-	virtual void 			Show				();
-	virtual void 			Hide				();
-	virtual bool			OnMouse				(float x, float y, EUIMessages mouse_action) {CUIDialogWnd::OnMouse(x,y,mouse_action);return true;} //always true because StopAnyMove() == false
+	virtual void 			Show				(bool status);
+	virtual bool			OnMouseAction		(float x, float y, EUIMessages mouse_action) {CUIDialogWnd::OnMouseAction(x,y,mouse_action);return true;} //always true because StopAnyMove() == false
+	virtual bool			OnKeyboardAction	(int dik, EUIMessages keyboard_action);
 		
 			UIHint*			get_hint_wnd		() const { return m_hint_wnd; }
 			void			DrawHint			();
@@ -77,5 +75,6 @@ public:
 	virtual bool			StopAnyMove			(){return false;}
 
 			void			UpdatePda			();
+			void			UpdateRankingWnd	();
 
 };

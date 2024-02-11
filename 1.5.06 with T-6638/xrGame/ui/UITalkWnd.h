@@ -42,8 +42,7 @@ public:
 	virtual void		Draw					();
 	virtual void		Update					();
 		
-	virtual void		Show					();
-	virtual void		Hide					();
+	virtual void		Show					(bool status);
 	
 	void				Stop					();	// deffered
 	void				StopTalk				();
@@ -69,7 +68,7 @@ protected:
 
 	// Функции добавления строк в листы вопросов и ответов
 public:
-	void				AddQuestion				(const shared_str& text, const shared_str& id);
+	void				AddQuestion				(const shared_str& text, const shared_str& id, int number, bool b_finalizer);
 	void				AddAnswer				(const shared_str& text, LPCSTR SpeakerName);
 	bool				b_disable_break;
 protected:

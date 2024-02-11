@@ -43,7 +43,7 @@ void CUI3tButton::OnClick()
     PlaySoundT			();
 }
 
-bool CUI3tButton::OnMouse(float x, float y, EUIMessages mouse_action)
+bool CUI3tButton::OnMouseAction(float x, float y, EUIMessages mouse_action)
 {
 	if (m_bCheckMode)
 		return CUIWindow::OnMouse(x,y,mouse_action);
@@ -65,25 +65,17 @@ bool CUI3tButton::OnMouseDown(int mouse_btn)
 		GetMessageTarget()->SendMessage(this, BUTTON_CLICKED, NULL);
 		return true;
 	}
-	else
-		return CUIButton::OnMouseDown(mouse_btn);
+	return CUIButton::OnMouseDown(mouse_btn);
 }
 
 void CUI3tButton::OnFocusLost()
 {
-	CUIButton::OnFocusLost();
-/*	if ( m_eButtonState == BUTTON_PUSHED )
-	{
-		m_eButtonState = BUTTON_NORMAL;
-	}
-*/
-//.	if(BUTTON_PUSHED == m_eButtonState)
-//.		m_eButtonState = BUTTON_NORMAL;
+	inherited::OnFocusLost();
 }
 
 void CUI3tButton::OnFocusReceive()
 {
-	CUIButton::OnFocusReceive	();
+	inherited::OnFocusReceive	();
 	PlaySoundH					();
 }
 
@@ -222,7 +214,7 @@ void CUI3tButton::DrawTexture()
 	{
 		if ( m_background )				
 		{
-			m_background->SetStretchTexture(true/*GetStretchTexture()*/);
+			m_background->SetStretchTexture(true);
 			m_background->Draw();		
 		}else if ( m_back_frameline )	
 		{	
@@ -233,29 +225,29 @@ void CUI3tButton::DrawTexture()
 
 void CUI3tButton::Update()
 {
-	CUIButton::Update();
+	inherited::Update();
 
 	if ( m_bTextureEnable )
 	{
 		if ( !m_bIsEnabled )
 		{
-			if ( m_background )				{	m_background->SetState( S_Disabled );	}
-			else if ( m_back_frameline )	{	m_back_frameline->SetState( S_Disabled ); }
+			if ( m_background )				{	m_background->SetCurrentState( S_Disabled );	}
+			else if ( m_back_frameline )	{	m_back_frameline->SetCurrentState( S_Disabled ); }
 		}
-		else if ( CUIButton::BUTTON_PUSHED == m_eButtonState )
+		else if ( CUIButton::BUTTON_PUSHED == GetButtonState() )
 		{
-			if ( m_background )				{	m_background->SetState( S_Touched );		}
-			else if ( m_back_frameline )	{	m_back_frameline->SetState( S_Touched );	}
+			if ( m_background )				{	m_background->SetCurrentState( S_Touched );		}
+			else if ( m_back_frameline )	{	m_back_frameline->SetCurrentState( S_Touched );	}
 		}
 		else if ( m_bCursorOverWindow )
 		{
-			if ( m_background )				{	m_background->SetState( S_Highlighted );		}
-			else if ( m_back_frameline )	{	m_back_frameline->SetState( S_Highlighted );	}
+			if ( m_background )				{	m_background->SetCurrentState( S_Highlighted );		}
+			else if ( m_back_frameline )	{	m_back_frameline->SetCurrentState( S_Highlighted );	}
 		}
 		else
 		{
-			if ( m_background )				{	m_background->SetState( S_Enabled );		}
-			else if ( m_back_frameline )	{	m_back_frameline->SetState( S_Enabled );	}
+			if ( m_background )				{	m_background->SetCurrentState( S_Enabled );		}
+			else if ( m_back_frameline )	{	m_back_frameline->SetCurrentState( S_Enabled );	}
 		}
 	}
 
@@ -264,30 +256,30 @@ void CUI3tButton::Update()
 
 	if (!m_bIsEnabled)
 	{
-		textColor = m_bUseTextColor[D] ? m_dwTextColor[D] : m_dwTextColor[E];
+		textColor = m_bUseTextColor[S_Disabled] ? m_dwTextColor[S_Disabled] : m_dwTextColor[S_Enabled];
 		if(m_hint)
-			hintColor = m_hint->m_bUseTextColor[D] ? m_hint->m_dwTextColor[D] : m_hint->m_dwTextColor[E];
+			hintColor = m_hint->m_bUseTextColor[S_Disabled] ? m_hint->m_dwTextColor[S_Disabled] : m_hint->m_dwTextColor[S_Enabled];
 	}
-	else if (CUIButton::BUTTON_PUSHED == m_eButtonState)
+	else if (CUIButton::BUTTON_PUSHED == GetButtonState())
 	{
-		textColor = m_bUseTextColor[T] ? m_dwTextColor[T] : m_dwTextColor[E];
+		textColor = m_bUseTextColor[S_Touched] ? m_dwTextColor[S_Touched] : m_dwTextColor[S_Enabled];
 		if(m_hint)
-			hintColor = m_hint->m_bUseTextColor[T] ? m_hint->m_dwTextColor[T] : m_hint->m_dwTextColor[E];
+			hintColor = m_hint->m_bUseTextColor[S_Touched] ? m_hint->m_dwTextColor[S_Touched] : m_hint->m_dwTextColor[S_Enabled];
 	}
 	else if (m_bCursorOverWindow)
 	{
-		textColor = m_bUseTextColor[H] ? m_dwTextColor[H] : m_dwTextColor[E];
+		textColor = m_bUseTextColor[S_Highlighted] ? m_dwTextColor[S_Highlighted] : m_dwTextColor[S_Enabled];
 		if(m_hint)
-			hintColor = m_hint->m_bUseTextColor[H] ? m_hint->m_dwTextColor[H] : m_hint->m_dwTextColor[E];
+			hintColor = m_hint->m_bUseTextColor[S_Highlighted] ? m_hint->m_dwTextColor[S_Highlighted] : m_hint->m_dwTextColor[S_Enabled];
 	}
 	else
 	{
-		textColor = m_dwTextColor[E];
+		textColor = m_dwTextColor[S_Enabled];
 		if(m_hint)
-			hintColor = m_hint->m_dwTextColor[E];
+			hintColor = m_hint->m_dwTextColor[S_Enabled];
 	}
 
-	CUIStatic::SetTextColor		(textColor);
+	SetTextColor		(textColor);
 	if(m_hint)
 		m_hint->SetTextColor	(hintColor);
 }

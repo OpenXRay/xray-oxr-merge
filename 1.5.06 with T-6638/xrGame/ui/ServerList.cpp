@@ -32,7 +32,6 @@ CServerList::CServerList()
 	for (int i = 0; i<4; i++)
 		AttachChild(&m_header2[i]);
 
-
     m_pAnimation				= xr_new<CUIColorAnimatorWrapper>("ui_mm_mp_srvinfo");
 	m_pAnimation->Cyclic		(false);
 
@@ -248,10 +247,10 @@ void CServerList::FillUpDetailedServerInfo()
 				pItemAdv->SetTextColor			(m_list[LST_PLAYERS].GetTextColor());
 				pItemAdv->AddField				(pf.Name, m_header2[1].GetWidth());
 
-				sprintf_s						(buf,sizeof(buf),"%d",pf.Frags);
+				xr_sprintf						(buf,sizeof(buf),"%d",pf.Frags);
 				pItemAdv->AddField				(buf, m_header2[2].GetWidth());
 
-				sprintf_s						(buf,sizeof(buf),"%d",pf.Deaths);
+				xr_sprintf						(buf,sizeof(buf),"%d",pf.Deaths);
 				pItemAdv->AddField				(buf, m_header2[3].GetWidth());
 
 				m_list[LST_PLAYERS].AddItem		(pItemAdv);
@@ -286,10 +285,10 @@ void CServerList::FillUpDetailedServerInfo()
 				pItemAdv->SetTextColor			(m_list[LST_PLAYERS].GetTextColor());
 				pItemAdv->AddField				(pf.Name, m_header2[1].GetWidth());
 				
-				sprintf_s						(buf,sizeof(buf),"%d",pf.Frags);
+				xr_sprintf						(buf,sizeof(buf),"%d",pf.Frags);
 				pItemAdv->AddField				(buf, m_header2[2].GetWidth());
 
-				sprintf_s						(buf,sizeof(buf),"%d",pf.Deaths);
+				xr_sprintf						(buf,sizeof(buf),"%d",pf.Deaths);
 				pItemAdv->AddField				(buf, m_header2[3].GetWidth());
 				m_list[LST_PLAYERS].AddItem		(pItemAdv);
 			}
@@ -320,10 +319,10 @@ void CServerList::FillUpDetailedServerInfo()
 				pItemAdv->AddField				(pf.Name, m_header2[1].GetWidth());
 
 
-				sprintf_s						(buf,sizeof(buf),"%d",pf.Frags);
+				xr_sprintf						(buf,sizeof(buf),"%d",pf.Frags);
 				pItemAdv->AddField				(buf, m_header2[2].GetWidth());
 
-				sprintf_s						(buf,sizeof(buf),"%d",pf.Deaths);
+				xr_sprintf						(buf,sizeof(buf),"%d",pf.Deaths);
 				pItemAdv->AddField				(buf, m_header2[3].GetWidth());
 				m_list[LST_PLAYERS].AddItem		(pItemAdv);
 			}
@@ -343,10 +342,10 @@ void CServerList::FillUpDetailedServerInfo()
 				pItemAdv->SetTextColor			(m_list[LST_PLAYERS].GetTextColor());
 				pItemAdv->AddField				(pf.Name, m_header2[1].GetWidth());
 
-				sprintf_s						(buf,sizeof(buf),"%d",pf.Frags);
+				xr_sprintf						(buf,sizeof(buf),"%d",pf.Frags);
 				pItemAdv->AddField				(buf, m_header2[2].GetWidth());
 
-				sprintf_s						(buf,sizeof(buf),"%d",pf.Deaths);
+				xr_sprintf						(buf,sizeof(buf),"%d",pf.Deaths);
 				pItemAdv->AddField				(buf, m_header2[3].GetWidth());
 				m_list[LST_PLAYERS].AddItem		(pItemAdv);
 			}
@@ -473,7 +472,7 @@ void CServerList::InitFromXml(CUIXml& xml_doc, LPCSTR path)
 	// init header elements
 	for (int i = 0; i<LST_COLUMN_COUNT; i++)
 	{
-		CUIXmlInit::Init3tButtonEx	(xml_doc,strconcat(sizeof(buf),buf,path,":header"),			0, &m_header[i]);
+		CUIXmlInit::Init3tButton	(xml_doc,strconcat(sizeof(buf),buf,path,":header"),			0, &m_header[i]);
 		CUIXmlInit::InitFrameLine	(xml_doc,strconcat(sizeof(buf),buf,path,":header_frames"),	0, &m_header_frames[i]);
 	}
 	m_header[0].Enable				(false);
@@ -809,7 +808,8 @@ void CServerList::SaveCurItem()
 
 void CServerList::RestoreCurItem()
 {
-	if (-1 == m_cur_item)		return;
+	if (-1 == m_cur_item)
+		return;
 
 	int index = m_list[LST_SERVER].FindItemWithValue(m_cur_item);
 

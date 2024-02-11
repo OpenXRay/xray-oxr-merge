@@ -233,7 +233,6 @@ DEFINE_VECTOR(SGameMtlPair*,GameMtlPairVec,GameMtlPairIt);
 class MTL_EXPORT_API CGameMtlLibrary{
 	int					material_index;
 	int					material_pair_index;
-	BENCH_SEC_SCRAMBLEMEMBER1
 
 	GameMtlVec			materials;
     GameMtlPairVec		material_pairs;
@@ -357,13 +356,6 @@ public:
 
 extern MTL_EXPORT_API CGameMtlLibrary		GMLib;
 
-//#ifdef	_EDITOR
-//extern MTL_EXPORT_API CGameMtlLibrary*		PGMLib;
-//#else
 #include "../include/xrapi/xrapi.h"
-//#endif
 
 #endif
-
-
-

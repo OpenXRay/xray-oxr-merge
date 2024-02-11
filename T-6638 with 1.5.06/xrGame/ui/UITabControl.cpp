@@ -60,8 +60,8 @@ bool CUITabControl::AddItem(LPCSTR pItemName, LPCSTR pTexName, Fvector2 pos, Fve
 	pNewButton->SetAutoDelete	(true);
 	pNewButton->InitButton		(pos, size);
 	pNewButton->InitTexture		(pTexName);
-	pNewButton->TextItemControl()->SetText(pItemName);
-	pNewButton->TextItemControl()->SetTextColor	(m_cGlobalTextColor);
+	pNewButton->SetText(pItemName);
+	pNewButton->SetTextColor	(m_cGlobalTextColor);
 	pNewButton->SetTextureColor	(m_cGlobalButtonColor);
 
 	return AddItem				(pNewButton);
@@ -231,7 +231,5 @@ void CUITabControl::Enable(bool status)
 	for(u32 i=0; i<m_TabsArr.size(); ++i)
 		m_TabsArr[i]->Enable(status);
 
-//	m_sPushedId		= "";
-//	m_sPrevPushedId	= "";
 	inherited::Enable(status);
 }

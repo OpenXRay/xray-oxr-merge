@@ -31,7 +31,8 @@ class CUIMMShniaga;
 class CUIScrollView;
 class CUIProgressBar;
 
-class CScriptXmlInit {
+class CScriptXmlInit
+{
 public:
 	DECLARE_SCRIPT_REGISTER_FUNCTION
 
@@ -74,7 +75,3 @@ public:
 protected:
 	CUIXml	m_xml;
 };
-
-add_to_type_list(CScriptXmlInit)
-#undef script_type_list
-#define script_type_list save_type_list(CScriptXmlInit)

@@ -20,7 +20,7 @@ public:
 						CUIComboBox				();
 	virtual				~CUIComboBox			();
 	// CUIOptionsItem
-	virtual void		SetCurrentValue			();
+	virtual void		SetCurrentOptValue		();
 	virtual void		SaveValue				();
 	virtual bool		IsChanged				();
 	virtual void 		SeveBackUpValue			();
@@ -44,7 +44,7 @@ public:
 			void		enable_id				(int id);
 protected:
 	virtual void		SetState				(UIState state);	
-	virtual bool		OnMouse					(float x, float y, EUIMessages mouse_action);
+	virtual bool		OnMouseAction			(float x, float y, EUIMessages mouse_action);
 	virtual void		OnBtnClicked			();
 			void		ShowList				(bool bShow);
 			void		OnListItemSelect		();
@@ -71,7 +71,3 @@ public:
 protected:	
 	DECLARE_SCRIPT_REGISTER_FUNCTION
 };
-
-add_to_type_list(CUIComboBox)
-#undef script_type_list
-#define script_type_list save_type_list(CUIComboBox)

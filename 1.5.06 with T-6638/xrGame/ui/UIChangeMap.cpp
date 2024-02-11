@@ -45,18 +45,20 @@ CUIChangeMap::CUIChangeMap()
 	lst = xr_new<CUIListBox>(); lst->SetAutoDelete(true);
 	AttachChild(lst);
 
-	btn_ok = xr_new<CUI3tButtonEx>(); btn_ok->SetAutoDelete(true);
+	btn_ok = xr_new<CUI3tButton>(); btn_ok->SetAutoDelete(true);
 	AttachChild(btn_ok);
 
-	btn_cancel = xr_new<CUI3tButtonEx>(); btn_cancel->SetAutoDelete(true);
+	btn_cancel = xr_new<CUI3tButton>(); btn_cancel->SetAutoDelete(true);
 	AttachChild(btn_cancel);
 
 	m_pExtraContentFilter = xr_new<CExtraContentFilter>();
 }
+
 CUIChangeMap::~CUIChangeMap()
 {
 	delete_data(m_pExtraContentFilter);
 }
+
 void CUIChangeMap::InitChangeMap(CUIXml& xml_doc)
 {
 	CUIXmlInit::InitWindow				(xml_doc,			"change_map", 0, this);
@@ -77,14 +79,14 @@ void CUIChangeMap::InitChangeMap(CUIXml& xml_doc)
 }
 
 #include <dinput.h>
-bool CUIChangeMap::OnKeyboard(int dik, EUIMessages keyboard_action)
+bool CUIChangeMap::OnKeyboardAction(int dik, EUIMessages keyboard_action)
 {
 	if (dik == DIK_ESCAPE)
 	{
 		OnBtnCancel();
 		return true;
 	}
-	return CUIDialogWnd::OnKeyboard(dik, keyboard_action);
+	return CUIDialogWnd::OnKeyboardAction(dik, keyboard_action);
 }
 
 void CUIChangeMap::SendMessage(CUIWindow* pWnd, s16 msg, void* pData)
@@ -137,7 +139,7 @@ void CUIChangeMap::OnBtnOk()
 		const shared_str& ver		= M.m_map_names[idx].map_ver;
 
 		string512					command;
-		sprintf_s					(command, "cl_votestart changemap %s %s", name.c_str(), ver.c_str());
+		xr_sprintf					(command, "cl_votestart changemap %s %s", name.c_str(), ver.c_str());
 		Console->Execute			(command);
 		GetHolder()->StartStopMenu	(this, true);
 	}

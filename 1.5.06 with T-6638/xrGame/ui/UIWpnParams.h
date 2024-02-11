@@ -17,7 +17,7 @@ public:
 	virtual					~CUIWpnParams		();
 
 	void 					InitFromXml			(CUIXml& xml_doc);
-	void					SetInfo				(CInventoryItem const* slot_wpn, CInventoryItem const& cur_wpn);
+	void					SetInfo				(CInventoryItem* slot_wpn, CInventoryItem& cur_wpn);
 	bool 					Check				(const shared_str& wpn_section);
 
 protected:
@@ -26,10 +26,23 @@ protected:
 	CUIDoubleProgressBar	m_progressDamage;
 	CUIDoubleProgressBar	m_progressRPM;
 
+	CUIStatic				m_icon_acc;
+	CUIStatic				m_icon_dam;
+	CUIStatic				m_icon_han;
+	CUIStatic				m_icon_rpm;
+
+	CUIStatic				m_stAmmo;
 	CUIStatic				m_textAccuracy;
 	CUIStatic				m_textHandling;
 	CUIStatic				m_textDamage;
 	CUIStatic				m_textRPM;
+	CUIStatic				m_textAmmoTypes;
+	CUIStatic				m_textAmmoUsedType;
+	CUIStatic				m_textAmmoCount;
+	CUIStatic				m_textAmmoCount2;
+	CUIStatic				m_stAmmoType1;
+	CUIStatic				m_stAmmoType2;
+	CUIStatic				m_Prop_line;
 };
 
 // -------------------------------------------------------------------------------------------------

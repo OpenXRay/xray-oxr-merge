@@ -39,7 +39,7 @@ public:
 	virtual			~CUIScrollView		();
 			void	InitScrollView		();// need parent to be initialized
 	virtual void	SendMessage			(CUIWindow* pWnd, s16 msg, void* pData = NULL);
-	virtual bool	OnMouse				(float x, float y, EUIMessages mouse_action);
+	virtual bool	OnMouseAction		(float x, float y, EUIMessages mouse_action);
 	virtual void	Draw				();
 	virtual void	Update				();
 			void	AddWindow			(CUIWindow* pWnd, bool auto_delete);
@@ -72,7 +72,6 @@ IC			bool	NeedShowScrollBar	();		// no comment
 	
 	typedef fastdelegate::FastDelegate2<CUIWindow*,CUIWindow*,bool>		cmp_function;
 	cmp_function	m_sort_function;
-
 };
 
 #define ADD_TEXT_TO_VIEW3(txt,st,view)		st = xr_new<CUIStatic>();						\

@@ -83,7 +83,6 @@ public:
 
 			void					SetTimeMsgCaption				(LPCSTR str);
 			void					SetSpectrModeMsgCaption			(LPCSTR str);
-
 			void					SetSpectatorMsgCaption			(LPCSTR str);
 			void					SetPressJumpMsgCaption			(LPCSTR str);
 			void					SetPressBuyMsgCaption			(LPCSTR str);

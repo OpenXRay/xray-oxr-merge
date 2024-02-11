@@ -21,7 +21,6 @@ class CUIProgressShape;
 class CUIMessageBoxEx;
 class UIVoteStatusWnd;
 class game_cl_CaptureTheArtefact;
-class CUITextWnd;
 
 /// This class used to control UI part of client for Capture the Artefact mp game mode.
 class CUIGameCTA : public UIGameMP
@@ -30,14 +29,14 @@ private:
 	CUISpawnWnd			*m_pUITeamSelectWnd;
 	CUIStatic*			m_team1_icon;
 	CUIStatic*			m_team2_icon;
-	CUITextWnd*			m_team1_score;
-	CUITextWnd*			m_team2_score;
-	CUITextWnd*			m_pFragLimitIndicator;
+	CUIStatic*			m_team1_score;
+	CUIStatic*			m_team2_score;
+	CUIStatic*			m_pFragLimitIndicator;
 	game_cl_CaptureTheArtefact*			m_game;
 
 	CUIMoneyIndicator*				m_pMoneyIndicator;
 	CUIRankIndicator*				m_pRankIndicator;
-	CUITextWnd*						m_pReinforcementInidcator;
+	CUIStatic*						m_pReinforcementInidcator;
 	CUIMessageBoxEx*				m_pBuySpawnMsgBox;
 	UIVoteStatusWnd*				m_voteStatusWnd;
 	
@@ -52,15 +51,15 @@ private:
 	bool							m_team_panels_shown;
 
 
-	CUITextWnd*						m_spectator_caption;
-	CUITextWnd*						m_pressjump_caption;
-	CUITextWnd*						m_pressbuy_caption;
-	CUITextWnd*						m_round_result_caption;	
-	CUITextWnd*						m_force_respawn_time_caption;
-	CUITextWnd*						m_spectrmode_caption;
-	CUITextWnd*						m_warm_up_caption;
-	CUITextWnd*						m_time_caption;
-	CUITextWnd*						m_demo_play_caption;
+	CUIStatic*						m_spectator_caption;
+	CUIStatic*						m_pressjump_caption;
+	CUIStatic*						m_pressbuy_caption;
+	CUIStatic*						m_round_result_caption;	
+	CUIStatic*						m_force_respawn_time_caption;
+	CUIStatic*						m_spectrmode_caption;
+	CUIStatic*						m_warm_up_caption;
+	CUIStatic*						m_time_caption;
+	CUIStatic*						m_demo_play_caption;
 
 	struct PresetItem
 	{
@@ -105,7 +104,7 @@ public:
 	virtual void		SetClGame				(game_cl_GameState* g);
 	virtual	void		Init					(int stage);
 	virtual	void		UnLoad					();
-	virtual void _BCL	OnFrame					();
+	virtual void 		OnFrame					();
 	virtual void		Render					();
 	
 	virtual bool		IR_UIOnKeyboardPress	(int dik);

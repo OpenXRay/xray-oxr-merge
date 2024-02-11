@@ -31,7 +31,8 @@ CUI3tButton::CUI3tButton(){
 }
 
 CUI3tButton::~CUI3tButton()
-{}
+{
+}
 
 void CUI3tButton::OnClick()
 {
@@ -68,8 +69,6 @@ bool CUI3tButton::OnMouseDown(int mouse_btn)
 void CUI3tButton::OnFocusLost()
 {
 	CUIButton::OnFocusLost();
-//.	if(BUTTON_PUSHED == m_eButtonState)
-//.		m_eButtonState = BUTTON_NORMAL;
 }
 
 void CUI3tButton::OnFocusReceive()
@@ -126,19 +125,19 @@ void CUI3tButton::InitTexture(LPCSTR tex_name)
 	string_path 		tex_highlighted;
 
 	// enabled state texture
-	strcpy				(tex_enabled,    tex_name);
+	strcpy_s			(tex_enabled,    tex_name);
 	strcat				(tex_enabled,   "_e");
 
 	// pressed state texture
-	strcpy				(tex_disabled,   tex_name);
+	strcpy_s			(tex_disabled,   tex_name);
 	strcat				(tex_disabled,   "_d");
 
 	// touched state texture
-	strcpy				(tex_touched, tex_name);
+	strcpy_s			(tex_touched, tex_name);
 	strcat				(tex_touched, "_t");
 
 	// touched state texture
-	strcpy				(tex_highlighted, tex_name);
+	strcpy_s			(tex_highlighted, tex_name);
 	strcat				(tex_highlighted, "_h");
 
 	this->InitTexture	(tex_enabled, tex_disabled, tex_touched, tex_highlighted);		
@@ -195,16 +194,20 @@ void CUI3tButton::Update()
 
 	if(m_bTextureEnable)
 	{
-		if (!m_bIsEnabled){
+		if (!m_bIsEnabled)
+		{
             m_background.SetState(S_Disabled);
 		}
-		else if (CUIButton::BUTTON_PUSHED == m_eButtonState){
+		else if (CUIButton::BUTTON_PUSHED == m_eButtonState)
+		{
 			m_background.SetState(S_Touched);
 		}
-		else if (m_bCursorOverWindow){
+		else if (m_bCursorOverWindow)
+		{
 			m_background.SetState(S_Highlighted);
 		}
-		else{
+		else
+		{
 			m_background.SetState(S_Enabled);
 		}
 	}

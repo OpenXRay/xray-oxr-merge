@@ -1,8 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////
 //	Module 		: UIInvUpgradeInfo.h
 //	Created 	: 21.11.2007
-//  Modified 	: 27.11.2007
-//	Author		: Evgeniy Sokolov
+//  Modified 	: 13.03.2009
+//	Author		: Evgeniy Sokolov, Prishchepa Sergey
 //	Description : inventory upgrade UI info window class
 ////////////////////////////////////////////////////////////////////////////
 

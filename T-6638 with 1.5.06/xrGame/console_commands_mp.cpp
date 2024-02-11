@@ -1403,8 +1403,7 @@ public:
 			tips.push_back( str );
 		}
 		IConsole_Command::fill_tips( tips, mode );
-	}	
-
+	}
 };
 
 class CCC_ChangeLevel : public CCC_ChangeLevelGameType {

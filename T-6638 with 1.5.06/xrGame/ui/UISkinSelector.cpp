@@ -94,10 +94,10 @@ void CUISkinSelectorWnd::UpdateSkins()
 		{
 			itoa((m_firstSkin + 1 + i)%10,buf,10);
 			xr_strcat( buf, sizeof(buf), " " );
-			m_pImage[i]->TextItemControl()->SetText(buf);
+			m_pImage[i]->SetText(buf);
 		}
 		else
-			m_pImage[i]->TextItemControl()->SetText("");
+			m_pImage[i]->SetText("");
 
 		xr_vector<int>::iterator it = std::find(m_skinsEnabled.begin(), m_skinsEnabled.end(), i + m_firstSkin);
 		m_pImage[i]->Enable(it != m_skinsEnabled.end());

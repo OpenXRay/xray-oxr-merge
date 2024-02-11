@@ -17,11 +17,13 @@ public:
 	virtual				~CUITabControl				();
 
 	// options item
-	virtual void		SetCurrentValue				();
-	virtual void		SaveValue					();
-	virtual bool		IsChanged					();
+	virtual void		SetCurrentOptValue			();	// opt->current
+	virtual void		SaveBackUpOptValue			();	// current->backup
+	virtual void		SaveOptValue				();	// current->opt
+	virtual void		UndoOptValue				();	// backup->current
+	virtual bool		IsChangedOptValue			() const;	// backup!=current
 
-	virtual bool		OnKeyboard					(int dik, EUIMessages keyboard_action);
+	virtual bool		OnKeyboardAction			(int dik, EUIMessages keyboard_action);
 	virtual void		OnTabChange					(const shared_str& sCur, const shared_str& sPrev);
 	virtual void		OnStaticFocusReceive		(CUIWindow* pWnd);
 	virtual void		OnStaticFocusLost			(CUIWindow* pWnd);
@@ -30,12 +32,12 @@ public:
 	bool				AddItem						(LPCSTR pItemName, LPCSTR pTexName, Fvector2 pos, Fvector2 size);
 	bool				AddItem						(CUITabButton *pButton);
 
-//.	void				RemoveItem					(const shared_str& Id);
 	void				RemoveAll					();
 
 	virtual void		SendMessage					(CUIWindow *pWnd, s16 msg, void *pData);
+	virtual void		Enable						(bool status);
 
-	const shared_str&	GetActiveId					()								{ return m_sPushedId; }
+	const shared_str&	GetActiveId					()	const						{ return m_sPushedId; }
 	LPCSTR				GetActiveId_script			();
 	const shared_str&	GetPrevActiveId				()								{ return m_sPrevPushedId; }
 			void		SetActiveTab				(const shared_str& sNewTab);
@@ -50,8 +52,6 @@ public:
 	TABS_VECTOR *		GetButtonsVector			()								{ return &m_TabsArr; }
 	CUITabButton*		GetButtonById				(const shared_str& id);
 	CUITabButton*		GetButtonById_script		(LPCSTR s)						{ return GetButtonById(s);}
-//.	const shared_str	GetCommandName				(const shared_str& id);
-//.	CUITabButton*		GetButtonByCommand			(const shared_str& n);
 
 	void		ResetTab					();
 protected:
@@ -60,9 +60,6 @@ protected:
 
 	shared_str			m_sPushedId;
 	shared_str			m_sPrevPushedId;
-// Текущая нажатая кнопка. -1 - ни одна, 0 - первая, 1 - вторая, и т.д.
-//.	int					m_iPushedIndex;
-//.	int					m_iPrevPushedIndex;
 
 	// Цвет неактивных элементов
 	u32					m_cGlobalTextColor;
@@ -75,7 +72,3 @@ protected:
 	bool				m_bAcceleratorsEnable;
 	DECLARE_SCRIPT_REGISTER_FUNCTION
 };
-
-add_to_type_list(CUITabControl)
-#undef script_type_list
-#define script_type_list save_type_list(CUITabControl)

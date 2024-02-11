@@ -7,7 +7,7 @@
 #include "UIMpItemsStoreWnd.h"
 
 class CUIDragDropListEx;
-class CUI3tButtonEx;
+class CUI3tButton;
 class CUIStatic;
 class CUIMpItemsStoreWnd;
 class CUITabControl;
@@ -85,8 +85,8 @@ public:
 	
 	//
 	virtual void				Update						();				
-	virtual bool 				OnKeyboard					(int dik, EUIMessages keyboard_action);
-	virtual bool 				OnMouse						(float x, float y, EUIMessages mouse_action);
+	virtual bool 				OnKeyboardAction			(int dik, EUIMessages keyboard_action);
+	virtual bool 				OnMouseAction				(float x, float y, EUIMessages mouse_action);
 
 public:
 	virtual void 				Init						(const shared_str& sectionName, const shared_str& sectionPrice);
@@ -125,8 +125,7 @@ public:
 	virtual u32					GetPresetCost				(ETradePreset idx);
 	virtual	void				ClearPreset					(ETradePreset idx);
 	virtual	void				TryUsePreset				(ETradePreset idx);
-	virtual void 	Show						();
-	virtual void 	Hide						();
+	virtual void 	Show						(bool status);
 	virtual bool	IsIgnoreMoneyAndRank		();
 			
 			bool				HasItemInGroup				(shared_str const & section_name);
@@ -150,22 +149,22 @@ private:
 	CUIStatic*			m_static_player_rank;
 	CUIStatic*			m_static_information;
 	CUIStatic*			m_static_money_change;
-	CUI3tButtonEx* 		m_btn_shop_back;
-	CUI3tButtonEx* 		m_btn_ok;
-	CUI3tButtonEx* 		m_btn_cancel;
+	CUI3tButton* 		m_btn_shop_back;
+	CUI3tButton* 		m_btn_ok;
+	CUI3tButton* 		m_btn_cancel;
 
-	CUI3tButtonEx* 		m_btns_preset		[5];
-	CUI3tButtonEx* 		m_btns_save_preset	[3];
-	CUI3tButtonEx* 		m_btn_reset;
-	CUI3tButtonEx* 		m_btn_sell;
+	CUI3tButton* 		m_btns_preset		[5];
+	CUI3tButton* 		m_btns_save_preset	[3];
+	CUI3tButton* 		m_btn_reset;
+	CUI3tButton* 		m_btn_sell;
 
-	CUI3tButtonEx* 		m_btn_pistol_ammo;
-	CUI3tButtonEx*		m_btn_pistol_silencer;
-	CUI3tButtonEx* 		m_btn_rifle_ammo;
-	CUI3tButtonEx* 		m_btn_rifle_silencer;
-	CUI3tButtonEx* 		m_btn_rifle_scope;
-	CUI3tButtonEx* 		m_btn_rifle_glauncher;
-	CUI3tButtonEx* 		m_btn_rifle_ammo2;
+	CUI3tButton* 		m_btn_pistol_ammo;
+	CUI3tButton*		m_btn_pistol_silencer;
+	CUI3tButton* 		m_btn_rifle_ammo;
+	CUI3tButton* 		m_btn_rifle_silencer;
+	CUI3tButton* 		m_btn_rifle_scope;
+	CUI3tButton* 		m_btn_rifle_glauncher;
+	CUI3tButton* 		m_btn_rifle_ammo2;
 	CUIItemInfo*		m_item_info;
 	CUIStatic*			m_static_item_rank;
 	u32					m_item_color_restr_rank;

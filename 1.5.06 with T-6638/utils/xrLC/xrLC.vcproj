@@ -208,6 +208,7 @@
 				GenerateMapFile="false"
 				MapFileName=""
 				SubSystem="2"
+				StackReserveSize="2097152"
 				LargeAddressAware="2"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -640,34 +641,6 @@
 			</File>
 			<File
 				RelativePath=".\xrHierrarhy.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Mixed|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\xrMergeLM.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"

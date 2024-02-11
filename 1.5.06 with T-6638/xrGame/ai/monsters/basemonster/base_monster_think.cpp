@@ -66,7 +66,8 @@ void CBaseMonster::post_fsm_update()
 	m_bRunTurnLeft = m_bRunTurnRight = false;
 	
 
-	if (is_state(state, eStateAttack) && control().path_builder().is_moving_on_path()) {
+	if (is_state(state, eStateAttack) && control().path_builder().is_moving_on_path())
+	{
 
 		float	dir_yaw = control().path_builder().detail().direction().getH();
 		float	yaw_target = Fvector().sub(EnemyMan.get_enemy()->Position(), Position()).getH();

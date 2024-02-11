@@ -2,7 +2,6 @@
 #include <dinput.h>
 #include "UISkinSelector.h"
 #include "../level.h"
-//#include"../hudmanager.h"
 #include "UIXmlInit.h"
 #include "UIStatic.h"
 #include "UIAnimatedStatic.h"
@@ -89,7 +88,6 @@ void CUISkinSelectorWnd::UpdateSkins()
             m_pImage[i]->InitTextureEx(m_skins[i + m_firstSkin].c_str(), *m_shader);
 		else
 			m_pImage[i]->InitTexture(m_skins[i + m_firstSkin].c_str());
-//.		m_pImage[i]->RescaleRelative2Rect(m_pImage[i]->GetStaticItem()->GetOriginalRect());
 
 		if (m_iActiveIndex - m_firstSkin == i)
 			m_pImage[i]->SetSelectedState(true);
@@ -100,7 +98,7 @@ void CUISkinSelectorWnd::UpdateSkins()
 		if (m_firstSkin + i < 10)
 		{
 			itoa((m_firstSkin + 1 + i)%10,buf,10);
-			strcat_s( buf, sizeof(buf), " " );
+			xr_strcat( buf, sizeof(buf), " " );
 			m_pImage[i]->SetText(buf);
 		}
 		else
@@ -127,15 +125,15 @@ void CUISkinSelectorWnd::Init(const char* strSectionName)
 	CUIXmlInit::InitStatic(xml_doc,"skin_selector:background",	0,	m_pBackground);
 	CUIXmlInit::InitStatic(xml_doc,"skin_selector:image_frames",0,	m_pFrames);
 
-	CUIXmlInit::Init3tButtonEx(xml_doc,"skin_selector:image_frames:btn_left",	0,	m_pButtons[0]);
-	CUIXmlInit::Init3tButtonEx(xml_doc,"skin_selector:image_frames:btn_right",0,	m_pButtons[1]);
+	CUIXmlInit::Init3tButton(xml_doc,"skin_selector:image_frames:btn_left",	0,	m_pButtons[0]);
+	CUIXmlInit::Init3tButton(xml_doc,"skin_selector:image_frames:btn_right",0,	m_pButtons[1]);
 
 	CUIXmlInit::InitAnimatedStatic(xml_doc,"skin_selector:image_frames:a_static_1",	0,	m_pAnims[0]);
 	CUIXmlInit::InitAnimatedStatic(xml_doc,"skin_selector:image_frames:a_static_2",	0,	m_pAnims[1]);
 
-	CUIXmlInit::Init3tButtonEx(xml_doc,"skin_selector:btn_spectator",	0,m_pBtnSpectator);
-	CUIXmlInit::Init3tButtonEx(xml_doc,"skin_selector:btn_autoselect",0,m_pBtnAutoSelect);
-	CUIXmlInit::Init3tButtonEx(xml_doc,"skin_selector:btn_back",		0,m_pBtnBack);
+	CUIXmlInit::Init3tButton(xml_doc,"skin_selector:btn_spectator",	0,m_pBtnSpectator);
+	CUIXmlInit::Init3tButton(xml_doc,"skin_selector:btn_autoselect",0,m_pBtnAutoSelect);
+	CUIXmlInit::Init3tButton(xml_doc,"skin_selector:btn_back",		0,m_pBtnBack);
 
 	if (xml_doc.NavigateToNode("skin_selector:skin_shader",0))
 		m_shader = xml_doc.Read("skin_selector:skin_shader",0,"");
@@ -144,7 +142,7 @@ void CUISkinSelectorWnd::Init(const char* strSectionName)
 	string64 buff;
 	for (int i = 0; i<4; i++)
 	{
-		sprintf_s(buff,"skin_selector:image_%d",i);
+		xr_sprintf(buff,"skin_selector:image_%d",i);
 		CUIXmlInit::InitStatic(xml_doc,buff,0,m_pImage[i]);
 	}
 	UpdateSkins();
@@ -202,14 +200,16 @@ void CUISkinSelectorWnd::SendMessage(CUIWindow *pWnd, s16 msg, void *pData)
 	}
 }
 
-void CUISkinSelectorWnd::OnBtnCancel(){
-    Game().StartStopMenu(this,true);
+void CUISkinSelectorWnd::OnBtnCancel()
+{
+    HideDialog();
 	game_cl_mp* mp = smart_cast<game_cl_mp*>(&(Game()));
 	mp->OnSkinMenu_Cancel();
 }
 
-void CUISkinSelectorWnd::OnBtnOK(){
-	Game().StartStopMenu(this,true);
+void CUISkinSelectorWnd::OnBtnOK()
+{
+	HideDialog();
 	game_cl_mp *game = smart_cast<game_cl_mp*>(&(Game()));
 	VERIFY(game);
 	//game_cl_Deathmatch * dm = smart_cast<game_cl_Deathmatch *>(&(Game()));
@@ -222,12 +222,12 @@ void CUISkinSelectorWnd::OnBtnOK(){
 	game->OnSkinMenu_Ok();
 }
 
-bool CUISkinSelectorWnd::OnMouse(float x, float y, EUIMessages mouse_action)
+bool CUISkinSelectorWnd::OnMouseAction(float x, float y, EUIMessages mouse_action)
 {
-	return CUIWindow::OnMouse(x,y,mouse_action);	
+	return CUIWindow::OnMouseAction(x,y,mouse_action);	
 }
 
-bool CUISkinSelectorWnd::OnKeyboard(int dik, EUIMessages keyboard_action)
+bool CUISkinSelectorWnd::OnKeyboardAction(int dik, EUIMessages keyboard_action)
 {
 	if (WINDOW_KEY_PRESSED != keyboard_action)
 	{
@@ -236,7 +236,7 @@ bool CUISkinSelectorWnd::OnKeyboard(int dik, EUIMessages keyboard_action)
 			ShowChildren(true);
 			game_cl_mp* game = smart_cast<game_cl_mp*>(&Game());
 			game->OnKeyboardRelease(kSCORES);
-			UI()->GetUICursor()->Show();
+			UI().GetUICursor().Show();
 		}
 		
 		return false;
@@ -247,7 +247,7 @@ bool CUISkinSelectorWnd::OnKeyboard(int dik, EUIMessages keyboard_action)
         ShowChildren(false);
 		game_cl_mp* game = smart_cast<game_cl_mp*>(&Game());
 		game->OnKeyboardPress(kSCORES);
-		UI()->GetUICursor()->Hide();
+		UI().GetUICursor().Hide();
 		return false;
 	}
 
@@ -274,8 +274,6 @@ bool CUISkinSelectorWnd::OnKeyboard(int dik, EUIMessages keyboard_action)
 
 	switch (dik){
 		case DIK_ESCAPE:
-//			Game().StartStopMenu(this,true);
-//			dm->OnSkinMenuBack();
 			OnBtnCancel();
 			return true;
 		case DIK_SPACE: // do autoselect

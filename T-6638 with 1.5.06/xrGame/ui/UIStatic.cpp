@@ -182,7 +182,8 @@ void CUIStatic::Update()
 			Fvector2 _sz;
 			_sz.set				(m_lanim_xform.m_origSize.x*f_scale, m_lanim_xform.m_origSize.y*f_scale );
 			SetWndSize			(_sz);
-		}else
+		}
+		else
 		{
 			EnableHeading_int	( m_bHeading );
 			SetWndSize			(m_lanim_xform.m_origSize);
@@ -271,51 +272,3 @@ void CUIStatic::OnFocusLost()
 	if(g_statHint->Owner()==this)
 		g_statHint->Discard	();
 }
-
-//-------------------------------------
-CUITextWnd::CUITextWnd()
-{}
-
-void CUITextWnd::AdjustHeightToText()
-{
-	if( !fsimilar(TextItemControl().m_wndSize.x, GetWidth()) )
-	{
-		TextItemControl().m_wndSize.x	= GetWidth();
-		TextItemControl().ParseText		(true);
-	}
-	SetHeight				(TextItemControl().GetVisibleHeight());
-}
-
-void CUITextWnd::AdjustWidthToText()
-{
-	float _len		= TextItemControl().GetFont()->SizeOf_(TextItemControl().GetText());
-	UI().ClientToScreenScaledWidth(_len);
-	SetWidth		(_len);
-}
-
-
-void CUITextWnd::Draw()
-{
-	if( !fsimilar(TextItemControl().m_wndSize.x, m_wndSize.x) || !fsimilar(TextItemControl().m_wndSize.y, m_wndSize.y))
-	{
-		TextItemControl().m_wndSize		= m_wndSize;
-		TextItemControl().ParseText		(true);
-	}
-
-	Fvector2			p;
-	GetAbsolutePos		(p);
-	TextItemControl().Draw		(p.x, p.y);
-}
-
-void CUITextWnd::Update()
-{
-	R_ASSERT(GetChildWndList().size()==0);
-	UpdateColorAnimation();
-	inherited::Update();
-}
-
-void CUITextWnd::ColorAnimationSetTextColor(u32 color, bool only_alpha)
-{
-	SetTextColor( (only_alpha)?subst_alpha(GetTextColor(),color) : color);
-}
-

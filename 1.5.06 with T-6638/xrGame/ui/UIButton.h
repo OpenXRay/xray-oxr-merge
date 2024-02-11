@@ -10,9 +10,9 @@ private:
 	typedef			CUIStatic				inherited;
 public:
 					CUIButton				();
-	virtual			~CUIButton				();
+	virtual			~CUIButton				()			{};
 
-	virtual bool	OnMouse					(float x, float y, EUIMessages mouse_action);
+	virtual bool	OnMouseAction			(float x, float y, EUIMessages mouse_action);
 	virtual void	OnClick					();
 
 	//прорисовка окна
@@ -22,7 +22,7 @@ public:
 
 	virtual void	Update					();
 	virtual void	Enable					(bool status);
-	virtual bool	OnKeyboard				(int dik, EUIMessages keyboard_action);
+	virtual bool	OnKeyboardAction		(int dik, EUIMessages keyboard_action);
 	virtual void	OnFocusLost				();
 
 	//режимы в которых можно нажимать кнопку
@@ -30,11 +30,6 @@ public:
 							   //нажатии и отпускании на ней мыши
 				 DOWN_PRESS    //сразу при нажатии
 			} E_PRESS_MODE;
-
-
-	//заново подготовить состояние
-    virtual void	Reset					();
-
 
 	//подсвечен ли текст на кнопке
 	// принудительная подсветка
@@ -46,9 +41,13 @@ public:
 		BUTTON_UP      //при удерживаемой кнопки мыши 
 	} E_BUTTON_STATE;
 
+
+	//заново подготовить состояние
+    virtual void	Reset					();
+
 	// Установка состояния кнопки: утоплена, не утоплена
-	void				SetButtonMode			(E_BUTTON_STATE eBtnState)	{ m_eButtonState = eBtnState; }
-	E_BUTTON_STATE		GetButtonsState			()							{ return m_eButtonState;}
+	void				SetButtonState			(E_BUTTON_STATE eBtnState)	{ m_eButtonState = eBtnState; }
+	E_BUTTON_STATE		GetButtonState			() const					{ return m_eButtonState;}
 
 	// Поведение кнопки как переключателя реализовано пока только в режиме NORMAL_PRESS
 	void				SetButtonAsSwitch		(bool bAsSwitch)			{ m_bIsSwitch = bAsSwitch; }
@@ -79,8 +78,3 @@ protected:
 
 	DECLARE_SCRIPT_REGISTER_FUNCTION
 };
-
-
-add_to_type_list(CUIButton)
-#undef script_type_list
-#define script_type_list save_type_list(CUIButton)

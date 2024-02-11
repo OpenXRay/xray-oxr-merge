@@ -19,24 +19,14 @@ CUIDialogWnd:: CUIDialogWnd()
 }
 
 CUIDialogWnd::~ CUIDialogWnd()
+{}
+
+void CUIDialogWnd::Show(bool status)
 {
-}
+	inherited::Show		(status);
 
-void CUIDialogWnd::Show()
-{
-	inherited::Enable(true);
-	inherited::Show(true);
-
-	ResetAll();
-}
-
-
-void CUIDialogWnd::Hide()
-{
-
-	inherited::Enable(false);
-	inherited::Show(false);
-	
+	if(status)
+		ResetAll();
 }
 
 bool CUIDialogWnd::IR_OnKeyboardHold(int dik)
@@ -45,7 +35,8 @@ bool CUIDialogWnd::IR_OnKeyboardHold(int dik)
 	if (OnKeyboardHold(dik)) 
 		return true;
 
-	if( !StopAnyMove() && g_pGameLevel ){
+	if( !StopAnyMove() && g_pGameLevel )
+	{
 		CObject* O = Level().CurrentEntity();
 		if( O ){
 			IInputReceiver*		IR	= smart_cast<IInputReceiver*>( smart_cast<CGameObject*>(O) );
@@ -72,7 +63,8 @@ bool CUIDialogWnd::IR_OnKeyboardPress(int dik)
 	if (OnKeyboard(dik,	WINDOW_KEY_PRESSED))
 		return true;
 
-	if( !StopAnyMove() && g_pGameLevel ){
+	if( !StopAnyMove() && g_pGameLevel )
+	{
 		CObject* O = Level().CurrentEntity();
 		if( O ){
 			IInputReceiver*		IR	= smart_cast<IInputReceiver*>( smart_cast<CGameObject*>(O) );
@@ -100,7 +92,8 @@ bool CUIDialogWnd::IR_OnKeyboardRelease(int dik)
 	if (OnKeyboard(dik,	WINDOW_KEY_RELEASED))
 		return true;
 
-	if( !StopAnyMove() && g_pGameLevel ){
+	if( !StopAnyMove() && g_pGameLevel )
+	{
 		CObject* O = Level().CurrentEntity();
 		if( O ){
 			IInputReceiver*		IR	= smart_cast<IInputReceiver*>( smart_cast<CGameObject*>(O) );
@@ -131,12 +124,12 @@ bool CUIDialogWnd::IR_OnMouseMove(int dx, int dy)
 	
 	if (GetUICursor()->IsVisible())
 	{ 
-//		GetUICursor()->MoveDelta(float(dx), float(dy));
 		GetUICursor()->UpdateCursorPosition();
 		Fvector2 cPos = GetUICursor()->GetCursorPosition();
 		OnMouse(cPos.x, cPos.y , WINDOW_MOUSE_MOVE);
 	}
-	else if( !StopAnyMove() && g_pGameLevel ){
+	else if( !StopAnyMove() && g_pGameLevel )
+	{
 		CObject* O = Level().CurrentEntity();
 		if( O ){
 			IInputReceiver*		IR	= smart_cast<IInputReceiver*>( smart_cast<CGameObject*>(O) );
@@ -156,10 +149,10 @@ bool CUIDialogWnd::OnKeyboardHold(int dik)
 	return inherited::OnKeyboardHold(dik);
 }
 
-bool CUIDialogWnd::OnKeyboard(int dik, EUIMessages keyboard_action)
+bool CUIDialogWnd::OnKeyboardAction(int dik, EUIMessages keyboard_action)
 {
 	if(!IR_process()) return false;
-	if (inherited::OnKeyboard(dik, keyboard_action) )
+	if (inherited::OnKeyboardAction(dik, keyboard_action) )
 		return true;
 	return false;
 }
@@ -168,10 +161,23 @@ bool CUIDialogWnd::IR_process()
 {
 	if(!IsEnabled())					return false;
 
+	if(GetHolder()->IgnorePause())		return true;
+
 	if(Device.Paused()&&!WorkInPause())	return false;
+	
 	return true;
 }
 
-void CUIDialogWnd::Update(){
-	CUIWindow::Update();
+CDialogHolder* CurrentDialogHolder();
+
+void CUIDialogWnd::ShowDialog(bool bDoHideIndicators)
+{
+	if(!IsShown())
+		CurrentDialogHolder()->StartDialog(this,bDoHideIndicators);
+}
+
+void CUIDialogWnd::HideDialog()
+{
+	R_ASSERT2(IsShown(), "dialog already hidden");
+	GetHolder()->StopDialog	(this);
 }

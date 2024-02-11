@@ -140,9 +140,9 @@ enum E_COMMON_FLAGS{
 CUIOptConCom g_OptConCom;
 
 #ifndef PURE_ALLOC
-#	ifndef USE_MEMORY_MONITOR
+//#	ifndef USE_MEMORY_MONITOR
 #		define SEVERAL_ALLOCATORS
-#	endif // USE_MEMORY_MONITOR
+//#	endif // USE_MEMORY_MONITOR
 #endif // PURE_ALLOC
 
 #ifdef SEVERAL_ALLOCATORS
@@ -259,7 +259,6 @@ public:
 			if (!OnServer())
 				return;
 
-//			Level().Server->game->SetGameTimeFactor(id1);
 			Level().SetGameTimeFactor(id1);
 		}
 	}
@@ -460,14 +459,14 @@ public:
 		string_path				S,S1;
 		S[0]					= 0;
 //.		sscanf					(args ,"%s",S);
-		strcpy_s					(S,args);
+		xr_strcpy					(S,args);
 		
 #ifdef DEBUG
 		CTimer					timer;
 		timer.Start				();
 #endif
 		if (!xr_strlen(S)){
-			strconcat			(sizeof(S),S,Core.UserName,"_","quicksave");
+			strconcat			(sizeof(S),S,Core.UserName," - ","quicksave");
 			NET_Packet			net_packet;
 			net_packet.w_begin	(M_SAVE_GAME);
 			net_packet.w_stringZ(S);
@@ -494,7 +493,7 @@ public:
 		strconcat					(sizeof(save_name),save_name,*CStringTable().translate("st_game_saved"),": ", S);
 		_s->wnd()->SetText			(save_name);
 
-		strcat					(S,".dds");
+		xr_strcat					(S,".dds");
 		FS.update_path			(S1,"$game_saves$",S);
 		
 #ifdef DEBUG
@@ -521,7 +520,7 @@ public:
 		string256					saved_game;
 		saved_game[0]				= 0;
 //.		sscanf						(args,"%s",saved_game);
-		strcpy_s					(saved_game, args);
+		xr_strcpy					(saved_game, args);
 		if (!xr_strlen(saved_game)) {
 			Log						("! Specify file name!");
 			return;
@@ -581,7 +580,7 @@ public:
 	virtual void	Execute				(LPCSTR args)
 	{
 		if (args && *args) {
-			strcpy_s				(g_last_saved_game,args);
+			xr_strcpy				(g_last_saved_game,args);
 			return;
 		}
 
@@ -739,7 +738,8 @@ public:
 		S[0]				= 0;
 		sscanf				(args,"%s",S);
 
-		if (!*S) {
+		if (!*S)
+		{
 			ai().level_graph().setup_current_level	(-1);
 			return;
 		}
@@ -783,13 +783,13 @@ public:
 	virtual void	Info	(TInfo& I)		
 	{
 		if(strstr(cName,"script_debug_break")==cName )
-			strcpy_s(I,"initiate script debugger [DebugBreak] command"); 
+			xr_strcpy(I,"initiate script debugger [DebugBreak] command"); 
 
 		else if(strstr(cName,"script_debug_stop")==cName )
-			strcpy_s(I,"stop script debugger activity"); 
+			xr_strcpy(I,"stop script debugger activity"); 
 
 		else if(strstr(cName,"script_debug_restart")==cName )
-			strcpy_s(I,"restarts script debugger or start if no script debugger presents"); 
+			xr_strcpy(I,"restarts script debugger or start if no script debugger presents"); 
 	}
 };
 #endif // #if defined(USE_DEBUGGER) && !defined(USE_LUA_STUDIO)
@@ -824,7 +824,7 @@ public:
 	}
 	virtual void	Info	(TInfo& I)		
 	{
-		strcpy_s(I,"dumps all infoportions that actor have"); 
+		xr_strcpy(I,"dumps all infoportions that actor have"); 
 	}
 };
 class CCC_DumpTasks : public IConsole_Command {
@@ -837,7 +837,7 @@ public:
 	}
 	virtual void	Info	(TInfo& I)		
 	{
-		strcpy_s(I,"dumps all tasks that actor have"); 
+		xr_strcpy(I,"dumps all tasks that actor have"); 
 	}
 };
 #include "map_manager.h"
@@ -849,7 +849,7 @@ public:
 	}
 	virtual void	Info	(TInfo& I)		
 	{
-		strcpy_s(I,"dumps all currentmap locations"); 
+		xr_strcpy(I,"dumps all currentmap locations"); 
 	}
 
 };
@@ -874,7 +874,7 @@ public:
 	}
 	virtual void	Info	(TInfo& I)		
 	{
-		strcpy_s(I,"dumps all creature names"); 
+		xr_strcpy(I,"dumps all creature names"); 
 	}
 
 };
@@ -884,8 +884,9 @@ public:
 class CCC_DebugFonts : public IConsole_Command {
 public:
 	CCC_DebugFonts (LPCSTR N) : IConsole_Command(N) {bEmptyArgsHandled = true; }
-	virtual void Execute				(LPCSTR args) {
-		HUD().GetUI()->StartStopMenu( xr_new<CUIDebugFonts>(), true);		
+	virtual void Execute				(LPCSTR args)
+	{
+		xr_new<CUIDebugFonts>()->ShowDialog(true);		
 	}
 };
 
@@ -896,6 +897,8 @@ public:
 	virtual void Execute(LPCSTR args) {
 
 		string128 param1, param2;
+		VERIFY( xr_strlen(args) < sizeof(string128) );
+
 		_GetItem(args,0,param1,' ');
 		_GetItem(args,1,param2,' ');
 
@@ -922,6 +925,8 @@ public:
 	virtual void Execute(LPCSTR args) {
 
 		string128 param1, param2;
+		VERIFY( xr_strlen(args) < sizeof(string128) );
+
 		_GetItem(args,0,param1,' ');
 		_GetItem(args,1,param2,' ');
 
@@ -961,7 +966,7 @@ public:
 	
 	//virtual void	Info	(TInfo& I)		
 	//{
-	//	strcpy_s(I,"restart game fast"); 
+	//	xr_strcpy(I,"restart game fast"); 
 	//}
 };
 #endif
@@ -974,7 +979,9 @@ public:
 	  virtual void	Execute	(LPCSTR args)
 	  {
 		  CCC_Integer::Execute	(args);
-		  dWorldSetQuickStepNumIterations(NULL,phIterations);
+		 // dWorldSetQuickStepNumIterations(NULL,phIterations);
+		  if( physics_world() )
+				 physics_world()->StepNumIterations( phIterations );
 	  }
 };
 
@@ -986,7 +993,8 @@ public:
 		{};
 	  virtual void	Execute	(LPCSTR args)
 	  {
-		  if(!ph_world)	return;
+		  if( !physics_world() )	
+			  return;
 #ifndef DEBUG
 		  if (g_pGameLevel && Level().game && GameID() != eGameIDSingle)
 		  {
@@ -994,14 +1002,14 @@ public:
 			  return;
 		  }
 #endif
-		  ph_world->SetGravity(float(atof(args)));
+		  physics_world()->SetGravity(float(atof(args)));
 	  }
 	  virtual void	Status	(TStatus& S)
 	{	
-		if(ph_world)
-			sprintf_s	(S,"%3.5f",ph_world->Gravity());
+		if(physics_world())
+			xr_sprintf	(S,"%3.5f",physics_world()->Gravity());
 		else
-			sprintf_s	(S,"%3.5f",default_world_gravity);
+			xr_sprintf	(S,"%3.5f",default_world_gravity);
 		while	(xr_strlen(S) && ('0'==S[xr_strlen(S)-1]))	S[xr_strlen(S)-1] = 0;
 	}
 	
@@ -1023,7 +1031,7 @@ public:
 	  }
 	  virtual void	Status	(TStatus& S)
 	  {	
-		 	sprintf_s	(S,"%3.5f",1.f/fixed_step);	  
+		 	xr_sprintf	(S,"%3.5f",1.f/ph_console::ph_step_time);	  
 	  }
 
 };
@@ -1115,7 +1123,7 @@ public:
 
 			string4096		S;
 			shared_str		m_script_name = "console command";
-			sprintf_s			(S,"%s\n",args);
+			xr_sprintf			(S,"%s\n",args);
 			int				l_iErrorCode = luaL_loadbuffer(ai().script_engine().lua(),S,xr_strlen(S),"@console_command");
 			if (!l_iErrorCode) {
 				l_iErrorCode = lua_pcall(ai().script_engine().lua(),0,0,0);
@@ -1142,12 +1150,12 @@ public:
 	}
 	virtual void	Status			(TStatus &S)
 	{
-		sprintf_s	(S,sizeof(S),"%f",Device.time_factor());
+		xr_sprintf	(S,sizeof(S),"%f",Device.time_factor());
 	}
 
 	virtual void	Info	(TInfo& I)
 	{
-		strcpy_s				(I,"[0.001 - 1000.0]");
+		xr_strcpy				(I,"[0.001 - 1000.0]");
 	}
 };
 
@@ -1196,7 +1204,6 @@ struct CCC_StartTimeSingle : public IConsole_Command {
 		if (!Level().Server->game)
 			return;
 
-//		Level().Server->game->SetGameTimeFactor(g_qwStartGameTime,g_fTimeFactor);
 		Level().SetGameTimeFactor(g_qwStartGameTime,g_fTimeFactor);
 	}
 
@@ -1204,7 +1211,7 @@ struct CCC_StartTimeSingle : public IConsole_Command {
 	{
 		u32 year = 1, month = 1, day = 1, hours = 0, mins = 0, secs = 0, milisecs = 0;
 		split_time	(g_qwStartGameTime, year, month, day, hours, mins, secs, milisecs);
-		sprintf_s		(S,"%d.%d.%d %d:%d:%d.%d",year,month,day,hours,mins,secs,milisecs);
+		xr_sprintf		(S,"%d.%d.%d %d:%d:%d.%d",year,month,day,hours,mins,secs,milisecs);
 	}
 };
 
@@ -1224,7 +1231,6 @@ struct CCC_TimeFactorSingle : public CCC_Float {
 		if (!Level().Server->game)
 			return;
 
-//		Level().Server->game->SetGameTimeFactor(g_fTimeFactor);
 		Level().SetGameTimeFactor(g_fTimeFactor);
 	}
 };
@@ -1330,7 +1336,7 @@ public		:
 
 	virtual void	Info	(TInfo& I)
 	{	
-		sprintf_s(I,"allows to change bind rotation and position offsets for attached item, <section_name> given as arguments");
+		xr_sprintf(I,"allows to change bind rotation and position offsets for attached item, <section_name> given as arguments");
 	}
 };
 
@@ -1383,7 +1389,7 @@ public:
 		if (0==strext(arguments))
 			strconcat			(sizeof(name),name,arguments,".ogf");
 		else
-			strcpy_s			(name,sizeof(name),arguments);
+			xr_strcpy			(name,sizeof(name),arguments);
 
 		if (!FS.exist(arguments) && !FS.exist(fn, "$level$", name) && !FS.exist(fn, "$game_meshes$", name)) {
 			Msg					("! Cannot find visual \"%s\"",arguments);
@@ -1441,7 +1447,7 @@ public:
 		{
 			return;
 		}
-		CUIGameSP* ui_game_sp = smart_cast<CUIGameSP*>( HUD().GetUI()->UIGame() );
+		CUIGameSP* ui_game_sp = smart_cast<CUIGameSP*>( CurrentGameUI() );
 		if ( !ui_game_sp )
 		{
 			return;
@@ -1468,7 +1474,7 @@ public:
 		{
 			return;
 		}
-		CUIGameSP* ui_game_sp = smart_cast<CUIGameSP*>( HUD().GetUI()->UIGame() );
+		CUIGameSP* ui_game_sp = smart_cast<CUIGameSP*>( CurrentGameUI() );
 		if ( !ui_game_sp )
 		{
 			return;
@@ -1522,7 +1528,7 @@ public:
 		
 //		GameSpyPatching.CheckForPatch(InformOfNoPatch);
 		
-		MainMenu()->GetGS()->m_pGS_Patching->CheckForPatch(InformOfNoPatch);
+		MainMenu()->GetGS()->GetGameSpyPatching()->CheckForPatch(InformOfNoPatch);
 	}
 };
 
@@ -1587,15 +1593,13 @@ void CCC_RegisterCommands()
 	CMD1(CCC_ALifeProcessTime,		"al_process_time"		);		// set process time
 	CMD1(CCC_ALifeObjectsPerUpdate,	"al_objects_per_update"	);		// set process time
 	CMD1(CCC_ALifeSwitchFactor,		"al_switch_factor"		);		// set switch factor
-#endif // MASTER_GOLD
+#endif
 
 
 	CMD3(CCC_Mask,				"hud_weapon",			&psHUD_Flags,	HUD_WEAPON);
 	CMD3(CCC_Mask,				"hud_info",				&psHUD_Flags,	HUD_INFO);
-
-#ifndef MASTER_GOLD
 	CMD3(CCC_Mask,				"hud_draw",				&psHUD_Flags,	HUD_DRAW);
-#endif // MASTER_GOLD
+
 	// hud
 	psHUD_Flags.set(HUD_CROSSHAIR,		true);
 	psHUD_Flags.set(HUD_WEAPON,			true);
@@ -1751,7 +1755,7 @@ CMD4(CCC_Integer,			"hit_anims_tune",						&tune_hit_anims,		0, 1);
 
 	CMD3(CCC_Mask,		"g_autopickup",			&psActorFlags,	AF_AUTOPICKUP);
 	CMD3(CCC_Mask,		"g_dynamic_music",		&psActorFlags,	AF_DYNAMIC_MUSIC);
-
+	CMD3(CCC_Mask,		"g_important_save",		&psActorFlags,	AF_IMPORTANT_SAVE);
 
 #ifdef DEBUG
 	CMD1(CCC_LuaHelp,				"lua_help");

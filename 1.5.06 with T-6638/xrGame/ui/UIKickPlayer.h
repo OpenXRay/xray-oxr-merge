@@ -3,7 +3,7 @@
 #include "UIDialogWnd.h"
 
 class CUIStatic;
-class CUI3tButtonEx;
+class CUI3tButton;
 class CUIFrameWindow;
 class CUIListBox;
 class CUISpinNum;

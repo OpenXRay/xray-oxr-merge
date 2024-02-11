@@ -2,12 +2,12 @@
 #include "UIVotingCategory.h"
 #include "UIXmlInit.h"
 #include "UI3tButton.h"
-#include "../game_cl_teamdeathmatch.h"
 #include "UIKickPlayer.h"
 #include "UIChangeMap.h"
 #include "UIChangeWeather.h"
-#include "UITextVote.h"
+#include "UIGameCustom.h"
 
+#include "../game_cl_teamdeathmatch.h"
 #include "../game_sv_mp_vote_flags.h"
 
 
@@ -21,11 +21,11 @@ CUIVotingCategory::CUIVotingCategory()
 
 	bkgrnd			= xr_new<CUIStatic>(); bkgrnd->SetAutoDelete(true); AttachChild(bkgrnd);
 	header			= xr_new<CUIStatic>(); header->SetAutoDelete(true);	AttachChild(header);
-	btn_cancel		= xr_new<CUI3tButtonEx>();btn_cancel->SetAutoDelete(true); AttachChild(btn_cancel);
+	btn_cancel		= xr_new<CUI3tButton>();btn_cancel->SetAutoDelete(true); AttachChild(btn_cancel);
 
 	for (int i = 0; i<7; i++)
 	{
-		btn[i] = xr_new<CUI3tButtonEx>();
+		btn[i] = xr_new<CUI3tButton>();
 		btn[i]->SetAutoDelete(true);
 		AttachChild(btn[i]);
 
@@ -61,13 +61,13 @@ void CUIVotingCategory::InitVotingCategory()
 
 	string256 _path;
 	for (int i = 0; i<7; i++){
-		sprintf_s(_path, "category:btn_%d", i + 1);
-		CUIXmlInit::Init3tButtonEx(*xml_doc, _path, 0, btn[i]);
-		sprintf_s(_path, "category:txt_%d", i + 1);
+		xr_sprintf(_path, "category:btn_%d", i + 1);
+		CUIXmlInit::Init3tButton(*xml_doc, _path, 0, btn[i]);
+		xr_sprintf(_path, "category:txt_%d", i + 1);
 		CUIXmlInit::InitStatic(*xml_doc, _path, 0, txt[i]);
 	}
 
-	CUIXmlInit::Init3tButtonEx(*xml_doc, "category:btn_cancel", 0, btn_cancel);
+	CUIXmlInit::Init3tButton(*xml_doc, "category:btn_cancel", 0, btn_cancel);
 }
 
 void CUIVotingCategory::SendMessage(CUIWindow* pWnd, s16 msg, void* pData)
@@ -87,9 +87,9 @@ void CUIVotingCategory::SendMessage(CUIWindow* pWnd, s16 msg, void* pData)
 
 #include <dinput.h>
 
-bool CUIVotingCategory::OnKeyboard(int dik, EUIMessages keyboard_action)
+bool CUIVotingCategory::OnKeyboardAction(int dik, EUIMessages keyboard_action)
 {
-	CUIDialogWnd::OnKeyboard(dik, keyboard_action);
+	CUIDialogWnd::OnKeyboardAction(dik, keyboard_action);
 	
 	if (WINDOW_KEY_PRESSED == keyboard_action)
 	{
@@ -109,7 +109,7 @@ bool CUIVotingCategory::OnKeyboard(int dik, EUIMessages keyboard_action)
 
 void CUIVotingCategory::OnBtn(int i)
 {
-	game_cl_mp* game = smart_cast<game_cl_mp*>(&Game());
+//	game_cl_mp* game = smart_cast<game_cl_mp*>(&Game());
 
 	//check buttons state, based on voting mask
 	u16 flag = 1<<(u16(i+1) & 0xff);
@@ -118,46 +118,46 @@ void CUIVotingCategory::OnBtn(int i)
 		switch (i){
 		case 0:
 			Console->Execute("cl_votestart restart");
-			game->StartStopMenu(this, true);
+			HideDialog();
 			break;
 		case 1:
 			Console->Execute("cl_votestart restart_fast");
-			game->StartStopMenu(this, true);
+			HideDialog();
 			break;
 		case 2:
-			game->StartStopMenu(this, true);
+			HideDialog();
 			if (!kick)
 				kick = xr_new<CUIKickPlayer>();
 			kick->InitKick(*xml_doc);
-			game->StartStopMenu(kick, true);
+			kick->ShowDialog			(true);
 			break;
 		case 3:
-			game->StartStopMenu(this, true);
+			HideDialog();
 			if (!kick)
 				kick = xr_new<CUIKickPlayer>();
 			kick->InitBan(*xml_doc);
-			game->StartStopMenu(kick, true);
+			kick->ShowDialog			(true);
 			break;
 		case 4:
-			game->StartStopMenu			(this, true);
+			HideDialog();
 			if (!change_map)
 				change_map				= xr_new<CUIChangeMap>();
 			change_map->InitChangeMap	(*xml_doc);
-			game->StartStopMenu			(change_map, true);
+			change_map->ShowDialog		(true);
 			break;
 		case 5:
-			game->StartStopMenu			(this, true);
+			HideDialog();
 			if (!change_weather)
 				change_weather			= xr_new<CUIChangeWeather>();
 			change_weather->InitChangeWeather(*xml_doc);
-			game->StartStopMenu(change_weather, true);
+			change_weather->ShowDialog	(true);
 			break;
 		case 6:
-			game->StartStopMenu			(this, true);
+			HideDialog();
 			if (!change_gametype)
 				change_gametype			= xr_new<CUIChangeGameType>();
 			change_gametype->InitChangeGameType(*xml_doc);
-			game->StartStopMenu(change_gametype, true);
+			change_gametype->ShowDialog	(true);
 			break;
 		case 7:
 			break;
@@ -167,8 +167,7 @@ void CUIVotingCategory::OnBtn(int i)
 
 void CUIVotingCategory::OnBtnCancel()
 {
-	game_cl_mp* game = smart_cast<game_cl_mp*>(&Game());
-	game->StartStopMenu(this, true);
+	HideDialog();
 }
 
 void CUIVotingCategory::Update				()

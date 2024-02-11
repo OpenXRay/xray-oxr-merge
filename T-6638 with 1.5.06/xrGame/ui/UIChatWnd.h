@@ -5,7 +5,6 @@
 class CUIXml;
 class CUIGameLog;
 class CUIEditBox;
-class CUITextWnd;
 
 class CUIChatWnd: public CUIDialogWnd, public CUIWndCallback
 {
@@ -24,8 +23,8 @@ public:
 
 
 protected:
-	CUIEditBox*			UIEditBox;
-	CUITextWnd*			UIPrefix;
+	CUIEditBox			UIEditBox;
+	CUIStatic			UIPrefix;
 
 	bool				sendNextMessageToAll;
 	bool				pendingGameMode;

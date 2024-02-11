@@ -17,6 +17,7 @@ class UIPlayerItem : public CUIWindow
 {
 private:
 	typedef CUIWindow									inherited;
+	typedef associative_vector<shared_str, CUIStatic*>	TMapStrToUIText;
 	typedef associative_vector<shared_str, CUIStatic*>	TMapStrToUIStatic;
 	// this is for the case when user disconnects.
 	// we just call method RemovePlayer
@@ -26,7 +27,7 @@ private:
 	ETeam			m_prevTeam;
 	s32				m_checkPoints;
 
-	TMapStrToUIStatic m_text_params;
+	TMapStrToUIText   m_text_params;
 	TMapStrToUIStatic m_icon_params;
 
 	ClientID myClientId;

@@ -110,14 +110,14 @@ void CControllerAura::update_schedule()
 
 		bool need_be_active		= (dist_to_actor < aura_radius);
 
-		if (active()) 
+		if (active())
 		{
-			if (!need_be_active) 
+			if (!need_be_active)
 			{
 				m_effector->switch_off	();
 				m_effector			=	0;
 			}
-		} 
+		}
 		else 
 		{
 			if ( need_be_active )

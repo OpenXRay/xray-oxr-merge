@@ -838,7 +838,8 @@ public:
 		if (!ai().get_level_graph())
 			return;
 
-		if (!*args) {
+		if (!*args)
+		{
 			ai().level_graph().setup_current_level	(-1);
 			return;
 		}
@@ -1415,7 +1416,6 @@ struct CCC_TimeFactorSingle : public CCC_Float {
 
 		Level().SetGameTimeFactor(g_fTimeFactor);
 	}
-
 };
 
 #ifdef DEBUG
@@ -1803,7 +1803,6 @@ void CCC_RegisterCommands()
 	// alife
 #ifdef DEBUG
 	CMD1(CCC_ALifePath,			"al_path"				);		// build path
-
 #endif // DEBUG
 	
 	CMD1(CCC_ALifeSave,			"save"					);		// save game
@@ -1819,7 +1818,7 @@ void CCC_RegisterCommands()
 	CMD1(CCC_ALifeProcessTime,		"al_process_time"		);		// set process time
 	CMD1(CCC_ALifeObjectsPerUpdate,	"al_objects_per_update"	);		// set process time
 	CMD1(CCC_ALifeSwitchFactor,		"al_switch_factor"		);		// set switch factor
-#endif // #ifndef MASTER_GOLD
+#endif
 
 
 	CMD3(CCC_Mask,				"hud_weapon",			&psHUD_Flags,	HUD_WEAPON);
@@ -1841,11 +1840,9 @@ void CCC_RegisterCommands()
 #endif // DEBUG
 
 	// Demo
-#if 1//ndef MASTER_GOLD
 	CMD1(CCC_DemoPlay,			"demo_play"				);
 	CMD1(CCC_DemoRecord,		"demo_record"			);
 	CMD1(CCC_DemoRecordSetPos,	"demo_set_cam_position"	);
-#endif // #ifndef MASTER_GOLD
 	
 #ifndef MASTER_GOLD
 	// ai

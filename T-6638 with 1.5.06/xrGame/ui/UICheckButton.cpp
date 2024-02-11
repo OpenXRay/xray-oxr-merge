@@ -10,7 +10,8 @@
 
 CUICheckButton::CUICheckButton()
 {	
-	TextItemControl()->SetTextAlignment(CGameFont::alLeft);
+	SetTextAlignment(CGameFont::alLeft);
+	SetButtonAsSwitch(true);
 	m_pDependControl = NULL;
 }
 
@@ -60,7 +61,6 @@ void CUICheckButton::UndoOptValue()
 	CUIOptionsItem::UndoOptValue();
 }
 
-
 void CUICheckButton::InitCheckButton(Fvector2 pos, Fvector2 size, LPCSTR texture_name)
 {
 	InitButton				(pos, size);
@@ -78,9 +78,6 @@ void CUICheckButton::InitTexture2(LPCSTR texture_name)
 
 void CUICheckButton::OnFocusLost()
 {
-	if(m_eButtonState==BUTTON_PUSHED && pInput->iGetAsyncBtnState(0))
-		return;
-
 	inherited::OnFocusLost();
 }
 
@@ -93,22 +90,3 @@ void CUICheckButton::Show( bool status )
 {
 	inherited::Show( status );
 }
-
-bool CUICheckButton::OnMouseDown( int mouse_btn )
-{
-	if (mouse_btn==MOUSE_1)
-	{
-		if (GetButtonState() == BUTTON_NORMAL)
-			SetButtonState(BUTTON_PUSHED);
-		else
-			SetButtonState(BUTTON_NORMAL);
-	}
-	GetMessageTarget()->SendMessage(this, BUTTON_CLICKED, NULL);
-	return true;
-}
-
-bool CUICheckButton::OnMouseAction( float x, float y, EUIMessages mouse_action )
-{
-	return CUIWindow::OnMouseAction(x,y,mouse_action);
-}
-

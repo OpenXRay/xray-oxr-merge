@@ -16,11 +16,11 @@ public:
 	virtual void	Update					();
 
 	// CUIOptionsItem
-	virtual void	SetCurrentValue			();
-	virtual void	SaveValue				();
-	virtual bool	IsChanged				();
-	virtual void 	SeveBackUpValue			();
-	virtual void 	Undo					();
+	virtual void	SetCurrentOptValue	();	// opt->current
+	virtual void	SaveBackUpOptValue	();	// current->backup
+	virtual void	SaveOptValue		();	// current->opt
+	virtual void	UndoOptValue		();	// backup->current
+	virtual bool	IsChangedOptValue	() const;	// backup!=current
 
 	virtual void 	OnFocusReceive		();
 	virtual void	OnFocusLost			();
@@ -30,25 +30,19 @@ public:
 			void InitCheckButton		(Fvector2 pos, Fvector2 size, LPCSTR texture_name);
 			void init_hint_wnd_xml		( CUIXml& xml, LPCSTR path );
 
-//	virtual void SetTextX(float x) {/*do nothing*/}
-
-			void	set_hint_wnd			(UIHint* hint_wnd);
+			void	set_hint_wnd		(UIHint* hint_wnd);
 
 	//состояние кнопки
-	IC	bool	GetCheck()
-	{
-		return m_eButtonState == BUTTON_PUSHED;
-	}
+	IC	bool	GetCheck				() const {return GetButtonState() == BUTTON_PUSHED;}
 	IC	void	SetCheck(bool ch)
 	{
-		m_eButtonState = ch ? BUTTON_PUSHED : BUTTON_NORMAL;
-		SeveBackUpValue();
+		SetButtonState(ch ? BUTTON_PUSHED : BUTTON_NORMAL);
 	}
 
 	void SetDependControl(CUIWindow* pWnd);
 
 private:
-	bool			b_backup_val;
+	bool							m_opt_backup_value;
 	void InitTexture2				(LPCSTR texture_name);
 	CUIWindow* m_pDependControl;
 

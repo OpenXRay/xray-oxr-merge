@@ -116,11 +116,11 @@ void CUIHudStatesWnd::InitFromXml( CUIXml& xml, LPCSTR path )
 
 //	m_lanim_name				= xml.ReadAttrib( "indik_rad", 0, "light_anim", "" );
 
-	m_ui_weapon_cur_ammo		= UIHelper::CreateTextWnd( xml, "static_cur_ammo", this );
-	m_ui_weapon_fmj_ammo		= UIHelper::CreateTextWnd( xml, "static_fmj_ammo", this );
-	m_ui_weapon_ap_ammo			= UIHelper::CreateTextWnd( xml, "static_ap_ammo", this );
-	m_fire_mode					= UIHelper::CreateTextWnd( xml, "static_fire_mode", this );
-	m_ui_grenade				= UIHelper::CreateTextWnd( xml, "static_grenade", this );
+	m_ui_weapon_cur_ammo		= UIHelper::CreateStatic( xml, "static_cur_ammo", this );
+	m_ui_weapon_fmj_ammo		= UIHelper::CreateStatic( xml, "static_fmj_ammo", this );
+	m_ui_weapon_ap_ammo			= UIHelper::CreateStatic( xml, "static_ap_ammo", this );
+	m_fire_mode					= UIHelper::CreateStatic( xml, "static_fire_mode", this );
+	m_ui_grenade				= UIHelper::CreateStatic( xml, "static_grenade", this );
 	
 	m_ui_weapon_icon			= UIHelper::CreateStatic( xml, "static_wpn_icon", this );
 	m_ui_weapon_icon->SetShader( InventoryUtilities::GetEquipmentIconsShader() );
@@ -232,11 +232,6 @@ void CUIHudStatesWnd::Update()
 
 void CUIHudStatesWnd::UpdateHealth( CActor* actor )
 {
-//	if ( Device.dwTimeGlobal - m_timer_1sec > 1000 ) // 1 sec
-//	{
-//		m_timer_1sec = Device.dwTimeGlobal;
-//	}
-	
 	float cur_health = actor->GetfHealth();
 	m_ui_health_bar->SetProgressPos(iCeil(cur_health * 100.0f * 35.f) / 35.f);
 	if ( _abs(cur_health - m_last_health) > m_health_blink )

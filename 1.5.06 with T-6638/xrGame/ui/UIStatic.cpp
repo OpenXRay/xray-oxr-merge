@@ -55,7 +55,7 @@ CUIStatic:: CUIStatic()
 
 CUIStatic::~ CUIStatic()
 {
-	xr_delete(m_pLines);
+	xr_delete(m_pTextControl);
 }
 
 void CUIStatic::SetXformLightAnim(LPCSTR lanim, bool bCyclic)
@@ -71,52 +71,18 @@ void CUIStatic::SetXformLightAnim(LPCSTR lanim, bool bCyclic)
 	m_lanim_xform.m_origSize			= GetWndSize();
 }
 
-void CUIStatic::SetClrLightAnim(LPCSTR lanim, bool bCyclic, bool bOnlyAlpha, bool bTextColor, bool bTextureColor)
+void CUIStatic::InitTexture(LPCSTR texture)
 {
-	if(lanim && lanim[0]!=0)
-		m_lanim_clr.m_lanim	= LALib.FindItem(lanim);
-	else
-		m_lanim_clr.m_lanim	= NULL;
-	
-	m_lanim_clr.m_lanimFlags.zero		();
-
-	m_lanim_clr.m_lanimFlags.set		(LA_CYCLIC,			bCyclic);
-	m_lanim_clr.m_lanimFlags.set		(LA_ONLYALPHA,		bOnlyAlpha);
-	m_lanim_clr.m_lanimFlags.set		(LA_TEXTCOLOR,		bTextColor);
-	m_lanim_clr.m_lanimFlags.set		(LA_TEXTURECOLOR,	bTextureColor);
-}
-
-
-void CUIStatic::InitTexture(LPCSTR texture){
 	InitTextureEx(texture);
 }
 
-void CUIStatic::CreateShader(const char* tex, const char* sh){
+void CUIStatic::CreateShader(const char* tex, const char* sh)
+{
 	m_UIStaticItem.CreateShader(tex,sh);	
-}
-
-void CUIStatic::SetTextureColor(u32 color){
-	m_UIStaticItem.SetColor(color);
-}
-
-u32 CUIStatic::GetTextureColor() const{
-	return m_UIStaticItem.GetColor();
 }
 
 void CUIStatic::InitTextureEx(LPCSTR tex_name, LPCSTR sh_name)
 {
-
-	/*
-	string_path buff;
-	u32		v_dev	= CAP_VERSION(HW.Caps.raster_major, HW.Caps.raster_minor);
-	u32		v_need	= CAP_VERSION(2,0);
-	//strstr(Core.Params,"-ps_movie") &&
-	if ( (v_dev >= v_need) && FS.exist(buff,"$game_textures$", tex_name, ".ogm") )
-		CUITextureMaster::InitTexture	(tex_name, "hud\\movie", &m_UIStaticItem);
-	else
-		CUITextureMaster::InitTexture	(tex_name, sh_name, &m_UIStaticItem);
-	*/
-
 	LPCSTR res_shname = UIRender->UpdateShaderName(tex_name, sh_name);
 	CUITextureMaster::InitTexture	(tex_name, res_shname, &m_UIStaticItem);
 
@@ -151,21 +117,22 @@ void  CUIStatic::Draw()
 
 void CUIStatic::DrawText()
 {
-	if (m_pLines)
+	if (m_pTextControl)
 	{
-		m_pLines->SetWndSize(m_wndSize);
+		m_pTextControl->SetWndSize(m_wndSize);
 
-		if(IsHighlightText() && xr_strlen(m_pLines->GetText())>0 && m_bEnableTextHighlighting)
+		if(IsHighlightText() && xr_strlen(m_pTextControl->GetText())>0 && m_bEnableTextHighlighting)
 			DrawHighlightedText();		
-		else{
+		else
+		{
 			Fvector2			p;
 			GetAbsolutePos		(p);
 			p.add				(m_TextOffset);
-			m_pLines->Draw		(p.x, p.y);
+			m_pTextControl->Draw		(p.x, p.y);
 		}
-
 	}
 }
+
 #include "../../Include/xrRender/UIShader.h"
 
 void CUIStatic::DrawTexture()
@@ -189,12 +156,12 @@ void CUIStatic::DrawTexture()
 					rect.x2		= rect.x1 + t2;
 				}
 			}
-			m_UIStaticItem.SetRect(0, 0, rect.width(), rect.height());
+			m_UIStaticItem.SetSize(Fvector2().set(rect.width(), rect.height()));
 		}else
 		{
 			Frect r={0.0f,0.0f,
-				m_UIStaticItem.GetOriginalRect().width(),
-				m_UIStaticItem.GetOriginalRect().height()};
+				m_UIStaticItem.GetTextureRect().width(),
+				m_UIStaticItem.GetTextureRect().height()};
 
 			{	
 				if(Heading())
@@ -222,39 +189,13 @@ void CUIStatic::Update()
 {
 	inherited::Update();
 	//update light animation if defined
-	if (m_lanim_clr.m_lanim)
-	{
-		if(m_lanim_clr.m_lanim_start_time<0.0f)		ResetClrAnimation	();
-		float t = Device.dwTimeContinual/1000.0f;
-
-		if (t < m_lanim_clr.m_lanim_start_time)	// consider animation delay
-			return;
-
-		if(m_lanim_clr.m_lanimFlags.test(LA_CYCLIC) || t-m_lanim_clr.m_lanim_start_time < m_lanim_clr.m_lanim->Length_sec()){
-
-			int frame;
-			u32 clr					= m_lanim_clr.m_lanim->CalculateRGB(t-m_lanim_clr.m_lanim_start_time,frame);
-
-			if(m_lanim_clr.m_lanimFlags.test(LA_TEXTURECOLOR))
-				if(m_lanim_clr.m_lanimFlags.test(LA_ONLYALPHA))
-					SetColor				(subst_alpha(GetColor(), color_get_A(clr)));
-				else
-					SetColor				(clr);
-
-			if(m_lanim_clr.m_lanimFlags.test(LA_TEXTCOLOR))
-				if(m_lanim_clr.m_lanimFlags.test(LA_ONLYALPHA))
-					SetTextColor				(subst_alpha(GetTextColor(), color_get_A(clr)));
-				else
-					SetTextColor				(clr);
-			
-		}
-	}
+	UpdateColorAnimation();
 	
 	if(m_lanim_xform.m_lanim)
 	{
-		if(m_lanim_xform.m_lanim_start_time<0.0f){
+		if(m_lanim_xform.m_lanim_start_time<0.0f)
 			ResetXformAnimation();
-		}
+
 		float t = Device.dwTimeGlobal/1000.0f;
 
 		if(	m_lanim_xform.m_lanimFlags.test(LA_CYCLIC) || 
@@ -273,7 +214,9 @@ void CUIStatic::Update()
 			Fvector2 _sz;
 			_sz.set				(m_lanim_xform.m_origSize.x*f_scale, m_lanim_xform.m_origSize.y*f_scale );
 			SetWndSize			(_sz);
-		}else{
+		}
+		else
+		{
 			EnableHeading_int	( !!m_lanim_xform.m_lanimFlags.test(1<<4) );
 			SetWndSize			(m_lanim_xform.m_origSize);
 		}
@@ -283,26 +226,6 @@ void CUIStatic::Update()
 void CUIStatic::ResetXformAnimation()
 {
 	m_lanim_xform.m_lanim_start_time = Device.dwTimeGlobal/1000.0f;
-}
-
-void CUIStatic::ResetClrAnimation()
-{
-	m_lanim_clr.m_lanim_start_time = Device.dwTimeContinual/1000.0f + m_lanim_clr.m_lanim_delay_time/1000.0f;
-}
-
-void CUIStatic::SetClrAnimDelay(float delay){
-	m_lanim_clr.m_lanim_delay_time = delay;
-}
-
-bool CUIStatic::IsClrAnimStoped(){
-	if (m_lanim_clr.m_lanimFlags.test(LA_CYCLIC) || m_lanim_clr.m_lanim_start_time<0.0f)
-		return false;
-	
-	float t = Device.dwTimeContinual/1000.0f;
-	if(t-m_lanim_clr.m_lanim_start_time < m_lanim_clr.m_lanim->Length_sec())
-		return false;
-	else 
-		return true;
 }
 
 void CUIStatic::SetFont(CGameFont* pFont){
@@ -424,7 +347,8 @@ void  CUIStatic::SetShader(const ui_shader& sh)
 	m_UIStaticItem.SetShader(sh);
 }
 
-LPCSTR CUIStatic::GetText(){
+LPCSTR CUIStatic::GetText()
+{
 	static const char empty = 0;
 	if (m_pLines)
 		return m_pLines->GetText();
@@ -432,12 +356,14 @@ LPCSTR CUIStatic::GetText(){
 		return &empty;
 }
 
-void CUIStatic::SetTextColor(u32 color){
+void CUIStatic::SetTextColor(u32 color)
+{
 	CREATE_LINES;
 	m_pLines->SetTextColor(color);
 }
 
-u32 CUIStatic::GetTextColor(){
+u32 CUIStatic::GetTextColor()
+{
 	CREATE_LINES;
 	return m_pLines->GetTextColor();
 }
@@ -454,7 +380,8 @@ void CUIStatic::SetText(LPCSTR str)
 	m_pLines->SetText(str);
 }
 
-void CUIStatic::SetTextColor(u32 color, E4States state){
+void CUIStatic::SetTextColor(u32 color, E4States state)
+{
 	m_dwTextColor[state] = color;
 	m_bUseTextColor[state] = true;
 }
@@ -481,27 +408,20 @@ Frect CUIStatic::GetSelfClipRect()
 	return r;
 }
 
-
-//CGameFont::EAligment CUIStatic::GetTextAlign(){
-//	return m_pLines->GetTextAlignment();
-//}
-
-CGameFont::EAligment CUIStatic::GetTextAlignment(){
+CGameFont::EAligment CUIStatic::GetTextAlignment()
+{
 	return m_pLines->GetTextAlignment();
 }
 
-//void CUIStatic::SetTextAlign(CGameFont::EAligment align){
-//	CREATE_LINES;
-//	m_pLines->SetTextAlignment(align);
-//}
-
-void CUIStatic::SetTextAlignment(CGameFont::EAligment align){
+void CUIStatic::SetTextAlignment(CGameFont::EAligment align)
+{
 	CREATE_LINES;
 	m_pLines->SetTextAlignment(align);
 	m_pLines->GetFont()->SetAligment((CGameFont::EAligment)align);
 }
 
-void CUIStatic::SetVTextAlignment(EVTextAlignment al){
+void CUIStatic::SetVTextAlignment(EVTextAlignment al)
+{
 	CREATE_LINES;
 	m_pLines->SetVTextAlignment(al);
 }
@@ -528,40 +448,28 @@ void CUIStatic::SetClipRect(Frect r)
 	m_ClipRect = r;
 }
 
-void CUIStatic::OnFocusReceive()
+void CUIStatic::AdjustHeightToText()
 {
-	inherited::OnFocusReceive();
-	if (GetMessageTarget())
-        GetMessageTarget()->SendMessage(this, STATIC_FOCUS_RECEIVED, NULL);
-}
-
-void CUIStatic::OnFocusLost(){
-
-	inherited::OnFocusLost();
-	if (GetMessageTarget())
-		GetMessageTarget()->SendMessage(this, STATIC_FOCUS_LOST, NULL);
-}
-
-void CUIStatic::AdjustHeightToText(){
-	m_pLines->SetWidth		(GetWidth());
-	m_pLines->ParseText();
-	SetHeight				(m_pLines->GetVisibleHeight());
+	TextItemControl()->SetWidth (GetWidth());
+	TextItemControl()->ParseText();
+	SetHeight				(TextItemControl()->GetVisibleHeight());
 }
 
 void CUIStatic::AdjustWidthToText()
 {
-	float _len		= m_pLines->GetFont()->SizeOf_(m_pLines->GetText());
-	UI()->ClientToScreenScaledWidth(_len);
+	if(!m_pTextControl)	return;
+	float _len		= m_pTextControl->GetFont()->SizeOf_(m_pTextControl->GetText());
+	UI().ClientToScreenScaledWidth(_len);
 	SetWidth		(_len);
 }
-
 
 void CUIStatic::SetTextST				(LPCSTR str_id)
 {
 	SetText					(*CStringTable().translate(str_id));
 }
 
-void CUIStatic::DrawHighlightedText(){
+void CUIStatic::DrawHighlightedText()
+{
 	Frect				rect;
 	GetAbsoluteRect		(rect);
 	u32 def_col			= m_pLines->GetTextColor();
@@ -573,4 +481,18 @@ void CUIStatic::DrawHighlightedText(){
 bool CUIStatic::IsHighlightText()
 {
 	return m_bCursorOverWindow;
+}
+
+void CUIStatic::OnFocusReceive()
+{
+	inherited::OnFocusReceive();
+	if (GetMessageTarget())
+        GetMessageTarget()->SendMessage(this, STATIC_FOCUS_RECEIVED, NULL);
+}
+
+void CUIStatic::OnFocusLost()
+{
+	inherited::OnFocusLost();
+	if (GetMessageTarget())
+		GetMessageTarget()->SendMessage(this, STATIC_FOCUS_LOST, NULL);
 }

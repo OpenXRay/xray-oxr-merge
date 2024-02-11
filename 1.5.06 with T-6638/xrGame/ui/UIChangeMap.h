@@ -3,7 +3,7 @@
 #include "UIDialogWnd.h"
 
 class CUIStatic;
-class CUI3tButtonEx;
+class CUI3tButton;
 class CUIFrameWindow;
 class CUIListBox;
 class CUIXml;
@@ -16,7 +16,7 @@ public:
 					~CUIChangeMap			();
 			void	InitChangeMap			(CUIXml& xml_doc);
 
-	virtual bool	OnKeyboard				(int dik, EUIMessages keyboard_action);
+	virtual bool	OnKeyboardAction		(int dik, EUIMessages keyboard_action);
 	virtual void	SendMessage				(CUIWindow* pWnd, s16 msg, void* pData = 0);
 
 	void 			OnBtnOk					();
@@ -35,8 +35,8 @@ protected:
 	CUIFrameWindow* lst_back;
 	CUIListBox*		lst;
 
-	CUI3tButtonEx*	btn_ok;
-	CUI3tButtonEx*	btn_cancel;
+	CUI3tButton*	btn_ok;
+	CUI3tButton*	btn_cancel;
 
 	CExtraContentFilter*	m_pExtraContentFilter;
 

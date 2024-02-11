@@ -113,13 +113,13 @@ void CUIInventoryCellItem::UpdateItemText()
 	if ( count > 1 || helper_count )
 	{
 		xr_sprintf						( str, "x%d", count );
-		m_text->TextItemControl()->SetText	( str );
+		m_text->SetText					( str );
 		m_text->Show					( true );
 	}
 	else
 	{
 		xr_sprintf						( str, "");
-		m_text->TextItemControl()->SetText	( str );
+		m_text->SetText					( str );
 		m_text->Show					( false );
 	}
 }
@@ -171,7 +171,7 @@ void CUIAmmoCellItem::UpdateItemText()
 		
 		string32			str;
 		xr_sprintf			(str, "%d", total);
-		m_text->TextItemControl()->SetText(str);
+		m_text->SetText		(str);
 		m_text->Show		(true);
 	}
 }
@@ -235,6 +235,7 @@ CUIStatic* CUIWeaponCellItem::GetIcon(eAddonType t)
 {
 	return m_addons[t];
 }
+
 void CUIWeaponCellItem::RefreshOffset()
 {
 	if(object()->SilencerAttachable())

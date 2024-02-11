@@ -40,14 +40,13 @@ void CUISpeechMenu::InitList(LPCSTR section_name)
 	string256 str;
 	for (int i = 0; true; i++)
 	{
-		CStringTable st;
-		sprintf_s(phrase,"phrase_%i",i);		
+		xr_sprintf(phrase,"phrase_%i",i);		
 		if (pSettings->line_exist(section_name, phrase))
 		{
 			
             LPCSTR s = pSettings->r_string(section_name, phrase);
 			_GetItem(s,0,phrase);
-			sprintf_s(str, "%d. %s",i+1, *st.translate(phrase));
+			xr_sprintf				(str, "%d. %s",i+1, CStringTable().translate(phrase).c_str());
 
 			ADD_TEXT_TO_VIEW3(str, pItem, m_pList);
 			pItem->SetFont(GetFont());
@@ -58,9 +57,10 @@ void CUISpeechMenu::InitList(LPCSTR section_name)
 	}
 }
 
-bool CUISpeechMenu::OnKeyboard(int dik, EUIMessages keyboard_action){
+bool CUISpeechMenu::OnKeyboardAction(int dik, EUIMessages keyboard_action)
+{
     if (dik < DIK_1 || dik > DIK_0)
-		return CUIDialogWnd::OnKeyboard(dik, keyboard_action);
+		return CUIDialogWnd::OnKeyboardAction(dik, keyboard_action);
 
 	game_cl_mp* game = smart_cast<game_cl_mp*>(&Game());
 

@@ -6,7 +6,6 @@
 #include "..\actor_defs.h"
 
 class CUIStatic;
-class CUITextWnd;
 class CUIProgressBar;
 class CUIProgressShape;
 class CUIXml;
@@ -29,11 +28,11 @@ private:
 //	CUIStatic*			m_resist_back[it_max];
 	CUIStatic*			m_indik[it_max];
 
-	CUITextWnd*			m_ui_weapon_cur_ammo;
-	CUITextWnd*			m_ui_weapon_fmj_ammo;
-	CUITextWnd*			m_ui_weapon_ap_ammo;
-	CUITextWnd*			m_fire_mode;
-	CUITextWnd*			m_ui_grenade;
+	CUIStatic*			m_ui_weapon_cur_ammo;
+	CUIStatic*			m_ui_weapon_fmj_ammo;
+	CUIStatic*			m_ui_weapon_ap_ammo;
+	CUIStatic*			m_fire_mode;
+	CUIStatic*			m_ui_grenade;
 	II_BriefInfo		m_item_info;
 	
 	CUIStatic*			m_ui_weapon_icon;
