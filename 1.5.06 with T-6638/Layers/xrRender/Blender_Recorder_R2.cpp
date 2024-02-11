@@ -28,9 +28,14 @@ void	CBlender_Compile::r_Pass		(LPCSTR _vs, LPCSTR _ps, bool bFog, BOOL bZtest, 
 	SVS* vs					= DEV->_CreateVS			(_vs);
 	dest.ps					= ps;
 	dest.vs					= vs;
-#ifdef	USE_DX10
+#if defined(USE_DX10) || defined(USE_DX11)
 	SGS* gs					= DEV->_CreateGS			("null");
 	dest.gs					= gs;
+#	ifdef USE_DX11
+	dest.hs = DEV->_CreateHS("null");
+	dest.ds = DEV->_CreateDS("null");
+	dest.cs = DEV->_CreateCS("null");
+#	endif
 #endif	//	USE_DX10
 	ctable.merge			(&ps->constants);
 	ctable.merge			(&vs->constants);
@@ -64,12 +69,12 @@ void CBlender_Compile::r_ColorWriteEnable( bool cR, bool cG, bool cB, bool cA)
 	RS.SetRS( D3DRS_COLORWRITEENABLE3, Mask);
 }
 
-#ifndef	USE_DX10
+#if !defined(USE_DX10) && !defined(USE_DX11)
 u32		CBlender_Compile::i_Sampler		(LPCSTR _name)
 {
 	//
 	string256				name;
-	strcpy_s					(name,_name);
+	xr_strcpy					(name,_name);
 //. andy	if (strext(name)) *strext(name)=0;
 	fix_texture_name		(name);
 

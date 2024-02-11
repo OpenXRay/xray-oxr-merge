@@ -154,8 +154,8 @@ void	CBlender_Compile::PassBegin		()
 	passTextures.clear		();
 	passMatrices.clear		();
 	passConstants.clear		();
-	xr_strcpy					(pass_ps,"null");
-	xr_strcpy					(pass_vs,"null");
+	xr_strcpy				(pass_ps,"null");
+	xr_strcpy				(pass_vs,"null");
 	dwStage					= 0;
 }
 

@@ -31,6 +31,15 @@ public:
 	CSimulator			RS;
 	IBlender*			BT;
 	ShaderElement*		SH;
+#ifdef USE_DX11
+	enum {
+		NO_TESS    = 0,
+		TESS_PN    = 1,
+		TESS_HM    = 2,
+		TESS_PN_HM = 3
+	};
+	u32	TessMethod;
+#endif
 
 private:
 	SPass				dest;
@@ -43,8 +52,13 @@ private:
 
 	string128			pass_vs;
 	string128			pass_ps;
-#ifdef	USE_DX10
+#if defined(USE_DX10) || defined(USE_DX11)
 	string128			pass_gs;
+#	ifdef USE_DX11
+	string128			pass_hs;
+	string128			pass_ds;
+	string128			pass_cs;
+#	endif
 #endif	//	USE_DX10
 
 	u32					BC					(BOOL v)	{ return v?0x01:0; }
@@ -78,7 +92,7 @@ public:
 	void				StageSET_Color		(u32 a1, u32 op, u32 a2);
 	void				StageSET_Color3		(u32 a1, u32 op, u32 a2, u32 a3);
 	void				StageSET_Alpha		(u32 a1, u32 op, u32 a2);
-#ifndef	USE_DX10
+#if !defined(USE_DX10) && !defined(USE_DX11)
 	void				StageSET_TMC		(LPCSTR T, LPCSTR M, LPCSTR C, int UVW_channel);
 	void				Stage_Texture		(LPCSTR name, u32 address=D3DTADDRESS_WRAP,	u32	 fmin=D3DTEXF_LINEAR, u32 fmip=D3DTEXF_LINEAR,	u32 fmag=D3DTEXF_LINEAR);
 	void				StageTemplate_LMAP0	();
@@ -88,7 +102,7 @@ public:
 	void				StageEnd			();
 
 	// R1/R2-compiler	[programmable]
-#ifdef	USE_DX10
+#if defined(USE_DX10) || defined(USE_DX11)
 	void				i_dx10Address		(u32 s, u32		address);
 	void				i_dx10Filter_Min	(u32 s, u32		f);
 	void				i_dx10Filter_Mip	(u32 s, u32		f);
@@ -109,8 +123,12 @@ public:
 	// R1/R2-compiler	[programmable]		- templates
 	void				r_Pass				(LPCSTR vs,		LPCSTR ps,		bool bFog,	BOOL	bZtest=TRUE,				BOOL	bZwrite=TRUE,			BOOL	bABlend=FALSE,			D3DBLEND	abSRC=D3DBLEND_ONE,		D3DBLEND abDST=D3DBLEND_ZERO,	BOOL aTest=FALSE,	u32 aRef=0);
 	void				r_Constant			(LPCSTR name,	R_constant_setup* s);
-#ifdef	USE_DX10
+#if defined(USE_DX10) || defined(USE_DX11)
 	void				r_Pass				(LPCSTR vs,		LPCSTR gs, LPCSTR ps,		bool bFog,	BOOL	bZtest=TRUE,				BOOL	bZwrite=TRUE,			BOOL	bABlend=FALSE,			D3DBLEND	abSRC=D3DBLEND_ONE,		D3DBLEND abDST=D3DBLEND_ZERO,	BOOL aTest=FALSE,	u32 aRef=0);
+#	ifdef USE_DX11
+	void				r_TessPass			(LPCSTR vs,	LPCSTR hs, LPCSTR ds, LPCSTR gs, LPCSTR ps, bool bFog, BOOL bZtest=TRUE, BOOL bZwrite=TRUE, BOOL bABlend=FALSE,	D3DBLEND abSRC=D3DBLEND_ONE, D3DBLEND abDST=D3DBLEND_ZERO, BOOL aTest=FALSE, u32 aRef=0);
+	void				r_ComputePass		(LPCSTR cs );
+#	endif
 	void				r_Stencil(BOOL Enable, u32 Func=D3DCMP_ALWAYS, u32 Mask=0x00, u32 WriteMask=0x00, u32 Fail=D3DSTENCILOP_KEEP, u32 Pass=D3DSTENCILOP_KEEP, u32 ZFail=D3DSTENCILOP_KEEP);
 	void				r_StencilRef(u32 Ref);
 	void				r_CullMode(D3DCULL Mode);

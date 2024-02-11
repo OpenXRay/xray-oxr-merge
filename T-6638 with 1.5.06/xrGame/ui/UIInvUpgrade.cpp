@@ -340,6 +340,7 @@ void UIUpgrade::update_item( CInventoryItem* inv_item )
 		break;
 	}
 }
+
 void UIUpgrade::attach_point(CUIUpgradePoint* point)
 {
 	VERIFY(point);

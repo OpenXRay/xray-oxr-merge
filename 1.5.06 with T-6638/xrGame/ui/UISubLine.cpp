@@ -96,8 +96,5 @@ const CUISubLine* CUISubLine::Cut2Pos(int i)
 void CUISubLine::Draw(CGameFont* pFont, float x, float y) const
 {
 	pFont->SetColor(m_color);
-	Fvector2			pos;
-	pos.set				(x, y);
-	UI()->ClientToScreenScaled(pos);
-	pFont->Out			(pos.x, pos.y, "%s", m_text.c_str() );
+	pFont->Out			(UI().ClientToScreenScaledX(x), UI().ClientToScreenScaledY(y), "%s", m_text.c_str() );
 }

@@ -23,7 +23,7 @@ struct lanim_cont_xf :public lanim_cont{
 	void					set_defaults		();
 };
 
-class CUIStatic : public CUIWindow, public CUISingleTextureOwner, public IUITextControl
+class CUIStatic : public CUIWindow, public ITextureOwner, public CUILightAnimColorConrollerImpl
 {
 	friend class CUIXmlInit;
 	friend class CUI3tButton;
@@ -38,7 +38,6 @@ public:
 					CUIStatic				();
 	virtual			~CUIStatic				();
 
-	// IUISimpleWindow--------------------------------------------------------------------------------------
 	virtual void	Draw					();
 	virtual void	Update					();
 
@@ -50,7 +49,7 @@ public:
 	virtual void		SetOriginalRect				(const Frect& r)			{m_UIStaticItem.SetOriginalRect(r);}
 	virtual void		SetOriginalRectEx			(const Frect& r)			{m_UIStaticItem.SetOriginalRectEx(r);}
 	const Frect&		GetOriginalRect				() const					{return m_UIStaticItem.GetOriginalRect();}
-	//
+
 			void		SetVTextAlignment(EVTextAlignment al);
 	virtual void		SetColor					(u32 color)					{ m_UIStaticItem.SetColor(color);		}
 	u32					GetColor					() const					{ return m_UIStaticItem.GetColor();		}

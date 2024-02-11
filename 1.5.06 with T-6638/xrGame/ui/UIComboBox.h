@@ -20,15 +20,17 @@ public:
 						CUIComboBox				();
 	virtual				~CUIComboBox			();
 	// CUIOptionsItem
-	virtual void		SetCurrentOptValue		();
-	virtual void		SaveValue				();
-	virtual bool		IsChanged				();
-	virtual void 		SeveBackUpValue			();
-	virtual void 		Undo					();
+	virtual void	SetCurrentOptValue			();	// opt->current
+	virtual void	SaveBackUpOptValue			();	// current->backup
+	virtual void	SaveOptValue				();	// current->opt
+	virtual void	UndoOptValue				();	// backup->current
+	virtual bool	IsChangedOptValue			() const;	// backup!=current
 
 	virtual void	OnRender					(); // only for list-box
 
 			LPCSTR		GetText					();
+			LPCSTR		GetTextOf				(int index);
+			void		SetText					(LPCSTR text);
 
 			void		SetListLength			(int length);
 			void		SetVertScroll			(bool bVScroll = true){m_list_box.SetFixedScrollBar(bVScroll);};
@@ -50,13 +52,17 @@ protected:
 			void		OnListItemSelect		();
 	virtual void		Update();
 	virtual void		Draw();
+			void		ClearList				();
+
+			u32			GetSize					();
 
 protected:
 	bool				m_bInited;
 	int					m_iListHeight;
 	int					m_itoken_id;
 	E_COMBO_STATE		m_eState;
-	int					m_backup_itoken_id;
+	int					m_opt_backup_value;
+
 
 	CUI_IB_FrameLineWnd	m_frameLine;
 	CUIStatic			m_text;

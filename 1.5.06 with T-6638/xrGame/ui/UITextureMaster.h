@@ -33,6 +33,7 @@ public:
 	static LPCSTR	GetTextureFileName	(LPCSTR texture_name);
 	static void		GetTextureShader	(LPCSTR texture_name, ui_shader& sh);
 	static TEX_INFO	FindItem			(LPCSTR texture_name, LPCSTR def_texture_name);
+
 protected:
 	IC	static bool IsSh					(const char* texture_name);
 

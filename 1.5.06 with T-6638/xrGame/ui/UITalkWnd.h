@@ -4,7 +4,7 @@
 #include "UIStatic.h"
 #include "UIButton.h"
 #include "UIEditBox.h"
-#include "UIListWnd.h"
+//#include "UIListWnd.h"
 #include "UIFrameWindow.h"
 
 

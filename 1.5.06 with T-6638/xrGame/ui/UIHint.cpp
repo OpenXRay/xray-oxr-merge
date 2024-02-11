@@ -51,8 +51,7 @@ void UIHint::set_text( LPCSTR text )
 	new_size.x = GetWndSize().x;
 	new_size.y = m_text->GetWndSize().y + 20.0f;
 
-	m_background->InitFrameWindow( m_background->GetWndPos(), new_size );
-	m_background->UpdateSize();
+	m_background->SetWndSize	(new_size);
 	SetWndSize( m_background->GetWndSize() );
 }
 
@@ -65,7 +64,7 @@ void UIHint::Draw()
 {
 	if ( m_visible )
 	{
-		AlignHintWndPos( m_rect, m_border );
+		fit_in_rect		(this, m_rect, m_border );
 		inherited::Draw();
 	}
 }

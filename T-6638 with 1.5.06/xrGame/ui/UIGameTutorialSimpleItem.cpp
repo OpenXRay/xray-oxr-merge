@@ -249,6 +249,7 @@ void CUISequenceSimpleItem::Start()
 		CUIGameSP* ui_game_sp	= smart_cast<CUIGameSP*>(CurrentGameUI());
 
 		if (     !stricmp( m_pda_section, "pda_tasks"       ) ) {ui_game_sp->PdaMenu().SetActiveSubdialog("eptTasks");		bShowPda = true;	}
+		else if( !stricmp( m_pda_section, "pda_fraction_war") ) {ui_game_sp->PdaMenu().SetActiveSubdialog("eptFractionWar");bShowPda = true;	}
 		else if( !stricmp( m_pda_section, "pda_ranking"     ) ) {ui_game_sp->PdaMenu().SetActiveSubdialog("eptRanking");	bShowPda = true;	}
 		else if( !stricmp( m_pda_section, "pda_logs"        ) ) {ui_game_sp->PdaMenu().SetActiveSubdialog("eptLogs");		bShowPda = true;	}
 		else if( !stricmp( m_pda_section, "pda_show_second_task_wnd" ) )
@@ -261,7 +262,7 @@ void CUISequenceSimpleItem::Start()
 			if ( ( !ui_game_sp->PdaMenu().IsShown() &&  bShowPda ) || 
 				(   ui_game_sp->PdaMenu().IsShown() && !bShowPda ) )
 			{
-				ui_game_sp->PdaMenu().HideDialog();
+				HUD().GetUI()->StartStopMenu( &ui_game_sp->PdaMenu(), true );
 			}
 		}
 	}
@@ -291,7 +292,7 @@ bool CUISequenceSimpleItem::Stop			(bool bForce)
 		CUIGameSP* ui_game_sp	= smart_cast<CUIGameSP*>( CurrentGameUI() );
 		if ( ui_game_sp && ui_game_sp->PdaMenu().IsShown() )
 		{
-			ui_game_sp->PdaMenu().HideDialog();
+			HUD().GetUI()->StartStopMenu( &ui_game_sp->PdaMenu(), true );
 		}
 	}
 	inherited::Stop				();

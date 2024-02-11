@@ -3,7 +3,6 @@
 #include "UIWindow.h"
 
 class CUIStatic;
-class CUITextWnd;
 class CUIXml;
 class CUIScrollView;
 class CMMSound;

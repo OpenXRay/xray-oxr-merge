@@ -25,12 +25,6 @@ public:
 	virtual bool	OnKeyboardAction		(int dik, EUIMessages keyboard_action);
 	virtual void	OnFocusLost				();
 
-	//режимы в которых можно нажимать кнопку
-	typedef enum{NORMAL_PRESS, //кнопка нажимается при 
-							   //нажатии и отпускании на ней мыши
-				 DOWN_PRESS    //сразу при нажатии
-			} E_PRESS_MODE;
-
 	//подсвечен ли текст на кнопке
 	// принудительная подсветка
 	virtual void	HighlightItem			(bool bHighlight)			{m_bCursorOverWindow = bHighlight; }
@@ -59,9 +53,6 @@ public:
 	const int			GetAccelerator			(int idx) const			{VERIFY(idx==0||idx==1); return m_uAccelerator[idx]; }
 	IC bool				IsAccelerator			(int iAccel) const		{return (m_uAccelerator[0]==iAccel)||(m_uAccelerator[1]==iAccel) ;}
 
-	void				SetPressMode			(E_PRESS_MODE ePressMode)	{m_ePressMode = ePressMode;}
-	E_PRESS_MODE		GetPressMode			()							{return m_ePressMode;}
-	
 	void				SetPushOffset			(const Fvector2& offset)	{m_PushOffset = offset;}
 	Fvector2			GetPushOffset			()							{return m_PushOffset;}
 	void				SetShadowOffset			(const Fvector2& offset) { m_ShadowOffset = offset; }
@@ -71,7 +62,6 @@ protected:
 	E_BUTTON_STATE		m_eButtonState;
 	bool				m_bIsSwitch;
 	bool				m_bButtonClicked;
-	E_PRESS_MODE		m_ePressMode;
 	Fvector2			m_PushOffset;
 	int					m_uAccelerator[2];
 	Fvector2			m_ShadowOffset;

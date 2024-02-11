@@ -173,10 +173,6 @@ void CUIAmmoCellItem::UpdateItemText()
 		m_text->SetText( str );
 		m_text->Show( true );
 	}
-	else
-	{
-		SetText( "" );
-	}
 }
 
 CUIWeaponCellItem::CUIWeaponCellItem(CWeapon* itm)

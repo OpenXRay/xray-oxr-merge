@@ -23,6 +23,7 @@
 #define		R_R1	1
 #define		R_R2	2
 #define		R_R3	3
+#define		R_R4	4
 #define		RENDER	R_R1
 
 #include "../xrRender/resourcemanager.h"
@@ -36,7 +37,7 @@
 
 #include "../xrRender/blenders\blender.h"
 #include "../xrRender/blenders\blender_clsid.h"
-#include "../../xrEngine/psystem.h"
+#include "../../xrParticles/psystem.h"
 #include "../xrRender/xrRender_console.h"
 #include "FStaticRender.h"
 #endif

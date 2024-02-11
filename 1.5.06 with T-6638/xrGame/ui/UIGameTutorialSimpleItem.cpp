@@ -146,15 +146,17 @@ void CUISequenceSimpleItem::Update			()
 	float gt						= float(Device.dwTimeContinual)/1000.0f;
 	SubItemVecIt _I					= m_subitems.begin();
 	SubItemVecIt _E					= m_subitems.end();
-	for(;_I!=_E;++_I){
+	for(;_I!=_E;++_I)
+	{
 		SSubItem& s					= *_I;
 		bool bPlaying				= (gt>(m_time_start+s.m_start-EPS))&&(gt<(m_time_start+s.m_start+s.m_length+EPS));
 		if (true==bPlaying&&(false==s.m_visible))			s.Start	();
 		else if ((false==bPlaying)&&(true==s.m_visible))	s.Stop	();
 	}
 	
-	if (g_pGameLevel){
-	CUIGameSP* ui_game_sp	= smart_cast<CUIGameSP*>(HUD().GetUI()->UIGame());
+	if (g_pGameLevel)
+	{
+		CUIGameSP* ui_game_sp	= smart_cast<CUIGameSP*>(CurrentGameUI());
 
 	if(ui_game_sp)
 	{
@@ -170,7 +172,7 @@ void CUISequenceSimpleItem::Update			()
 		}
 	}
 	if(m_desired_cursor_pos.x && m_desired_cursor_pos.y)
-		GetUICursor()->SetUICursorPosition(m_desired_cursor_pos);
+		GetUICursor().SetUICursorPosition(m_desired_cursor_pos);
 }
 
 void CUISequenceSimpleItem::Start()
@@ -178,7 +180,8 @@ void CUISequenceSimpleItem::Start()
 	inherited::Start				();
 	m_flags.set						(etiStoredPauseState, Device.Paused());
 	
-	if(m_flags.test(etiNeedPauseOn) && !m_flags.test(etiStoredPauseState)){
+	if(m_flags.test(etiNeedPauseOn) && !m_flags.test(etiStoredPauseState))
+	{
 		Device.Pause			(TRUE, TRUE, FALSE, "simpleitem_start");
 		bShowPauseString		= FALSE;
 	}
@@ -200,38 +203,8 @@ void CUISequenceSimpleItem::Start()
 	if (g_pGameLevel)
 	{
 		bool bShowPda			= false;
-		CUIGameSP* ui_game_sp	= smart_cast<CUIGameSP*>(HUD().GetUI()->UIGame());
+		CUIGameSP* ui_game_sp	= smart_cast<CUIGameSP*>(CurrentGameUI());
 
-/*		if(!stricmp(m_pda_section,"pda_contacts"))
-		{
-			ui_game_sp->PdaMenu->SetActiveSubdialog("eptContacts");
-			bShowPda = true;
-//.			}else if(!stricmp(m_pda_section,"pda_map"))
-//.			{
-//.				ui_game_sp->PdaMenu->SetActiveSubdialog(eptMap);
-//.				bShowPda = true;
-		}else if(!stricmp(m_pda_section,"pda_quests"))
-		{
-			ui_game_sp->PdaMenu->SetActiveSubdialog("eptQuests");
-			bShowPda = true;
-		}else if(!stricmp(m_pda_section,"pda_diary"))
-		{
-			ui_game_sp->PdaMenu->SetActiveSubdialog("eptDiary");
-			bShowPda = true;
-		}else if(!stricmp(m_pda_section,"pda_ranking"))
-		{
-			ui_game_sp->PdaMenu->SetActiveSubdialog("eptRanking");
-			bShowPda = true;
-		}else if(!stricmp(m_pda_section,"pda_statistics"))
-		{
-			ui_game_sp->PdaMenu->SetActiveSubdialog("eptActorStatistic");
-			bShowPda = true;
-		}else if(!stricmp(m_pda_section,"pda_encyclopedia"))
-		{
-			ui_game_sp->PdaMenu->SetActiveSubdialog("eptEncyclopedia");
-			bShowPda = true;
-		}
-*/
 		if (     !stricmp( m_pda_section, "pda_tasks"       ) ) {ui_game_sp->PdaMenu().SetActiveSubdialog("eptTasks");		bShowPda = true;	}
 		else if( !stricmp( m_pda_section, "pda_fraction_war") ) {ui_game_sp->PdaMenu().SetActiveSubdialog("eptFractionWar");bShowPda = true;	}
 		else if( !stricmp( m_pda_section, "pda_ranking"     ) ) {ui_game_sp->PdaMenu().SetActiveSubdialog("eptRanking");	bShowPda = true;	}
@@ -240,10 +213,6 @@ void CUISequenceSimpleItem::Start()
 		{
 			ui_game_sp->PdaMenu().Show_SecondTaskWnd(true);	bShowPda = true;
 		}
-		/*else if( !stricmp( m_pda_section, "pda_show_map_legend_wnd"  ) )
-		{
-			ui_game_sp->PdaMenu().Show_MapLegendWnd(true);//	bShowPda = true;
-		}*/
 		
 		if ( ui_game_sp )
 		{
@@ -262,6 +231,7 @@ bool CUISequenceSimpleItem::Stop			(bool bForce)
 		return false;
 
 	m_owner->MainWnd()->DetachChild	(m_UIWindow);
+
 	m_sound.stop				();
 
 	if(m_flags.test(etiNeedPauseOn) && !m_flags.test(etiStoredPauseState))
@@ -275,7 +245,7 @@ bool CUISequenceSimpleItem::Stop			(bool bForce)
 
 	if ( g_pGameLevel )
 	{
-		CUIGameSP* ui_game_sp	= smart_cast<CUIGameSP*>( HUD().GetUI()->UIGame() );
+		CUIGameSP* ui_game_sp	= smart_cast<CUIGameSP*>( CurrentGameUI() );
 		if ( ui_game_sp && ui_game_sp->PdaMenu().IsShown() )
 		{
 			HUD().GetUI()->StartStopMenu( &ui_game_sp->PdaMenu(), true );
@@ -315,5 +285,18 @@ void CUISequenceSimpleItem::OnKeyboardPress	(int dik)
 			}
 		}
 	}
+}
+
+void CUISequenceSimpleItem::OnMousePress	(int btn)
+{
+	int dik = 0;
+	switch(btn) 
+	{
+		case 0:dik = MOUSE_1;break;
+		case 1:dik = MOUSE_2;break;
+		case 2:dik = MOUSE_3;break;
+		default:return;
+	}
+	OnKeyboardPress(dik);
 }
 

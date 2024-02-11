@@ -19,13 +19,17 @@
 #include "ui_af_params.h"
 #include "UIInvUpgradeProperty.h"
 #include "UIOutfitInfo.h"
+#include "UIBoosterInfo.h"
 #include "../Weapon.h"
 #include "../CustomOutfit.h"
+#include "../ActorHelmet.h"
+#include "../eatable_item.h"
+#include "UICellItem.h"
 
 extern const LPCSTR g_inventory_upgrade_xml;
 
-#define  INV_GRID_WIDTH2  40
-#define  INV_GRID_HEIGHT2 40
+#define  INV_GRID_WIDTH2  40.0f
+#define  INV_GRID_HEIGHT2 40.0f
 
 CUIItemInfo::CUIItemInfo()
 {
@@ -191,7 +195,7 @@ void CUIItemInfo::InitItem(CInventoryItem* pInvItem, CInventoryItem* pCompareIte
 			}
 		}
 
-		sprintf				(str, "%3.2f %s", weight, kg_str );
+		xr_sprintf				(str, "%3.2f %s", weight, kg_str );
 		UIWeight->SetText	(str);
 		
 		pos.x = UIWeight->GetWndPos().x;
@@ -202,7 +206,7 @@ void CUIItemInfo::InitItem(CInventoryItem* pInvItem, CInventoryItem* pCompareIte
 	}
 	if ( UICost && IsGameTypeSingle() )
 	{
-		sprintf				(str, "%d RU", pInvItem->Cost());		// will be owerwritten in multiplayer
+		xr_sprintf				(str, "%d RU", pInvItem->Cost());		// will be owerwritten in multiplayer
 		UICost->SetText		(str);
 		pos.x = UICost->GetWndPos().x;
 		if ( m_complex_desc )
@@ -247,6 +251,7 @@ void CUIItemInfo::InitItem(CInventoryItem* pInvItem, CInventoryItem* pCompareIte
 		TryAddArtefactInfo					(pInvItem->object().cNameSect());
 		TryAddOutfitInfo					(*pInvItem, pCompareItem);
 		TryAddUpgradeInfo					(*pInvItem);
+		TryAddBoosterInfo					(*pInvItem);
 
 		if(m_b_FitToHeight)
 		{
@@ -256,9 +261,10 @@ void CUIItemInfo::InitItem(CInventoryItem* pInvItem, CInventoryItem* pCompareIte
 			new_size.y						= UIDesc->GetWndPos().y+UIDesc->GetWndSize().y+20.0f;
 			new_size.x						= _max(105.0f, new_size.x);
 			new_size.y						= _max(105.0f, new_size.y);
+			
 			SetWndSize						(new_size);
 			if(UIBackground)
-				UIBackground->InitFrameWindow(UIBackground->GetWndPos(), new_size);
+				UIBackground->SetWndSize	(new_size);
 		}
 
 		UIDesc->ScrollToBegin				();
@@ -321,10 +327,17 @@ void CUIItemInfo::TryAddArtefactInfo	(const shared_str& af_section)
 void CUIItemInfo::TryAddOutfitInfo( CInventoryItem& pInvItem, CInventoryItem* pCompareItem )
 {
 	CCustomOutfit* outfit = smart_cast<CCustomOutfit*>(&pInvItem);
+	CHelmet* helmet = smart_cast<CHelmet*>(&pInvItem);
 	if ( outfit && UIOutfitInfo )
 	{
 		CCustomOutfit* comp_outfit = smart_cast<CCustomOutfit*>(pCompareItem);
 		UIOutfitInfo->UpdateInfo( outfit, comp_outfit );
+		UIDesc->AddWindow( UIOutfitInfo, false );
+	}
+	if ( helmet && UIOutfitInfo )
+	{
+		CHelmet* comp_helmet = smart_cast<CHelmet*>(pCompareItem);
+		UIOutfitInfo->UpdateInfo( helmet, comp_helmet );
 		UIDesc->AddWindow( UIOutfitInfo, false );
 	}
 }
@@ -335,6 +348,16 @@ void CUIItemInfo::TryAddUpgradeInfo( CInventoryItem& pInvItem )
 	{
 		UIProperties->set_item_info( pInvItem );
 		UIDesc->AddWindow( UIProperties, false );
+	}
+}
+
+void CUIItemInfo::TryAddBoosterInfo(CInventoryItem& pInvItem)
+{
+	CEatableItem* food = smart_cast<CEatableItem*>(&pInvItem);
+	if ( food && UIBoosterInfo )
+	{
+		UIBoosterInfo->SetInfo(pInvItem.object().cNameSect());
+		UIDesc->AddWindow( UIBoosterInfo, false );
 	}
 }
 

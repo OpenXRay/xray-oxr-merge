@@ -87,7 +87,7 @@ void CUICellItem::Update()
 	{
 		Frect clientArea;
 		m_pParentList->GetClientArea(clientArea);
-		Fvector2 cp			= GetUICursor()->GetCursorPosition();
+		Fvector2 cp			= GetUICursor().GetCursorPosition();
 		if(clientArea.in(cp))
 			GetMessageTarget()->SendMessage(this, DRAG_DROP_ITEM_FOCUSED_UPDATE, NULL);
 	}
@@ -111,12 +111,7 @@ void CUICellItem::Update()
 	m_upgrade->Show( m_has_upgrade );
 }
 
-void CUICellItem::SetOriginalRect(const Frect& r)
-{
-	inherited::SetOriginalRect(r);
-}
-
-bool CUICellItem::OnMouse(float x, float y, EUIMessages mouse_action)
+bool CUICellItem::OnMouseAction(float x, float y, EUIMessages mouse_action)
 {
 	if ( mouse_action == WINDOW_LBUTTON_DOWN )
 	{
@@ -148,7 +143,7 @@ bool CUICellItem::OnMouse(float x, float y, EUIMessages mouse_action)
 	return false;
 };
 
-bool CUICellItem::OnKeyboard(int dik, EUIMessages keyboard_action)
+bool CUICellItem::OnKeyboardAction(int dik, EUIMessages keyboard_action)
 {
 	if (WINDOW_KEY_PRESSED == keyboard_action)
 	{
@@ -158,7 +153,7 @@ bool CUICellItem::OnKeyboard(int dik, EUIMessages keyboard_action)
 			return		true;
 		}
 	}
-	return inherited::OnKeyboard(dik, keyboard_action);
+	return inherited::OnKeyboardAction(dik, keyboard_action);
 }
 
 CUIDragItem* CUICellItem::CreateDragItem()
@@ -174,14 +169,14 @@ CUIDragItem* CUICellItem::CreateDragItem()
 		t1				= r.width();
 		t2				= r.height();
 
-		Fvector2 cp = GetUICursor()->GetCursorPosition();
+		Fvector2 cp = GetUICursor().GetCursorPosition();
 
 		r.x1			= (cp.x-t2/2.0f);
 		r.y1			= (cp.y-t1/2.0f);
 		r.x2			= r.x1 + t2;
 		r.y2			= r.y1 + t1;
 	}
-	tmp->Init(GetShader(), r, GetUIStaticItem().GetOriginalRect());
+	tmp->Init(GetShader(), r, GetUIStaticItem().GetTextureRect());
 	return tmp;
 }
 
@@ -237,13 +232,13 @@ void CUICellItem::UpdateItemText()
 	if ( ChildsCount() )
 	{
 		string32	str;
-		sprintf_s( str, "x%d", ChildsCount()+1 );
-		m_text->SetText( str );
+		xr_sprintf( str, "x%d", ChildsCount()+1 );
+		m_text->TextItemControl()->SetText( str );
 		m_text->Show( true );
 	}
 	else
 	{
-		m_text->SetText( "" );
+		m_text->TextItemControl()->SetText( "" );
 		m_text->Show( false );
 	}
 }
@@ -251,20 +246,10 @@ void CUICellItem::UpdateItemText()
 void CUICellItem::Mark( bool status )
 {
 	m_cur_mark = status;
-/*	m_mark->Show( status );
-	if ( status )
-	{
-		Fvector2 size      = GetWndSize();
-		Fvector2 mark_size = m_mark->GetWndSize();
-		Fvector2 pos;
-		pos.x = size.x - mark_size.x - 4.0f;
-		pos.y = size.y - mark_size.y - 4.0f;
-		m_mark->SetWndPos( pos );
-	}
-	*/
 }
 
-void CUICellItem::SetCustomDraw			(ICustomDrawCell* c){
+void CUICellItem::SetCustomDraw			(ICustomDrawCell* c)
+{
 	if (m_custom_draw)
 		xr_delete(m_custom_draw);
 	m_custom_draw = c;
@@ -292,16 +277,16 @@ void CUIDragItem::Init(const ui_shader& sh, const Frect& rect, const Frect& text
 {
 	SetWndRect						(rect);
 	m_static.SetShader				(sh);
-	m_static.SetOriginalRect		(text_rect);
+	m_static.SetTextureRect			(text_rect);
 	m_static.SetWndPos				(Fvector2().set(0.0f,0.0f));
 	m_static.SetWndSize				(GetWndSize());
 	m_static.TextureOn				();
-	m_static.SetColor				(color_rgba(255,255,255,170));
+	m_static.SetTextureColor		(color_rgba(255,255,255,170));
 	m_static.SetStretchTexture		(true);
-	m_pos_offset.sub				(rect.lt, GetUICursor()->GetCursorPosition());
+	m_pos_offset.sub				(rect.lt, GetUICursor().GetCursorPosition());
 }
 
-bool CUIDragItem::OnMouse(float x, float y, EUIMessages mouse_action)
+bool CUIDragItem::OnMouseAction(float x, float y, EUIMessages mouse_action)
 {
 	if(mouse_action == WINDOW_LBUTTON_UP)
 	{
@@ -324,7 +309,7 @@ void CUIDragItem::OnFrame()
 void CUIDragItem::Draw()
 {
 	Fvector2 tmp;
-	tmp.sub					(GetWndPos(), GetUICursor()->GetCursorPosition());
+	tmp.sub					(GetWndPos(), GetUICursor().GetCursorPosition());
 	tmp.sub					(m_pos_offset);
 	tmp.mul					(-1.0f);
 	MoveWndDelta			(tmp);
@@ -344,6 +329,6 @@ void CUIDragItem::SetBackList(CUIDragDropListEx*l)
 
 Fvector2 CUIDragItem::GetPosition()
 {
-	return Fvector2().add(m_pos_offset, GetUICursor()->GetCursorPosition());
+	return Fvector2().add(m_pos_offset, GetUICursor().GetCursorPosition());
 }
 

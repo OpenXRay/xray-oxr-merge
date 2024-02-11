@@ -142,7 +142,8 @@ void CUICDkey::Draw()
 
 		UI().ClientToScreenScaled	(out);
 		TextItemControl()->m_pFont->Out		(out.x, out.y, "_");
-	}else
+	}
+	else
 	{
 		TextItemControl()->m_pFont->Out(pos.x, pos.y, "%s" , AddHyphens(xx_str) );
 	}

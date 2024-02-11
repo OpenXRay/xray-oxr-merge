@@ -210,8 +210,8 @@ public:
 	}
 	virtual void	Save	(IWriter *F)	{}
 };
+#endif
 
-#endif // #ifdef DEBUG
 // console commands
 class CCC_GameDifficulty : public CCC_Token {
 public:

@@ -39,7 +39,7 @@ struct LIST_SRV_ITEM {
 	LIST_SRV_INFO	info;
 };
 
-class CUIListItemServer : public CUIListItem 
+class CUIListItemServer : public CUIListItem
 {
 public:
 	CUIListItemServer();

@@ -92,34 +92,34 @@ void CUIItemInfo::InitItemInfo(LPCSTR xml_name)
 	m_complex_desc = false;
 	if(uiXml.NavigateToNode("static_name",0))
 	{
-		UIName						= xr_new<CUITextWnd>();	 
+		UIName						= xr_new<CUIStatic>();	 
 		AttachChild					(UIName);		
 		UIName->SetAutoDelete		(true);
-		xml_init.InitTextWnd		(uiXml, "static_name", 0,	UIName);
+		xml_init.InitStatic		(uiXml, "static_name", 0,	UIName);
 		m_complex_desc				= ( uiXml.ReadAttribInt("static_name", 0, "complex_desc", 0) == 1 );
 	}
 	if(uiXml.NavigateToNode("static_weight",0))
 	{
-		UIWeight				= xr_new<CUITextWnd>();	 
+		UIWeight				= xr_new<CUIStatic>();	 
 		AttachChild				(UIWeight);		
 		UIWeight->SetAutoDelete(true);
-		xml_init.InitTextWnd		(uiXml, "static_weight", 0,			UIWeight);
+		xml_init.InitStatic		(uiXml, "static_weight", 0,			UIWeight);
 	}
 
 	if(uiXml.NavigateToNode("static_cost",0))
 	{
-		UICost					= xr_new<CUITextWnd>();	 
+		UICost					= xr_new<CUIStatic>();	 
 		AttachChild				(UICost);
 		UICost->SetAutoDelete	(true);
-		xml_init.InitTextWnd		(uiXml, "static_cost", 0,			UICost);
+		xml_init.InitStatic		(uiXml, "static_cost", 0,			UICost);
 	}
 
 	if(uiXml.NavigateToNode("static_no_trade",0))
 	{
-		UITradeTip					= xr_new<CUITextWnd>();	 
+		UITradeTip					= xr_new<CUIStatic>();	 
 		AttachChild					(UITradeTip);
 		UITradeTip->SetAutoDelete	(true);
-		xml_init.InitTextWnd		(uiXml, "static_no_trade", 0,		UITradeTip);
+		xml_init.InitStatic		(uiXml, "static_no_trade", 0,		UITradeTip);
 	}
 
 	if(uiXml.NavigateToNode("descr_list",0))
@@ -222,7 +222,6 @@ void CUIItemInfo::InitItem(CUICellItem* pCellItem, CInventoryItem* pCompareItem,
 					PIItem jitem	= (PIItem)pCellItem->Child(j)->m_pData;
 					weight			+= jitem->CInventoryItem::Weight();
 				}
-
 			}
 		}
 
@@ -289,7 +288,7 @@ void CUIItemInfo::InitItem(CUICellItem* pCellItem, CInventoryItem* pCompareItem,
 		VERIFY					(0==UIDesc->GetSize());
 		if(m_desc_info.bShowDescrText)
 		{
-			CUITextWnd* pItem					= xr_new<CUITextWnd>();
+			CUIStatic* pItem					= xr_new<CUIStatic>();
 			pItem->SetTextColor					(m_desc_info.uDescClr);
 			pItem->SetFont						(m_desc_info.pDescFont);
 			pItem->SetWidth						(UIDesc->GetDesiredChildWidth());
@@ -390,7 +389,6 @@ void CUIItemInfo::TryAddOutfitInfo( CInventoryItem& pInvItem, CInventoryItem* pC
 		UIOutfitInfo->UpdateInfo( helmet, comp_helmet );
 		UIDesc->AddWindow( UIOutfitInfo, false );
 	}
-
 }
 
 void CUIItemInfo::TryAddUpgradeInfo( CInventoryItem& pInvItem )

@@ -4,7 +4,6 @@ class CUIOptionsItem;
 
 class CUIOptionsManager
 {
-
 public:	
 		CUIOptionsManager					();
 
@@ -25,8 +24,7 @@ public:
 	void RegisterItem						(CUIOptionsItem* item, const shared_str& group);
 	void UnRegisterItem						(CUIOptionsItem* item);
 
-protected:	
-
+protected:
 	typedef	shared_str									group_name;
 	typedef xr_vector<CUIOptionsItem*>					items_list;
     typedef xr_map<group_name, items_list>				groups;

@@ -379,7 +379,7 @@ bool CUIMapWnd::OnKeyboardHold(int dik)
 	return inherited::OnKeyboardHold(dik);
 }
 
-bool CUIMapWnd::OnKeyboardAction				(int dik, EUIMessages keyboard_action)
+bool CUIMapWnd::OnKeyboardAction		(int dik, EUIMessages keyboard_action)
 {
 	switch(dik){
 		case DIK_NUMPADMINUS:
@@ -699,9 +699,7 @@ void CUIMapWnd::SpotSelected( CUIWindow* w )
 {
 	CMapSpot* sp	= smart_cast<CMapSpot*>( w );
 	if ( !sp )
-	{
 		return;
-	}
 	
 	CGameTask* t	= Level().GameTaskManager().HasGameTask( sp->MapLocation(), true );
 	if ( t )

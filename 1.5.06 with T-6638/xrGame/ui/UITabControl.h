@@ -5,7 +5,6 @@
 #include "UIOptionsItem.h"
 
 class CUITabButton;
-class CUIButton;
 
 DEF_VECTOR (TABS_VECTOR, CUITabButton*)
 
@@ -70,5 +69,7 @@ protected:
 	u32					m_cActiveButtonColor;
 
 	bool				m_bAcceleratorsEnable;
+	shared_str			m_opt_backup_value;
+
 	DECLARE_SCRIPT_REGISTER_FUNCTION
 };

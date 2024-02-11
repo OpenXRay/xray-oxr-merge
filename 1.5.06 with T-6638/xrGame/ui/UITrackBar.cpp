@@ -31,13 +31,12 @@ CUITrackBar::CUITrackBar()
 	m_pSlider						= xr_new<CUI3tButton>();			
 	AttachChild						(m_pSlider);		
 	m_pSlider->SetAutoDelete		(true);
-//.	m_pSlider->SetOwner				(this);
 	m_b_mouse_capturer				= false;
 }
 
-bool CUITrackBar::OnMouse(float x, float y, EUIMessages mouse_action)
+bool CUITrackBar::OnMouseAction(float x, float y, EUIMessages mouse_action)
 {
-	CUIWindow::OnMouse(x, y, mouse_action);
+	CUIWindow::OnMouseAction(x, y, mouse_action);
 
 	switch (mouse_action)
 	{
@@ -122,24 +121,45 @@ void CUITrackBar::Update()
 	}
 }
 
-void CUITrackBar::SaveValue()
+void CUITrackBar::SaveOptValue()
 {
-	CUIOptionsItem::SaveValue	();
+	CUIOptionsItem::SaveOptValue	();
 	if(m_b_is_float)
 		SaveOptFloatValue			(m_f_val);
 	else
 		SaveOptIntegerValue			(m_i_val);
 }
 
-bool CUITrackBar::IsChanged()
+bool CUITrackBar::IsChangedOptValue() const
 {
 	if(m_b_is_float)
 	{
-		return !fsimilar(m_f_back_up, m_f_val); 
+		return !fsimilar(m_f_opt_backup_value, m_f_val); 
 	}else
 	{
-		return (m_i_back_up != m_i_val);
+		return (m_i_opt_backup_value != m_i_val);
 	}
+}
+
+void CUITrackBar::SaveBackUpOptValue()
+{
+	CUIOptionsItem::SaveBackUpOptValue();
+
+	if(m_b_is_float)
+		m_f_opt_backup_value		= m_f_val;
+	else
+		m_i_opt_backup_value		= m_i_val;
+}
+
+void CUITrackBar::UndoOptValue()
+{
+	if(m_b_is_float)
+		m_f_val			= m_f_opt_backup_value;
+	else
+		m_i_val			= m_i_opt_backup_value;
+
+	UpdatePos			();
+	CUIOptionsItem::UndoOptValue();
 }
 
 void CUITrackBar::SetStep(float step)
@@ -148,25 +168,6 @@ void CUITrackBar::SetStep(float step)
 		m_f_step	= step;
 	else
 		m_i_step	= iFloor(step);
-}
-
-void CUITrackBar::SeveBackUpValue()
-{
-	if(m_b_is_float)
-		m_f_back_up		= m_f_val;
-	else
-		m_i_back_up		= m_i_val;
-}
-
-void CUITrackBar::Undo()
-{
-	if(m_b_is_float)
-		m_f_val			= m_f_back_up;
-	else
-		m_i_val			= m_i_back_up;
-
-	SaveValue			();
-	SetCurrentValue		();
 }
 
 void CUITrackBar::Enable(bool status)
@@ -242,6 +243,7 @@ void CUITrackBar::UpdatePosRelativeToMouse()
 		GetMessageTarget()->SendMessage(this, BUTTON_CLICKED, NULL);
 
 	UpdatePos	();
+	OnChangedOptValue	();
 }
 
 void CUITrackBar::UpdatePos()
@@ -270,7 +272,6 @@ void CUITrackBar::UpdatePos()
 		pos.x					= free_space-pos.x;
 
 	m_pSlider->SetWndPos		(pos);
-	SaveValue					();
 }
 
 void CUITrackBar::OnMessage(LPCSTR message)
@@ -296,4 +297,26 @@ void CUITrackBar::SetCheck(bool b)
 {
 	VERIFY(!m_b_is_float);
 	m_i_val = (b)?m_i_max:m_i_min;
+}
+
+void CUITrackBar::SetOptIBounds(int imin, int imax)
+{
+	m_i_min					= imin;
+	m_i_max					= imax;
+	if(m_i_val<m_i_min || m_i_val>m_i_max)
+	{
+		clamp					(m_i_val, m_i_min, m_i_max);
+		OnChangedOptValue	();
+	}
+}
+
+void CUITrackBar::SetOptFBounds(float fmin, float fmax)
+{
+	m_f_min					= fmin;
+	m_f_max					= fmax;
+	if(m_i_val<m_i_min || m_i_val>m_i_max)
+	{
+		clamp				(m_f_val, m_f_min, m_f_max);
+		OnChangedOptValue	();
+	}
 }

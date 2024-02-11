@@ -40,12 +40,11 @@ public:
 
 	virtual void			CreateShader			(LPCSTR tex, LPCSTR sh = "hud\\default");
 	ui_shader&				GetShader				()							{return m_UIStaticItem.GetShader();};
-
 	virtual void			SetTextureColor			(u32 color)					{ m_UIStaticItem.SetTextureColor(color);}
 	virtual u32				GetTextureColor			() const					{ return m_UIStaticItem.GetTextureColor();}
 	virtual void			SetTextureRect			(const Frect& r)			{m_UIStaticItem.SetTextureRect(r);}
 	virtual const Frect&	GetTextureRect			() const					{return m_UIStaticItem.GetTextureRect();}
-	
+
 	virtual void			InitTexture				(LPCSTR tex_name);
 	virtual void			InitTextureEx			(LPCSTR tex_name, LPCSTR sh_name="hud\\default");
 	CUIStaticItem*			GetStaticItem			()							{return &m_UIStaticItem;}

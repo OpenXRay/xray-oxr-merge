@@ -60,18 +60,14 @@ public:
 	virtual void				ItemToBelt					(const shared_str& sectionName)									=0;
 	virtual void				ItemToRuck					(const shared_str& sectionName, u8 addons)						=0;
 	virtual void				ItemToSlot					(const shared_str& sectionName, u8 addons)						=0;
-	virtual void				SetupPlayerItemsBegin		(){};
-	virtual void				SetupPlayerItemsEnd			(){};
-	virtual void				SetupDefaultItemsBegin		(){};
-	virtual void				SetupDefaultItemsEnd		(){};
+	virtual void				SetupPlayerItemsBegin		()																=0;
+	virtual void				SetupPlayerItemsEnd			()																=0;
+	virtual void				SetupDefaultItemsBegin		()																=0;
+	virtual void				SetupDefaultItemsEnd		()																=0;
 	virtual const preset_items&	GetPreset					(ETradePreset idx)												=0;
 	virtual u32					GetPresetCost				(ETradePreset idx)												=0;
 	virtual void				ClearPreset					(ETradePreset idx)												=0;
 	virtual void				TryUsePreset				(ETradePreset idx)												=0;
-
-	virtual void				Show						()																=0;
-	virtual void				Hide						()																=0;
-
 	virtual bool				IsIgnoreMoneyAndRank		()																=0;
 
 };

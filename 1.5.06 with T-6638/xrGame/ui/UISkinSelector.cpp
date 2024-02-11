@@ -1,7 +1,6 @@
 #include "StdAfx.h"
 #include <dinput.h>
 #include "UISkinSelector.h"
-#include "../level.h"
 #include "UIXmlInit.h"
 #include "UIStatic.h"
 #include "UIAnimatedStatic.h"
@@ -9,8 +8,7 @@
 #include "UIStatix.h"
 #include "../game_cl_deathmatch.h"
 #include "../xr_level_controller.h"
-#include "../HUDManager.h"
-#include "CExtraContentFilter.h"
+#include "../level.h"
 
 #include "object_broker.h"
 
@@ -38,9 +36,6 @@ CUISkinSelectorWnd::CUISkinSelectorWnd(const char* strSectionName, s16 team)
 	m_pBtnBack		= xr_new<CUI3tButtonEx>();	AttachChild(m_pBtnBack);
 
 	m_firstSkin = 0;
-	//---------------------------------------------------
-	m_pExtraContentFilter = xr_new<CExtraContentFilter>();
-	//---------------------------------------------------
 	Init(strSectionName);	
 }
 
@@ -59,7 +54,6 @@ CUISkinSelectorWnd::~CUISkinSelectorWnd()
 	for (int i = 0; i<4; i++)
 		xr_delete(m_pImage[i]);
 
-	delete_data(m_pExtraContentFilter);
 	delete_data(m_skinsEnabled);
 }
 
@@ -75,7 +69,6 @@ void CUISkinSelectorWnd::InitSkins(){
 	{
 		_GetItem(lst, j, singleItem);
 		m_skins.push_back(singleItem);
-		//if (m_pExtraContentFilter->IsDataEnabled(singleItem))
 			m_skinsEnabled.push_back(j);
 	}
 }
@@ -85,7 +78,7 @@ void CUISkinSelectorWnd::UpdateSkins()
 	for (int i = 0; i<4; i++)
 	{
 		if (!!m_shader)
-            m_pImage[i]->InitTextureEx(m_skins[i + m_firstSkin].c_str(), *m_shader);
+            m_pImage[i]->InitTextureEx(m_skins[i + m_firstSkin].c_str(), m_shader.c_str());
 		else
 			m_pImage[i]->InitTexture(m_skins[i + m_firstSkin].c_str());
 
@@ -168,12 +161,12 @@ void CUISkinSelectorWnd::SendMessage(CUIWindow *pWnd, s16 msg, void *pData)
 			}
 			else if (pWnd == m_pBtnSpectator)
 			{
-				Game().StartStopMenu(this,true);
+				HideDialog();
 				game->OnSpectatorSelect();
 			}
 			else if (pWnd == m_pBtnBack)
 			{
-				Game().StartStopMenu(this,true);
+				HideDialog();
 				game->OnSkinMenuBack();				
 			}
 			else

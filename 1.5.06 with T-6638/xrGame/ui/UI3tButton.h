@@ -39,13 +39,11 @@ public:
 	virtual void 	OnFocusReceive				();
 	virtual void	OnFocusLost					();
 	
-	// behavior
 	virtual void	DrawTexture					();
 	virtual void	Update						();
 	virtual void 	Draw						();
 	
-	//virtual void Enable(bool bEnable);	
-	virtual bool 	OnMouse						(float x, float y, EUIMessages mouse_action);
+	virtual bool 	OnMouseAction				(float x, float y, EUIMessages mouse_action);
 	virtual bool 	OnMouseDown					(int mouse_btn);
 			void 	SetCheckMode				(bool mode) {m_bCheckMode = mode;}
 
@@ -56,8 +54,10 @@ public:
 	CUI_IB_Static*			m_background;
 	CUI_IB_FrameLineWnd*	m_back_frameline;
 	void					CreateHint				();
+
 protected:
 	bool				m_bCheckMode;
+
 private:	
 			void		PlaySoundH					();
 			void		PlaySoundT					();

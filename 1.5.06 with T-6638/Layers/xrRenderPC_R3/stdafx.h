@@ -14,7 +14,7 @@
 #pragma warning( 4 : 4244 )
 #pragma warning(disable:4237)
 
-#include "d3d10_1.h"
+#include <d3d10_1.h>
 #include <D3Dx10core.h>
 
 #include "../xrRender/xrD3DDefs.h"
@@ -24,6 +24,7 @@
 #define		R_R1	1
 #define		R_R2	2
 #define		R_R3	3
+#define		R_R4	4
 #define		RENDER	R_R3
 
 

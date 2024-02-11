@@ -72,7 +72,6 @@ void CUIActorMenu::RepairEffect_CurItem()
 	CUICellItem* itm = CurrentItem();
 	if(itm)
 		itm->UpdateConditionProgressBar();
-
 }
 
 bool CUIActorMenu::CanUpgradeItem( PIItem item )

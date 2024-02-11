@@ -9,7 +9,6 @@
 #include "../game_cl_teamdeathmatch.h"
 #include "../../xrEngine/xr_ioconsole.h"
 #include "UIMapList.h"
-#include "CExtraContentFilter.h"
 
 #include "object_broker.h"
 #include "../UIGameCustom.h"
@@ -50,13 +49,10 @@ CUIChangeMap::CUIChangeMap()
 
 	btn_cancel = xr_new<CUI3tButton>(); btn_cancel->SetAutoDelete(true);
 	AttachChild(btn_cancel);
-
-	m_pExtraContentFilter = xr_new<CExtraContentFilter>();
 }
 
 CUIChangeMap::~CUIChangeMap()
 {
-	delete_data(m_pExtraContentFilter);
 }
 
 void CUIChangeMap::InitChangeMap(CUIXml& xml_doc)
@@ -70,8 +66,8 @@ void CUIChangeMap::InitChangeMap(CUIXml& xml_doc)
 	CUIXmlInit::InitFrameWindow			(xml_doc,			"change_map:list_back", 0, lst_back);
 	CUIXmlInit::InitFrameWindow			(xml_doc,			"change_map:frame", 0, frame);
 	CUIXmlInit::InitListBox				(xml_doc,			"change_map:list", 0, lst);
-	CUIXmlInit::Init3tButtonEx			(xml_doc,			"change_map:btn_ok", 0, btn_ok);
-	CUIXmlInit::Init3tButtonEx			(xml_doc,			"change_map:btn_cancel", 0, btn_cancel);
+	CUIXmlInit::Init3tButton			(xml_doc,			"change_map:btn_ok", 0, btn_ok);
+	CUIXmlInit::Init3tButton			(xml_doc,			"change_map:btn_cancel", 0, btn_cancel);
 
 	map_pic->InitTexture				("ui\\ui_noise");
 
@@ -141,7 +137,7 @@ void CUIChangeMap::OnBtnOk()
 		string512					command;
 		xr_sprintf					(command, "cl_votestart changemap %s %s", name.c_str(), ver.c_str());
 		Console->Execute			(command);
-		GetHolder()->StartStopMenu	(this, true);
+		HideDialog					();
 	}
 }
 #include "../string_table.h"
@@ -153,7 +149,7 @@ void CUIChangeMap::FillUpList()
 	u32 cnt						= M.m_map_names.size();
 	for (u32 i=0; i<cnt; ++i)
 	{
-		CUIListBoxItem* itm		= lst->AddItem( CStringTable().translate(M.m_map_names[i].map_name).c_str() );
+		CUIListBoxItem* itm		= lst->AddTextItem( CStringTable().translate(M.m_map_names[i].map_name).c_str() );
 		itm->Enable				(true);//m_pExtraContentFilter->IsDataEnabled(M.m_map_names[i].map_name.c_str()));
 	}
 
@@ -161,5 +157,5 @@ void CUIChangeMap::FillUpList()
 
 void CUIChangeMap::OnBtnCancel()
 {
-	GetHolder()->StartStopMenu	(this, true);
+	HideDialog					();
 }

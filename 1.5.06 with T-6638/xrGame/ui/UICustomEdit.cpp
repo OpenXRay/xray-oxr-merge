@@ -11,17 +11,18 @@ CUICustomEdit::CUICustomEdit()
 	m_editor_control = xr_new<text_editor::line_edit_control>( (u32)EDIT_BUF_SIZE );
 	Init( (u32)EDIT_BUF_SIZE );
 
-	SetVTextAlignment( valCenter );
-	SetTextComplexMode( false );
-	m_pLines->SetColoringMode( false );
-	m_pLines->SetCutWordsMode( true );
-	m_pLines->SetUseNewLineMode( false );
+	TextItemControl()->SetVTextAlignment( valCenter );
+	TextItemControl()->SetTextComplexMode( false );
+	TextItemControl()->SetColoringMode( false );
+	TextItemControl()->SetCutWordsMode( true );
+	TextItemControl()->SetUseNewLineMode( false );
 	
 	m_out_str[0]   = NULL;
 	m_dx_cur       = 0.0f;
 	m_read_mode    = false;
 	m_force_update = true;
 	m_last_key_state_time = 0;
+	m_next_focus_capturer = NULL;
 }	
 
 
@@ -31,6 +32,12 @@ CUICustomEdit::~CUICustomEdit()
 }
 
 text_editor::line_edit_control& CUICustomEdit::ec()
+{
+	VERIFY( m_editor_control );
+	return	*m_editor_control;
+}
+
+text_editor::line_edit_control const & CUICustomEdit::ec() const
 {
 	VERIFY( m_editor_control );
 	return	*m_editor_control;
@@ -91,10 +98,7 @@ void CUICustomEdit::InitCustomEdit( Fvector2 pos, Fvector2 size )
 
 void CUICustomEdit::SetPasswordMode( bool mode )
 {
-	if ( m_pLines )
-	{
-		m_pLines->SetPasswordMode( mode );
-	}
+	TextItemControl()->SetPasswordMode( mode );
 }
 
 void CUICustomEdit::OnFocusLost()
@@ -114,7 +118,7 @@ void CUICustomEdit::SendMessage(CUIWindow* pWnd, s16 msg, void* pData)
 //	}
 }
 
-bool CUICustomEdit::OnMouse(float x, float y, EUIMessages mouse_action)
+bool CUICustomEdit::OnMouseAction(float x, float y, EUIMessages mouse_action)
 {
 //	if (m_bFocusByDbClick)
 	{
@@ -129,13 +133,12 @@ bool CUICustomEdit::OnMouse(float x, float y, EUIMessages mouse_action)
 	{
 		GetParent()->SetKeyboardCapture(this, true);
 		m_bInputFocus = true;
-//		m_lines.MoveCursorToEnd();
 	}
 	return false;
 }
 
 
-bool CUICustomEdit::OnKeyboard( int dik, EUIMessages keyboard_action )
+bool CUICustomEdit::OnKeyboardAction( int dik, EUIMessages keyboard_action )
 {	
 	if ( !m_bInputFocus )
 	{
@@ -192,7 +195,7 @@ void  CUICustomEdit::Draw()
 
 	Fvector2 pos, out;
 	GetAbsolutePos( pos );
-	CGameFont* font = m_pLines->m_pFont;
+	CGameFont* font		= TextItemControl()->m_pFont;
 	
 	if ( ec().need_update() || m_force_update )
 	{
@@ -203,14 +206,14 @@ void  CUICustomEdit::Draw()
 
 		LPCSTR istr = cursor_str;
 		float str_length = font->SizeOf_( istr );
-		UI()->ClientToScreenScaledWidth( str_length );
+		UI().ClientToScreenScaledWidth( str_length );
 
 		u32 ix = 0;
 		while ( (str_length > ui_width) && (ix < cursor_str_size) )
 		{
 			istr = cursor_str + ix;
 			str_length = font->SizeOf_( istr );
-			UI()->ClientToScreenScaledWidth( str_length );
+			UI().ClientToScreenScaledWidth( str_length );
 			++ix;
 		}
 		istr = cursor_str + ix;
@@ -221,17 +224,18 @@ void  CUICustomEdit::Draw()
 		strncpy_s( m_out_str, sizeof(m_out_str), astr, jx );
 
 		str_length = font->SizeOf_( m_out_str );
-		UI()->ClientToScreenScaledWidth( str_length );
+		UI().ClientToScreenScaledWidth( str_length );
+
 		while ( (str_length < ui_width) && (jx < str_size-ix) )
 		{
 			strncpy_s( m_out_str, sizeof(m_out_str), astr, jx );
 			str_length = font->SizeOf_( m_out_str );
-			UI()->ClientToScreenScaledWidth( str_length );
+			UI().ClientToScreenScaledWidth(str_length);
 			++jx;
 		}
 		strncpy_s( m_out_str, sizeof(m_out_str), astr, jx );
 
-		inherited::SetText( m_out_str );
+		TextItemControl()->SetText( m_out_str );
 		m_dx_cur = font->SizeOf_( istr ); // cursor_str
 
 		m_force_update = false;
@@ -243,7 +247,7 @@ void  CUICustomEdit::Draw()
 	{
 		out.x = pos.x + 0.0f + GetTextX() + m_pLines->GetIndentByAlign();
 		out.y = pos.y + 2.0f + GetTextY() + m_pLines->GetVIndentByAlign();
-		UI()->ClientToScreenScaled( out );
+		UI().ClientToScreenScaled( out );
 
 		out.x += m_dx_cur; // cursor_str
 
@@ -269,7 +273,7 @@ void CUICustomEdit::SetText(LPCSTR str)
 	ec().set_edit( str );
 }
 
-LPCSTR CUICustomEdit::GetText()
+LPCSTR CUICustomEdit::GetText() const
 {
 	return ec().str_edit();
 }

@@ -2,12 +2,12 @@
 #include "UISpeechMenu.h"
 #include "UIScrollView.h"
 #include "UIStatic.h"
+#include "UIGameCustom.h"
 #include "UIXmlInit.h"
 #include "../game_cl_mp.h"
 #include <dinput.h>
 #include "../level.h"
 #include "../string_table.h"
-#include "../HUDManager.h"
 
 CUISpeechMenu::CUISpeechMenu(LPCSTR section_name)
 {
@@ -49,7 +49,7 @@ void CUISpeechMenu::InitList(LPCSTR section_name)
 			xr_sprintf				(str, "%d. %s",i+1, CStringTable().translate(phrase).c_str());
 
 			ADD_TEXT_TO_VIEW3(str, pItem, m_pList);
-			pItem->SetFont(GetFont());
+			pItem->SetFont			(m_pFont);
 			pItem->SetTextColor(m_text_color);
 		}
 		else
@@ -64,7 +64,7 @@ bool CUISpeechMenu::OnKeyboardAction(int dik, EUIMessages keyboard_action)
 
 	game_cl_mp* game = smart_cast<game_cl_mp*>(&Game());
 
-	Game().StartStopMenu(this,true);
+	HideDialog();
 	game->OnMessageSelected(this, static_cast<u8>(dik - DIK_1));
 
 	return true;

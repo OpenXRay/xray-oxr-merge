@@ -138,7 +138,6 @@ IC	_object_type *CSQuadTree::find	(const Fvector &position) const
 
 		node			= node->m_neighbours[index];
 	}
-	NODEFAULT;
 }
 
 TEMPLATE_SPECIALIZATION

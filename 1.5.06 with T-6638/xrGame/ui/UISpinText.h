@@ -11,9 +11,11 @@ class CUISpinText : public CUICustomSpin
 public:
 	CUISpinText();
 	// CUIOptionsItem
-	virtual void	SetCurrentValue();
-	virtual void	SaveValue();
-	virtual bool	IsChanged();	
+	virtual void	SetCurrentOptValue	();	// opt->current
+	virtual void	SaveBackUpOptValue	();	// current->backup
+	virtual void	SaveOptValue		();	// current->opt
+	virtual void	UndoOptValue		();	// backup->current
+	virtual bool	IsChangedOptValue	() const;	// backup!=current
 
 	// own
 	virtual void	OnBtnUpClick();
@@ -37,4 +39,5 @@ protected:
 
     Items	m_list;
 	int		m_curItem;
+	int		m_opt_backup_value;
 };

@@ -4,7 +4,11 @@
 #include "../xrRender/uber_deffer.h"
 #include "Blender_deffer_flat.h"
 
-CBlender_deffer_flat::CBlender_deffer_flat	()	{	description.CLS		= B_DEFAULT;	}
+CBlender_deffer_flat::CBlender_deffer_flat	()
+{
+	description.CLS		= B_DEFAULT;
+}
+
 CBlender_deffer_flat::~CBlender_deffer_flat	()	{	}
 
 void	CBlender_deffer_flat::Save	(	IWriter& fs )

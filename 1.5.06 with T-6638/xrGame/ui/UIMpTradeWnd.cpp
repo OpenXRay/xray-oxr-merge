@@ -16,7 +16,7 @@ void CUIMpTradeWnd::OnBtnOkClicked(CUIWindow* w, void* d)
 	DeleteHelperItems();
 	CheckDragItemToDestroy				();
 	StorePreset							(_preset_idx_last, true, false, false);
-	GetHolder()->StartStopMenu			(this,true);
+	HideDialog							();
 	game_cl_mp* clgame					= smart_cast<game_cl_mp*>(&(Game()));
 	VERIFY(clgame);
 	clgame->OnBuyMenu_Ok					();
@@ -26,7 +26,7 @@ void CUIMpTradeWnd::OnBtnOkClicked(CUIWindow* w, void* d)
 void CUIMpTradeWnd::OnBtnCancelClicked(CUIWindow* w, void* d)
 {
 	CheckDragItemToDestroy				();
-	GetHolder()->StartStopMenu			(this,true);
+	HideDialog							();
 	game_cl_mp* clgame					= smart_cast<game_cl_mp*>(&(Game()));
 	VERIFY(clgame);
 	clgame->OnBuyMenu_Cancel			();
@@ -217,30 +217,25 @@ void CUIMpTradeWnd::FillUpSubLevelItems()
 }
 
 #include "../actor.h"
-void CUIMpTradeWnd::Show()
+void CUIMpTradeWnd::Show(bool status)
 {
-	m_pMouseCapturer		= NULL;
-	inherited::Show			();
-
+	inherited::Show				(status);
 
 	CActor *pActor			= smart_cast<CActor*>(Level().CurrentEntity());
 	if(pActor) 
-		pActor->SetWeaponHideState(INV_STATE_BUY_MENU, true);
+		pActor->SetWeaponHideState(INV_STATE_BUY_MENU, status);
 
-	m_static_information->SetText("");
-	m_static_money_change->SetText("");
-}
+	if(status)
+	{
+		m_pMouseCapturer		= NULL;
 
-void CUIMpTradeWnd::Hide()
-{
-	CheckDragItemToDestroy	();
-	inherited::Hide			();
-
-	CActor *pActor			= smart_cast<CActor*>(Level().CurrentEntity());
-	if(pActor)
-		pActor->SetWeaponHideState(INV_STATE_BUY_MENU, false);
-
-	CleanUserItems			();
+		m_static_information->SetText("");
+		m_static_money_change->SetText("");
+	}else
+	{
+		CheckDragItemToDestroy	();
+		CleanUserItems			();
+	}
 }
 
 bool	CUIMpTradeWnd::IsIgnoreMoneyAndRank			()

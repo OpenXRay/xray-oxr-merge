@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "UIMoneyIndicator.h"
-#include "UIColorAnimatorWrapper.h"
 #include "xrUIXmlParser.h"
 #include "UIXmlInit.h"
 #include "UIGameLog.h"

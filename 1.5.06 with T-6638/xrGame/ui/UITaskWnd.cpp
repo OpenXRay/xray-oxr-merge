@@ -96,7 +96,6 @@ void CUITaskWnd::Init()
 	m_pMapWnd->AttachChild				(m_map_legend_wnd);
 	m_map_legend_wnd->SetMessageTarget	(this);
 	m_map_legend_wnd->Show				(false);
-
 }
 
 void CUITaskWnd::Update()
@@ -109,13 +108,11 @@ void CUITaskWnd::Update()
 	if ( m_pStoryLineTaskItem->show_hint && m_pStoryLineTaskItem->OwnerTask() )
 	{
 		m_pMapWnd->ShowHintTask( m_pStoryLineTaskItem->OwnerTask(), m_pStoryLineTaskItem );
-		//ReloadTaskInfo();
 	}
 	else if ( m_pSecondaryTaskItem->show_hint && m_pSecondaryTaskItem->OwnerTask() )
 	{
 		m_pStoryLineTaskItem->show_hint = false;
 		m_pMapWnd->ShowHintTask( m_pSecondaryTaskItem->OwnerTask(), m_pSecondaryTaskItem );
-		//ReloadTaskInfo();
 	}
 	else
 	{
@@ -137,20 +134,6 @@ void CUITaskWnd::DrawHint()
 
 void CUITaskWnd::SendMessage(CUIWindow* pWnd, s16 msg, void* pData)
 {
-	/*if ( pWnd == m_pSecondaryTaskItem )
-	{
-		if ( msg == WINDOW_MOUSE_WHEEL_UP )
-		{
-			OnNextTaskClicked();
-			return;
-		}
-		if ( msg == WINDOW_MOUSE_WHEEL_DOWN )
-		{
-			OnPrevTaskClicked();
-			return;
-		}
-	}*/
-	
 	if ( msg == PDA_TASK_SET_TARGET_MAP && pData )
 	{
 		CGameTask* task = static_cast<CGameTask*>( pData );
@@ -240,20 +223,10 @@ void CUITaskWnd::Reset()
 
 void CUITaskWnd::OnNextTaskClicked()
 {
-	/*CGameTask* t = Level().GameTaskManager().IterateGet( m_pSecondaryTaskItem->OwnerTask(), eTaskStateInProgress, eTaskTypeAdditional, true);
-	if ( t )
-	{
-		Level().GameTaskManager().SetActiveTask(t);
-	}*/
 }
 
 void CUITaskWnd::OnPrevTaskClicked()
 {
-	/*CGameTask* t = Level().GameTaskManager().IterateGet( m_pSecondaryTaskItem->OwnerTask(), eTaskStateInProgress, eTaskTypeAdditional, false);
-	if ( t )
-	{
-		Level().GameTaskManager().SetActiveTask(t);
-	}*/
 }
 
 void CUITaskWnd::OnShowSecondTaskWnd( CUIWindow* w, void* d )
@@ -309,22 +282,14 @@ void CUITaskWnd::TaskShowMapSpot( CGameTask* task, bool show )
 
 void CUITaskWnd::OnTask1DbClicked( CUIWindow* ui, void* d )
 {
-//	CUITaskItem* task_item = smart_cast<CUITaskItem*>( ui );
-//	if ( task_item && task_item == m_pStoryLineTaskItem )
-	{
-		CGameTask* task = Level().GameTaskManager().ActiveTask( eTaskTypeStoryline );
-		TaskSetTargetMap( task );
-	}
+	CGameTask* task = Level().GameTaskManager().ActiveTask( eTaskTypeStoryline );
+	TaskSetTargetMap( task );
 }
 
 void CUITaskWnd::OnTask2DbClicked( CUIWindow* ui, void* d )
 {
-//	CUITaskItem* task_item = smart_cast<CUITaskItem*>( ui );
-//	if ( task_item && task_item == m_pSecondaryTaskItem )
-	{
-		CGameTask* task = Level().GameTaskManager().ActiveTask( eTaskTypeAdditional );
-		TaskSetTargetMap( task );
-	}
+	CGameTask* task = Level().GameTaskManager().ActiveTask( eTaskTypeAdditional );
+	TaskSetTargetMap( task );
 }
 
 void CUITaskWnd::ShowMapLegend( bool status )
@@ -337,6 +302,26 @@ void CUITaskWnd::Switch_ShowMapLegend()
 	m_map_legend_wnd->Show( !m_map_legend_wnd->IsShown() );
 }
 
+void CUITaskWnd::OnShowTreasures(CUIWindow* ui, void* d)
+{
+	m_bTreasuresEnabled = !m_bTreasuresEnabled;
+	ReloadTaskInfo();
+}
+void CUITaskWnd::OnShowPrimaryObjects(CUIWindow* ui, void* d)
+{
+	m_bPrimaryObjectsEnabled = !m_bPrimaryObjectsEnabled;
+	ReloadTaskInfo();
+}
+void CUITaskWnd::OnShowSecondaryTasks(CUIWindow* ui, void* d)
+{
+	m_bSecondaryTasksEnabled = !m_bSecondaryTasksEnabled ;
+	ReloadTaskInfo();
+}
+void CUITaskWnd::OnShowQuestNpcs(CUIWindow* ui, void* d)
+{
+	m_bQuestNpcsEnabled = !m_bQuestNpcsEnabled;
+	ReloadTaskInfo();
+}
 // --------------------------------------------------------------------------------------------------
 CUITaskItem::CUITaskItem() :
 	m_owner(NULL),
@@ -378,18 +363,6 @@ void CUITaskItem::Init(CUIXml& uiXml, LPCSTR path)
 	AttachChild						(S);
 	m_info["t_caption"]				= S;
 
-/*	S = init_static_field			(uiXml, path, "t_time");
-	AttachChild						(S);
-	m_info["t_time"]				= S;
-
-	S = init_static_field			(uiXml, path, "t_time_rem");
-	AttachChild						(S);
-	m_info["t_time_rem"]			= S;
-/*
-	S = init_static_field			(uiXml, path, "t_hint_text");
-	AttachChild						(S);
-	m_info["t_hint_text"]			= S;
-*/
 	show_hint_can = false;
 	show_hint     = false;
 }
@@ -415,31 +388,6 @@ void CUITaskItem::InitTask(CGameTask* task)
 
 	S								= m_info["t_caption"];
 	S->SetTextST					((task) ? task->m_Title.c_str() : "");
-
-	/*S								= m_info["t_time"];
-	xr_string	txt					="";
-	if(task)
-	{
-		txt								+= *(InventoryUtilities::GetDateAsString(task->m_ReceiveTime, InventoryUtilities::edpDateToDay));
-		txt								+= " ";
-		txt								+= *(InventoryUtilities::GetTimeAsString(task->m_ReceiveTime, InventoryUtilities::etpTimeToMinutes));
-	}
-	S->SetText						(txt.c_str());
-
-	S								= m_info["t_time_rem"];
-	bool b_rem						= task && (task->m_ReceiveTime!=task->m_TimeToComplete);
-	S->Show							(b_rem);
-	if(b_rem)
-	{
-		string512									buff, buff2;
-		InventoryUtilities::GetTimePeriodAsString	(buff, sizeof(buff), Level().GetGameTime(), task->m_TimeToComplete);
-		sprintf_s									(buff2,"%s %s", *CStringTable().translate("ui_st_time_remains"), buff);
-		S->SetText					(buff2);
-	}*/
-/*
-	S								= m_info["t_hint_text"];
-	S->SetTextST					(task->m_Description.c_str());
-*/
 }
 
 void CUITaskItem::OnFocusReceive()
@@ -467,26 +415,15 @@ void CUITaskItem::Update()
 			return;
 		}
 	}
-	//show_hint = false;
 }
 
 void CUITaskItem::OnMouseScroll( float iDirection )
 {
-	/*if ( iDirection == WINDOW_MOUSE_WHEEL_UP )
-	{
-		GetMessageTarget()->SendMessage(this, WINDOW_MOUSE_WHEEL_UP, NULL);
-		show_hint     = false;
-	}
-	else if ( iDirection == WINDOW_MOUSE_WHEEL_DOWN )
-	{
-		GetMessageTarget()->SendMessage(this, WINDOW_MOUSE_WHEEL_DOWN, NULL);
-		show_hint     = false;
-	}*/
 }
 
-bool CUITaskItem::OnMouse( float x, float y, EUIMessages mouse_action )
+bool CUITaskItem::OnMouseAction( float x, float y, EUIMessages mouse_action )
 {
-	if ( inherited::OnMouse( x, y, mouse_action ) )
+	if ( inherited::OnMouseAction( x, y, mouse_action ) )
 	{
 		//return true;
 	}
@@ -506,13 +443,5 @@ bool CUITaskItem::OnMouse( float x, float y, EUIMessages mouse_action )
 
 void CUITaskItem::SendMessage( CUIWindow* pWnd, s16 msg, void* pData )
 {
-	/*if ( pWnd == btn_focus )
-	{
-		if ( msg == BUTTON_DOWN )
-		{
-			GetMessageTarget()->SendMessage( this, PDA_TASK_SET_TARGET_MAP, (void*)m_owner );
-			return;
-		}
-	}*/
 	inherited::SendMessage( pWnd, msg, pData );
 }

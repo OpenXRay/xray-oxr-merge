@@ -90,7 +90,7 @@ class CUIQuestionItem :public CUIWindow, public CUIWndCallback
 	typedef CUIWindow inherited;
 	float			m_min_height;
 public:
-	CUI3tButtonEx*	m_text;
+	CUI3tButton*	m_text;
 	shared_str		m_s_value;
 					CUIQuestionItem			(CUIXml* xml_doc, LPCSTR path);
 	void			Init					(LPCSTR val, LPCSTR text);

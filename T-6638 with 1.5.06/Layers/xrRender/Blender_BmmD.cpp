@@ -14,13 +14,13 @@
 CBlender_BmmD::CBlender_BmmD	()
 {
 	description.CLS		= B_BmmD;
-	xr_strcpy				(oT2_Name,	"$null");
-	xr_strcpy				(oT2_xform,	"$null");
+	xr_strcpy			(oT2_Name,	"$null");
+	xr_strcpy			(oT2_xform,	"$null");
 	description.version	= 3;
-	xr_strcpy				(oR_Name,	"detail\\detail_grnd_grass");	//"$null");
-	xr_strcpy				(oG_Name,	"detail\\detail_grnd_asphalt");	//"$null");
-	xr_strcpy				(oB_Name,	"detail\\detail_grnd_earth");	//"$null");
-	xr_strcpy				(oA_Name,	"detail\\detail_grnd_yantar");	//"$null");
+	xr_strcpy			(oR_Name,	"detail\\detail_grnd_grass");	//"$null");
+	xr_strcpy			(oG_Name,	"detail\\detail_grnd_asphalt");	//"$null");
+	xr_strcpy			(oB_Name,	"detail\\detail_grnd_earth");	//"$null");
+	xr_strcpy			(oA_Name,	"detail\\detail_grnd_yantar");	//"$null");
 }
 
 CBlender_BmmD::~CBlender_BmmD	()

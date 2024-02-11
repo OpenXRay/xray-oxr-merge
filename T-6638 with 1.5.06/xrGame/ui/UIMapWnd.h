@@ -40,8 +40,8 @@ private:
 	
 	CUIFrameWindow*				m_UIMainFrame;
 	bool						m_scroll_mode;
-	CUIFixedScrollBar*				m_UIMainScrollV;
-	CUIFixedScrollBar*				m_UIMainScrollH;
+	CUIFixedScrollBar*			m_UIMainScrollV;
+	CUIFixedScrollBar*			m_UIMainScrollH;
 	CUIWindow*					m_UILevelFrame;
 	CMapActionPlanner*			m_ActionPlanner;
 //	CUIFrameLineWnd*			UIMainMapHeader;
@@ -138,8 +138,8 @@ public:
 			void				HideHint				(CUIWindow* parent);
 			void				HideCurHint				();
 			void				Hint					(const shared_str& text);
-	virtual bool				OnMouseAction					(float x, float y, EUIMessages mouse_action);
-	virtual bool				OnKeyboardAction				(int dik, EUIMessages keyboard_action);
+	virtual bool				OnMouseAction			(float x, float y, EUIMessages mouse_action);
+	virtual bool				OnKeyboardAction		(int dik, EUIMessages keyboard_action);
 	virtual bool				OnKeyboardHold			(int dik);
 
 	virtual void				SendMessage				(CUIWindow* pWnd, s16 msg, void* pData = NULL);

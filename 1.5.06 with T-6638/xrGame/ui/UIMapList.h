@@ -9,12 +9,11 @@ class CUIListBoxItem;
 class CUIFrameLineWnd;
 class CUIStatic;
 class CUIFrameWindow;
-class CUI3tButtonEx;
+class CUI3tButton;
 class CUISpinText;
 class CUIMapInfo;
 class CUIComboBox;
 class CUIXml;
-class CExtraContentFilter;
 
 #define	MAP_ROTATION_LIST	"maprot_list.ltx"
 
@@ -60,10 +59,10 @@ private:
 	CUIFrameWindow*		m_pFrame2;
 	CUIFrameLineWnd*	m_pLbl1;
 	CUIFrameLineWnd*	m_pLbl2;
-	CUI3tButtonEx*		m_pBtnLeft;
-	CUI3tButtonEx*		m_pBtnRight;
-	CUI3tButtonEx*		m_pBtnUp;
-	CUI3tButtonEx*		m_pBtnDown;
+	CUI3tButton*		m_pBtnLeft;
+	CUI3tButton*		m_pBtnRight;
+	CUI3tButton*		m_pBtnUp;
+	CUI3tButton*		m_pBtnDown;
 
 	CUIComboBox*		m_pWeatherSelector;
 	CUISpinText*		m_pModeSelector;
@@ -77,6 +76,4 @@ private:
 	xr_vector<Sw>		m_mapWeather;
 	xr_string			m_command;
 	xr_string			m_srv_params;
-
-	CExtraContentFilter*	m_pExtraContentFilter;
 };

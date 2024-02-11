@@ -4,7 +4,8 @@
 
 class CUIStatic;
 
-class CUIProgressShape : public CUIWindow {
+class CUIProgressShape : public CUIWindow
+{
 friend class CUIXmlInit;
 public:
 						CUIProgressShape		();

@@ -9,7 +9,7 @@ class CUIStatsIcon : public CUIStatic
 
 public:
 	CUIStatsIcon		();
-	virtual void SetText(LPCSTR str);
+	void SetValue		(LPCSTR str);
 
 
 protected:

@@ -9,10 +9,8 @@
 #include "StdAfx.h"
 
 #include "UILines.h"
-#include "../HUDmanager.h"
 #include "UIXmlInit.h"
 #include "uilinestd.h"
-
 
 CUILines::CUILines()
 {
@@ -46,18 +44,10 @@ void CUILines::SetTextComplexMode(bool mode){
 		uFlags.set(flPasswordMode, FALSE);
 }
 
-bool CUILines::GetTextComplexMode() const{
-	return uFlags.test(flComplexMode)? true : false;
-}
-
 void CUILines::SetPasswordMode(bool mode){
 	uFlags.set(flPasswordMode, mode);
 	if (mode)
 		uFlags.set(flComplexMode, false);
-}
-
-bool CUILines::GetPasswordMode() const{
-	return uFlags.test(flPasswordMode)? true : false;
 }
 
 void CUILines::SetColoringMode(bool mode){

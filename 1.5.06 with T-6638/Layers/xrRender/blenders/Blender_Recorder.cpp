@@ -122,7 +122,9 @@ void	CBlender_Compile::_cpp_Compile	(ShaderElement* _SH)
 		bUseSteepParallax = true;
 	}
 */	
-
+#ifdef USE_DX11
+	TessMethod = 0;
+#endif
 
 	// Compile
 	BT->Compile		(*this);
@@ -152,8 +154,8 @@ void	CBlender_Compile::PassBegin		()
 	passTextures.clear		();
 	passMatrices.clear		();
 	passConstants.clear		();
-	strcpy_s					(pass_ps,"null");
-	strcpy_s					(pass_vs,"null");
+	xr_strcpy				(pass_ps,"null");
+	xr_strcpy				(pass_vs,"null");
 	dwStage					= 0;
 }
 
@@ -188,13 +190,13 @@ void	CBlender_Compile::PassEnd			()
 
 void	CBlender_Compile::PassSET_PS		(LPCSTR name)
 {
-	strcpy_s	(pass_ps,name);
+	xr_strcpy	(pass_ps,name);
 	strlwr	(pass_ps);
 }
 
 void	CBlender_Compile::PassSET_VS		(LPCSTR name)
 {
-	strcpy_s	(pass_vs,name);
+	xr_strcpy	(pass_vs,name);
 	strlwr	(pass_vs);
 }
 
@@ -216,7 +218,7 @@ void	CBlender_Compile::PassSET_ablend_mode	(BOOL bABlend,	u32 abSRC, u32 abDST)
 	RS.SetRS(D3DRS_SRCBLEND,			bABlend?abSRC:D3DBLEND_ONE	);
 	RS.SetRS(D3DRS_DESTBLEND,			bABlend?abDST:D3DBLEND_ZERO	);
 
-#ifdef	USE_DX10
+#if defined(USE_DX10) || defined(USE_DX11)
 	//	Since in our engine D3DRS_SEPARATEALPHABLENDENABLE state is
 	//	always set to false and in DirectX 10 blend functions for 
 	//	color and alpha are always independent, assign blend options for
@@ -281,7 +283,7 @@ void	CBlender_Compile::StageSET_Alpha	(u32 a1, u32 op, u32 a2)
 {
 	RS.SetAlpha	(Stage(),a1,op,a2);
 }
-#ifndef	USE_DX10
+#if !defined(USE_DX10) && !defined(USE_DX11)
 void	CBlender_Compile::StageSET_TMC		(LPCSTR T, LPCSTR M, LPCSTR C, int UVW_channel)
 {
 	Stage_Texture		(T);

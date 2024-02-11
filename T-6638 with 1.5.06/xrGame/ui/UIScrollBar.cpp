@@ -57,7 +57,8 @@ void CUIScrollBar::InitScrollBar(Fvector2 pos, float length, bool bIsHorizontal,
 		R_ASSERT					(texture);
 		m_FrameBackground->InitTexture(texture);
 		m_ScrollWorkArea			= _max(0,iFloor(GetWidth()-2*height));
-	}else
+	}
+	else
 	{
 		inherited::SetWndSize		(Fvector2().set(height, length));
 
@@ -443,7 +444,8 @@ void CUIScrollBar::Draw()
 
 		m_FrameBackground->SetWndSize		(Fvector2().set(size, GetHeight()));
 		m_FrameBackground->SetWndPos		(Fvector2().set(m_DecButton->GetWidth(), 0.0f) );
-	}else
+	}
+	else
 	{
 		float size	= GetHeight()- m_IncButton->GetHeight() - m_DecButton->GetHeight();
 

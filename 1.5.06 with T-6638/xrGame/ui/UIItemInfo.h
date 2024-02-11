@@ -12,6 +12,7 @@ class CUIArtefactParams;
 class CUIFrameWindow;
 class UIInvUpgPropertiesWnd;
 class CUIOutfitInfo;
+class CUIBoosterInfo;
 
 extern const char * const 		fieldsCaptionColor;
 
@@ -58,6 +59,7 @@ public:
 	CUIArtefactParams*		UIArtefactParams;
 	UIInvUpgPropertiesWnd*	UIProperties;
 	CUIOutfitInfo*			UIOutfitInfo;
+	CUIBoosterInfo*			UIBoosterInfo;
 
 	Fvector2			UIItemImageSize; 
 	CUIStatic*			UIItemImage;

@@ -77,7 +77,7 @@ void CUIActorMenu::InitDeadBodySearchMode()
 	else
 	{
 		VERIFY( m_pInvBox );
-		m_pInvBox->m_in_use = true;
+		m_pInvBox->set_in_use( true );
 		m_pInvBox->AddAvailableItems( items_list );
 	}
 
@@ -126,7 +126,7 @@ void CUIActorMenu::DeInitDeadBodySearchMode()
 
 	if ( m_pInvBox )
 	{
-		m_pInvBox->m_in_use = false;
+		m_pInvBox->set_in_use( false );
 	}
 }
 
@@ -170,7 +170,7 @@ void CUIActorMenu::UpdateDeadBodyBag()
 
 	LPCSTR kg_str = CStringTable().translate( "st_kg" ).c_str();
 	float total	= CalcItemsWeight( m_pDeadBodyBagList );
-	sprintf_s( buf, "%.1f %s", total, kg_str );
+	xr_sprintf( buf, "%.1f %s", total, kg_str );
 	m_PartnerWeight->SetText( buf );
 	m_PartnerWeight->AdjustWidthToText();
 

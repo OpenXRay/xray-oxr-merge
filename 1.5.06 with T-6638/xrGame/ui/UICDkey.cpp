@@ -5,13 +5,14 @@
 #include "../../xrEngine/line_edit_control.h"
 #include "../MainMenu.h"
 
-#include "UIColorAnimatorWrapper.h"
 #include "../../xrEngine/xr_IOConsole.h"
 #include "../RegistryFuncs.h"
 #include "../../xrGameSpy/xrGameSpy_MainDefs.h"
 #include "player_name_modifyer.h"
 
 extern string64	gsCDKey;
+LPCSTR AddHyphens( LPCSTR c );
+LPCSTR DelHyphens( LPCSTR c );
 
 CUICDkey::CUICDkey()
 {
@@ -23,7 +24,7 @@ CUICDkey::CUICDkey()
 void CUICDkey::Show( bool status )
 {
 	inherited::Show( status );
-	SetCurrentValue();
+	SetCurrentOptValue();
 }
 
 void CUICDkey::OnFocusLost()
@@ -34,7 +35,7 @@ void CUICDkey::OnFocusLost()
 		m_bInputFocus = false;
 		GetMessageTarget()->SendMessage(this,EDIT_TEXT_COMMIT,NULL);
 	}
-	SaveValue();
+	SaveOptValue();
 }
 
 void CUICDkey::Draw()
@@ -52,13 +53,13 @@ void CUICDkey::Draw()
 	GetAbsoluteRect				(rect);
 	Fvector2					out;
 
-	out.y						= (m_wndSize.y - m_pLines->m_pFont->CurrentHeight_())/2.0f;
+	out.y						= (m_wndSize.y - TextItemControl()->m_pFont->CurrentHeight_())/2.0f;
 	out.x						= 0.0f;
-	m_pLines->m_pFont->SetColor	(m_pLines->GetTextColor());
+	TextItemControl()->m_pFont->SetColor	(TextItemControl()->GetTextColor());
 
 	Fvector2					pos;
 	pos.set						(rect.left+out.x, rect.top+out.y);
-	UI()->ClientToScreenScaled	(pos);
+	UI().ClientToScreenScaled	(pos);
 
 	string64 xx_str = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 	edt_size = xr_strlen( edt_str );
@@ -76,21 +77,21 @@ void CUICDkey::Draw()
 		LPCSTR res  = ( m_view_access )? edt_str  : xx_str;
 		LPCSTR res1 = ( m_view_access )? edt_str1 : xx_str1;
 
-		m_pLines->m_pFont->Out	( pos.x, pos.y, "%s", CMainMenu::AddHyphens( res ) );
+		TextItemControl()->m_pFont->Out	( pos.x, pos.y, "%s", AddHyphens( res ) );
 		
-		float _h				= m_pLines->m_pFont->CurrentHeight_();
-		UI()->ClientToScreenScaledHeight(_h);
+		float _h				= TextItemControl()->m_pFont->CurrentHeight_();
+		UI().ClientToScreenScaledHeight(_h);
 		
 		out.y					= rect.top + (m_wndSize.y - _h)/2.0f;
 		
 		float	w_tmp			= 0.0f;
 		int i					= (int)xr_strlen( res1 );
-		w_tmp					= m_pLines->m_pFont->SizeOf_( res1 );
-		UI()->ClientToScreenScaledWidth( w_tmp );
+		w_tmp					= TextItemControl()->m_pFont->SizeOf_( res1 );
+		UI().ClientToScreenScaledWidth( w_tmp );
 		out.x					= rect.left + w_tmp;
 		
-		w_tmp					= m_pLines->m_pFont->SizeOf_("-");
-		UI()->ClientToScreenScaledWidth( w_tmp );
+		w_tmp					= TextItemControl()->m_pFont->SizeOf_("-");
+		UI().ClientToScreenScaledWidth( w_tmp );
 		
 		if(i>3)
 			out.x	+= w_tmp;
@@ -99,47 +100,54 @@ void CUICDkey::Draw()
 		if(i>11)
 			out.x	+= w_tmp;
 
-		UI()->ClientToScreenScaled	(out);
-		m_pLines->m_pFont->Out		(out.x, out.y, "_");
+		UI().ClientToScreenScaled	(out);
+		TextItemControl()->m_pFont->Out		(out.x, out.y, "_");
 	}
 	else
 	{
-		m_pLines->m_pFont->Out(pos.x, pos.y, "%s" , CMainMenu::AddHyphens(xx_str) );
+		TextItemControl()->m_pFont->Out(pos.x, pos.y, "%s" , AddHyphens(xx_str) );
 	}
-	m_pLines->m_pFont->OnRender();
+	TextItemControl()->m_pFont->OnRender();
 }
 
 LPCSTR CUICDkey::GetText()
 {
-	return CMainMenu::AddHyphens(inherited::GetText());
+	return AddHyphens(inherited::GetText());
 }
 
-void CUICDkey::SetCurrentValue()
+void CUICDkey::SetCurrentOptValue()
 {
+	CUIOptionsItem::SetCurrentOptValue();
 	string512	CDKeyStr;
 	CDKeyStr[0] = 0;
 	GetCDKey_FromRegistry(CDKeyStr);
-	inherited::SetText( CMainMenu::DelHyphens(CDKeyStr) );
+	inherited::SetText( DelHyphens(CDKeyStr) );
 }
 
-void CUICDkey::SaveValue()
+void CUICDkey::SaveOptValue()
 {
-	CUIOptionsItem::SaveValue();
+	CUIOptionsItem::SaveOptValue();
 
-	strcpy_s( gsCDKey, sizeof(gsCDKey), CMainMenu::AddHyphens(inherited::GetText()) );
+	xr_strcpy( gsCDKey, sizeof(gsCDKey), AddHyphens(inherited::GetText()) );
 	WriteCDKey_ToRegistry( gsCDKey );
 
 	if ( MainMenu()->IsCDKeyIsValid() )
-	{
 		m_view_access = false;
-	}
 }
 
-bool CUICDkey::IsChanged()
+void CUICDkey::SaveBackUpOptValue()	// current->backup
 {
-	string512	tmpCDKeyStr;
-	GetCDKey_FromRegistry(tmpCDKeyStr);
-	return 0 != xr_strcmp(tmpCDKeyStr, inherited::GetText());
+	xr_strcpy(m_opt_backup_value, inherited::GetText());
+}
+
+void CUICDkey::UndoOptValue()	// backup->current
+{
+	inherited::SetText(m_opt_backup_value);
+}
+
+bool CUICDkey::IsChangedOptValue() const
+{
+	return 0 != xr_strcmp(m_opt_backup_value, inherited::GetText());
 }
 
 void CUICDkey::CreateCDKeyEntry()
@@ -157,7 +165,7 @@ void CUIMPPlayerName::OnFocusLost()
 		GetMessageTarget()->SendMessage(this, EDIT_TEXT_COMMIT, NULL);
 	}
 	string64 name;
-	strcpy_s( name, GetText() );
+	xr_strcpy( name, GetText() );
 	string256 new_name;
 	modify_player_name(name, new_name);
 	WritePlayerName_ToRegistry( new_name );
@@ -192,23 +200,25 @@ void GetPlayerName_FromRegistry(char* name, u32 const name_size)
 		Msg( "! Player name registry key (%s) not found !", REGISTRY_VALUE_USERNAME );
 		return;
 	}
-	if ( xr_strlen(name) > 17 )
+	u32 const max_name_length	=	GP_UNIQUENICK_LEN - 1;
+	if ( xr_strlen(name) > max_name_length )
 	{
-		name[17] = 0;
+		name[max_name_length] = 0;
 	}
 	if ( xr_strlen(name) == 0 )
 	{
 		Msg( "! Player name in registry is empty! (%s)", REGISTRY_VALUE_USERNAME );
 	}
 	modify_player_name(name, new_name);
-	strncpy_s(name, name_size, new_name, 17);
+	strncpy_s(name, name_size, new_name, max_name_length);
 }
 
 void WritePlayerName_ToRegistry(LPSTR name)
 {
-	if ( xr_strlen(name) > 17 )
+	u32 const max_name_length	=	GP_UNIQUENICK_LEN - 1;
+	if ( xr_strlen(name) > max_name_length )
 	{
-		name[17] = 0;
+		name[max_name_length] = 0;
 	}
 	WriteRegistry_StrValue(REGISTRY_VALUE_USERNAME, name);
 }

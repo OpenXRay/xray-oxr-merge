@@ -193,7 +193,6 @@ LPCSTR CUIComboBox::GetTextOf(int index)
 	return m_list_box.GetText(index);
 }
 
-
 void CUIComboBox::SetItemIDX(int idx)
 {
 	m_list_box.SetSelectedIDX(idx);

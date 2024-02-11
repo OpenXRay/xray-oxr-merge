@@ -3,7 +3,7 @@
 #include "UIDialogWnd.h"
 
 class CUIStatic;
-class CUI3tButtonEx;
+class CUI3tButton;
 class CUIKickPlayer;
 class CUIChangeMap;
 class CUIXml;
@@ -14,7 +14,7 @@ public:
 					CUIChangeWeather	();
 			void	InitChangeWeather	(CUIXml& xml_doc);
 
-	virtual bool	OnKeyboard			(int dik, EUIMessages keyboard_action);
+	virtual bool	OnKeyboardAction	(int dik, EUIMessages keyboard_action);
 	virtual void	SendMessage			(CUIWindow* pWnd, s16 msg, void* pData = 0);
 
 	virtual void	OnBtn				(int i);
@@ -32,10 +32,10 @@ protected:
 	};
 
 	CUIStatic*		header;
-	CUI3tButtonEx*	btn[4];
+	CUI3tButton*	btn[4];
 	SWeatherData	m_data[4];
 	CUIStatic*		bkgrnd;
-	CUI3tButtonEx*	btn_cancel;
+	CUI3tButton*	btn_cancel;
 };
 
 class CUIChangeGameType :public CUIChangeWeather

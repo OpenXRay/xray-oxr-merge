@@ -20,7 +20,8 @@ class CUIPdaMsgListItem;
 class CUIProgressShape;
 struct GAME_NEWS_DATA;
 
-class CUIMessagesWindow : public CUIWindow {
+class CUIMessagesWindow : public CUIWindow
+{
 public:
 						CUIMessagesWindow				();
 	virtual				~CUIMessagesWindow				();
@@ -46,14 +47,10 @@ protected:
 	CUIGameLog*			m_pGameLog;
 	bool				m_in_pending_mode;
 	
-	Fvector2			m_pending_chat_log_pos;
-	Fvector2			m_pending_chat_log_wnd_size;
-	Fvector2			m_inprogress_chat_log_pos;
-	Fvector2			m_inprogress_chat_log_wnd_size;
+	Frect				m_pending_chat_log_rect;
+	Frect				m_inprogress_chat_log_rect;
 
 	u32					m_game_color_time;
 	u32					m_game_color_caption;
 	u32					m_game_color_text;
-
-//	Frect				m_ListPos2;
 };

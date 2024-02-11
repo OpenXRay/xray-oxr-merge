@@ -2,6 +2,7 @@
 #include "UIComboBox.h"
 #include "UITextureMaster.h"
 #include "UIScrollBar.h"
+#include "uilistboxitem.h"
 
 #define CB_HEIGHT 23.0f
 
@@ -70,11 +71,10 @@ void CUIComboBox::InitComboBox(Fvector2 pos, float width)
 	m_list_box.SetMessageTarget			(this);
 }
 
-#include "uilistboxitem.h"
 CUIListBoxItem* CUIComboBox::AddItem_(LPCSTR str, int _data)
 {
     R_ASSERT2			(m_bInited, "Can't add item to ComboBox before Initialization");
-	CUIListBoxItem* itm = m_list_box.AddItem(str);
+	CUIListBoxItem* itm = m_list_box.AddTextItem(str);
 	itm->SetData		((void*)(__int64)_data);
 	return				itm;
 }
@@ -138,17 +138,29 @@ void CUIComboBox::SetCurrentOptValue()
 		m_itoken_id			= 1; //first
 }
 
-void CUIComboBox::SaveValue()
+void CUIComboBox::SaveBackUpOptValue()
 {
-	CUIOptionsItem::SaveValue	();
+	m_opt_backup_value = m_itoken_id;
+}
+
+void CUIComboBox::UndoOptValue()
+{
+	SetItem				(m_backup_itoken_id);
+	SaveValue			();
+	SetCurrentValue		();
+}
+
+void CUIComboBox::SaveOptValue()
+{
+	CUIOptionsItem::SaveOptValue	();
 	xr_token* tok				= GetOptToken();
 	LPCSTR	cur_val				= get_token_name(tok, m_itoken_id);
 	SaveOptTokenValue			(cur_val);
 }
 
-bool CUIComboBox::IsChanged()
+bool CUIComboBox::IsChangedOptValue() const
 {
-	return				(m_backup_itoken_id != m_itoken_id);
+	return		(m_opt_backup_value != m_itoken_id);
 }
 
 LPCSTR CUIComboBox::GetText()
@@ -156,13 +168,34 @@ LPCSTR CUIComboBox::GetText()
 	return m_text.GetText	();
 }
 
-void CUIComboBox::SetItem(int idx)
+u32 CUIComboBox::GetSize()
+{
+	return m_list_box.GetSize();
+}
+
+LPCSTR CUIComboBox::GetTextOf(int index)
+{
+	if (u32(index) >= GetSize())
+		return "";
+
+	return m_list_box.GetText(index);
+}
+
+void CUIComboBox::SetItemIDX(int idx)
 {
 	m_list_box.SetSelectedIDX	(idx);
 	CUIListBoxItem* itm		= m_list_box.GetSelectedItem();
 	m_itoken_id				= (int)(__int64)itm->GetData();
 
 	m_text.SetText			(m_list_box.GetSelectedText());
+
+	OnChangedOptValue	();
+}
+
+void CUIComboBox::SetItemToken(int tok_id)
+{
+	int idx					= m_list_box.GetIdxByTAG(tok_id);
+	SetItemIDX				(idx);
 }
 
 void CUIComboBox::OnBtnClicked()
@@ -175,18 +208,12 @@ void CUIComboBox::ShowList(bool bShow)
     if (bShow)
 	{
 		SetHeight				(m_text.GetHeight() + m_list_box.GetHeight());
-
-//.		m_list_box.Show			(true);
 		m_list_frame.Show		(true);
-
 		m_eState				= LIST_EXPANDED;
-
 		GetParent()->SetCapture	(this, true);
-//.		Device.seqRender.Add		(this, 3);
 	}
 	else
 	{
-//.		m_list_box.Show				(false);
 		m_list_frame.Show			(false);
 		SetHeight					(m_frameLine.GetHeight());
 		m_eState					= LIST_FONDED;
@@ -199,7 +226,7 @@ void CUIComboBox::Update()
 	CUIWindow::Update	();
 	if (!m_bIsEnabled)
 	{
-		SetState		(S_Disabled);
+		m_frameLine.SetCurrentState	(S_Disabled);
 		m_text.SetTextColor(m_textColor[1]);
 	}
 	else
@@ -219,19 +246,18 @@ void CUIComboBox::OnFocusLost()
 {
 	CUIWindow::OnFocusLost();
 	if (m_bIsEnabled)
-        SetState(S_Enabled);
-
+		m_frameLine.SetCurrentState	(S_Enabled);
 }
 
 void CUIComboBox::OnFocusReceive()
 {
 	CUIWindow::OnFocusReceive();
     if (m_bIsEnabled)
-        SetState(S_Highlighted);
+		m_frameLine.SetCurrentState	(S_Highlighted);
 }
 
-bool CUIComboBox::OnMouse(float x, float y, EUIMessages mouse_action){
-	if(CUIWindow::OnMouse(x, y, mouse_action)) 
+bool CUIComboBox::OnMouseAction(float x, float y, EUIMessages mouse_action){
+	if(CUIWindow::OnMouseAction(x, y, mouse_action)) 
 		return true;
 
 	bool bCursorOverScb = false;
@@ -259,11 +285,6 @@ bool CUIComboBox::OnMouse(float x, float y, EUIMessages mouse_action){
         return false;
 }
 
-void CUIComboBox::SetState(UIState state)
-{
-	m_frameLine.SetState	(state);
-}
-
 void CUIComboBox::SendMessage(CUIWindow* pWnd, s16 msg, void* pData)
 {
 	CUIWindow::SendMessage	(pWnd, msg, pData);
@@ -277,18 +298,6 @@ void CUIComboBox::SendMessage(CUIWindow* pWnd, s16 msg, void* pData)
 		default:
 			break;
 	}
-}
-
-void CUIComboBox::SeveBackUpValue()
-{
-	m_backup_itoken_id = m_itoken_id;
-}
-
-void CUIComboBox::Undo()
-{
-	SetItem				(m_backup_itoken_id);
-	SaveValue			();
-	SetCurrentValue		();
 }
 
 void CUIComboBox::OnRender()
@@ -308,4 +317,13 @@ void CUIComboBox::OnRender()
 void CUIComboBox::Draw()
 {
 	CUIWindow::Draw			();
+}
+
+void CUIComboBox::ClearList()
+{
+	m_list_box.Clear();
+	m_text.SetText("");
+	m_itoken_id = 0;
+	ShowList(false);
+	m_disabled.clear();
 }

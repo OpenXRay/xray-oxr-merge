@@ -3,9 +3,8 @@
 
 class CUIOptionsItem
 {
-	friend class CUIOptionsManager;
 public:
-	enum ESystemDepends		{sdNothing, sdVidRestart, sdSndRestart, sdSystemRestart};
+	enum ESystemDepends		{sdNothing, sdVidRestart, sdSndRestart, sdSystemRestart, sdApplyOnChange};
 
 public:
 							CUIOptionsItem		();
@@ -15,16 +14,17 @@ public:
 
 	static CUIOptionsManager* GetOptionsManager	() {return &m_optionsManager;}
 
-protected:
-	virtual void			SetCurrentValue		()	=0;	
-	virtual void			SaveValue			();
-
-	virtual bool			IsChanged			()			=0;
-	virtual void			SeveBackUpValue		()	{};
-	virtual void			Undo				()				{SetCurrentValue();};
-			
-			void			SendMessage2Group	(LPCSTR group, LPCSTR message);
 	virtual	void			OnMessage			(LPCSTR message);
+
+	virtual void			SetCurrentOptValue	()			= 0 {};	// opt->current
+	virtual void			SaveBackUpOptValue	()			= 0 {};	// current->backup
+	virtual void			SaveOptValue		()			= 0;	// current->opt
+	virtual void			UndoOptValue		()			= 0;	// backup->current
+	virtual bool			IsChangedOptValue	() const 	= 0 {};	// backup!=current
+			void			OnChangedOptValue	();
+			
+protected:
+			void			SendMessage2Group	(LPCSTR group, LPCSTR message);
 
 
 			// string
@@ -42,7 +42,6 @@ protected:
 			// token
 			LPCSTR			GetOptTokenValue	();
 			xr_token*		GetOptToken			();
-			void			SaveOptTokenValue	(LPCSTR val);
 
 	shared_str				m_entry;
 	ESystemDepends			m_dep;

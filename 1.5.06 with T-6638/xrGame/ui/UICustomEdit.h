@@ -9,7 +9,7 @@ namespace text_editor
 	enum init_mode;
 };
 
-class CUICustomEdit : public CUIStatic //CUIWindow, public CUILinesOwner
+class CUICustomEdit : public CUIStatic
 {
 private:
 	typedef			CUIStatic		inherited;
@@ -23,8 +23,8 @@ public:
 	virtual void	InitCustomEdit	(Fvector2 pos, Fvector2 size);
 	virtual void	SendMessage		(CUIWindow* pWnd, s16 msg, void* pData = NULL);
 
-	virtual bool	OnMouse			(float x, float y, EUIMessages mouse_action);
-	virtual bool	OnKeyboard		(int dik, EUIMessages keyboard_action);
+	virtual bool	OnMouseAction	(float x, float y, EUIMessages mouse_action);
+	virtual bool	OnKeyboardAction(int dik, EUIMessages keyboard_action);
 	virtual bool	OnKeyboardHold	(int dik);
 
 	virtual void	OnFocusLost		();
@@ -36,7 +36,7 @@ public:
 	
 			void	ClearText		();
 	virtual	void	SetText			(LPCSTR str);
-	virtual LPCSTR	GetText			();
+	virtual LPCSTR	GetText			()	const;
 
 	virtual void	Enable			(bool status);
 			
@@ -48,6 +48,7 @@ protected:
 			void  xr_stdcall	nothing();
 			void  xr_stdcall	press_escape();
 			void  xr_stdcall	press_commit();
+			void  xr_stdcall	press_tab();
 
 protected:
 	typedef  fastdelegate::FastDelegate0<void>		Callback;

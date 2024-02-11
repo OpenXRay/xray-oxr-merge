@@ -12,7 +12,7 @@ class CUIFrameLineWnd;
 class CMapActionPlanner;
 class CUITabControl;
 class CUIStatic;
-class CUI3tButtonEx;
+class CUI3tButton;
 class CUILevelMap;
 class CUIMapLocationHint;
 class CMapLocation;
@@ -65,7 +65,7 @@ private:
 		btn_zoom_reset	= 8,
 		max_btn_nav		= 9
 	};
-	CUI3tButtonEx*				m_btn_nav[max_btn_nav];
+	CUI3tButton*				m_btn_nav[max_btn_nav];
 	CUIStatic*					m_btn_nav_parent;
 	u32							m_nav_timing;
 
@@ -138,8 +138,8 @@ public:
 			void				HideHint				(CUIWindow* parent);
 			void				HideCurHint				();
 			void				Hint					(const shared_str& text);
-	virtual bool				OnMouse					(float x, float y, EUIMessages mouse_action);
-	virtual bool				OnKeyboard				(int dik, EUIMessages keyboard_action);
+	virtual bool				OnMouseAction			(float x, float y, EUIMessages mouse_action);
+	virtual bool				OnKeyboardAction		(int dik, EUIMessages keyboard_action);
 	virtual bool				OnKeyboardHold			(int dik);
 
 	virtual void				SendMessage				(CUIWindow* pWnd, s16 msg, void* pData = NULL);

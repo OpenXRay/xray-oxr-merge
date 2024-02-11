@@ -31,7 +31,9 @@ public:
 	virtual void	Update						();
 	virtual void 	Draw						();
 	
+	virtual bool 	OnMouseAction				(float x, float y, EUIMessages mouse_action);
 	virtual bool 	OnMouseDown					(int mouse_btn);
+			void 	SetCheckMode				(bool mode) {m_bCheckMode = mode;}
 
 	void			SetStateTextColor				(u32 color, IBState state){m_dwTextColor[state] = color; m_bUseTextColor[state] = true;}
 	u32				m_dwTextColor[4];
@@ -42,6 +44,10 @@ public:
 	bool					vertical;
 	CUI_IB_Static*			m_background;
 	CUI_IB_FrameLineWnd*	m_back_frameline;
+
+protected:
+	bool				m_bCheckMode;
+
 private:	
 			void		PlaySoundH					();
 			void		PlaySoundT					();

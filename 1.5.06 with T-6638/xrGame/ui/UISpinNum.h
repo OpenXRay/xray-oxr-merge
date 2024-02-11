@@ -8,9 +8,11 @@ public:
 	virtual void	InitSpin			(Fvector2 pos, Fvector2 size);
 
 	// CUIOptionsItem
-	virtual void	SetCurrentValue		();
-	virtual void	SaveValue			();
-	virtual bool	IsChanged			();
+	virtual void	SetCurrentOptValue	();	// opt->current
+	virtual void	SaveBackUpOptValue	();	// current->backup
+	virtual void	SaveOptValue		();	// current->opt
+	virtual void	UndoOptValue		();	// backup->current
+	virtual bool	IsChangedOptValue	() const;	// backup!=current
 
     virtual void	OnBtnUpClick		();
 	virtual void	OnBtnDownClick		();

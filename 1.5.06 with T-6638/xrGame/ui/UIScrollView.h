@@ -4,6 +4,7 @@
 #include "UIWndCallback.h"
 
 class CUIScrollBar;
+class CUIFixedScrollBar;
 
 class CUIScrollView :public CUIWindow, public CUIWndCallback
 {
@@ -36,6 +37,7 @@ virtual void		RecalcSize			();
 public:
 			
 					CUIScrollView		();
+					CUIScrollView		(CUIFixedScrollBar* scroll_bar);
 	virtual			~CUIScrollView		();
 			void	InitScrollView		();// need parent to be initialized
 	virtual void	SendMessage			(CUIWindow* pWnd, s16 msg, void* pData = NULL);

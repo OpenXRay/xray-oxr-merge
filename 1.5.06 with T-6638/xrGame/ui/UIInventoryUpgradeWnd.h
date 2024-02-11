@@ -57,8 +57,6 @@ public:
 
 	IC CInventoryItem const*	get_inventory() const { return m_inv_item; }
 	IC LPCSTR				get_cell_texture( UIUpgrade::ViewState state ) const { return m_cell_textures[state].c_str(); }
-//	IC u32					get_cell_color(   UIUpgrade::ViewState state ) const { return m_cell_colors[state]; }
-//-	   u32					get_cell_color2(  UIUpgrade::ViewState state ) const;
 
 	virtual void			Show( bool status );
 	virtual void			Update();
@@ -90,13 +88,10 @@ public:
 
 protected:
 	CUIStatic*				m_background;
-//	CUIFrameLineWnd*		m_delimiter;
 	CUIItemInfo*			m_item_info;
-//	Fvector2				m_info_orig_pos;
 	CInventoryItem*			m_inv_item;
 
 	shared_str				m_cell_textures[UIUpgrade::STATE_COUNT];
-//	u32						m_cell_colors[UIUpgrade::STATE_COUNT];
 	shared_str				m_border_texture;
 	shared_str				m_ink_texture;
 

@@ -49,9 +49,7 @@ void CUIActorMenu::TryRepairItem(CUIWindow* w, void* d)
 		CallMessageBoxYesNo( question );
 	} 
 	else
-	{
 		CallMessageBoxOK( question );
-	}
 }
 
 void CUIActorMenu::RepairEffect_CurItem()

@@ -66,7 +66,6 @@ void CUICustomMap::Draw()
 	UI().PopScissor			();
 }
 
-
 void CUICustomMap::Init_internal(const shared_str& name, CInifile& pLtx, const shared_str& sect_name, LPCSTR sh_name)
 {
 	m_name					= name;
@@ -121,7 +120,8 @@ Fvector2 CUICustomMap::ConvertRealToLocal  (const Fvector2& src, bool for_drawin
 		bound_rect.x2		/= UI().get_current_kx();
 		res					= ConvertRealToLocalNoTransform(src, bound_rect);
 		res.x				*= UI().get_current_kx();
-	}else
+	}
+	else
 	{
 		Fvector2 heading_pivot = GetStaticItem()->GetHeadingPivot();
 	
@@ -292,7 +292,6 @@ void CUIGlobalMap::Initialize()
 void CUIGlobalMap::Init_internal(const shared_str& name, CInifile& pLtx, const shared_str& sect_name, LPCSTR sh_name)
 {
 	inherited::Init_internal(name, pLtx, sect_name, sh_name);
-//	Fvector2 size = CUIStatic::GetWndSize();
 	SetMaxZoom				(pLtx.r_float(m_name,"max_zoom"));
 }
 

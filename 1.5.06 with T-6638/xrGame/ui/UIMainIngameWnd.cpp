@@ -9,9 +9,8 @@
 #include "../actor.h"
 #include "../ActorCondition.h"
 #include "../CustomOutfit.h"
-#include "../HUDManager.h"
+#include "../ActorHelmet.h"
 #include "../PDA.h"
-//.7#include "../WeaponHUD.h"
 #include "../xrServerEntities/character_info.h"
 #include "../inventory.h"
 #include "../UIGameSP.h"
@@ -46,7 +45,6 @@
 
 #include "UIScrollView.h"
 #include "map_hint.h"
-#include "UIColorAnimatorWrapper.h"
 #include "../game_news.h"
 
 #include "static_cast_checked.hpp"

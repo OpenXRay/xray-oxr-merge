@@ -8,7 +8,8 @@
 
 typedef CGameFont::EAligment ETextAlignment;
 
-class IUIFontControl{
+class IUIFontControl
+{
 public:	
 	virtual ~IUIFontControl()											 {};
 	virtual void			SetTextColor(u32 color)						= 0;

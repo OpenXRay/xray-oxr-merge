@@ -8,6 +8,8 @@
 #include "UIScrollView.h"
 #include "UI3tButton.h"
 #include "../xr_level_controller.h"
+#include "uicursor.h"
+#include "uigamecustom.h"
 
 CUISpawnWnd::CUISpawnWnd()
 	:  m_iCurTeam(0)
@@ -23,9 +25,9 @@ CUISpawnWnd::CUISpawnWnd()
 
 	m_pTextDesc		= xr_new<CUIScrollView>();	AttachChild(m_pTextDesc);
 
-	m_pBtnAutoSelect= xr_new<CUI3tButtonEx>();	AttachChild(m_pBtnAutoSelect);
-	m_pBtnSpectator	= xr_new<CUI3tButtonEx>();	AttachChild(m_pBtnSpectator);
-	m_pBtnBack		= xr_new<CUI3tButtonEx>();	AttachChild(m_pBtnBack);
+	m_pBtnAutoSelect= xr_new<CUI3tButton>();	AttachChild(m_pBtnAutoSelect);
+	m_pBtnSpectator	= xr_new<CUI3tButton>();	AttachChild(m_pBtnSpectator);
+	m_pBtnBack		= xr_new<CUI3tButton>();	AttachChild(m_pBtnBack);
 	
 	Init();	
 }
@@ -84,7 +86,7 @@ void CUISpawnWnd::SendMessage(CUIWindow *pWnd, s16 msg, void *pData)
 {
 	if (BUTTON_CLICKED == msg)
 	{
-		Game().StartStopMenu(this,true);
+		HideDialog							();
 		game_cl_mp * game = smart_cast<game_cl_mp*>(&Game());
 		VERIFY(game);
 		//game_cl_TeamDeathmatch * tdm = smart_cast<game_cl_TeamDeathmatch *>(&(Game()));
@@ -134,7 +136,7 @@ bool CUISpawnWnd::OnKeyboardAction(int dik, EUIMessages keyboard_action)
 	
 	if (DIK_1 == dik || DIK_2 == dik)
 	{
-		game->StartStopMenu(this,true);
+		HideDialog							();
 		
 		if (DIK_1 == dik)
 			game->OnTeamSelect(0);
@@ -145,15 +147,15 @@ bool CUISpawnWnd::OnKeyboardAction(int dik, EUIMessages keyboard_action)
 	switch (dik)
 	{
 	case DIK_ESCAPE:
-		game->StartStopMenu(this,true);
+		HideDialog							();
 		game->OnTeamMenuBack();
 		return true;
 	case DIK_SPACE:
-		game->StartStopMenu(this,true);
+		HideDialog							();
 		game->OnTeamSelect(-1);
 		return true;
 	case DIK_RETURN:
-		game->StartStopMenu(this,true);
+		HideDialog							();
 		if (m_pImage1->GetSelectedState())
 			game->OnTeamSelect(0);
 		else if (m_pImage2->GetSelectedState())

@@ -6,8 +6,6 @@
 #define UI_SKIN_SELECTOR_H_
 
 #include "UIDialogWnd.h"
-//#include "UIButton.h"
-//#include "UISkinWindow.h"
 
 const u32			SKIN_TEX_HEIGHT			= 341;
 const u32			SKIN_TEX_WIDTH			= 128;
@@ -16,7 +14,6 @@ class CUIStatic;
 class CUIStatix;
 class CUI3tButton;
 class CUIAnimatedStatic;
-class CExtraContentFilter;
 
 typedef enum{
 	SKIN_MENU_BACK = 0,
@@ -28,7 +25,6 @@ class CUISkinSelectorWnd: public CUIDialogWnd
 {
 	typedef CUIDialogWnd inherited;
 
-	CExtraContentFilter*	m_pExtraContentFilter;
 public:	
 	CUISkinSelectorWnd(const char* strSectionName, s16 team);
 	~CUISkinSelectorWnd();

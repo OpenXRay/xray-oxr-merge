@@ -145,8 +145,13 @@ void CUIWindow::script_register(lua_State *L)
 				value("WINDOW_LBUTTON_DB_CLICK",		int(WINDOW_LBUTTON_DB_CLICK)),
 				value("WINDOW_KEY_PRESSED",				int(WINDOW_KEY_PRESSED)),
 				value("WINDOW_KEY_RELEASED",			int(WINDOW_KEY_RELEASED)),
+				value("WINDOW_MOUSE_CAPTURE_LOST",		int(WINDOW_MOUSE_CAPTURE_LOST )),
 				value("WINDOW_KEYBOARD_CAPTURE_LOST",	int(WINDOW_KEYBOARD_CAPTURE_LOST)),
 
+
+	// CUIStatic
+				value("STATIC_FOCUS_RECEIVED",			int(STATIC_FOCUS_RECEIVED)),
+				value("STATIC_FOCUS_LOST",				int(STATIC_FOCUS_LOST)),
 
 	// CUIButton
 				value("BUTTON_CLICKED",					int(BUTTON_CLICKED)),

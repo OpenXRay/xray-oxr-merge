@@ -396,7 +396,7 @@ void CUITaskItem::InitTask(CGameTask* task)
 	}
 
 	S								= m_info["t_caption"];
-	S->TextItemControl()->SetTextST	((task) ? task->m_Title.c_str() : "");
+	S->SetTextST	((task) ? task->m_Title.c_str() : "");
 }
 
 void CUITaskItem::OnFocusReceive()

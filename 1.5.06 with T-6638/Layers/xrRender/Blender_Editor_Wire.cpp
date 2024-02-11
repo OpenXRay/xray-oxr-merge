@@ -10,7 +10,7 @@
 CBlender_Editor_Wire::CBlender_Editor_Wire()
 {
 	description.CLS		= B_EDITOR_WIRE;
-	strcpy_s				(oT_Factor,"$null");
+	xr_strcpy			(oT_Factor,"$null");
 }
 
 CBlender_Editor_Wire::~CBlender_Editor_Wire()
@@ -33,7 +33,7 @@ void	CBlender_Editor_Wire::Load	( IReader& fs, u16 version	)
 void CBlender_Editor_Wire::Compile	(CBlender_Compile& C)
 {
 	IBlender::Compile		(C);
-#ifndef	USE_DX10
+#if !defined(USE_DX10) && !defined(USE_DX11)
 	if (C.bEditor)	
 	{
 		C.PassBegin		();

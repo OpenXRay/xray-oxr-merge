@@ -191,7 +191,6 @@ void CUIMMShniaga::ShowPage		(enum_page_id page_id)
 	};//switch (page_id)
 }
 
-
 void CUIMMShniaga::ShowMain()
 {
 	m_page = epi_main;
@@ -224,7 +223,6 @@ void CUIMMShniaga::ShowNetworkGame()
 	}
 	SelectBtn(m_buttons_new_network[0]);
 }
-
 
 bool CUIMMShniaga::IsButton(CUIWindow* st)
 {
@@ -316,7 +314,8 @@ void CUIMMShniaga::Update()
 		Fvector2 pos = m_shniaga->GetWndPos();
 		pos.y = this->pos(m_origin, m_destination, Device.dwTimeContinual - m_start_time);
 		m_shniaga->SetWndPos(pos);		
-	}else
+	}
+	else
 		ProcessEvent(E_Stop);
 
 	if (m_start_time > Device.dwTimeContinual - m_run_time*10/100)

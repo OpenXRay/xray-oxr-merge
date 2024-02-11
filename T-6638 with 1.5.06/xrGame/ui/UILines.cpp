@@ -13,7 +13,6 @@
 #include "uilinestd.h"
 #include "../string_table.h"
 
-
 CUILines::CUILines()
 {
 	m_pFont							= NULL;
@@ -46,7 +45,6 @@ void CUILines::SetPasswordMode(bool mode){
 	if (mode)
 		uFlags.set(flComplexMode, false);
 }
-
 
 void CUILines::SetColoringMode(bool mode){
 	uFlags.set(flColoringMode, mode);
@@ -410,7 +408,6 @@ void CUILines::Draw(float x, float y)
 	}
 	m_pFont->OnRender();
 }
-
 
 void CUILines::OnDeviceReset()
 {

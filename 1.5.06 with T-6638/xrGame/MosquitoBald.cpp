@@ -58,7 +58,7 @@ void CMosquitoBald::Affect(SZoneObjectInfo* O)
 	VERIFY(!pGameObject->getDestroy());
 
 	float dist = pGameObject->Position().distance_to(P) - pGameObject->Radius();
-	float power = Power(dist>0.f?dist:0.f);
+	float power = Power(dist>0.f?dist:0.f, Radius());
 	float impulse = m_fHitImpulseScale*power*pGameObject->GetMass();
 
 	if(power > 0.01f) 

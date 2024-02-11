@@ -19,12 +19,7 @@
 #include "UIHint.h"
 #include "map_hint.h"
 
-#include "../HUDManager.h"
-
-//#include <dinput.h>						//remove me !!!
 #include "../../xrEngine/xr_input.h"		//remove me !!!
-
-//const int     SCROLLBARS_SHIFT		= 5;
 
 CUIMapWnd* g_map_wnd = NULL; // quick temporary solution -(
 CUIMapWnd* GetMapWnd()
@@ -111,7 +106,7 @@ void CUIMapWnd::Init(LPCSTR xml_name, LPCSTR start_from)
 		m_UIMainScrollH->SetPageSize	( (int)m_UILevelFrame->GetWidth() ); // iFloor
 		AttachChild						(m_UIMainScrollH);
 		Register						(m_UIMainScrollH);
-		AddCallback						("scroll_h",SCROLLBAR_HSCROLL,CUIWndCallback::void_function(this,&CUIMapWnd::OnScrollH));
+		AddCallback						(m_UIMainScrollH, SCROLLBAR_HSCROLL,CUIWndCallback::void_function(this,&CUIMapWnd::OnScrollH));
 
 		m_UIMainScrollV					= xr_new<CUIScrollBar>(); m_UIMainScrollV->SetAutoDelete(true);
 		m_UIMainScrollV->InitScrollBar	(Fvector2().set(r.right-sx, r.top+dy), r.bottom-r.top-dy*2, false, "pda");
@@ -120,17 +115,8 @@ void CUIMapWnd::Init(LPCSTR xml_name, LPCSTR start_from)
 		m_UIMainScrollV->SetPageSize	( (int)m_UILevelFrame->GetHeight() );
 		AttachChild						(m_UIMainScrollV);
 		Register						(m_UIMainScrollV);
-		AddCallback						("scroll_v",SCROLLBAR_VSCROLL,CUIWndCallback::void_function(this,&CUIMapWnd::OnScrollV));
+		AddCallback						(m_UIMainScrollV,SCROLLBAR_VSCROLL,CUIWndCallback::void_function(this,&CUIMapWnd::OnScrollV));
 	}
-
-	/*strconcat						(sizeof(pth),pth,start_from,":map_header_frame_line");
-	if(uiXml.NavigateToNode(pth,0))
-	{
-		UIMainMapHeader				= xr_new<CUIFrameLineWnd>(); 
-		UIMainMapHeader->SetAutoDelete(true);
-		m_UIMainFrame->AttachChild	(UIMainMapHeader);
-		xml_init.InitFrameLine		(uiXml, pth, 0, UIMainMapHeader);
-	}*/
 
 	m_map_location_hint					= xr_new<CUIMapLocationHint>();
 	strconcat							(sizeof(pth),pth,start_from,":map_hint_item");
@@ -149,18 +135,6 @@ void CUIMapWnd::Init(LPCSTR xml_name, LPCSTR start_from)
 	m_currentZoom							= m_GlobalMap->GetCurrentZoom();
 	
 	init_xml_nav( uiXml );
-/*
-#ifdef DEBUG
-	m_dbg_text_hint						= xr_new<CUIStatic>();
-	strconcat							(sizeof(pth),pth,start_from,":text_hint");
-	xml_init.InitStatic					(uiXml, pth, 0, m_dbg_text_hint);
-	m_dbg_text_hint->SetAutoDelete		(true);
-
-	m_dbg_info							= xr_new<CUIStatic>();
-	strconcat							(sizeof(pth),pth,start_from,":dbg_info");
-	xml_init.InitStatic					(uiXml, pth, 0, m_dbg_info);
-	m_dbg_info->SetAutoDelete			(true);
-#endif // DEBUG /**/
 
 	// initialize local maps
 	xr_string sect_name;
@@ -232,12 +206,14 @@ void CUIMapWnd::Show(bool status)
 	if ( status )
 	{
 		m_GlobalMap->Show			(true);
-		m_GlobalMap->SetClipRect	(ActiveMapRect());
+		m_GlobalMap->WorkingArea().set	(ActiveMapRect());
 		GameMaps::iterator	it		= m_GameMaps.begin();
-		for(;it!=m_GameMaps.end();++it){
+		GameMaps::iterator	it_e		= m_GameMaps.end();
+		for(;it!=it_e;++it)
+		{
 			m_GlobalMap->AttachChild(it->second);
 			it->second->Show		(true);
-			it->second->SetClipRect	(ActiveMapRect());
+			it->second->WorkingArea().set	(ActiveMapRect());
 		}
 
 		if(	m_view_actor )
@@ -248,18 +224,6 @@ void CUIMapWnd::Show(bool status)
 		}
 		InventoryUtilities::SendInfoToActor("ui_pda_map_local");
 	}
-/*	else
-	{
-		if(GlobalMap())
-		{
-			GlobalMap()->DetachAll();
-			GlobalMap()->Show(false);
-		}
-		GameMaps::iterator	it = m_GameMaps.begin();
-		for(;it!=m_GameMaps.end();++it)
-			it->second->DetachAll();
-	}
-*/
 	HideCurHint();
 }
 
@@ -381,7 +345,7 @@ void CUIMapWnd::DrawHint()
 		CMapSpot* ms = smart_cast<CMapSpot*>(owner);
 		if ( ms )
 		{
-			if ( ms->MapLocation() && ms->MapLocation()->get_hint_enable() ) 
+			if ( ms->MapLocation() && ms->MapLocation()->HintEnabled() ) 
 			{
 				m_map_location_hint->Draw_();
 			}
@@ -416,7 +380,7 @@ bool CUIMapWnd::OnKeyboardHold(int dik)
 	return inherited::OnKeyboardHold(dik);
 }
 
-bool CUIMapWnd::OnKeyboard				(int dik, EUIMessages keyboard_action)
+bool CUIMapWnd::OnKeyboardAction		(int dik, EUIMessages keyboard_action)
 {
 	switch(dik){
 		case DIK_NUMPADMINUS:
@@ -435,17 +399,17 @@ bool CUIMapWnd::OnKeyboard				(int dik, EUIMessages keyboard_action)
 			}break;
 	}
 	
-	return inherited::OnKeyboard	(dik, keyboard_action);
+	return inherited::OnKeyboardAction	(dik, keyboard_action);
 }
 
-bool CUIMapWnd::OnMouse(float x, float y, EUIMessages mouse_action)
+bool CUIMapWnd::OnMouseAction(float x, float y, EUIMessages mouse_action)
 {
-	if ( inherited::OnMouse(x,y,mouse_action) /*|| m_btn_nav_parent->OnMouse(x,y,mouse_action)*/ )
+	if ( inherited::OnMouseAction(x,y,mouse_action) /*|| m_btn_nav_parent->OnMouseAction(x,y,mouse_action)*/ )
 	{
 		return true;
 	}
 
-	Fvector2 cursor_pos1			= GetUICursor()->GetCursorPosition();
+	Fvector2 cursor_pos1			= GetUICursor().GetCursorPosition();
 
 	if(GlobalMap() && !GlobalMap()->Locked() && ActiveMapRect().in( cursor_pos1 ) )
 	{
@@ -454,7 +418,7 @@ bool CUIMapWnd::OnMouse(float x, float y, EUIMessages mouse_action)
 		case WINDOW_MOUSE_MOVE:
 			if( pInput->iGetAsyncBtnState(0) )
 			{
-				GlobalMap()->MoveWndDelta		(GetUICursor()->GetCursorPositionDelta());
+				GlobalMap()->MoveWndDelta		(GetUICursor().GetCursorPositionDelta());
 				UpdateScroll					();
 				HideCurHint						();
 				return							true;
@@ -553,7 +517,7 @@ void CUIMapWnd::OnScrollV(CUIWindow*, void*)
 {
 	if ( m_scroll_mode && GlobalMap())
 	{
-		MoveScrollV( -1.0f * (float)m_UIMainScrollV->GetScrollPos() );
+		MoveScrollV( -1.0f * float(m_UIMainScrollV->GetScrollPos()));
 	}
 }
 
@@ -561,7 +525,7 @@ void CUIMapWnd::OnScrollH(CUIWindow*, void*)
 {
 	if ( m_scroll_mode && GlobalMap())
 	{
-		MoveScrollH( -1.0f * (float)m_UIMainScrollH->GetScrollPos() );
+		MoveScrollH( -1.0f * float(m_UIMainScrollH->GetScrollPos()) );
 	}
 }
 
@@ -579,17 +543,10 @@ void CUIMapWnd::MoveScrollH( float dx )
 
 void CUIMapWnd::Update()
 {
-	if(m_GlobalMap)m_GlobalMap->SetClipRect(ActiveMapRect());
+	if(m_GlobalMap)
+		m_GlobalMap->WorkingArea().set(ActiveMapRect());
 	inherited::Update			();
 	m_ActionPlanner->update		();
-/*	
-#ifdef DEBUG
-float gm_zoom				= m_GlobalMap->GetCurrentZoom();
-	string256					buff;
-	sprintf_s					(buff,sizeof(buff),"%5.1f", gm_zoom);
-	m_dbg_info->SetText			(buff);
-#endif // DEBUG /**/
-	
 	UpdateNav					();
 }
 
@@ -693,7 +650,7 @@ void CUIMapWnd::ShowHint( bool extra )
 	Frect vis_rect;
 	if ( extra )
 	{
-		vis_rect.set( Frect().set( 0.0f, 0.0f, 1024.0f, 768.0f ) );
+		vis_rect.set( Frect().set( 0.0f, 0.0f, UI_BASE_WIDTH, UI_BASE_HEIGHT ) );
 	} 
 	else
 	{
@@ -742,7 +699,8 @@ void CUIMapWnd::Reset()
 void CUIMapWnd::SpotSelected(CUIWindow* w)
 {
 	CMapSpot* sp		= smart_cast<CMapSpot*>(w);
-	if(NULL==sp)		return;
+	if ( !sp )
+		return;
 	
 	CGameTask* t		= Level().GameTaskManager().HasGameTask(sp->MapLocation(), true);
 	if(t && t->GetTaskType()==eTaskTypeAdditional)
