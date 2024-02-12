@@ -26,8 +26,6 @@ distribution.
 #include <ctype.h>
 
 #ifdef TIXML_USE_STL
-//#	include <sstream>
-//#	include <iostream>
 #endif
 
 #include "tinyxml.h"
@@ -1581,40 +1579,40 @@ TiXmlAttribute*	TiXmlAttributeSet::Find( const char* name )
 }
 */
 
-#if 0//def TIXML_USE_STL	
-std::istream& operator>> (std::istream & in, TiXmlNode & base)
-{
-	TIXML_STRING tag;
-	tag.reserve( 8 * 1000 );
-	base.StreamIn( &in, &tag );
-
-	base.Parse( tag.c_str(), 0, TIXML_DEFAULT_ENCODING );
-	return in;
-}
+#ifdef TIXML_USE_STL	
+// std::istream& operator>> (std::istream & in, TiXmlNode & base)
+// {
+// 	TIXML_STRING tag;
+// 	tag.reserve( 8 * 1000 );
+// 	base.StreamIn( &in, &tag );
+// 
+// 	base.Parse( tag.c_str(), 0, TIXML_DEFAULT_ENCODING );
+// 	return in;
+// }
 #endif
 
 
-#if 0//def TIXML_USE_STL	
-std::ostream& operator<< (std::ostream & out, const TiXmlNode & base)
-{
-	TiXmlPrinter printer;
-	printer.SetStreamPrinting();
-	base.Accept( &printer );
-	out << printer.Str();
-
-	return out;
-}
-
-
-xr_string& operator<< (xr_string& out, const TiXmlNode& base )
-{
-	TiXmlPrinter printer;
-	printer.SetStreamPrinting();
-	base.Accept( &printer );
-	out.append( printer.Str() );
-
-	return out;
-}
+#ifdef TIXML_USE_STL	
+// std::ostream& operator<< (std::ostream & out, const TiXmlNode & base)
+// {
+// 	TiXmlPrinter printer;
+// 	printer.SetStreamPrinting();
+// 	base.Accept( &printer );
+// 	out << printer.Str();
+// 
+// 	return out;
+// }
+// 
+// 
+// xr_string& operator<< (xr_string& out, const TiXmlNode& base )
+// {
+// 	TiXmlPrinter printer;
+// 	printer.SetStreamPrinting();
+// 	base.Accept( &printer );
+// 	out.append( printer.Str() );
+// 
+// 	return out;
+// }
 #endif
 
 

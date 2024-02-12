@@ -1,3 +1,11 @@
+//File:UIDebugFonts.cpp
+//Description:Outputlistofallfonts
+//Created:22.03.2005
+//Author:SergeVynnychenko
+//Mail:narrator@gsc-game.kiev.ua
+//
+//Copyright2005GSCGameWorld
+
 #include "StdAfx.h"
 #include "UIDebugFonts.h"
 #include "UIDialogHolder.h"

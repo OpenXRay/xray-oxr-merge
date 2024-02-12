@@ -156,6 +156,7 @@ bool	CGameSpy_Browser::Init(CServerList* pServerList)
 		m_pServerList->on_game_spy_browser_destroy(this);
 	}
 	m_pServerList = pServerList;
+
 	return true;
 };
 

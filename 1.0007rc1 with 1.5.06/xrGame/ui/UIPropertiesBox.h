@@ -4,7 +4,7 @@
 #include "uiframewindow.h"
 #include "uilistbox.h"
 
-#include "../script_export_space.h"
+#include "../../xrServerEntities/script_export_space.h"
 
 class CUIPropertiesBox: public CUIFrameWindow
 {
@@ -14,9 +14,7 @@ public:
 						CUIPropertiesBox					();
 	virtual				~CUIPropertiesBox					();
 
-	virtual void		Init								(float x, float y, float width, float height);
-
-
+			void		InitPropertiesBox					(Fvector2 pos, Fvector2 size);
 
 	virtual void		SendMessage							(CUIWindow *pWnd, s16 msg, void *pData);
 	virtual bool		OnMouse								(float x, float y, EUIMessages mouse_action);

@@ -13,6 +13,7 @@
 #include "xrServer_Objects_ALife_Items.h"
 #include "character_info_defs.h"
 #include "associative_vector.h"
+#include "alife_movement_manager_holder.h"
 
 class CALifeMonsterBrain;
 class CALifeHumanBrain;
@@ -46,6 +47,9 @@ SERVER_ENTITY_DECLARE_BEGIN0(CSE_ALifeTraderAbstract)
 	CHARACTER_RANK_VALUE			m_rank;
 	xr_string						m_character_name;
 		
+	bool							m_deadbody_can_take;
+	bool							m_deadbody_closed;
+
 #ifdef XRGAME_EXPORTS
 	//для работы с relation system
 	u16								object_id				() const;
@@ -152,6 +156,7 @@ SERVER_ENTITY_DECLARE_BEGIN(CSE_ALifeAnomalousZone,CSE_ALifeCustomZone)
 	virtual	ALife::EMeetActionType	tfGetActionType			(CSE_ALifeSchedulable	*tpALifeSchedulable,	int iGroupIndex, bool bMutualDetection);
 	virtual bool					bfActive				();
 	virtual CSE_ALifeDynamicObject	*tpfGetBestDetector		();
+	virtual bool					keep_saved_data_anyway	() const;
 #endif
 SERVER_ENTITY_DECLARE_END
 add_to_type_list(CSE_ALifeAnomalousZone)
@@ -266,6 +271,8 @@ SERVER_ENTITY_DECLARE_BEGIN2(CSE_ALifeMonsterAbstract,CSE_ALifeCreatureAbstract,
 	int									m_rank;
 
 	ALife::_TIME_ID						m_stay_after_death_time_interval;
+public:
+	ALife::_OBJECT_ID				m_group_id;
 
 public:
 									CSE_ALifeMonsterAbstract(LPCSTR					caSection);
@@ -286,6 +293,11 @@ public:
 	
 	IC		int						Rank					(){return m_rank;}
 
+#ifdef XRGAME_EXPORTS
+			void					kill					();
+			bool					has_detector			();
+#endif // #ifdef XRGAME_EXPORTS
+
 #ifndef XRGAME_EXPORTS
 	virtual	void					update					()	{};
 #else
@@ -298,8 +310,14 @@ public:
 			void					vfCheckForPopulationChanges();
 	virtual	void					add_online				(const bool &update_registries);
 	virtual	void					add_offline				(const xr_vector<ALife::_OBJECT_ID> &saved_children, const bool &update_registries);
+	virtual void					on_register				();
+	virtual void					on_unregister			();
 	virtual Fvector					draw_level_position		() const;
 	virtual	bool					redundant				() const;
+	virtual void					on_location_change		() const;
+	virtual	CSE_ALifeDynamicObject const&	get_object		() const	{ return *this; }
+	virtual	CSE_ALifeDynamicObject&			get_object		()			{ return *this; }
+
 #endif
 	virtual bool					need_update				(CSE_ALifeDynamicObject *object);
 
@@ -460,8 +478,7 @@ add_to_type_list(CSE_ALifePsyDogPhantom)
 
 //-------------------------------
 SERVER_ENTITY_DECLARE_BEGIN2(CSE_ALifeHumanAbstract,CSE_ALifeTraderAbstract,CSE_ALifeMonsterAbstract)
-public:
-	ALife::_OBJECT_ID				m_group_id;
+
 
 public:
 									CSE_ALifeHumanAbstract	(LPCSTR caSection);

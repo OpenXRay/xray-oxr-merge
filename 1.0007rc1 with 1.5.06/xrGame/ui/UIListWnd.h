@@ -3,7 +3,7 @@
 #include "uilistitem.h"
 #include "uiscrollbar.h"
 
-#include "../script_export_space.h"
+#include "../../xrServerEntities/script_export_space.h"
 
 #define DEFAULT_ITEM_HEIGHT 30
 
@@ -24,8 +24,7 @@ public:
 					CUIListWnd				();
 	virtual			~CUIListWnd				();
 
-	virtual void	 Init					(float x, float y, float width, float height);
-	virtual void	 Init					(float x, float y, float width, float height, float item_height);
+	void			InitListWnd				(Fvector2 pos, Fvector2 size, float item_height);
 
 	virtual bool	 OnMouse				(float x, float y, EUIMessages mouse_action);
 	virtual bool	 OnKeyboard				(int dik, EUIMessages keyboard_action);

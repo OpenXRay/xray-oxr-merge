@@ -1,12 +1,10 @@
 #include "stdafx.h"
 #include "UIGameCTA.h"
 
-//. #include "UITDMPlayerList.h"
-//.#include "UITDMFragList.h"
 #include <dinput.h>
 
 #include "UITeamPanels.h"
-#include "hudmanager.h"
+
 #include "game_cl_base.h"
 #include "game_cl_capture_the_artefact.h"
 #include "game_cl_mp.h"
@@ -40,8 +38,8 @@
 #include "ui/UIMessageBoxEx.h"
 #include "ui/UIVoteStatusWnd.h"
 #include "ui/UIActorMenu.h"
-
 #include "ui/UISkinSelector.h"
+#include "ui/UIHelper.h"
 
 #define CTA_GAME_WND_XML	"ui_game_cta.xml"
 
@@ -195,7 +193,7 @@ void CUIGameCTA::SetClGame(game_cl_GameState* g)
 	{
 		if (m_pBuySpawnMsgBox->IsShown())
 		{
-			HUD().GetUI()->StartStopMenu(m_pBuySpawnMsgBox, true);
+			m_pBuySpawnMsgBox->HideDialog();
 		}
 		delete_data(m_pBuySpawnMsgBox);
 	}
@@ -239,7 +237,7 @@ void CUIGameCTA::ShowTeamSelectMenu()
 	VERIFY(m_pUITeamSelectWnd);
 	if (!m_pUITeamSelectWnd->IsShown())
 	{
-		HUD().GetUI()->StartStopMenu(m_pUITeamSelectWnd, true);
+		m_pUITeamSelectWnd->ShowDialog(true);
 	}
 }
 
@@ -315,7 +313,7 @@ void CUIGameCTA::HideBuyMenu()
 	R_ASSERT2(m_pCurBuyMenu, "buy menu not initialized");
 	if (m_pCurBuyMenu->IsShown())
 	{
-		HUD().GetUI()->StartStopMenu(m_pCurBuyMenu, true);
+		m_pCurBuyMenu->HideDialog();
 	}
 }
 
@@ -336,7 +334,7 @@ void CUIGameCTA::ShowBuyMenu()
 
 		m_pCurBuyMenu->SetupPlayerItemsEnd();
 
-		HUD().GetUI()->StartStopMenu(m_pCurBuyMenu, true);
+		m_pCurBuyMenu->ShowDialog(true);
 		m_game->OnBuyMenuOpen();
 	}
 }
@@ -397,7 +395,9 @@ struct AmmoSearcherPredicate
 
 };
 
-void CUIGameCTA::TryToDefuseGrenadeLauncher(CWeaponMagazinedWGrenade const * weapon, TIItemContainer const & all_items, aditional_ammo_t & dest_ammo)
+void CUIGameCTA::TryToDefuseGrenadeLauncher(CWeaponMagazinedWGrenade const * weapon,
+											TIItemContainer const & all_items,
+											aditional_ammo_t & dest_ammo)
 {
 	if (!weapon)
 		return;
@@ -443,7 +443,9 @@ void CUIGameCTA::TryToDefuseGrenadeLauncher(CWeaponMagazinedWGrenade const * wea
 }
 
 
-void CUIGameCTA::TryToDefuseWeapon(CWeapon const * weapon, TIItemContainer const & all_items, aditional_ammo_t & dest_ammo)
+void CUIGameCTA::TryToDefuseWeapon(CWeapon const * weapon,
+					   				TIItemContainer const & all_items,
+					   				aditional_ammo_t & dest_ammo)
 {
 	if (!weapon)
 		return;
@@ -576,16 +578,12 @@ void CUIGameCTA::SetPlayerItemsToBuyMenu()
 		);
 		TryToDefuseAllWeapons(add_ammo);
 		
-		std::for_each(
-			actor->inventory().m_slots.begin(),
-			actor->inventory().m_slots.end(),
-			std::bind1st(
-				std::mem_fun<void, CUIGameCTA, CInventorySlot const &>(
-					&CUIGameCTA::BuyMenuItemInserter
-				),
-				this
-			)
-		);
+		u16 ISlot = actor->inventory().FirstSlot();
+		u16 ESlot = actor->inventory().LastSlot();
+
+		for( ; ISlot<=ESlot; ++ISlot)
+			BuyMenuItemInserter(actor->inventory().ItemFromSlot(ISlot));
+
 		std::for_each(
 			actor->inventory().m_belt.begin(),
 			actor->inventory().m_belt.end(),
@@ -699,10 +697,7 @@ void CUIGameCTA::ShowSkinMenu(s8 currentSkin)
 	}
 	if (!m_pCurSkinMenu->IsShown())
 	{
-		HUD().GetUI()->StartStopMenu(m_pCurSkinMenu, true);
-	} else
-	{
-		VERIFY2(false, "Skin menu already shown");
+		m_pCurSkinMenu->ShowDialog(true);
 	}
 }
 
@@ -722,8 +717,8 @@ void CUIGameCTA::DisplayMoneyChange(LPCSTR deltaMoney)
 	m_pMoneyIndicator->SetMoneyChange(deltaMoney);
 }
 
-void CUIGameCTA::DisplayMoneyBonus(KillMessageStruct bonus){
-	m_pMoneyIndicator->AddBonusMoney(bonus);
+void CUIGameCTA::DisplayMoneyBonus(KillMessageStruct* bonus){
+	m_pMoneyIndicator->AddBonusMoney(*bonus);
 }
 
 void CUIGameCTA::ChangeTotalMoneyIndicator(LPCSTR newMoneyString)
@@ -743,16 +738,16 @@ void CUIGameCTA::SetRank(ETeam team, u8 rank)
 void CUIGameCTA::SetScore(s32 max_score, s32 greenTeamScore, s32 blueTeamScore)
 {
 	string32 str;
-	sprintf_s(str,"%d", greenTeamScore);
+	xr_sprintf(str,"%d", greenTeamScore);
 	m_team1_score->SetText(str);
-	sprintf_s(str,"%d", blueTeamScore);
+	xr_sprintf(str,"%d", blueTeamScore);
 	m_team2_score->SetText(str);
 	if (max_score <= 0)
 	{
-		strcpy_s(str,"--");
+		xr_strcpy(str,"--");
 	} else
 	{
-		sprintf_s(str,"%d", max_score);
+		xr_sprintf(str,"%d", max_score);
 	}
 	m_pFragLimitIndicator->SetText(str);
 	teamPanels->SetArtefactsCount(greenTeamScore, blueTeamScore);
@@ -861,7 +856,7 @@ void CUIGameCTA::ShowBuySpawn(s32 spawn_cost)
 	size_t	pay_frm_size	= xr_strlen(format_str)*sizeof(char) + 64;
 	PSTR	pay_frm_str		= static_cast<char*>(_alloca(pay_frm_size));
 	
-	sprintf_s(
+	xr_sprintf(
 		pay_frm_str,
 		pay_frm_size,
 		format_str, 
@@ -870,14 +865,14 @@ void CUIGameCTA::ShowBuySpawn(s32 spawn_cost)
 	);
 
 	m_pBuySpawnMsgBox->SetText(pay_frm_str);
-	HUD().GetUI()->StartStopMenu(m_pBuySpawnMsgBox, true);
+	m_pBuySpawnMsgBox->ShowDialog(true);
 }
 
 void CUIGameCTA::HideBuySpawn()
 {
 	if (IsBuySpawnShown())
 	{
-		HUD().GetUI()->StartStopMenu(m_pBuySpawnMsgBox, true);
+		m_pBuySpawnMsgBox->HideDialog();
 	}
 }
 
@@ -903,7 +898,7 @@ void CUIGameCTA::SetVoteTimeResultMsg(LPCSTR str)
 		m_voteStatusWnd->SetVoteTimeResultMsg(str);
 }
 
-bool CUIGameCTA::IR_OnKeyboardPress(int dik)
+bool CUIGameCTA::IR_UIOnKeyboardPress(int dik)
 {
 	switch (dik) {
 		case DIK_CAPSLOCK :
@@ -943,15 +938,16 @@ bool CUIGameCTA::IR_OnKeyboardPress(int dik)
 		}break;
 	}
 	
-	if(inherited::IR_OnKeyboardPress(dik))
+	if(inherited::IR_UIOnKeyboardPress(dik))
 		return true;
 
 	return false;
 }
 
-bool CUIGameCTA::IR_OnKeyboardRelease(int dik)
+bool CUIGameCTA::IR_UIOnKeyboardRelease(int dik)
 {
-	switch (dik) {
+	switch (dik)
+	{
 		case DIK_CAPSLOCK :
 			{
 				if (m_game)
@@ -962,7 +958,8 @@ bool CUIGameCTA::IR_OnKeyboardRelease(int dik)
 				};
 			}break;
 	}
-	if(inherited::IR_OnKeyboardRelease(dik)) return true;
+	if(inherited::IR_UIOnKeyboardRelease(dik))
+		return true;
 	
 	return false;
 }
@@ -983,7 +980,7 @@ void CUIGameCTA::LoadTeamDefaultPresetItems	(const shared_str& caSection)
 	string256			ItemName;
 	string4096			DefItems;
 	// Читаем данные этого поля
-	strcpy_s(DefItems, pSettings->r_string(caSection, "default_items"));
+	xr_strcpy(DefItems, pSettings->r_string(caSection, "default_items"));
 	u32 count	= _GetItemCount(DefItems);
 	// теперь для каждое имя оружия, разделенные запятыми, заносим в массив
 	for (u32 i = 0; i < count; ++i)
@@ -1026,7 +1023,7 @@ void CUIGameCTA::LoadDefItemsForRank()
 			strconcat(sizeof(ItemStr),ItemStr, "def_item_repl_", ItemName.c_str() );
 			if (!pSettings->line_exist(RankStr, ItemStr)) continue;
 
-			strcpy_s(NewItemStr,sizeof(NewItemStr),pSettings->r_string(RankStr, ItemStr));
+			xr_strcpy(NewItemStr,sizeof(NewItemStr),pSettings->r_string(RankStr, ItemStr));
 
 			u8 SlotID, ItemID;
 			m_pCurBuyMenu->GetWeaponIndexByName(NewItemStr, SlotID, ItemID);
@@ -1051,7 +1048,7 @@ void CUIGameCTA::LoadDefItemsForRank()
 		if (!pSettings->line_exist(ItemName, "ammo_class")) continue;
 		
 		string1024 wpnAmmos, BaseAmmoName;
-		strcpy_s(wpnAmmos, pSettings->r_string(ItemName, "ammo_class"));
+		xr_strcpy(wpnAmmos, pSettings->r_string(ItemName, "ammo_class"));
 		_GetItem(wpnAmmos, 0, BaseAmmoName);
 
 		u8 SlotID, ItemID;

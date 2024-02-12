@@ -67,7 +67,7 @@ struct ExistDumpPredicate
 }; //struct ExistDumpPredicate
 
 typedef	buffer_vector<IAnticheatDumpable const *>	active_objects_t;
-static active_objects_t::size_type get_active_objects(active_objects_t & dest, u32 const dest_capacity)
+static active_objects_t::size_type get_active_objects(active_objects_t & dest)
 {
 	CActorMP const* tmp_actor			= smart_cast<CActorMP const*>(
 		Level().CurrentControlEntity());
@@ -79,8 +79,8 @@ static active_objects_t::size_type get_active_objects(active_objects_t & dest, u
 
 	for (u16 i = KNIFE_SLOT; i <= GRENADE_SLOT; ++i)
 	{
-		VERIFY(dest_capacity != dest.size());
-		if (dest_capacity == dest.size())
+		VERIFY(dest.capacity() != dest.size());
+		if (dest.capacity() == dest.size())
 			return dest.size();
 
 		CInventoryItem const * tmp_inv_item	= tmp_actor->inventory().ItemFromSlot(i);
@@ -93,9 +93,10 @@ static active_objects_t::size_type get_active_objects(active_objects_t & dest, u
 			dest.push_back(tmp_weapon);
 			if (tmp_weapon->m_magazine.size())
 			{
-				VERIFY(dest_capacity != dest.size());
-				if (dest_capacity == dest.size())
+				VERIFY(dest.capacity() != dest.size());
+				if (dest.capacity() == dest.size())
 					return dest.size();
+				
 				IAnticheatDumpable const * tmp_cartridge = &tmp_weapon->m_magazine[0];
 				if (!tmp_cartridge)
 					continue;
@@ -134,11 +135,11 @@ void configs_dumper::write_configs()
 	active_objects_t	active_objects(
 		_alloca(sizeof(active_objects_t::value_type) * max_active_objects),
 		max_active_objects);
-	active_objects_t::size_type	aobjs_count	= get_active_objects(active_objects, max_active_objects);
+	active_objects_t::size_type	aobjs_count	= get_active_objects(active_objects);
 	string16 tmp_strbuff;
 	for (active_objects_t::size_type i = 0; i < aobjs_count; ++i)
 	{
-		sprintf_s				(tmp_strbuff, "%d", i + 1);
+		xr_sprintf				(tmp_strbuff, "%d", i + 1);
 		m_active_params.dump	(active_objects[i], tmp_strbuff, active_params_dumper);
 	}
 	active_params_dumper.save_as	(m_dump_result);
@@ -158,7 +159,7 @@ void configs_dumper::sign_configs		()
 	game_cl_mp*	tmp_cl_game			= smart_cast<game_cl_mp*>(&Game());
 	R_ASSERT						(tmp_cl_game);
 	STRCONCAT						(tmp_player_name, "\"", 
-		tmp_cl_game->local_player ? tmp_cl_game->local_player->name : "unknown_just_connected",
+		tmp_cl_game->local_player ? tmp_cl_game->local_player->getName() : "unknown_just_connected",
 		"\"");
 	LPCSTR		tmp_cdkey_digest	= Level().get_cdkey_digest().c_str();
 
@@ -176,6 +177,7 @@ void configs_dumper::sign_configs		()
 	tmp_ini.w_string				(cd_info_secion, cd_creation_date, creation_date);
 
 	shared_str	tmp_dsign;
+	
 	if (m_yield_cb)
 	{
 		tmp_dsign = m_dump_signer.sign_mt(
@@ -188,6 +190,7 @@ void configs_dumper::sign_configs		()
 			m_dump_result.pointer(),
 			m_dump_result.size());
 	}
+
 	m_dump_result.seek				(tmp_w_pos);
 	tmp_ini.w_string				(cd_info_secion, cd_digital_sign_key, tmp_dsign.c_str());
 	tmp_ini.save_as					(m_dump_result);
@@ -298,6 +301,7 @@ void configs_dumper::realloc_compress_buffer(u32 need_size)
 	void* new_buffer = xr_realloc(m_buffer_for_compress, m_buffer_for_compress_capacity);
 	m_buffer_for_compress = static_cast<u8*>(new_buffer);
 }
+
 #ifdef DEBUG
 void configs_dumper::timer_begin(LPCSTR comment)
 {
@@ -309,7 +313,7 @@ void configs_dumper::timer_end()
 {
 	Msg("* %s : %u ms", m_timer_comment.c_str(), m_debug_timer.GetElapsed_ms());
 }
-#endif
+#endif	//#ifdef DEBUG
 
 // dump_signer
 

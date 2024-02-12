@@ -5,7 +5,7 @@
 
 class CUIScrollView;
 
-class CUIMapInfo : public CUIWindow 
+class CUIMapInfo : public CUIWindow
 {
 public:
 				CUIMapInfo			();

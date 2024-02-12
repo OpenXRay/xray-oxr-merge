@@ -12,7 +12,7 @@
 #include "alife_human_brain.h"
 #ifdef XRGAME_EXPORTS
 #include "relation_registry.h"
-#endif // #ifdef XRGAME_EXPORTS
+#endif
 
 using namespace luabind;
 

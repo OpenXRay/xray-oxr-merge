@@ -125,17 +125,17 @@ void CUIMMShniaga::CreateList(xr_vector<CUIStatic*>& lst, CUIXml& xml_doc, LPCST
 		st							= xr_new<CUIStatic>();
 		st->SetWndPos				(Fvector2().set(0,0));
 		st->SetWndSize				(Fvector2().set(m_view->GetDesiredChildWidth(), button_height));
+		st->SetFont					(pF);
 		st->SetTextComplexMode		(false);
 		st->SetTextST				(xml_doc.ReadAttrib	("btn", i, "caption"));
-		if (pF)
-			st->SetFont				(pF);
 
-		float font_height			= st->GetFont()->GetHeight();
-		UI()->ClientToScreenScaledHeight(font_height);
+//		float font_height			= st->GetFont()->GetHeight();
+//		UI().ClientToScreenScaledHeight(font_height);
 
-		st->SetTextY				( (button_height-font_height)/2.0f );
+//.		st->SetTextOffset			(0, (button_height-font_height)/2.0f);
 		st->SetTextColor			(color);
 		st->SetTextAlignment		(CGameFont::alCenter);
+		st->SetVTextAlignment		(valCenter);
 		st->SetWindowName			(xml_doc.ReadAttrib("btn", i, "name"));
 		st->SetMessageTarget		(this);
 

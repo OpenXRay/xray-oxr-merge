@@ -1,6 +1,3 @@
-// UIWindow.cpp: implementation of the CUIWindow class.
-//
-//////////////////////////////////////////////////////////////////////
 #include "stdafx.h"
 #include "UIWindow.h"
 #include "../UICursor.h"
@@ -51,7 +48,7 @@ void draw_rect(Frect& r, u32 color)
 	DRender->SetDebugShader(IDebugRender::dbgShaderWindow);
 
 //.	UIRender->StartLineStrip	(5);
-	UIRender->StartPrimitive	(5, IUIRender::ptLineStrip, UI()->m_currentPointType);
+	UIRender->StartPrimitive	(5, IUIRender::ptLineStrip, UI().m_currentPointType);
 
 	UIRender->PushPoint(r.lt.x, r.lt.y, 0, color, 0,0);
 	UIRender->PushPoint(r.rb.x, r.lt.y, 0, color, 0,0);
@@ -74,8 +71,8 @@ void draw_wnds_rects()
 	for(;it!=it_e;++it)
 	{
 		Frect& r = *it;
-		UI()->ClientToScreenScaled(r.lt, r.lt.x, r.lt.y);
-		UI()->ClientToScreenScaled(r.rb, r.rb.x, r.rb.y);
+		UI().ClientToScreenScaled(r.lt, r.lt.x, r.lt.y);
+		UI().ClientToScreenScaled(r.rb, r.rb.x, r.rb.y);
 		draw_rect				(r,color_rgba(255,0,0,255));
 	};
 
@@ -182,11 +179,11 @@ void CUIWindow::Draw(float x, float y)
 
 void CUIWindow::Update()
 {
-	if (GetUICursor()->IsVisible())
+	if (GetUICursor().IsVisible())
 	{
 		bool cursor_on_window;
 
-		Fvector2			temp = GetUICursor()->GetCursorPosition();
+		Fvector2			temp = GetUICursor().GetCursorPosition();
 		Frect				r;
 		GetAbsoluteRect		(r);
 		cursor_on_window	= !!r.in(temp);
@@ -239,13 +236,10 @@ void CUIWindow::DetachAll()
 
 void CUIWindow::GetAbsoluteRect(Frect& r) 
 {
-//.	Frect rect;
-
 	if(GetParent() == NULL){
 		GetWndRect		(r);
 		return;
 	}
-//.	rect = GetParent()->GetAbsoluteRect();
 	GetParent()->GetAbsoluteRect(r);
 
 	Frect			rr;
@@ -254,7 +248,6 @@ void CUIWindow::GetAbsoluteRect(Frect& r)
 	r.top			+= rr.top;
 	r.right			= r.left + GetWidth();
 	r.bottom		= r.top	+ GetHeight();
-//.	return			rect;
 }
 
 //реакция на мышь
@@ -263,7 +256,7 @@ void CUIWindow::GetAbsoluteRect(Frect& r)
 
 #define DOUBLE_CLICK_TIME 250
 
-bool CUIWindow::OnMouse(float x, float y, EUIMessages mouse_action)
+bool CUIWindow::OnMouseAction(float x, float y, EUIMessages mouse_action)
 {	
 	Frect	wndRect = GetWndRect();
 
@@ -299,7 +292,7 @@ bool CUIWindow::OnMouse(float x, float y, EUIMessages mouse_action)
 	//сообщение направляем ему сразу
 	if(m_pMouseCapturer)
 	{
-		m_pMouseCapturer->OnMouse(cursor_pos.x - m_pMouseCapturer->GetWndRect().left, 
+		m_pMouseCapturer->OnMouseAction(cursor_pos.x - m_pMouseCapturer->GetWndRect().left, 
 								  cursor_pos.y - m_pMouseCapturer->GetWndRect().top, 
 								  mouse_action);
 		return true;
@@ -338,13 +331,13 @@ bool CUIWindow::OnMouse(float x, float y, EUIMessages mouse_action)
 		{
 			if(w->IsEnabled())
 			{
-				if( w->OnMouse(cursor_pos.x -w->GetWndRect().left, 
+				if( w->OnMouseAction(cursor_pos.x -w->GetWndRect().left, 
 							   cursor_pos.y -w->GetWndRect().top, mouse_action))return true;
 			}
 		}
 		else if (w->IsEnabled() && w->CursorOverWindow())
 		{
-			if( w->OnMouse(cursor_pos.x -w->GetWndRect().left, 
+			if( w->OnMouseAction(cursor_pos.x -w->GetWndRect().left, 
 						   cursor_pos.y -w->GetWndRect().top, mouse_action))return true;
 		}
 	}
@@ -392,12 +385,18 @@ void CUIWindow::OnFocusReceive()
 {
 	m_dwFocusReceiveTime	= Device.dwTimeGlobal;
 	m_bCursorOverWindow		= true;	
+
+	if (GetMessageTarget())
+        GetMessageTarget()->SendMessage(this, WINDOW_FOCUS_RECEIVED, NULL);
 }
 
 void CUIWindow::OnFocusLost()
 {
 	m_dwFocusReceiveTime	= 0;
 	m_bCursorOverWindow		= false;	
+
+	if (GetMessageTarget())
+        GetMessageTarget()->SendMessage(this, WINDOW_FOCUS_LOST, NULL);
 }
 
 
@@ -407,7 +406,7 @@ void CUIWindow::OnFocusLost()
 //ему в независимости от того где мышь
 void CUIWindow::SetCapture(CUIWindow *pChildWindow, bool capture_status)
 {
-	if(NULL != GetParent())
+	if(GetParent())
 	{
 		if(m_pOrignMouseCapturer == NULL || m_pOrignMouseCapturer == pChildWindow)
 			GetParent()->SetCapture(this, capture_status);
@@ -429,7 +428,7 @@ void CUIWindow::SetCapture(CUIWindow *pChildWindow, bool capture_status)
 
 
 //реакция на клавиатуру
-bool CUIWindow::OnKeyboard(int dik, EUIMessages keyboard_action)
+bool CUIWindow::OnKeyboardAction(int dik, EUIMessages keyboard_action)
 {
 	bool result;
 
@@ -437,7 +436,7 @@ bool CUIWindow::OnKeyboard(int dik, EUIMessages keyboard_action)
 	//сообщение направляем ему сразу
 	if(NULL!=m_pKeyboardCapturer)
 	{
-		result = m_pKeyboardCapturer->OnKeyboard(dik, keyboard_action);
+		result = m_pKeyboardCapturer->OnKeyboardAction(dik, keyboard_action);
 		
 		if(result) return true;
 	}
@@ -448,7 +447,7 @@ bool CUIWindow::OnKeyboard(int dik, EUIMessages keyboard_action)
 	{
 		if((*it)->IsEnabled())
 		{
-			result = (*it)->OnKeyboard(dik, keyboard_action);
+			result = (*it)->OnKeyboardAction(dik, keyboard_action);
 			
 			if(result)	return true;
 		}
@@ -523,7 +522,7 @@ CUIWindow* CUIWindow::GetChildMouseHandler(){
 	{
 		Frect wndRect = (*it)->GetWndRect();
 		// very strange code.... i can't understand difference between
-		// first and second condition. I Got It from OnMouse() method;
+		// first and second condition. I Got It from OnMouseAction() method;
 		if (wndRect.in(cursor_pos) )
 		{
 			if((*it)->IsEnabled())
@@ -577,6 +576,7 @@ void CUIWindow::Reset()
 {
 	m_pOrignMouseCapturer = m_pMouseCapturer = NULL;
 }
+
 void CUIWindow::ResetAll()
 {
 	for(WINDOW_LIST_it it = m_ChildWndList.begin(); m_ChildWndList.end()!=it; ++it)
@@ -624,16 +624,16 @@ void CUIWindow::ShowChildren(bool show){
 			(*it)->Show(show);
 }
 
-bool CUIWindow::is_in( Frect const& a, Frect const& b ) //b in a
+static bool is_in( Frect const& a, Frect const& b ) //b in a
 {
 	return (a.x1 < b.x1) && (a.x2 > b.x2) && (a.y1 < b.y1) && (a.y2 > b.y2);
 }
 
-bool CUIWindow::AlignHintWndPos( Frect const& vis_rect, float border, float dx16pos ) //this = hint wnd
+bool fit_in_rect(CUIWindow* w, Frect const& vis_rect, float border, float dx16pos ) //this = hint wnd
 {
 	float const cursor_height = 43.0f;
-	Fvector2 cursor_pos	= GetUICursor()->GetCursorPosition();
-	if ( UI()->is_16_9_mode() )
+	Fvector2 cursor_pos			= GetUICursor().GetCursorPosition();
+	if ( UI().is_widescreen() )
 	{
 		cursor_pos.x -= dx16pos;
 	}
@@ -644,7 +644,7 @@ bool CUIWindow::AlignHintWndPos( Frect const& vis_rect, float border, float dx16
 	}
 
 	Frect	rect;
-	rect.set( -border, -border, GetWidth() - 2.0f*border, GetHeight() - 2.0f*border );
+	rect.set( -border, -border, w->GetWidth() - 2.0f*border, w->GetHeight() - 2.0f*border );
 	rect.add( cursor_pos.x, cursor_pos.y );
 
 	rect.sub( 0.0f, rect.height() - border );
@@ -656,6 +656,6 @@ bool CUIWindow::AlignHintWndPos( Frect const& vis_rect, float border, float dx16
 	if ( !is_in( vis_rect, rect ) ) {	rect.sub( 0.0f                 , yn                     );	}
 	if ( !is_in( vis_rect, rect ) ) {	rect.sub( rect.width() - border, 0.0f                   );	}
 
-	SetWndPos( rect.lt );
+	w->SetWndPos( rect.lt );
 	return true;
 }

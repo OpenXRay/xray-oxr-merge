@@ -579,12 +579,11 @@ bool CUIXmlInit::InitProgressShape(CUIXml& xml_doc, LPCSTR path, int index, CUIP
 	string256 _path;
 
 	if (xml_doc.NavigateToNode(strconcat(sizeof(_path),_path, path, ":back"),index))
-		{R_ASSERT2(0,"unused <back> node in progress shape ");}
+		InitStatic(xml_doc, _path, index, pWnd->m_pBackground);
 
 
 	if (xml_doc.NavigateToNode(strconcat(sizeof(_path),_path, path, ":front"),index))
-		{R_ASSERT2(0,"unused <front> node in progress shape ");}
-//    InitStatic(xml_doc, strconcat(sizeof(_path),_path, path, ":front"), index, pWnd->m_pTexture);
+		InitStatic(xml_doc, strconcat(sizeof(_path),_path, path, ":front"), index, pWnd->m_pTexture);
 
 	pWnd->m_sectorCount	= xml_doc.ReadAttribInt(path, index, "sector_count", 8);
 	pWnd->m_bClockwise	= xml_doc.ReadAttribInt(path, index, "clockwise") ? true : false;

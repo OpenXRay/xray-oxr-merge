@@ -46,7 +46,7 @@ void CBlender_Compile::r_dx10Texture(LPCSTR ResourceName,	LPCSTR texture)
 	if (!texture) return;
 	//
 	string256				TexName;
-	strcpy_s				(TexName,texture);
+	xr_strcpy				(TexName,texture);
 	fix_texture_name		(TexName);
 
 	// Find index
@@ -72,6 +72,10 @@ void CBlender_Compile::i_dx10Address(u32 s, u32 address)
 	RS.SetSAMP			(s,D3DSAMP_ADDRESSW,	address);
 }
 
+void CBlender_Compile::i_dx10BorderColor(u32 s, u32 color)
+{
+	RS.SetSAMP			(s,D3DSAMP_BORDERCOLOR,	color);
+}
 void CBlender_Compile::i_dx10Filter_Min(u32 s, u32 f)
 {
 	VERIFY(s!=u32(-1));
@@ -110,7 +114,7 @@ u32 CBlender_Compile::r_dx10Sampler(LPCSTR ResourceName)
 	//return ((u32)-1);
 	VERIFY(ResourceName);
 	string256				name;
-	strcpy_s				(name,ResourceName);
+	xr_strcpy				(name,ResourceName);
 	fix_texture_name		(name);
 
 	// Find index
@@ -166,7 +170,7 @@ u32 CBlender_Compile::r_dx10Sampler(LPCSTR ResourceName)
 		i_dx10Address( stage, D3DTADDRESS_CLAMP);
 		i_dx10Filter(stage, D3DTEXF_LINEAR, D3DTEXF_NONE, D3DTEXF_LINEAR);
 		RS.SetSAMP(stage, XRDX10SAMP_COMPARISONFILTER, TRUE);
-		RS.SetSAMP(stage, XRDX10SAMP_COMPARISONFUNC, D3D10_COMPARISON_LESS_EQUAL);
+		RS.SetSAMP(stage, XRDX10SAMP_COMPARISONFUNC, D3D_COMPARISON_LESS_EQUAL);
 	}
 
 	if (0==xr_strcmp(ResourceName,"smp_jitter"))
@@ -199,6 +203,10 @@ void	CBlender_Compile::r_Pass		(LPCSTR _vs, LPCSTR _gs, LPCSTR _ps, bool bFog, B
 	dest.ps					= ps;
 	dest.vs					= vs;
 	dest.gs					= gs;
+#ifdef USE_DX11
+	dest.hs = DEV->_CreateHS("null");
+	dest.ds = DEV->_CreateDS("null");
+#endif
 	ctable.merge			(&ps->constants);
 	ctable.merge			(&vs->constants);
 	ctable.merge			(&gs->constants);
@@ -211,6 +219,26 @@ void	CBlender_Compile::r_Pass		(LPCSTR _vs, LPCSTR _gs, LPCSTR _ps, bool bFog, B
 	}
 }
 
+#ifdef USE_DX11
+void CBlender_Compile::r_TessPass(LPCSTR vs, LPCSTR hs, LPCSTR ds, LPCSTR gs, LPCSTR ps, bool bFog, BOOL bZtest, BOOL bZwrite, BOOL bABlend, D3DBLEND abSRC, D3DBLEND abDST, BOOL aTest, u32 aRef)
+{
+	r_Pass(vs, gs, ps, bFog, bZtest, bZwrite, bABlend, abSRC, abDST, aTest, aRef);
+
+	dest.hs = DEV->_CreateHS(hs);
+	dest.ds = DEV->_CreateDS(ds);
+
+	ctable.merge(&dest.hs->constants);
+	ctable.merge(&dest.ds->constants);
+}
+
+void CBlender_Compile::r_ComputePass(LPCSTR cs)
+{
+	dest.cs = DEV->_CreateCS(cs);
+
+	ctable.merge(&dest.cs->constants);
+}
+#endif
+
 void	CBlender_Compile::r_End			()
 {
 	dest.constants			= DEV->_CreateConstantTable(ctable);
@@ -218,5 +246,5 @@ void	CBlender_Compile::r_End			()
 	dest.T					= DEV->_CreateTextureList	(passTextures);
 	dest.C					= 0;
 	ref_matrix_list			temp(0);
-	SH->passes.push_back	(DEV->_CreatePass(dest.state,dest.ps,dest.vs,dest.gs,dest.constants,dest.T,temp,dest.C));
+	SH->passes.push_back	(DEV->_CreatePass(dest));
 }

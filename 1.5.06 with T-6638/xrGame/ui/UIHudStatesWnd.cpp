@@ -4,6 +4,7 @@
 #include "../Actor.h"
 #include "../ActorCondition.h"
 #include "../CustomOutfit.h"
+#include "../ActorHelmet.h"
 #include "../inventory.h"
 #include "../RadioactiveZone.h"
 
@@ -192,11 +193,7 @@ void CUIHudStatesWnd::Update()
 	{
 		return;
 	}
-	/*if ( Device.dwTimeGlobal - m_last_time > 50 )
-	{
-		m_last_time = Device.dwTimeGlobal;
-	}
-	*/
+
 	UpdateHealth( actor );
 	UpdateActiveItemInfo( actor );
 	UpdateIndicators( actor );
@@ -337,8 +334,6 @@ void CUIHudStatesWnd::SetAmmoIcon( const shared_str& sect_name )
 
 }
 
-// ------------------------------------------------------------------------------------------------
-
 void CUIHudStatesWnd::UpdateZones()
 {
 	//float actor_radia = m_actor->conditions().GetRadiation() * m_actor_radia_factor;
@@ -429,7 +424,7 @@ void CUIHudStatesWnd::UpdateZones()
 		float fRelPow = ( dist_to_zone / (rad_zone + (z_type==ALife::infl_max_count)? 5.0f : m_zone_feel_radius[z_type] + 0.1f) ) - 0.1f;
 
 		zone_max_power = actor->conditions().GetZoneMaxPower(z_type);
-		power = pZone->Power( dist_to_zone );
+		power = pZone->Power( dist_to_zone, rad_zone );
 		power = power / zone_max_power;
 		clamp( power, 0.0f, 1.1f );
 
@@ -453,8 +448,8 @@ void CUIHudStatesWnd::UpdateZones()
 		zone_info.cur_period = zone_type->freq.x + (zone_type->freq.y - zone_type->freq.x) * (fRelPow * fRelPow);
 		
 		//string256	buff_z;
-		//sprintf_s( buff_z, "zone %2.2f\n", zone_info.cur_period );
-		//strcat( buff, buff_z );
+		//xr_sprintf( buff_z, "zone %2.2f\n", zone_info.cur_period );
+		//xr_strcat( buff, buff_z );
 		if( zone_info.snd_time > zone_info.cur_period )
 		{
 			zone_info.snd_time = 0.0f;
@@ -492,7 +487,9 @@ void CUIHudStatesWnd::UpdateIndicatorType( CActor* actor, ALife::EInfluenceType 
 	ALife::EHitType hit_type  = m_zone_hit_type[type];
 	
 	CCustomOutfit* outfit = actor->GetOutfit();
+	CHelmet* helmet = smart_cast<CHelmet*>(actor->inventory().ItemFromSlot(HELMET_SLOT));
 	float protect = (outfit) ? outfit->GetDefHitTypeProtection( hit_type ) : 0.0f;
+	protect += (helmet) ? helmet->GetDefHitTypeProtection(hit_type) : 0.0f;
 	protect += actor->GetProtection_ArtefactsOnBelt( hit_type );
 
 	float max_power = actor->conditions().GetZoneMaxPower( hit_type );
@@ -500,26 +497,26 @@ void CUIHudStatesWnd::UpdateIndicatorType( CActor* actor, ALife::EInfluenceType 
 
 	if ( hit_power < EPS )
 	{
-		m_indik[type]->SetColor( c_white );
+		m_indik[type]->SetTextureColor( c_white );
 		SwitchLA( false, type );
 		actor->conditions().SetZoneDanger( 0.0f, type );
 		return;
 	}
 	if ( hit_power < protect )
 	{
-		m_indik[type]->SetColor( c_green );
+		m_indik[type]->SetTextureColor( c_green );
 		SwitchLA( false, type );
 		actor->conditions().SetZoneDanger( 0.0f, type );
 		return;
 	}
 	if ( hit_power - protect < m_zone_threshold[type] )
 	{
-		m_indik[type]->SetColor( c_yellow );
+		m_indik[type]->SetTextureTextureColor( c_yellow );
 		SwitchLA( false, type );
 		actor->conditions().SetZoneDanger( 0.0f, type );
 		return;
 	}
-	m_indik[type]->SetColor( c_red );
+	m_indik[type]->SetTextureColor( c_red );
 	SwitchLA( true, type );
 	actor->conditions().SetZoneDanger( hit_power - protect, type );
 }
@@ -533,15 +530,13 @@ void CUIHudStatesWnd::SwitchLA( bool state, ALife::EInfluenceType type )
 
 	if ( state )
 	{
-		m_indik[type]->SetClrLightAnim( m_lanim_name.c_str(), true, false, false, true );
+		m_indik[type]->SetColorAnimation( m_lanim_name.c_str(), LA_CYCLIC|LA_TEXTURECOLOR);
 		m_cur_state_LA[type] = true;
-//-		Msg( "LA = 1    type = %d", type );
 	}
 	else
 	{
-		m_indik[type]->SetClrLightAnim( NULL, false, false, false, false );//off
+		m_indik[type]->SetColorAnimation( NULL, 0);//off
 		m_cur_state_LA[type] = false;
-//-		Msg( "__LA = 0    type = %d", type );
 	}
 }
 

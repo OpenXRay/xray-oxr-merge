@@ -13,7 +13,7 @@
 #include "../HUDManager.h"
 #include "CExtraContentFilter.h"
 
-#include "../object_broker.h"
+#include "object_broker.h"
 
 CUISkinSelectorWnd::CUISkinSelectorWnd(const char* strSectionName, s16 team)
 {	
@@ -76,12 +76,13 @@ void CUISkinSelectorWnd::InitSkins(){
 	{
 		_GetItem(lst, j, singleItem);
 		m_skins.push_back(singleItem);
-		if (m_pExtraContentFilter->IsDataEnabled(singleItem))
+		//if (m_pExtraContentFilter->IsDataEnabled(singleItem))
 			m_skinsEnabled.push_back(j);
 	}
 }
 
-void CUISkinSelectorWnd::UpdateSkins(){
+void CUISkinSelectorWnd::UpdateSkins()
+{
 	for (int i = 0; i<4; i++)
 	{
 		if (!!m_shader)
@@ -97,7 +98,9 @@ void CUISkinSelectorWnd::UpdateSkins(){
 
 		string16 buf;
 		if (m_firstSkin + i < 10)
+		{
 			m_pImage[i]->SetText(itoa((m_firstSkin + 1 + i)%10,buf,10));
+		}
 		else
 			m_pImage[i]->SetText("");
 
@@ -115,8 +118,7 @@ void CUISkinSelectorWnd::Init(const char* strSectionName)
 	m_strSection = strSectionName;
 	
 	CUIXml xml_doc;
-	bool xml_result = xml_doc.Init(CONFIG_PATH, UI_PATH, "skin_selector.xml");
-	R_ASSERT2(xml_result, "xml file not found");
+	xml_doc.Load(CONFIG_PATH, UI_PATH, "skin_selector.xml");
 
 	CUIXmlInit::InitWindow(xml_doc,"skin_selector",				0,	this);
 	CUIXmlInit::InitStatic(xml_doc,"skin_selector:caption",		0,	m_pCaption);
@@ -148,10 +150,12 @@ void CUISkinSelectorWnd::Init(const char* strSectionName)
 
 void CUISkinSelectorWnd::SendMessage(CUIWindow *pWnd, s16 msg, void *pData)
 {
-	game_cl_Deathmatch * dm = NULL;
+	game_cl_mp	*game = NULL;
+	//game_cl_Deathmatch * dm = NULL;
 	switch (msg){
 		case BUTTON_CLICKED:
-			dm = smart_cast<game_cl_Deathmatch *>(&(Game()));
+			game = smart_cast<game_cl_mp*>(&(Game()));
+			//dm = smart_cast<game_cl_Deathmatch *>(&(Game()));
 
 			if (pWnd == m_pButtons[0])
 				OnKeyLeft();
@@ -165,12 +169,12 @@ void CUISkinSelectorWnd::SendMessage(CUIWindow *pWnd, s16 msg, void *pData)
 			else if (pWnd == m_pBtnSpectator)
 			{
 				Game().StartStopMenu(this,true);
-				dm->OnSpectatorSelect();
+				game->OnSpectatorSelect();
 			}
 			else if (pWnd == m_pBtnBack)
 			{
 				Game().StartStopMenu(this,true);
-				dm->OnSkinMenuBack();				
+				game->OnSkinMenuBack();				
 			}
 			else
                 for (int i = 0; i<4; i++)
@@ -204,13 +208,16 @@ void CUISkinSelectorWnd::OnBtnCancel(){
 
 void CUISkinSelectorWnd::OnBtnOK(){
 	Game().StartStopMenu(this,true);
-	game_cl_Deathmatch * dm = smart_cast<game_cl_Deathmatch *>(&(Game()));
+	game_cl_mp *game = smart_cast<game_cl_mp*>(&(Game()));
+	VERIFY(game);
+	//game_cl_Deathmatch * dm = smart_cast<game_cl_Deathmatch *>(&(Game()));
+	
 	if (m_iActiveIndex == -1)
 	{
 		m_iActiveIndex	= m_skinsEnabled[::Random.randI(m_skinsEnabled.size())];
 
 	}
-	dm->OnSkinMenu_Ok();
+	game->OnSkinMenu_Ok();
 }
 
 bool CUISkinSelectorWnd::OnMouse(float x, float y, EUIMessages mouse_action)

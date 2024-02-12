@@ -168,7 +168,6 @@ void dx10SamplerStateCache::CSApplySamplers(HArray &samplers)
 }
 #endif
 
-
 void dx10SamplerStateCache::SetMaxAnisotropy( UINT uiMaxAniso)
 {
 	clamp( uiMaxAniso, (u32)1, (u32)16);

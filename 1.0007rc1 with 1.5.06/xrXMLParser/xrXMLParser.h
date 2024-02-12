@@ -25,14 +25,14 @@ typedef TiXmlAttribute	XML_ATTRIBUTE;
 
 class XRXMLPARSER_API	CXml  
 {
+	void 				Load					(LPCSTR path_alias, LPCSTR xml_filename);
 public:
 	string_path			m_xml_file_name;
 						CXml					();
 	virtual				~CXml					();
 	void				ClearInternal			();
 
-	bool 				Init					(LPCSTR path_alias, LPCSTR path, LPCSTR  xml_filename);
-	bool 				Init					(LPCSTR path_alias, LPCSTR xml_filename);
+	void 				Load					(LPCSTR path_alias, LPCSTR path, LPCSTR  xml_filename);
 
 
 	//чтение элементов

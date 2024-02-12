@@ -10,16 +10,25 @@
 
 #include "StdAfx.h"
 #include "UITextureMaster.h"
+#include "UIStaticItem.h"
 #include "uiabstract.h"
 #include "xrUIXmlParser.h"
 #include "../Include/xrRender/UIShader.h"
 
 xr_map<shared_str, TEX_INFO>	CUITextureMaster::m_textures;
+xr_map<sh_pair, ui_shader>		CUITextureMaster::m_shaders;
 
 void CUITextureMaster::FreeTexInfo()
 {
 	m_textures.clear();
+	FreeCachedShaders	();
 }
+
+void CUITextureMaster::FreeCachedShaders()
+{
+	m_shaders.clear();
+}
+
 
 void CUITextureMaster::ParseShTexInfo(LPCSTR xml_file)
 {
@@ -36,7 +45,6 @@ void CUITextureMaster::ParseShTexInfo(LPCSTR xml_file)
 
 		XML_NODE* node				= xml.NavigateToNode("file", fi);
 
-//.		Msg("-%s",file.c_str());
 		int num						= xml.GetNodesNum(node, "texture");
 		for (int i = 0; i<num; i++)
 		{
@@ -49,8 +57,6 @@ void CUITextureMaster::ParseShTexInfo(LPCSTR xml_file)
 			info.rect.y1 = xml.ReadAttribFlt(node, "texture",i,"y");
 			info.rect.y2 = xml.ReadAttribFlt(node, "texture",i,"height") + info.rect.y1;
 			shared_str id = xml.ReadAttrib	(node, "texture",i,"id");
-//.			Msg("--%s",id.c_str());
-
 			m_textures.insert(mk_pair(id,info));
 		}
 
@@ -58,80 +64,60 @@ void CUITextureMaster::ParseShTexInfo(LPCSTR xml_file)
 	}
 }
 
-bool CUITextureMaster::IsSh(const char* texture_name){
-	return strstr(texture_name,"\\") ? false : true;
+bool CUITextureMaster::IsSh(const shared_str& texture_name){
+	return strstr(texture_name.c_str(),"\\") ? false : true;
 }
 
-void CUITextureMaster::InitTexture(const char* texture_name, IUISimpleTextureControl* tc){
-	xr_map<shared_str, TEX_INFO>::iterator	it;
-
-	it = m_textures.find(texture_name);
-
+void CUITextureMaster::InitTexture(const shared_str& texture_name, const shared_str& shader_name, ui_shader& out_shader, Frect& out_rect)
+{
+	xr_map<shared_str, TEX_INFO>::iterator it	= m_textures.find(texture_name);
 	if (it != m_textures.end())
 	{
-		tc->CreateShader(*((*it).second.file));
-		tc->SetOriginalRectEx((*it).second.rect);
-		return;
-	}
-	tc->CreateShader(texture_name);
+		sh_pair p={it->second.file, shader_name};
+		xr_map<sh_pair, ui_shader>::iterator sh_it = m_shaders.find(p);
+		if(sh_it==m_shaders.end())
+			m_shaders[p]->create(shader_name.c_str(), it->second.file.c_str());
+
+		out_shader			= m_shaders[p];
+		out_rect			= (*it).second.rect;
+	}else
+		out_shader->create	(shader_name.c_str(), texture_name.c_str());
 }
 
-void CUITextureMaster::InitTexture(const char* texture_name, const char* shader_name, IUISimpleTextureControl* tc){
-
-	xr_map<shared_str, TEX_INFO>::iterator	it;
-
-	it = m_textures.find(texture_name);
-
+void CUITextureMaster::InitTexture(const shared_str& texture_name, CUIStaticItem* tc, const shared_str& shader_name)
+{
+	xr_map<shared_str, TEX_INFO>::iterator it	= m_textures.find(texture_name);
 	if (it != m_textures.end())
 	{
-		tc->CreateShader(*((*it).second.file), shader_name);
-		tc->SetOriginalRectEx((*it).second.rect);
-		return;
-	}
-	tc->CreateShader(texture_name, shader_name);
+		sh_pair p={it->second.file, shader_name};
+		xr_map<sh_pair, ui_shader>::iterator sh_it = m_shaders.find(p);
+		if(sh_it==m_shaders.end())
+			m_shaders[p]->create(shader_name.c_str(), it->second.file.c_str());
+
+		tc->SetShader		(m_shaders[p]);
+		tc->SetTextureRect	((*it).second.rect);
+		tc->SetSize			(Fvector2().set(it->second.rect.width(),it->second.rect.height()));
+	}else
+		tc->CreateShader		(texture_name.c_str(), shader_name.c_str());
 }
 
-float CUITextureMaster::GetTextureHeight(const char* texture_name){
-	xr_map<shared_str, TEX_INFO>::iterator	it;
-	it = m_textures.find(texture_name);
-
-	if (it != m_textures.end())
-		return (*it).second.rect.height();
-	R_ASSERT3(false,"CUITextureMaster::GetTextureHeight Can't find texture", texture_name);
-	return 0;
+Frect CUITextureMaster::GetTextureRect(const shared_str&  texture_name){
+	TEX_INFO info = FindItem(texture_name);
+	return info.rect;
 }
 
-Frect CUITextureMaster::GetTextureRect(const char* texture_name){
-	xr_map<shared_str, TEX_INFO>::iterator	it;
-	it = m_textures.find(texture_name);
-	if (it != m_textures.end())
-		return (*it).second.rect;
-
-	R_ASSERT3(false,"CUITextureMaster::GetTextureHeight Can't find texture", texture_name);
-	return Frect();
+float CUITextureMaster::GetTextureHeight(const shared_str&  texture_name){
+	TEX_INFO info = FindItem(texture_name);
+	return info.rect.height();
 }
 
-float CUITextureMaster::GetTextureWidth(const char* texture_name){
-	xr_map<shared_str, TEX_INFO>::iterator	it;
-	it = m_textures.find(texture_name);
-
-	if (it != m_textures.end())
-		return (*it).second.rect.width();
-	R_ASSERT3(false,"CUITextureMaster::GetTextureHeight Can't find texture", texture_name);
-	return 0;
+float CUITextureMaster::GetTextureWidth(const shared_str&  texture_name)
+{
+	TEX_INFO info = FindItem(texture_name);
+	return info.rect.width();
 }
 
-LPCSTR CUITextureMaster::GetTextureFileName(const char* texture_name){
-	xr_map<shared_str, TEX_INFO>::iterator	it;
-	it = m_textures.find(texture_name);
-
-	if (it != m_textures.end())
-		return *((*it).second.file);
-	R_ASSERT3(false,"CUITextureMaster::GetTextureFileName Can't find texture", texture_name);
-	return 0;
-}
-
-TEX_INFO CUITextureMaster::FindItem(LPCSTR texture_name, LPCSTR def_texture_name)
+TEX_INFO CUITextureMaster::FindItem(const shared_str&  texture_name)
 {
 	xr_map<shared_str, TEX_INFO>::iterator	it;
 	it = m_textures.find(texture_name);
@@ -139,16 +125,15 @@ TEX_INFO CUITextureMaster::FindItem(LPCSTR texture_name, LPCSTR def_texture_name
 	if (it != m_textures.end())
 		return (it->second);
 	else{
-		R_ASSERT2(m_textures.find(def_texture_name)!=m_textures.end(),texture_name);
-		return FindItem	(def_texture_name,NULL);
+		return TEX_INFO();
 	}
 }
 
-void CUITextureMaster::GetTextureShader(LPCSTR texture_name, ui_shader& sh){
+void CUITextureMaster::GetTextureShader(const shared_str&  texture_name, ui_shader& sh){
 	xr_map<shared_str, TEX_INFO>::iterator	it;
 	it = m_textures.find(texture_name);
 
-	R_ASSERT3(it != m_textures.end(), "can't find texture", texture_name);
+	R_ASSERT3(it != m_textures.end(), "can't find texture", texture_name.c_str());
 
 	sh->create("hud\\default", *((*it).second.file));	
 }

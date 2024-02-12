@@ -6,7 +6,7 @@
 #include "UIStatic.h"
 #include "UIFrameWindow.h"
 #include "../level.h"
-#include "../game_base_space.h"
+#include "game_base_space.h"
 
 
 CUIStats::CUIStats()
@@ -15,7 +15,7 @@ CUIStats::CUIStats()
 CUIStats::~CUIStats()
 {}
 
-CUIWindow* CUIStats::Init(CUIXml& xml_doc, LPCSTR path,  int team)
+CUIWindow* CUIStats::InitStats(CUIXml& xml_doc, LPCSTR path,  int team)
 {
 	string256						_path;
 	CUIXmlInit::InitScrollView		(xml_doc, path, 0, this);

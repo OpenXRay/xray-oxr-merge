@@ -11,7 +11,7 @@ class CUISpinNum : public CUICustomSpin
 public:
 					CUISpinNum			();
 
-	virtual void	Init				(float x, float y, float width, float height);
+	virtual void	InitSpin			(Fvector2 pos, Fvector2 size);
 
 	// CUIOptionsItem
 	virtual void	SetCurrentValue		();
@@ -44,7 +44,7 @@ class CUISpinFlt : public CUICustomSpin
 public:
 	CUISpinFlt();
 
-	virtual void	Init				(float x, float y, float width, float height);
+	virtual void	InitSpin			(Fvector2 pos, Fvector2 size);
 
 	// CUIOptionsItem
 	virtual void	SetCurrentValue		();

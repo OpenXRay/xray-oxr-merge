@@ -6,9 +6,8 @@
 CUIOptionsManager CUIOptionsItem::m_optionsManager;
 
 CUIOptionsItem::CUIOptionsItem()
-{
-	m_dep = sdNothing;
-}
+:m_dep(sdNothing)
+{}
 
 CUIOptionsItem::~CUIOptionsItem()
 {
@@ -52,7 +51,7 @@ void CUIOptionsItem::GetOptIntegerValue(int& val, int& min, int& max)
 void CUIOptionsItem::SaveOptIntegerValue(int val)
 {
 	string512			command;
-	sprintf_s			(command, "%s %d", m_entry.c_str(), val);
+	xr_sprintf			(command, "%s %d", m_entry.c_str(), val);
 	Console->Execute	(command);
 }
 
@@ -64,7 +63,7 @@ void CUIOptionsItem::GetOptFloatValue(float& val, float& min, float& max)
 void CUIOptionsItem::SaveOptFloatValue(float val)
 {
 	string512			command;
-	sprintf_s				(command, "%s %f", m_entry.c_str(), val);
+	xr_sprintf			(command, "%s %f", m_entry.c_str(), val);
 	Console->Execute	(command);
 }
 
@@ -76,7 +75,7 @@ bool CUIOptionsItem::GetOptBoolValue()
 void CUIOptionsItem::SaveOptBoolValue(bool val)
 {
 	string512		command;
-	sprintf_s		(command, "%s %s", m_entry.c_str(), (val)?"1":"0");
+	xr_sprintf		(command, "%s %s", m_entry.c_str(), (val)?"1":"0");
 	Console->Execute(command);
 }
 
@@ -90,13 +89,11 @@ xr_token* CUIOptionsItem::GetOptToken()
 	return Console->GetXRToken(m_entry.c_str());
 }
 
-void CUIOptionsItem::SaveOptTokenValue(LPCSTR val)
+void CUIOptionsItem::SaveOptValue()
 {
-	SaveOptStringValue(val);
-}
+	if(!IsChangedOptValue())
+		return;
 
-void CUIOptionsItem::SaveValue()
-{
 	if(m_dep==sdVidRestart)
 		m_optionsManager.DoVidRestart();
 	else
@@ -105,17 +102,16 @@ void CUIOptionsItem::SaveValue()
 	else
 	if(m_dep==sdSystemRestart)
 		m_optionsManager.DoSystemRestart();
-/*
-	if (	m_entry == "vid_mode"		||	+
-			m_entry == "_preset"		||	+
-			m_entry == "rs_fullscreen"	||	+
-			m_entry == "r__supersample"	||	+
-			m_entry == "rs_refresh_60hz"||	+
-			m_entry == "rs_no_v_sync"	||	+
-			m_entry == "texture_lod")		+
-	m_optionsManager.DoVidRestart();
+}
 
-	if (m_entry == "snd_efx")				+
-		m_optionsManager.DoSndRestart();
-*/
+void CUIOptionsItem::OnChangedOptValue()
+{
+	if(m_dep==sdApplyOnChange)
+		SaveOptValue();
+}
+
+void CUIOptionsItem::UndoOptValue()
+{
+	if(m_dep==sdApplyOnChange)
+		SaveOptValue();
 }

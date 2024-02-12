@@ -58,6 +58,7 @@ CUIItemInfo::~CUIItemInfo()
 	xr_delete	(UIArtefactParams);
 	xr_delete	(UIProperties);
 	xr_delete	(UIOutfitInfo);
+	xr_delete	(UIBoosterInfo);
 }
 
 void CUIItemInfo::InitItemInfo(LPCSTR xml_name)
@@ -121,6 +122,9 @@ void CUIItemInfo::InitItemInfo(LPCSTR xml_name)
 		UIArtefactParams				= xr_new<CUIArtefactParams>();
 		UIArtefactParams->InitFromXml	(uiXml);
 
+		UIBoosterInfo					= xr_new<CUIBoosterInfo>();
+		UIBoosterInfo->InitFromXml		(uiXml);
+
 		if ( ai().get_alife() ) // (-designer)
 		{
 			UIProperties					= xr_new<UIInvUpgPropertiesWnd>();
@@ -148,7 +152,7 @@ void CUIItemInfo::InitItemInfo(LPCSTR xml_name)
 		UIItemImage->ClipperOn			();
 		UIItemImageSize.set				(UIItemImage->GetWidth(),UIItemImage->GetHeight());
 	}
-	
+
 	if ( uiXml.NavigateToNode( "outfit_info", 0 ) )
 	{
 		UIOutfitInfo			= xr_new<CUIOutfitInfo>();

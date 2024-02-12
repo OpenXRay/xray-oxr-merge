@@ -32,13 +32,18 @@ private:
 
 private:
 	//	All states are supposed to live along all application lifetime
-	ID3D10RasterizerState*		m_pRasterizerState;		//	Weak link
-	ID3D10DepthStencilState*	m_pDepthStencilState;	//	Weak link
-	ID3D10BlendState*			m_pBlendState;			//	Weak link
+	ID3DRasterizerState*		m_pRasterizerState;		//	Weak link
+	ID3DDepthStencilState*	m_pDepthStencilState;	//	Weak link
+	ID3DBlendState*			m_pBlendState;			//	Weak link
 
 	tSamplerHArray				m_VSSamplers;
 	tSamplerHArray				m_PSSamplers;
 	tSamplerHArray				m_GSSamplers;
+#ifdef USE_DX11
+	tSamplerHArray				m_CSSamplers;
+	tSamplerHArray				m_HSSamplers;
+	tSamplerHArray				m_DSSamplers;
+#endif
 
 	UINT						m_uiStencilRef;
 	UINT						m_uiAlphaRef;

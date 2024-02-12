@@ -28,7 +28,7 @@ protected:
 	virtual bool	CanPressDown	();
 	virtual void	IncVal			(){};
 	virtual void	DecVal			(){};
-			void	SetItem			();
+			void	SetItem			(int v);
 			struct SInfo{
 				shared_str	_orig;
 				shared_str	_transl;

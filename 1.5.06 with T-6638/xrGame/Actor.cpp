@@ -92,7 +92,7 @@ Flags32			psActorFlags={/*AF_DYNAMIC_MUSIC|*/AF_GODMODE_RT};
 
 
 
-CActor::CActor() : CEntityAlive()
+CActor::CActor() : CEntityAlive(),current_ik_cam_shift(0)
 {
 	encyclopedia_registry	= xr_new<CEncyclopediaRegistryWrapper	>();
 	game_news_registry		= xr_new<CGameNewsRegistryWrapper		>();
@@ -116,6 +116,8 @@ CActor::CActor() : CEntityAlive()
 	}
 	cameras[eacFreeLook]	= xr_new<CCameraLook>					(this);
 	cameras[eacFreeLook]->Load("actor_free_cam");
+	cameras[eacFixedLookAt]	= xr_new<CCameraFixedLook>				(this);
+	cameras[eacFixedLookAt]->Load("actor_look_cam");
 
 	cam_active				= eacFirstEye;
 	fPrevCamPos				= 0.0f;
@@ -202,7 +204,6 @@ CActor::CActor() : CEntityAlive()
 CActor::~CActor()
 {
 	xr_delete				(m_location_manager);
-
 	xr_delete				(m_memory);
 
 	xr_delete				(encyclopedia_registry);
@@ -429,6 +430,7 @@ if(!g_dedicated_server)
 	m_sCharacterUseAction			= "character_use";
 	m_sDeadCharacterUseAction		= "dead_character_use";
 	m_sDeadCharacterUseOrDragAction	= "dead_character_use_or_drag";
+	m_sDeadCharacterDontUseAction	= "dead_character_dont_use";
 	m_sCarCharacterUseAction		= "car_character_use";
 	m_sInventoryItemUseAction		= "inventory_item_use";
 	m_sInventoryBoxUseAction		= "inventory_box_use";
@@ -537,8 +539,9 @@ void	CActor::Hit(SHit* pHDS)
 	m_hit_slowmo = conditions().HitSlowmo(pHDS);
 
 	//---------------------------------------------------------------
-	if(Level().CurrentViewEntity() == this && !g_dedicated_server && (HDS.hit_type == ALife::eHitTypeFireWound) )
-	{
+	if(		(Level().CurrentViewEntity()==this) && 
+			!g_dedicated_server && 
+			(HDS.hit_type == ALife::eHitTypeFireWound) )	{
 		CObject* pLastHitter			= Level().Objects.net_Find(m_iLastHitterID);
 		CObject* pLastHittingWeapon		= Level().Objects.net_Find(m_iLastHittingWeaponID);
 		HitSector						(pLastHitter, pLastHittingWeapon);
@@ -547,7 +550,7 @@ void	CActor::Hit(SHit* pHDS)
 	if( (mstate_real&mcSprint) && Level().CurrentControlEntity() == this && conditions().DisableSprint(pHDS) )
 	{
 		mstate_wishful	&=~mcSprint;
-	};
+	}
 	if(!g_dedicated_server)
 	{
 		HitMark			(HDS.damage(), HDS.dir, HDS.who, HDS.bone(), HDS.p_in_bone_space, HDS.impulse, HDS.hit_type);
@@ -839,14 +842,27 @@ void CActor::g_Physics			(Fvector& _accel, float jump, float dt)
 
 		if (!fis_zero(character_physics_support()->movement()->gcontact_HealthLost))
 		{
-			const ICollisionDamageInfo* di=character_physics_support()->movement()->CollisionDamageInfo();
+			VERIFY( character_physics_support() );
+			VERIFY( character_physics_support()->movement() );
+			ICollisionDamageInfo* di=character_physics_support()->movement()->CollisionDamageInfo();
+			VERIFY( di );
+			bool b_hit_initiated =  di->GetAndResetInitiated();
 			Fvector hdir;di->HitDir(hdir);
 			SetHitInfo(this, NULL, 0, Fvector().set(0, 0, 0), hdir);
 			//				Hit	(m_PhysicMovementControl->gcontact_HealthLost,hdir,di->DamageInitiator(),m_PhysicMovementControl->ContactBone(),di->HitPos(),0.f,ALife::eHitTypeStrike);//s16(6 + 2*::Random.randI(0,2))
 			if (Level().CurrentControlEntity() == this)
 			{
-				SHit HDS = SHit(character_physics_support()->movement()->gcontact_HealthLost,0.0f,hdir,di->DamageInitiator(),
-					character_physics_support()->movement()->ContactBone(),di->HitPos(),0.f,di->HitType());
+				
+				SHit HDS = SHit(character_physics_support()->movement()->gcontact_HealthLost,
+//.								0.0f,
+								hdir,
+								di->DamageInitiator(),
+								character_physics_support()->movement()->ContactBone(),
+								di->HitPos(),
+								0.f,
+								di->HitType(),
+								0.0f, 
+								b_hit_initiated);
 //				Hit(&HDS);
 
 				NET_Packet	l_P;
@@ -1005,22 +1021,6 @@ void CActor::UpdateCL	()
 	Fmatrix							trans;
 	if(cam_Active() == cam_FirstEye())
 	{
-/*
-		CCameraBase* C = cam_Active();
-		Fvector vRight, vNormal, vDirection, vPosition;
-
-		vNormal					= C->vNormal; 
-		vNormal.normalize		();
-		vDirection				= C->vDirection;
-		vDirection.normalize	();
-
-		vRight.crossproduct		(vNormal,vDirection);
-		vNormal.crossproduct	(vDirection,vRight);
-
-		vPosition				= C->vPosition;
-
-		trans.set				(vRight, vNormal, vDirection, vPosition);
-*/
 		Cameras().hud_camera_Matrix		(trans);
 	}else
 		Cameras().camera_Matrix			(trans);
@@ -1032,6 +1032,18 @@ void CActor::UpdateCL	()
 }
 
 float	NET_Jump = 0;
+void CActor::set_state_box(u32	mstate)
+{
+	if (mstate & mcCrouch)
+	{
+		if (isActorAccelerated(mstate_real, IsZoomAimingMode()))
+			character_physics_support()->movement()->ActivateBox(1, true);
+		else
+			character_physics_support()->movement()->ActivateBox(2, true);
+	}
+	else 
+		character_physics_support()->movement()->ActivateBox(0, true);
+}
 void CActor::shedule_Update	(u32 DT)
 {
 	setSVU							(OnServer());
@@ -1155,15 +1167,7 @@ void CActor::shedule_Update	(u32 DT)
 				g_cl_ValidateMState			(dt,mstate_wishful);
 			g_SetAnimation				(mstate_real);
 
-			if (NET_Last.mstate & mcCrouch)
-			{
-				if (isActorAccelerated(mstate_real, IsZoomAimingMode()))
-					character_physics_support()->movement()->ActivateBox(1, true);
-				else
-					character_physics_support()->movement()->ActivateBox(2, true);
-			}
-			else 
-				character_physics_support()->movement()->ActivateBox(0, true);
+			set_state_box(NET_Last.mstate);
 		}	
 		mstate_old = mstate_real;
 	}
@@ -1189,7 +1193,8 @@ void CActor::shedule_Update	(u32 DT)
 	//звук тяжелого дыхания при уталости и хромании
 	if(this==Level().CurrentControlEntity() && !g_dedicated_server )
 	{
-		if(conditions().IsLimping() && g_Alive()){
+		if(conditions().IsLimping() && g_Alive() && !psActorFlags.test(AF_GODMODE_RT))
+		{
 			if(!m_HeavyBreathSnd._feedback()){
 				m_HeavyBreathSnd.play_at_pos(this, Fvector().set(0,ACTOR_HEIGHT,0), sm_Looped | sm_2D);
 			}else{
@@ -1274,8 +1279,9 @@ void CActor::shedule_Update	(u32 DT)
 			else
 			{
 				if (m_pPersonWeLookingAt && pEntityAlive->g_Alive() && m_pPersonWeLookingAt->IsTalkEnabled())
+				{
 					m_sDefaultObjAction = m_sCharacterUseAction;
-
+				}
 				else if (pEntityAlive && !pEntityAlive->g_Alive())
 				{
 					bool b_allow_drag = !!pSettings->line_exist("ph_capture_visuals",pEntityAlive->cNameVisual());
@@ -1284,16 +1290,21 @@ void CActor::shedule_Update	(u32 DT)
 						m_sDefaultObjAction = m_sDeadCharacterUseOrDragAction;
 					else
 						m_sDefaultObjAction = m_sDeadCharacterUseAction;
-
-				}else if (m_pVehicleWeLookingAt)
+				}
+				else if (m_pVehicleWeLookingAt)
+				{
 					m_sDefaultObjAction = m_sCarCharacterUseAction;
-
+				}
 				else if (	m_pObjectWeLookingAt && 
 							m_pObjectWeLookingAt->cast_inventory_item() && 
 							m_pObjectWeLookingAt->cast_inventory_item()->CanTake() )
+				{
 					m_sDefaultObjAction = m_sInventoryItemUseAction;
+				}
 				else 
+				{
 					m_sDefaultObjAction = NULL;
+				}
 			}
 		}
 	}
@@ -1344,8 +1355,8 @@ void CActor::g_PerformDrop	( )
 
 	if(pItem->IsQuestItem()) return;
 
-	u32 s					= inventory().GetActiveSlot();
-	if(inventory().m_slots[s].m_bPersistent)	return;
+	u16 s					= inventory().GetActiveSlot();
+	if(inventory().SlotIsPersistent(s))	return;
 
 	pItem->SetDropManual	(TRUE);
 }
@@ -1379,28 +1390,28 @@ void CActor::OnHUDDraw	(CCustomHUD*)
 	if (Level().CurrentControlEntity() == this && g_ShowAnimationInfo)
 	{
 		string128 buf;
-		HUD().Font().pFontStat->SetColor	(0xffffffff);
-		HUD().Font().pFontStat->OutSet		(170,530);
-		HUD().Font().pFontStat->OutNext	("Position:      [%3.2f, %3.2f, %3.2f]",VPUSH(Position()));
-		HUD().Font().pFontStat->OutNext	("Velocity:      [%3.2f, %3.2f, %3.2f]",VPUSH(m_PhysicMovementControl->GetVelocity()));
-		HUD().Font().pFontStat->OutNext	("Vel Magnitude: [%3.2f]",m_PhysicMovementControl->GetVelocityMagnitude());
-		HUD().Font().pFontStat->OutNext	("Vel Actual:    [%3.2f]",m_PhysicMovementControl->GetVelocityActual());
+		UI().Font().pFontStat->SetColor	(0xffffffff);
+		UI().Font().pFontStat->OutSet		(170,530);
+		UI().Font().pFontStat->OutNext	("Position:      [%3.2f, %3.2f, %3.2f]",VPUSH(Position()));
+		UI().Font().pFontStat->OutNext	("Velocity:      [%3.2f, %3.2f, %3.2f]",VPUSH(m_PhysicMovementControl->GetVelocity()));
+		UI().Font().pFontStat->OutNext	("Vel Magnitude: [%3.2f]",m_PhysicMovementControl->GetVelocityMagnitude());
+		UI().Font().pFontStat->OutNext	("Vel Actual:    [%3.2f]",m_PhysicMovementControl->GetVelocityActual());
 		switch (m_PhysicMovementControl->Environment())
 		{
-		case CPHMovementControl::peOnGround:	strcpy_s(buf,"ground");			break;
-		case CPHMovementControl::peInAir:		strcpy_s(buf,"air");				break;
-		case CPHMovementControl::peAtWall:		strcpy_s(buf,"wall");				break;
+		case CPHMovementControl::peOnGround:	xr_strcpy(buf,"ground");			break;
+		case CPHMovementControl::peInAir:		xr_strcpy(buf,"air");				break;
+		case CPHMovementControl::peAtWall:		xr_strcpy(buf,"wall");				break;
 		}
-		HUD().Font().pFontStat->OutNext	(buf);
+		UI().Font().pFontStat->OutNext	(buf);
 
 		if (IReceived != 0)
 		{
 			float Size = 0;
-			Size = HUD().Font().pFontStat->GetSize();
-			HUD().Font().pFontStat->SetSize(Size*2);
-			HUD().Font().pFontStat->SetColor	(0xffff0000);
-			HUD().Font().pFontStat->OutNext ("Input :		[%3.2f]", ICoincidenced/IReceived * 100.0f);
-			HUD().Font().pFontStat->SetSize(Size);
+			Size = UI().Font().pFontStat->GetSize();
+			UI().Font().pFontStat->SetSize(Size*2);
+			UI().Font().pFontStat->SetColor	(0xffff0000);
+			UI().Font().pFontStat->OutNext ("Input :		[%3.2f]", ICoincidenced/IReceived * 100.0f);
+			UI().Font().pFontStat->SetSize(Size);
 		};
 	};
 #endif
@@ -1477,7 +1488,7 @@ void CActor::RenderText				(LPCSTR Text, Fvector dpos, float* pdup, u32 color)
 	Device.mFullTransform.transform(v0r,v0);
 	Device.mFullTransform.transform(v1r,v1);
 	float size = v1r.distance_to(v0r);
-	CGameFont* pFont = HUD().Font().pFontArial14;
+	CGameFont* pFont = UI().Font().pFontArial14;
 	if (!pFont) return;
 //	float OldFontSize = pFont->GetHeight	();	
 	float delta_up = 0.0f;
@@ -1581,9 +1592,9 @@ void CActor::OnItemTake(CInventoryItem *inventory_item)
 	if (OnClient()) return;
 }
 
-void CActor::OnItemDrop(CInventoryItem *inventory_item)
+void CActor::OnItemDrop(CInventoryItem *inventory_item, bool just_before_destroy)
 {
-	CInventoryOwner::OnItemDrop(inventory_item);
+	CInventoryOwner::OnItemDrop(inventory_item, just_before_destroy);
 
 	CArtefact* artefact = smart_cast<CArtefact*>(inventory_item);
 	if(artefact && artefact->m_eItemCurrPlace == eItemPlaceBelt)
@@ -1612,7 +1623,7 @@ void CActor::OnItemDropUpdate ()
 }
 
 
-void CActor::OnItemRuck		(CInventoryItem *inventory_item, EItemPlace previous_place)
+void CActor::OnItemRuck		(CInventoryItem *inventory_item, const SInvItemPlace& previous_place)
 {
 	CInventoryOwner::OnItemRuck(inventory_item, previous_place);
 
@@ -1620,7 +1631,8 @@ void CActor::OnItemRuck		(CInventoryItem *inventory_item, EItemPlace previous_pl
 	if(artefact && previous_place == eItemPlaceBelt)
 		MoveArtefactBelt(artefact, false);
 }
-void CActor::OnItemBelt		(CInventoryItem *inventory_item, EItemPlace previous_place)
+
+void CActor::OnItemBelt		(CInventoryItem *inventory_item, const SInvItemPlace& previous_place)
 {
 	CInventoryOwner::OnItemBelt(inventory_item, previous_place);
 
@@ -1775,38 +1787,29 @@ void CActor::SetActorVisibility(u16 who, float value)
 
 void CActor::UpdateMotionIcon(u32 mstate_rl)
 {
-	CUIMotionIcon		&motion_icon=HUD().GetUI()->UIMainIngameWnd->MotionIcon();
+	CUIMotionIcon*	motion_icon=CurrentGameUI()->UIMainIngameWnd->MotionIcon();
 	if(mstate_rl&mcClimb)
 	{
-		motion_icon.ShowState(CUIMotionIcon::stClimb);
+		motion_icon->ShowState(CUIMotionIcon::stClimb);
 	}
 	else
 	{
 		if(mstate_rl&mcCrouch)
 		{
 			if (!isActorAccelerated(mstate_rl, IsZoomAimingMode()))
-				motion_icon.ShowState(CUIMotionIcon::stCreep);
+				motion_icon->ShowState(CUIMotionIcon::stCreep);
 			else
-				motion_icon.ShowState(CUIMotionIcon::stCrouch);
+				motion_icon->ShowState(CUIMotionIcon::stCrouch);
 		}
 		else
 		if(mstate_rl&mcSprint)
-				motion_icon.ShowState(CUIMotionIcon::stSprint);
+				motion_icon->ShowState(CUIMotionIcon::stSprint);
 		else
 		if(mstate_rl&mcAnyMove && isActorAccelerated(mstate_rl, IsZoomAimingMode()))
-			motion_icon.ShowState(CUIMotionIcon::stRun);
+			motion_icon->ShowState(CUIMotionIcon::stRun);
 		else
-			motion_icon.ShowState(CUIMotionIcon::stNormal);
+			motion_icon->ShowState(CUIMotionIcon::stNormal);
 	}
-
-/*
-						stNormal, --
-						stCrouch, --
-						stCreep,  --
-						stClimb,  --
-						stRun,    --
-						stSprint, --
-*/
 }
 
 

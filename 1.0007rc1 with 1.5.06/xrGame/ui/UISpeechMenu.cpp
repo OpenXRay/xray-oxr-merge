@@ -9,17 +9,20 @@
 #include "../string_table.h"
 #include "../HUDManager.h"
 
-CUISpeechMenu::CUISpeechMenu(LPCSTR section_name){
-	m_pList = xr_new<CUIScrollView>();AttachChild(m_pList);m_pList->SetAutoDelete(true);
-	CUIXml xml_doc;
-	xml_doc.Init(CONFIG_PATH, UI_PATH, "maingame.xml");
-	CUIXmlInit::InitWindow(xml_doc, "speech_menu",0,this);
-	CUIXmlInit::InitScrollView(xml_doc, "speech_menu",0,m_pList);
-	m_pList->SetWndPos(0,0);
-	m_text_color = 0xffffffff;
+CUISpeechMenu::CUISpeechMenu(LPCSTR section_name)
+{
+	m_pList						= xr_new<CUIScrollView>();
+	AttachChild					(m_pList);
+	m_pList->SetAutoDelete		(true);
+	CUIXml						xml_doc;
+	xml_doc.Load				(CONFIG_PATH, UI_PATH, "maingame.xml");
+	CUIXmlInit::InitWindow		(xml_doc, "speech_menu",0,this);
+	CUIXmlInit::InitScrollView	(xml_doc, "speech_menu",0,m_pList);
+	m_pList->SetWndPos			(Fvector2().set(0,0));
+	m_text_color				= 0xffffffff;
 	SetFont(UI()->Font()->pFontLetterica18Russian);
-	CUIXmlInit::InitFont(xml_doc,"speech_menu:text",0,m_text_color,m_pFont);	
-    InitList(section_name);
+	CUIXmlInit::InitFont		(xml_doc,"speech_menu:text",0,m_text_color,m_pFont);	
+    InitList					(section_name);
 }
 
 CUISpeechMenu::~CUISpeechMenu()
@@ -28,11 +31,8 @@ CUISpeechMenu::~CUISpeechMenu()
 	x=x;
 }
 
-void CUISpeechMenu::Init(float x, float y, float width, float height){
-	CUIWindow::Init(x,y,width,height);
-}
-
-void CUISpeechMenu::InitList(LPCSTR section_name){
+void CUISpeechMenu::InitList(LPCSTR section_name)
+{
 	R_ASSERT2(pSettings->section_exist(section_name), section_name);
 	CUIStatic* pItem = NULL;
 

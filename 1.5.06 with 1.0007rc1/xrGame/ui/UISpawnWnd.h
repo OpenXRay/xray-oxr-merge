@@ -6,7 +6,7 @@
 
 class CUIStatix;
 class CUIStatic;
-class CUI3tButtonEx;
+class CUI3tButton;
 class CUIScrollView;
 
 //typedef	void (*ButtonClickCallback) (int);
@@ -48,9 +48,9 @@ protected:
 	CUIScrollView*	m_pTextDesc;
 	CUIStatix*		m_pImage1;
 	CUIStatix*		m_pImage2;
-	CUI3tButtonEx*	m_pBtnAutoSelect;
-	CUI3tButtonEx*	m_pBtnSpectator;
-	CUI3tButtonEx*	m_pBtnBack;
+	CUI3tButton*	m_pBtnAutoSelect;
+	CUI3tButton*	m_pBtnSpectator;
+	CUI3tButton*	m_pBtnBack;
 
 	int		m_iCurTeam;
 };

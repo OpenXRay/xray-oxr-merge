@@ -33,7 +33,7 @@ void CUIProgressShape::SetPos(int pos, int max){
 	if (m_bText)
 	{
 		string256 _buff;
-		m_pTexture->SetText(itoa(pos,_buff,10));
+		TextItemControl()->SetText(itoa(pos,_buff,10));
 	}
 }
 
@@ -42,7 +42,8 @@ void CUIProgressShape::SetTextVisible(bool b){
 }
 
 
-void _make_rot(Fvector2& pt, const Fvector2& src, float sin_a, float cos_a, float angle){ 
+void _make_rot(Fvector2& pt, const Fvector2& src, float sin_a, float cos_a, float angle)
+{ 
 	pt.x				= src.x*cos_a + src.y*sin_a;
 	pt.y				= src.y*cos_a - src.x*sin_a;
 }
@@ -64,30 +65,25 @@ float calc_color(u32 idx, u32 total, float stage, float max_stage, bool blend)
 
 void CUIProgressShape::Draw()
 {
-	if(m_pBackground)
-		m_pBackground->Draw			();
-	R_ASSERT						(m_pTexture);
-	
 	if(m_bText)
-		m_pTexture->DrawText		();
+		DrawText		();
 
-	UIRender->SetShader(*m_pTexture->GetShader());
+	UIRender->SetShader				(*GetShader());
 	Fvector2						tsize;
 	UIRender->GetActiveTextureResolution(tsize);
 
 	
-//.	UIRender->StartTriList(m_sectorCount*3);
-	UIRender->StartPrimitive		(m_sectorCount*3,IUIRender::ptTriList, UI()->m_currentPointType);
+	UIRender->StartPrimitive		(m_sectorCount*3,IUIRender::ptTriList, UI().m_currentPointType);
 
 	Frect pos_rect;
-	m_pTexture->GetAbsoluteRect		(pos_rect);
-	UI()->ClientToScreenScaled		(pos_rect.lt, pos_rect.x1, pos_rect.y1);
-	UI()->ClientToScreenScaled		(pos_rect.rb, pos_rect.x2, pos_rect.y2);
+	GetAbsoluteRect					(pos_rect);
+	UI().ClientToScreenScaled		(pos_rect.lt, pos_rect.x1, pos_rect.y1);
+	UI().ClientToScreenScaled		(pos_rect.rb, pos_rect.x2, pos_rect.y2);
 
 	Fvector2						center_pos;
 	pos_rect.getcenter				(center_pos);
 
-	Frect tex_rect					= m_pTexture->GetUIStaticItem().GetOriginalRect();
+	Frect tex_rect					= GetUIStaticItem().GetTextureRect();
 	
 	tex_rect.lt.x					/= tsize.x;
 	tex_rect.lt.y					/= tsize.y;
@@ -98,6 +94,7 @@ void CUIProgressShape::Draw()
 	tex_rect.getcenter				(center_tex);
 
 	float		radius_pos			= pos_rect.width()/2.0f;
+
 	float		radius_tex			= tex_rect.width()/2.0f;
 
 	float		curr_angle			=  m_angle_begin;
@@ -145,10 +142,7 @@ void CUIProgressShape::Draw()
 		tp1.set(tp);
 		tx1.set(tx);
 
-		//if(m_bClockwise)
-		//	curr_angle				-= angle_range/float(m_sectorCount);
-		//else
-			curr_angle				+= angle_range/float(m_sectorCount);
+		curr_angle				+= angle_range/float(m_sectorCount);
 
 		sin_a						= _sin(curr_angle);
 		cos_a						= _cos(curr_angle);
@@ -176,5 +170,4 @@ void CUIProgressShape::Draw()
 
 
 	UIRender->FlushPrimitive();
-//	UIRender->FlushTriList();
 }

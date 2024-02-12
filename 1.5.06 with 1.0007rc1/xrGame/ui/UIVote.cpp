@@ -24,9 +24,9 @@ CUIVote::CUIVote()
 		list[i]			= xr_new<CUIListBox>();		list[i]->SetAutoDelete(true);	AttachChild(list[i]);
 	}	
 
-	btn_yes		= xr_new<CUI3tButtonEx>();	btn_yes->SetAutoDelete(true);		AttachChild(btn_yes);
-	btn_no		= xr_new<CUI3tButtonEx>();	btn_no->SetAutoDelete(true);		AttachChild(btn_no);
-	btn_cancel	= xr_new<CUI3tButtonEx>();	btn_cancel->SetAutoDelete(true);	AttachChild(btn_cancel);
+	btn_yes		= xr_new<CUI3tButton>();	btn_yes->SetAutoDelete(true);		AttachChild(btn_yes);
+	btn_no		= xr_new<CUI3tButton>();	btn_no->SetAutoDelete(true);		AttachChild(btn_no);
+	btn_cancel	= xr_new<CUI3tButton>();	btn_cancel->SetAutoDelete(true);	AttachChild(btn_cancel);
 	
 	Init();
 }
@@ -52,9 +52,9 @@ void CUIVote::Init()
 		CUIXmlInit::InitListBox		(xml_doc, path, 0, list[i]);
 	}	
 
-	CUIXmlInit::Init3tButtonEx(xml_doc, "vote:btn_yes", 0, btn_yes);
-	CUIXmlInit::Init3tButtonEx(xml_doc, "vote:btn_no", 0, btn_no);
-	CUIXmlInit::Init3tButtonEx(xml_doc, "vote:btn_cancel", 0, btn_cancel);
+	CUIXmlInit::Init3tButton(xml_doc, "vote:btn_yes", 0, btn_yes);
+	CUIXmlInit::Init3tButton(xml_doc, "vote:btn_no", 0, btn_no);
+	CUIXmlInit::Init3tButton(xml_doc, "vote:btn_cancel", 0, btn_cancel);
 }
 
 void CUIVote::SetVoting(LPCSTR txt)

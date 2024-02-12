@@ -59,13 +59,13 @@ LPCSTR	file_header = 0;
 #endif
 
 #ifndef PURE_ALLOC
-#	ifndef USE_MEMORY_MONITOR
+//#	ifndef USE_MEMORY_MONITOR
 #		define USE_DL_ALLOCATOR
-#	endif // USE_MEMORY_MONITOR
+//#	endif // USE_MEMORY_MONITOR
 #endif // PURE_ALLOC
 
 #ifndef USE_DL_ALLOCATOR
-static void *lua_alloc_xr	(void *ud, void *ptr, size_t osize, size_t nsize) {
+static void *lua_alloc		(void *ud, void *ptr, size_t osize, size_t nsize) {
   (void)ud;
   (void)osize;
   if (nsize == 0) {
@@ -80,16 +80,53 @@ static void *lua_alloc_xr	(void *ud, void *ptr, size_t osize, size_t nsize) {
 #endif // DEBUG_MEMORY_MANAGER
 }
 #else // USE_DL_ALLOCATOR
-static void *lua_alloc_dl	(void *ud, void *ptr, size_t osize, size_t nsize) {
+
+#include "../xrCore/memory_allocator_options.h"
+
+#ifdef USE_ARENA_ALLOCATOR
+static const u32			s_arena_size = 96*1024*1024;
+static char					s_fake_array[s_arena_size];
+static doug_lea_allocator	s_allocator( s_fake_array, s_arena_size, "lua" );
+#else // #ifdef USE_ARENA_ALLOCATOR
+static doug_lea_allocator	s_allocator( 0, 0, "lua" );
+#endif // #ifdef USE_ARENA_ALLOCATOR
+
+static void *lua_alloc		(void *ud, void *ptr, size_t osize, size_t nsize) {
+#ifndef USE_MEMORY_MONITOR
   (void)ud;
   (void)osize;
-  if (nsize == 0)	{	dlfree			(ptr);	 return	NULL;  }
-  else				return dlrealloc	(ptr, nsize);
+	if ( !nsize )	{
+		s_allocator.free_impl	(ptr);
+		return					0;
+	}
+
+	if ( !ptr )
+		return					s_allocator.malloc_impl((u32)nsize);
+
+	return						s_allocator.realloc_impl(ptr, (u32)nsize);
+#else // #ifndef USE_MEMORY_MONITOR
+	if ( !nsize )	{
+		memory_monitor::monitor_free(ptr);
+		s_allocator.free_impl		(ptr);
+		return						NULL;
+	}
+
+	if ( !ptr ) {
+		void* const result			= s_allocator.malloc_impl((u32)nsize);
+		memory_monitor::monitor_alloc (result,nsize,"LUA");
+		return						result;
+	}
+
+	memory_monitor::monitor_free	(ptr);
+	void* const result				= s_allocator.realloc_impl(ptr, (u32)nsize);
+	memory_monitor::monitor_alloc	(result,nsize,"LUA");
+	return							result;
+#endif // #ifndef USE_MEMORY_MONITOR
 }
 
 u32 game_lua_memory_usage	()
 {
-	return					((u32)dlmallinfo().uordblks);
+	return					(s_allocator.get_allocated_size());
 }
 #endif // USE_DL_ALLOCATOR
 
@@ -240,11 +277,7 @@ void CScriptStorage::reinit	()
 	if (m_virtual_machine)
 		lua_close			(m_virtual_machine);
 
-#ifndef USE_DL_ALLOCATOR
-	m_virtual_machine		= lua_newstate(lua_alloc_xr, NULL);
-#else // USE_DL_ALLOCATOR
-	m_virtual_machine		= lua_newstate(lua_alloc_dl, NULL);
-#endif // USE_DL_ALLOCATOR
+	m_virtual_machine		= lua_newstate(lua_alloc, NULL);
 
 	if (!m_virtual_machine) {
 		Msg					("! ERROR : Cannot initialize script virtual machine!");
@@ -352,15 +385,15 @@ int CScriptStorage::vscript_log		(ScriptStorage::ELuaMessageType tLuaMessageType
 		default : NODEFAULT;
 	}
 	
-	strcpy_s	(S2,S);
+	xr_strcpy	(S2,S);
 	S1		= S2 + xr_strlen(S);
 	int		l_iResult = vsprintf(S1,caFormat,marker);
 	Msg		("%s",S2);
 	
-	strcpy_s	(S2,SS);
+	xr_strcpy	(S2,SS);
 	S1		= S2 + xr_strlen(SS);
 	vsprintf(S1,caFormat,marker);
-	strcat	(S2,"\r\n");
+	xr_strcat	(S2,"\r\n");
 
 #ifdef DEBUG
 #	ifndef ENGINE_BUILD
@@ -419,16 +452,16 @@ int __cdecl CScriptStorage::script_log	(ScriptStorage::ELuaMessageType tLuaMessa
 	return			(result);
 }
 
-bool CScriptStorage::parse_namespace(LPCSTR caNamespaceName, LPSTR b, LPSTR c)
+bool CScriptStorage::parse_namespace(LPCSTR caNamespaceName, LPSTR b, u32 const b_size, LPSTR c, u32 const c_size)
 {
-	strcpy			(b,"");
-	strcpy			(c,"");
-	LPSTR			S2	= xr_strdup(caNamespaceName);
+	*b				= 0;
+	*c				= 0;
+	LPSTR			S2;
+	STRCONCAT		(S2,caNamespaceName);
 	LPSTR			S	= S2;
 	for (int i=0;;++i) {
 		if (!xr_strlen(S)) {
 			script_log	(ScriptStorage::eLuaMessageTypeError,"the namespace name %s is incorrect!",caNamespaceName);
-			xr_free		(S2);
 			return		(false);
 		}
 		LPSTR			S1 = strchr(S,'.');
@@ -436,17 +469,17 @@ bool CScriptStorage::parse_namespace(LPCSTR caNamespaceName, LPSTR b, LPSTR c)
 			*S1				= 0;
 
 		if (i)
-			strcat		(b,"{");
-		strcat			(b,S);
-		strcat			(b,"=");
+			xr_strcat	(b,b_size,"{");
+		xr_strcat		(b,b_size,S);
+		xr_strcat		(b,b_size,"=");
 		if (i)
-			strcat		(c,"}");
+			xr_strcat	(c,c_size,"}");
 		if (S1)
 			S			= ++S1;
 		else
 			break;
 	}
-	xr_free			(S2);
+
 	return			(true);
 }
 
@@ -458,10 +491,10 @@ bool CScriptStorage::load_buffer	(lua_State *L, LPCSTR caBuffer, size_t tSize, L
 
 		LPCSTR			header = file_header;
 
-		if (!parse_namespace(caNameSpaceName,a,b))
+		if (!parse_namespace(caNameSpaceName,a,sizeof(a),b,sizeof(b)))
 			return		(false);
 
-		sprintf_s		(insert,header,caNameSpaceName,a,b);
+		xr_sprintf		(insert,header,caNameSpaceName,a,b);
 		u32				str_len = xr_strlen(insert);
 		LPSTR			script = xr_alloc<char>(str_len + tSize);
 		strcpy_s		(script, str_len + tSize, insert);
@@ -569,7 +602,7 @@ bool CScriptStorage::namespace_loaded(LPCSTR N, bool remove_from_stack)
 	lua_pushstring 			(lua(),"_G"); 
 	lua_rawget 				(lua(),LUA_GLOBALSINDEX); 
 	string256				S2;
-	strcpy_s					(S2,N);
+	xr_strcpy				(S2,N);
 	LPSTR					S = S2;
 	for (;;) { 
 		if (!xr_strlen(S)) {
@@ -651,7 +684,7 @@ bool CScriptStorage::object	(LPCSTR namespace_name, LPCSTR identifier, int type)
 luabind::object CScriptStorage::name_space(LPCSTR namespace_name)
 {
 	string256			S1;
-	strcpy_s				(S1,namespace_name);
+	xr_strcpy			(S1,namespace_name);
 	LPSTR				S = S1;
 	luabind::object		lua_namespace = luabind::get_globals(lua());
 	for (;;) {
@@ -751,7 +784,7 @@ int CScriptStorage::error_log	(LPCSTR	format, ...)
 	LPCSTR			S = "! [LUA][ERROR] ";
 	LPSTR			S1;
 	string4096		S2;
-	strcpy_s		(S2,S);
+	xr_strcpy		(S2,S);
 	S1				= S2 + xr_strlen(S);
 
 	int				result = vsprintf(S1,format,marker);

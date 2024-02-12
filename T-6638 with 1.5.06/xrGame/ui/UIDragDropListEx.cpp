@@ -363,7 +363,7 @@ void CUIDragDropListEx::ReinitScroll()
 
 bool CUIDragDropListEx::OnMouseAction(float x, float y, EUIMessages mouse_action)
 {
-	bool b = inherited::OnMouseAction		(x,y,mouse_action);
+	bool b = inherited::OnMouseAction(x,y,mouse_action);
 
 	if(m_vScrollBar->IsShown())
 	{
@@ -450,6 +450,7 @@ void CUIDragDropListEx::SetItem(CUICellItem* itm, Ivector2 cell_pos) // start at
 	Register					(itm);
 	itm->SetOwnerList			(this);
 }
+
 bool CUIDragDropListEx::CanSetItem(CUICellItem* itm){
 	if (m_container->HasFreeSpace(itm->GetGridSize()))
 		return true;
@@ -573,6 +574,7 @@ CUICellItem* CUICellContainer::FindSimilar(CUICellItem* itm)
 void CUICellContainer::PlaceItemAtPos(CUICellItem* itm, Ivector2& cell_pos)
 {
 	Ivector2 cs				= itm->GetGridSize();
+	
 	if(m_pParentDragDropList->GetVerticalPlacement())
 		std::swap(cs.x,cs.y);
 
@@ -584,9 +586,10 @@ void CUICellContainer::PlaceItemAtPos(CUICellItem* itm, Ivector2& cell_pos)
 			C.SetItem		(itm,(x==0&&y==0));
 		}
 	}
+
 	itm->SetWndSize			( Fvector2().set( (m_cellSize.x*cs.x),		(m_cellSize.y*cs.y)		 )	);
 	if(!m_pParentDragDropList->GetVirtualCells())
-		itm->SetWndPos			( Fvector2().set( ((m_cellSpacing.x+m_cellSize.x)*cell_pos.x), ((m_cellSpacing.y+m_cellSize.y)*cell_pos.y))	);
+		itm->SetWndPos		( Fvector2().set( ((m_cellSpacing.x+m_cellSize.x)*cell_pos.x), ((m_cellSpacing.y+m_cellSize.y)*cell_pos.y))	);
 	else
 	{
 		Ivector2 alignment_vec	= m_pParentDragDropList->GetVirtualCellsAlignment();
@@ -980,4 +983,3 @@ void CUICellContainer::clear_select_armament()
 		}
 	}
 }
-

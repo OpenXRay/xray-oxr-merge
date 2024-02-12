@@ -1,3 +1,11 @@
+// File:		UILines.h
+// Description:	Multilines Text Control
+// Created:		11.03.2005
+// Author:		Serge Vynnycheko
+// Mail:		narrator@gsc-game.kiev.ua
+//
+// Copyright 2005 GSC Game World
+
 #pragma once
 
 #include "UILine.h"

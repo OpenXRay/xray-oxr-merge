@@ -4,8 +4,6 @@
 
 #include "GameSpy_QR2_callbacks.h"
 
-//#include "../../xrNetServer/NET_utils.h"
-
 CGameSpy_QR2::CGameSpy_QR2()
 {
 	//-------------------------------
@@ -51,6 +49,7 @@ void	CGameSpy_QR2::LoadGameSpy(HMODULE hGameSpyDLL)
 	GAMESPY_LOAD_FN(xrGS_qr2_register_natneg_callback);
 	GAMESPY_LOAD_FN(xrGS_qr2_register_clientmessage_callback);
 	GAMESPY_LOAD_FN(xrGS_qr2_register_publicaddress_callback);
+	GAMESPY_LOAD_FN(xrGS_qr2_register_denyresponsetoip_callback);
 
 	GAMESPY_LOAD_FN(xrGS_qr2_init);
 
@@ -118,6 +117,7 @@ void	CGameSpy_QR2::RegisterAdditionalKeys	()
 	//---- Team keys
 //	xrGS_qr2_register_key(T_NAME_KEY,					("t_name_key"));
 	xrGS_qr2_register_key(T_SCORE_T_KEY,					("t_score_t"));
+	xrGS_qr2_register_key(SERVER_UP_TIME_KEY,			("server_up_time"));
 };
 
 //bool	CGameSpy_QR2::Init		(u32 PortID, int Public, void* instance)
@@ -127,9 +127,19 @@ bool	CGameSpy_QR2::Init		(int PortID, int Public, void* instance)
 	//call qr_init with the query port number and gamename, default IP address, and no user data
 	
 //	if (xrGS_qr2_init(NULL,NULL,PortID, GAMESPY_GAMENAME, m_SecretKey, Public, 0,
-	if (xrGS_qr2_init(NULL,NULL,PortID, Public, 0,
-		callback_serverkey, callback_playerkey, callback_teamkey,
-		callback_keylist, callback_count, callback_adderror, instance) != e_qrnoerror)
+	qr2_error_t err = xrGS_qr2_init(NULL,NULL,PortID, Public, 0,
+									callback_serverkey, 
+									callback_playerkey, 
+									callback_teamkey,
+									callback_keylist, 
+									callback_count, 
+									callback_adderror, 
+									instance);
+#ifndef MASTER_GOLD
+	Msg("xrGS::xrGS_qr2_init returned code is [%d]", err);
+#endif // #ifndef MASTER_GOLD
+	
+	if (err != e_qrnoerror)
 	{
 		//		_tprintf(_T("Error starting query sockets\n"));
 		Msg("xrGS::QR2 : Failes to Initialize!");
@@ -144,7 +154,13 @@ bool	CGameSpy_QR2::Init		(int PortID, int Public, void* instance)
 	// Set a function to be called when we receive a nat negotiation request
 	xrGS_qr2_register_natneg_callback(NULL, callback_nn);
 
+	//Set a function to be called when gamespy responds my IP and port number
+	//xrGS_qr2_register_publicaddress_callback(NULL, callback_public);
+	xrGS_qr2_register_denyresponsetoip_callback(NULL, callback_deny_ip);
+
+#ifndef MASTER_GOLD
 	Msg("xrGS::QR2 : Initialized");
+#endif // #ifndef MASTER_GOLD
 	return true;
 };
 

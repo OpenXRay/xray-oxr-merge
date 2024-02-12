@@ -16,7 +16,7 @@ CUITrackBar::CUITrackBar()
 	: m_f_min(0),
 	  m_f_max(1),
 	  m_f_val(0),
-	  m_f_back_up(0),
+	  m_f_opt_backup_value(0),
 	 m_f_step(0.01f),
 	m_b_is_float(true),
 	m_b_invert(false)
@@ -95,16 +95,6 @@ void CUITrackBar::InitTrackBar(Fvector2 pos, Fvector2 size)
 	m_pSlider->InitTexture(SLIDER_TEXTURE);
 }	
 
-void CUITrackBar::SetCurrentValue()
-{
-	if(m_b_is_float)
-		GetOptFloatValue	(m_f_val, m_f_min, m_f_max);
-	else
-		GetOptIntegerValue		(m_i_val, m_i_min, m_i_max);
-
-	UpdatePos			();
-}
-
 void CUITrackBar::Draw()
 {
 	CUIWindow::Draw();
@@ -119,6 +109,17 @@ void CUITrackBar::Update()
 		if(!pInput->iGetAsyncBtnState(0))
 			m_b_mouse_capturer = false;
 	}
+}
+
+void CUITrackBar::SetCurrentOptValue()
+{
+	CUIOptionsItem::SetCurrentOptValue();
+	if(m_b_is_float)
+		GetOptFloatValue	(m_f_val, m_f_min, m_f_max);
+	else
+		GetOptIntegerValue		(m_i_val, m_i_min, m_i_max);
+
+	UpdatePos			();
 }
 
 void CUITrackBar::SaveOptValue()

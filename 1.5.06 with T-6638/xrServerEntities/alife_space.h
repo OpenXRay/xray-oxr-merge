@@ -8,16 +8,17 @@
 
 #ifndef XRAY_ALIFE_SPACE
 #define XRAY_ALIFE_SPACE
+//#include "../xrcore/_std_extensions.h"
 
 // ALife objects, events and tasks
-#define ALIFE_VERSION				0x0005
+#define ALIFE_VERSION				0x0006
 #define ALIFE_CHUNK_DATA			0x0000
 #define SPAWN_CHUNK_DATA			0x0001
 #define OBJECT_CHUNK_DATA			0x0002
 #define GAME_TIME_CHUNK_DATA		0x0005
 #define REGISTRY_CHUNK_DATA			0x0009
 #define SECTION_HEADER				"location_"
-#define SAVE_EXTENSION				".sav"
+#define SAVE_EXTENSION				".scop"
 #define SPAWN_NAME					"game.spawn"
 // inventory rukzak size
 #define MAX_ITEM_VOLUME				100
@@ -148,6 +149,8 @@ namespace ALife {
 	{
 		if (!stricmp(caHitType,"burn"))
 			return(eHitTypeBurn);
+		else if (!stricmp(caHitType,"light_burn"))
+			return(eHitTypeLightBurn);
 		else if (!stricmp(caHitType,"shock"))
 				return(eHitTypeShock);
 		else if (!stricmp(caHitType,"strike"))
@@ -173,13 +176,14 @@ namespace ALife {
 		return(eHitTypeMax);
 #endif
 	}
+#ifndef	_EDITOR
 xr_token							hit_types_token							[ ];
 
 	IC LPCSTR g_cafHitType2String(EHitType tHitType)
 	{
 		return get_token_name(hit_types_token, tHitType);
 	}
-
+#endif
 	DEFINE_VECTOR	(int,						INT_VECTOR,						INT_IT);
 	DEFINE_VECTOR	(_OBJECT_ID,				OBJECT_VECTOR,					OBJECT_IT);
 	DEFINE_VECTOR	(CSE_ALifeInventoryItem*,	ITEM_P_VECTOR,					ITEM_P_IT);

@@ -106,7 +106,7 @@ static active_objects_t::size_type get_active_objects(active_objects_t & dest)
 				if (std::find_if(dest.begin(), dest.end(), tmp_predicate) == dest.end())
 				{
 					dest.push_back(tmp_cartridge);
-				};
+				}
 			}
 		}
 	}

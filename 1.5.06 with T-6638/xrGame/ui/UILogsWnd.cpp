@@ -83,9 +83,7 @@ void CUILogsWnd::Update()
 		}
 	}
 	if ( m_need_reload )
-	{
 		ReLoadNews();
-	}
 
 }
 
@@ -155,10 +153,13 @@ void itemToCache(CUIWindow* w)
 	w->SetAutoDelete	(false);
 	w->SetParent		(NULL);
 }
+
+extern CActor* g_actor;
+
 void CUILogsWnd::ReLoadNews()
 {
 	m_news_in_queue.clear();
-	if ( !Actor() )
+	if ( !g_actor )
 	{
 		m_need_reload	= false;
 		return;
@@ -222,7 +223,6 @@ void CUILogsWnd::PerformWork()
 	if(!m_news_in_queue.empty())
 	{
 		u32 count = _min(30, m_news_in_queue.size());
-//.		u32 count = m_news_in_queue.size();
 		for(u32 i=0; i<count;++i)
 		{
 			GAME_NEWS_VECTOR& news_vector = Actor()->game_news_registry->registry().objects();
@@ -233,16 +233,6 @@ void CUILogsWnd::PerformWork()
 			AddNewsItem					( gn, NULL );
 		}
 	}
-/*	else
-	{
-		s32 cnt = m_items_cache.size()+m_list->GetSize();
-
-		if(cnt<1000)
-		{
-			for(s32 i=0; i<_min(10,1000-cnt); ++i)
-				m_items_cache.push_back(CreateItem());
-		}
-	}*/
 }
 
 CUIWindow*	CUILogsWnd::CreateItem()
@@ -321,7 +311,7 @@ ALife::_TIME_ID CUILogsWnd::GetShiftPeriod( ALife::_TIME_ID datetime, int shift_
 	return datetime;
 }
 
-bool CUILogsWnd::OnKeyboard( int dik, EUIMessages keyboard_action )
+bool CUILogsWnd::OnKeyboardAction( int dik, EUIMessages keyboard_action )
 {
 	if ( keyboard_action == WINDOW_KEY_PRESSED )
 	{
@@ -344,7 +334,7 @@ bool CUILogsWnd::OnKeyboard( int dik, EUIMessages keyboard_action )
 		}
 	}
 	m_ctrl_press = false;
-	return inherited::OnKeyboard( dik, keyboard_action );
+	return inherited::OnKeyboardAction( dik, keyboard_action );
 }
 
 bool CUILogsWnd::OnKeyboardHold( int dik )

@@ -11,7 +11,7 @@
 #include "UIListWnd.h"
 #include "UIDialogWnd.h"
 
-class CUIDebugFonts : public CUIDialogWnd 
+class CUIDebugFonts : public CUIDialogWnd
 {
 public:
 				CUIDebugFonts		();

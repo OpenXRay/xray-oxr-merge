@@ -33,7 +33,8 @@ CGameSpy_Patching::~CGameSpy_Patching()
 };
 void	CGameSpy_Patching::LoadGameSpy(HMODULE hGameSpyDLL)
 {	
-	GAMESPY_LOAD_FN(xrGS_ptCheckForPatch);
+	GAMESPY_LOAD_FN(xrGS_ptCheckForPatchA);
+	GAMESPY_LOAD_FN(xrGS_ptTrackUsageA);
 }
 
 
@@ -56,7 +57,7 @@ static char const * QueryPatchVersionString(char* dest, u32 dest_size)
 	//KeyValueType = REG_SZ;
 	RegQueryValueEx(KeyCDKey, REGISTRY_VALUE_LANGUAGE, NULL, &KeyValueType, (LPBYTE)LangID, &KeyValueSize);
 
-	sprintf_s(dest, dest_size, "-%s", LangID);
+	xr_sprintf(dest, dest_size, "-%s", LangID);
 		
 	RegCloseKey(KeyCDKey);
 	return dest;
@@ -70,7 +71,7 @@ static char const * ModifyDownloadUrl(char* dest, u32 dest_size, char const * or
 	if (!origDownloadUrl)
 		return "";
 
-	strcpy_s(dest, dest_size, origDownloadUrl);
+	xr_strcpy(dest, dest_size, origDownloadUrl);
 	u32 url_size = xr_strlen(dest);
 	if (url_size < PATCH_SUFFIX_SIZE)
 		return dest;
@@ -90,8 +91,8 @@ static char const * ModifyDownloadUrl(char* dest, u32 dest_size, char const * or
 
 	*suffix_ptr = 0;
 	string256 tmp_append_str;
-	strcat_s(dest, dest_size, QueryPatchVersionString(tmp_append_str, sizeof(tmp_append_str)));
-	strcat_s(dest, dest_size, PATCH_SUFFIX);
+	xr_strcat(dest, dest_size, QueryPatchVersionString(tmp_append_str, sizeof(tmp_append_str)));
+	xr_strcat(dest, dest_size, PATCH_SUFFIX);
 	return dest;
 };
 
@@ -122,7 +123,7 @@ void __cdecl GS_ptPatchCallback ( PTBool available, PTBool mandatory, const char
 void	CGameSpy_Patching::CheckForPatch(bool InformOfNoPatch)
 {
 	g_bInformUserThatNoPatchFound = InformOfNoPatch;
-	bool res =  xrGS_ptCheckForPatch(
+	bool res =  xrGS_ptCheckForPatchA(
 		GS_ptPatchCallback,
 		PTFalse,
 		this

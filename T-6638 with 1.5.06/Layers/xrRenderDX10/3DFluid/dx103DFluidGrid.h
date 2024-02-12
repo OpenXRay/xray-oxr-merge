@@ -34,10 +34,10 @@ private:
 	int			m_iCols;
 	int			m_iRows;
 
-	ref_geom		m_GeomRenderQuad;
-	ref_geom		m_GeomSlices;
-	ref_geom		m_GeomBoundarySlices;
-	ref_geom		m_GeomBoundaryLines;
+	ref_geom	m_GeomRenderQuad;
+	ref_geom	m_GeomSlices;
+	ref_geom	m_GeomBoundarySlices;
+	ref_geom	m_GeomBoundaryLines;
 
 	ID3DBuffer*	m_pRenderQuadBuffer;
 	ID3DBuffer*	m_pSlicesBuffer;

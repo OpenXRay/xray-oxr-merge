@@ -588,7 +588,3 @@ void CSoundRender_Core::set_environment	(u32 id, CSound_environment** dst_env)
 	}
 }
 #endif
-
-
-
-

@@ -7,7 +7,6 @@
 #include "soundrender_targetA.h"
 
 extern	u32				psSoundModel;
-extern	u32				psSoundFreq;
 extern	float			psSoundVEffects;
 
 void CSoundRender_Emitter::set_position(const Fvector &pos)	

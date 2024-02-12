@@ -20,11 +20,16 @@ public:
 
 	void	ClearStateArray();
 
-	SHandle	GetState( D3D10_SAMPLER_DESC& desc );
+	SHandle	GetState( D3D_SAMPLER_DESC& desc );
 
 	void	VSApplySamplers(HArray &samplers);
 	void	PSApplySamplers(HArray &samplers);
 	void	GSApplySamplers(HArray &samplers);
+#ifdef USE_DX11
+	void	HSApplySamplers(HArray &samplers);
+	void	DSApplySamplers(HArray &samplers);
+	void	CSApplySamplers(HArray &samplers);
+#endif
 
 	void	SetMaxAnisotropy( UINT uiMaxAniso);
 
@@ -33,8 +38,8 @@ public:
 
 	//	Private declarations
 private:
-	typedef	ID3D10SamplerState	IDeviceState;
-	typedef	D3D10_SAMPLER_DESC	StateDecs;
+	typedef	ID3DSamplerState	IDeviceState;
+	typedef	D3D_SAMPLER_DESC	StateDecs;
 
 	struct StateRecord 
 	{
@@ -48,8 +53,8 @@ private:
 
 	void	PrepareSamplerStates(
 		HArray &samplers, 
-		ID3D10SamplerState	*pSS[D3D10_COMMONSHADER_SAMPLER_SLOT_COUNT],
-		SHandle pCurrentState[D3D10_COMMONSHADER_SAMPLER_SLOT_COUNT],
+		ID3DSamplerState	*pSS[D3D_COMMONSHADER_SAMPLER_SLOT_COUNT],
+		SHandle pCurrentState[D3D_COMMONSHADER_SAMPLER_SLOT_COUNT],
 		u32	&uiMin,
 		u32	&uiMax
 	) const;
@@ -59,9 +64,14 @@ private:
 	//	This must be cleared on device destroy
 	xr_vector<StateRecord>	m_StateArray;
 
-	SHandle					m_aPSSamplers[D3D10_COMMONSHADER_SAMPLER_SLOT_COUNT];
-	SHandle					m_aVSSamplers[D3D10_COMMONSHADER_SAMPLER_SLOT_COUNT];
-	SHandle					m_aGSSamplers[D3D10_COMMONSHADER_SAMPLER_SLOT_COUNT];
+	SHandle					m_aPSSamplers[D3D_COMMONSHADER_SAMPLER_SLOT_COUNT];
+	SHandle					m_aVSSamplers[D3D_COMMONSHADER_SAMPLER_SLOT_COUNT];
+	SHandle					m_aGSSamplers[D3D_COMMONSHADER_SAMPLER_SLOT_COUNT];
+#ifdef USE_DX11
+	SHandle					m_aHSSamplers[D3D_COMMONSHADER_SAMPLER_SLOT_COUNT];
+	SHandle					m_aDSSamplers[D3D_COMMONSHADER_SAMPLER_SLOT_COUNT];
+	SHandle					m_aCSSamplers[D3D_COMMONSHADER_SAMPLER_SLOT_COUNT];
+#endif
 
 	u32						m_uiMaxAnisotropy;
 };

@@ -14,7 +14,6 @@ class ui_actor_state_wnd;
 class CUIItemInfo;
 class CUIFrameLineWnd;
 class CUIStatic;
-class CUITextWnd;
 class CUI3tButton;
 class CInventoryOwner;
 class CInventoryBox;
@@ -126,12 +125,12 @@ protected:
 	CInventoryOwner*			m_pPartnerInvOwner;
 	CInventoryBox*				m_pInvBox;
 
-	CUITextWnd*					m_ActorMoney;
-	CUITextWnd*					m_PartnerMoney;
-	CUITextWnd*					m_QuickSlot1;
-	CUITextWnd*					m_QuickSlot2;
-	CUITextWnd*					m_QuickSlot3;
-	CUITextWnd*					m_QuickSlot4;
+	CUIStatic*					m_ActorMoney;
+	CUIStatic*					m_PartnerMoney;
+	CUIStatic*					m_QuickSlot1;
+	CUIStatic*					m_QuickSlot2;
+	CUIStatic*					m_QuickSlot3;
+	CUIStatic*					m_QuickSlot4;
 	
 	CUIProgressBar*				m_WeaponSlot1_progress;
 	CUIProgressBar*				m_WeaponSlot2_progress;
@@ -139,24 +138,24 @@ protected:
 	CUIProgressBar*				m_Outfit_progress;
 	// bottom ---------------------------------
 	CUIStatic*					m_ActorBottomInfo;
-	CUITextWnd*					m_ActorWeight;
-	CUITextWnd*					m_ActorWeightMax;
+	CUIStatic*					m_ActorWeight;
+	CUIStatic*					m_ActorWeightMax;
 	
 	CUIStatic*					m_PartnerBottomInfo;
-	CUITextWnd*					m_PartnerWeight;
+	CUIStatic*					m_PartnerWeight;
 	float						m_PartnerWeight_end_x;
 //*	CUIStatic*					m_PartnerWeightMax;
 
 	// delimiter ------------------------------
 	CUIStatic*					m_LeftDelimiter;
-//	CUITextWnd*					m_PartnerTradeCaption;
-	CUITextWnd*					m_PartnerTradePrice;
-	CUITextWnd*					m_PartnerTradeWeightMax;
+//	CUIStatic*					m_PartnerTradeCaption;
+	CUIStatic*					m_PartnerTradePrice;
+	CUIStatic*					m_PartnerTradeWeightMax;
 
 	CUIStatic*					m_RightDelimiter;
-//	CUITextWnd*					m_ActorTradeCaption;
-	CUITextWnd*					m_ActorTradePrice;
-	CUITextWnd*					m_ActorTradeWeightMax;
+//	CUIStatic*					m_ActorTradeCaption;
+	CUIStatic*					m_ActorTradePrice;
+	CUIStatic*					m_ActorTradeWeightMax;
 
 	CTrade*						m_actor_trade;
 	CTrade*						m_partner_trade;
@@ -311,8 +310,8 @@ public:
 	virtual void				Update						();
 	virtual void				Show						(bool status);
 
-	virtual bool				OnKeyboardAction					(int dik, EUIMessages keyboard_action);
-	virtual bool				OnMouseAction						(float x, float y, EUIMessages mouse_action);
+	virtual bool				OnKeyboardAction			(int dik, EUIMessages keyboard_action);
+	virtual bool				OnMouseAction				(float x, float y, EUIMessages mouse_action);
 
 	void						CallMessageBoxYesNo			(LPCSTR text);
 	void						CallMessageBoxOK			(LPCSTR text);

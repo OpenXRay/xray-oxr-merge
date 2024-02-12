@@ -15,7 +15,8 @@ CUIMessageBoxEx::~CUIMessageBoxEx(){
 	xr_delete(m_pMessageBox);
 }
 
-void CUIMessageBoxEx::Init(LPCSTR xml_template){
+void CUIMessageBoxEx::Init(LPCSTR xml_template)
+{
 	CUIDialogWnd::Init(0,0,1024,768);
 	m_pMessageBox->Init(xml_template);
 }

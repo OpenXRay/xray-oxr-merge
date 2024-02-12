@@ -41,7 +41,7 @@ void CSoundRender_Source::decompress		(u32 line, OggVorbis_File* ovf)
 	// decompression of one cache-line
 	u32		line_size		= SoundRender->cache.get_linesize();
 	char*	dest			= (char*)	SoundRender->cache.get_dataptr	(CAT,line);
-	u32		buf_offs		= (psSoundFreq==sf_22K)?(line*line_size):(line*line_size)/2;
+	u32		buf_offs		= (line*line_size) / 2 / m_wformat.nChannels;
 	u32		left_file		= dwBytesTotal - buf_offs;
 	u32		left			= (u32)_min	(left_file,line_size);
 
@@ -51,8 +51,7 @@ void CSoundRender_Source::decompress		(u32 line, OggVorbis_File* ovf)
 		ov_pcm_seek			(ovf,buf_offs);
 
 	// decompress
-	if (psSoundFreq==sf_22K)i_decompress_hr(ovf,dest,left);
-	else					i_decompress_fr(ovf,dest,left);
+	i_decompress_fr(ovf,dest,left);
 }
 
 void CSoundRender_Source::LoadWave	(LPCSTR pName)
@@ -80,12 +79,15 @@ void CSoundRender_Source::LoadWave	(LPCSTR pName)
 
 	ZeroMemory					( &m_wformat, sizeof( WAVEFORMATEX ) );
 
+	m_wformat.nSamplesPerSec	= (ovi->rate); //44100;
+	m_wformat.wFormatTag		= WAVE_FORMAT_PCM;
 	m_wformat.nChannels			= u16(ovi->channels);
+	m_wformat.wBitsPerSample	= 16;
+
 	m_wformat.nBlockAlign		= m_wformat.wBitsPerSample / 8 * m_wformat.nChannels;
 	m_wformat.nAvgBytesPerSec	= m_wformat.nSamplesPerSec * m_wformat.nBlockAlign;
 
 	s64 pcm_total				= ov_pcm_total(&ovf,-1);
-	if (psSoundFreq==sf_22K) pcm_total/=2;
 	dwBytesTotal				= u32(pcm_total*m_wformat.nBlockAlign); 
 	fTimeTotal					= s_f_def_source_footer + dwBytesTotal/float(m_wformat.nAvgBytesPerSec);
 

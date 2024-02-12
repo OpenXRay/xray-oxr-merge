@@ -32,8 +32,8 @@ bool CUIListWnd::AddItem(Element* pItem, int insertBeforeIdx)
 {	
 	AttachChild(pItem);
 
-	pItem->Init(pItem->GetWndRect().left, m_bVertFlip?GetHeight()-GetItemsCount()* m_iItemHeight-m_iItemHeight:GetItemsCount()* m_iItemHeight, 
-		m_iItemWidth, m_iItemHeight);
+	pItem->InitListItem(Fvector2().set(pItem->GetWndRect().left, m_bVertFlip?GetHeight()-GetItemsCount()*m_iItemHeight-m_iItemHeight:GetItemsCount()* m_iItemHeight), 
+		Fvector2().set(m_iItemWidth, m_iItemHeight) );
 
 
 	//добавление в конец или начало списка

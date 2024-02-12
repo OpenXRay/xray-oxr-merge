@@ -906,7 +906,7 @@ void CActor::g_Physics			(Fvector& _accel, float jump, float dt)
 		}
 	}
 }
-float g_fov = 55.0f;
+float g_fov = 67.5f;
 
 float CActor::currentFOV()
 {
@@ -1064,7 +1064,7 @@ void CActor::UpdateCL	()
 float	NET_Jump = 0;
 void CActor::set_state_box(u32	mstate)
 {
-		if ( mstate & mcCrouch)
+	if ( mstate & mcCrouch)
 	{
 		if (isActorAccelerated(mstate_real, IsZoomAimingMode()))
 			character_physics_support()->movement()->ActivateBox(1, true);
@@ -1198,8 +1198,6 @@ void CActor::shedule_Update	(u32 DT)
 			g_SetAnimation				(mstate_real);
 			
 			set_state_box(NET_Last.mstate);
-
-
 		}	
 		mstate_old = mstate_real;
 	}
@@ -1225,7 +1223,8 @@ void CActor::shedule_Update	(u32 DT)
 	//звук тяжелого дыхания при уталости и хромании
 	if(this==Level().CurrentControlEntity() && !g_dedicated_server )
 	{
-		if(conditions().IsLimping() && g_Alive() && !psActorFlags.test(AF_GODMODE_RT)){
+		if(conditions().IsLimping() && g_Alive() && !psActorFlags.test(AF_GODMODE_RT))
+		{
 			if(!m_HeavyBreathSnd._feedback()){
 				m_HeavyBreathSnd.play_at_pos(this, Fvector().set(0,ACTOR_HEIGHT,0), sm_Looped | sm_2D);
 			}else{

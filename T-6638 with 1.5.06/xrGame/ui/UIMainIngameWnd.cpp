@@ -192,7 +192,7 @@ void CUIMainIngameWnd::Init()
 	if ( (GameID() == eGameIDArtefactHunt) || (GameID() == eGameIDCaptureTheArtefact) )
 	{
 		UIArtefactIcon			= UIHelper::CreateStatic(uiXml, "artefact_static", NULL);
-		UIArtefactIcon->Show		(false);
+		UIArtefactIcon->Show	(false);
 	}
 	
 	shared_str warningStrings[7] = 
@@ -605,7 +605,6 @@ void CUIMainIngameWnd::UpdatePickUpItem	()
 	texture_rect.rb.add		(texture_rect.lt);
 	UIPickUpItemIcon->GetStaticItem()->SetTextureRect(texture_rect);
 	UIPickUpItemIcon->SetStretchTexture(true);
-
 
 	UIPickUpItemIcon->SetWidth(m_iGridWidth*INV_GRID_WIDTH*scale*UI().get_current_kx());
 	UIPickUpItemIcon->SetHeight(m_iGridHeight*INV_GRID_HEIGHT*scale);

@@ -299,7 +299,8 @@ int __cdecl callback_count(qr2_key_type keytype, void *userdata)
 	case key_team:
 		{
 			if (!pServer->game) return 0;
-			switch (pServer->game->Type()) {
+			switch (pServer->game->Type())
+			{
 				case eGameIDDominationZone:
 				case eGameIDDeathmatch:
 					return 1;
@@ -371,3 +372,4 @@ void __cdecl callback_public(unsigned int ip, unsigned short port, void* userdat
 		userdata
 	);
 }*/
+

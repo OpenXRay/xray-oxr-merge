@@ -15,7 +15,6 @@ Flags32	psSoundFlags			= {ss_Hardware | ss_EAX};
 float	psSoundOcclusionScale	= 0.5f;
 float	psSoundCull				= 0.01f;
 float	psSoundRolloff			= 0.75f;
-u32		psSoundFreq				= sf_44K;
 u32		psSoundModel			= 0;
 float	psSoundVEffects			= 1.0f;
 float	psSoundVFactor			= 1.0f;
@@ -72,7 +71,7 @@ void CSoundRender_Core::_initialize(int stage)
 	bPresent					= TRUE;
 
 	// Cache
-	cache_bytes_per_line		= (sdef_target_block/8)*wfm.nAvgBytesPerSec/1000;
+	cache_bytes_per_line		= (sdef_target_block/8)*276400/1000;
     cache.initialize			(psSoundCacheSizeMB*1024,cache_bytes_per_line);
 
     bReady						= TRUE;
@@ -589,6 +588,3 @@ void CSoundRender_Core::set_environment	(u32 id, CSound_environment** dst_env)
 	}
 }
 #endif
-
-
-

@@ -15,6 +15,7 @@ xr_token							hit_types_token							[ ]={
 	{ "explosion",					eHitTypeExplosion							},
 	{ "wound_2",					eHitTypeWound_2								},
 	{ "physic_strike",				eHitTypePhysicStrike						},
+	{ "light_burn",					eHitTypeLightBurn							},
 	{ 0,							0											}
 };
 

@@ -43,7 +43,5 @@ protected:
 	Fvector2			inprogress_edit_pos;
 	Fvector2			inprogress_edit_wnd_size;
 
-
-
 	game_cl_GameState	*pOwner;
 };

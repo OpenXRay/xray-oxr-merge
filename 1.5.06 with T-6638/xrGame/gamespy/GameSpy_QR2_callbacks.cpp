@@ -12,7 +12,7 @@
 #define ADD_KEY_VAL(g, q, qf, o, gf)		{if (g) {q->qf(o, g->gf);} else q->BufferAdd(o, "");}
 #define ADD_KEY_VAL_INT(g, q, qf, o, gf)		{if (g) {q->qf(o, int(g->gf));} else q->BufferAdd(o, "");}
 extern u32 g_sv_dwMaxClientPing;
-void __cdecl callback_serverkey(int keyid, void* outbuf, void *userdata)
+void __cdecl callback_serverkey(int keyid, qr2_buffer_t outbuf, void *userdata)
 {
 	if (!userdata) return;
 	xrGameSpyServer* pServer = (xrGameSpyServer*) userdata;
@@ -115,7 +115,7 @@ void __cdecl callback_serverkey(int keyid, void* outbuf, void *userdata)
 	//GSI_UNUSED(userdata);
 };
 
-void __cdecl callback_playerkey(int keyid, int index, void* outbuf, void *userdata)
+void __cdecl callback_playerkey(int keyid, int index, qr2_buffer_t outbuf, void *userdata)
 {
 	xrGameSpyServer* pServer = (xrGameSpyServer*) userdata;
 	if (!pServer) return;
@@ -179,7 +179,7 @@ void __cdecl callback_playerkey(int keyid, int index, void* outbuf, void *userda
 	}
 };
 
-void __cdecl callback_teamkey(int keyid, int index, void* outbuf, void *userdata)
+void __cdecl callback_teamkey(int keyid, int index, qr2_buffer_t outbuf, void *userdata)
 {
 	xrGameSpyServer* pServer = (xrGameSpyServer*) userdata;
 	if (!pServer) return;
@@ -200,7 +200,7 @@ void __cdecl callback_teamkey(int keyid, int index, void* outbuf, void *userdata
 	};
 };
 
-void __cdecl callback_keylist(qr2_key_type keytype, void* keybuffer, void *userdata)
+void __cdecl callback_keylist(qr2_key_type keytype, qr2_keybuffer_t keybuffer, void *userdata)
 {
 	if (!userdata) return;
 	xrGameSpyServer* pServer = (xrGameSpyServer*) userdata;
@@ -319,7 +319,7 @@ int __cdecl callback_count(qr2_key_type keytype, void *userdata)
 	//return 0;
 };
 
-void __cdecl callback_adderror(qr2_error_t error, char *errmsg, void *userdata)
+void __cdecl callback_adderror(qr2_error_t error, gsi_char *errmsg, void *userdata)
 {
 	Msg("! Error while adding this server to master list ->%s.", errmsg);
 	xrGameSpyServer* pServer = (xrGameSpyServer*) userdata;

@@ -1,28 +1,18 @@
 #include "stdafx.h"
 #include "UIXmlInit.h"
-#include "../hudmanager.h"
-#include "../UI.h"
 #include "../level.h"
-#include "../UICustomItem.h"
-
 #include "../string_table.h"
 #include "UIFrameWindow.h"
-#include "UIStatic.h"
 #include "UICheckButton.h"
 #include "UICustomSpin.h"
 #include "UIRadioButton.h"
 #include "UIProgressBar.h"
 #include "UIProgressShape.h"
-#include "UIListWnd.h"
 #include "UITabControl.h"
 #include "UILabel.h"
-#include "UIEditBox.h"
-#include "UIEditBoxEx.h"
-#include "UITextBanner.h"
-#include "UIMultiTextStatic.h"
 #include "UIAnimatedStatic.h"
 #include "uixmlinit.h"
-#include "UIListBox.h" //#include "UIScrollView.h"
+#include "UIListBox.h"
 #include "UIComboBox.h"
 #include "UITrackBar.h"
 #include "UIHint.h"
@@ -30,7 +20,9 @@
 
 #include "UITextureMaster.h"
 #include "UIDragDropListEx.h"
+#include "UIDragDropReferenceList.h"
 #include "UItabButtonMP.h"
+#include "UILines.h"
 
 extern int keyname_to_dik(LPCSTR);
 
@@ -229,6 +221,8 @@ bool CUIXmlInit::InitStatic(CUIXml& xml_doc, LPCSTR path,
 	if(bComplexMode)
 		pWnd->SetTextComplexMode(bComplexMode);
 	
+	pWnd->m_stat_hint_text = xml_doc.ReadAttrib(path, index, "hint", "");
+	
 	return true;
 }
 
@@ -241,7 +235,32 @@ bool CUIXmlInit::InitCheck(CUIXml& xml_doc, LPCSTR path, int index, CUICheckButt
 	LPCSTR texture = xml_doc.Read(buf, index, "ui_checker");
 
 	pWnd->InitCheckButton(pWnd->GetWndPos(),pWnd->GetWndSize(),texture);
-	pWnd->init_hint_wnd_xml(xml_doc, path);
+
+	u32 color;
+	strconcat(sizeof(buf),buf,path,":text_color:e");
+	if (xml_doc.NavigateToNode(buf,index)){
+		color			= GetColor(xml_doc, buf, index, 0x00);
+		pWnd->SetStateTextColor(color, S_Enabled);
+	}
+
+	strconcat(sizeof(buf),buf,path,":text_color:d");
+	if (xml_doc.NavigateToNode(buf,index)){
+		color			= GetColor(xml_doc, buf, index, 0x00);
+		pWnd->SetStateTextColor(color,S_Disabled);
+	}
+
+	strconcat(sizeof(buf),buf,path,":text_color:t");
+	if (xml_doc.NavigateToNode(buf, index)){
+		color			= GetColor(xml_doc, buf, index, 0x00);
+		pWnd->SetStateTextColor(color,S_Touched);
+	}
+
+	strconcat(sizeof(buf),buf,path,":text_color:h");
+	if (xml_doc.NavigateToNode(buf,index)){
+		color			= GetColor(xml_doc, buf, index, 0x00);
+		pWnd->SetStateTextColor(color,S_Highlighted);
+	}
+
 	InitOptionsItem(xml_doc, path, index, pWnd);
 
 	return true;
@@ -404,14 +423,6 @@ bool CUIXmlInit::Init3tButton(CUIXml& xml_doc, LPCSTR path, int index, CUI3tButt
 	if(text_hint)
 		pWnd->m_hint_text	= CStringTable().translate(text_hint);
 
-	return true;
-}
-
-bool CUIXmlInit::Init3tButtonEx(CUIXml& xml_doc, LPCSTR path, int index, CUI3tButtonEx* pWnd)
-{
-	R_ASSERT4(xml_doc.NavigateToNode(path,index), "XML node not found", path, xml_doc.m_xml_file_name);
-
-	pWnd->init_from_xml( xml_doc, path );
 	return true;
 }
 
@@ -686,7 +697,7 @@ bool CUIXmlInit::InitProgressBar(CUIXml& xml_doc, LPCSTR path,
 bool CUIXmlInit::InitProgressShape(CUIXml& xml_doc, LPCSTR path, int index, CUIProgressShape* pWnd){
 	R_ASSERT4(xml_doc.NavigateToNode(path,index), "XML node not found", path, xml_doc.m_xml_file_name);
 
-	InitWindow						(xml_doc, path, index, pWnd);
+	InitStatic						(xml_doc, path, index, pWnd);
 
 	if (xml_doc.ReadAttribInt(path, index, "text"))
 		pWnd->SetTextVisible(		true);
@@ -697,6 +708,7 @@ bool CUIXmlInit::InitProgressShape(CUIXml& xml_doc, LPCSTR path, int index, CUIP
 		InitStatic(xml_doc, _path, index, pWnd->m_pBackground);
 
 
+	if (xml_doc.NavigateToNode(strconcat(sizeof(_path),_path, path, ":front"),index))
     InitStatic(xml_doc, strconcat(sizeof(_path),_path, path, ":front"), index, pWnd->m_pTexture);
 
 	pWnd->m_sectorCount	= xml_doc.ReadAttribInt(path, index, "sector_count", 8);
@@ -1090,18 +1102,7 @@ bool CUIXmlInit::InitTexture(CUIXml& xml_doc, LPCSTR path, int index, IUIMultiTe
 			pWnd->InitTextureEx(texture, shader);
 		else
 	       pWnd->InitTexture(texture);
-
-		return true;
 	}
-
-	return false;
-}
-
-bool CUIXmlInit::InitTexture(CUIXml& xml_doc, LPCSTR path, int index, IUISingleTextureOwner* pWnd)
-{
-	string256 buf;
-	InitTexture(xml_doc, path, index, (IUIMultiTextureOwner*)pWnd);
-	strconcat(sizeof(buf),buf, path, ":texture");
 
 	Frect rect;
 	rect.x1			= xml_doc.ReadAttribFlt(buf, index, "x", 0);

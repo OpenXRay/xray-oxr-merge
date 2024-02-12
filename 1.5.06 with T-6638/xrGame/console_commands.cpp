@@ -285,6 +285,32 @@ public:
 			Level().SetGameTimeFactor(id1);
 		}
 	}
+	
+	virtual void	Save	(IWriter *F)	{};
+	virtual void	Status	(TStatus& S)
+	{	
+		if ( !g_pGameLevel )	return;
+
+		float v = Level().GetGameTimeFactor();
+		xr_sprintf	(S,sizeof(S),"%3.5f", v);
+		while	(xr_strlen(S) && ('0'==S[xr_strlen(S)-1]))	S[xr_strlen(S)-1] = 0;
+	}
+	virtual void	Info	(TInfo& I)
+	{	
+		if (!OnServer())	return;
+		float v = Level().GetGameTimeFactor();
+		xr_sprintf(I,sizeof(I)," value = %3.5f", v);
+	}
+	virtual void	fill_tips(vecTips& tips, u32 mode)
+	{
+		if (!OnServer())	return;
+		float v = Level().GetGameTimeFactor();
+
+		TStatus  str;
+		xr_sprintf( str, sizeof(str), "%3.5f  (current)  [0.0,1000.0]", v );
+		tips.push_back( str );
+		IConsole_Command::fill_tips( tips, mode );
+	}
 };
 
 class CCC_ALifeSwitchDistance : public IConsole_Command {
@@ -369,15 +395,16 @@ public:
 	CCC_DemoRecord(LPCSTR N) : IConsole_Command(N) {};
 	virtual void Execute(LPCSTR args) {
 		#ifndef	DEBUG
-		if (GameID() != eGameIDSingle) 
-		{
-			Msg("For this game type Demo Record is disabled.");
-			return;
-		};
+		//if (GameID() != eGameIDSingle) 
+		//{
+		//	Msg("For this game type Demo Record is disabled.");
+		//	return;
+		//};
 		#endif
 		Console->Hide	();
-		string_path		fn_; 
-		strconcat		(sizeof(fn_),fn_, args, ".xrdemo");
+
+		LPSTR			fn_; 
+		STRCONCAT		(fn_, args, ".xrdemo");
 		string_path		fn;
 		FS.update_path	(fn, "$game_saves$", fn_);
 
@@ -393,11 +420,11 @@ public:
 	CCC_DemoRecordSetPos(LPCSTR N) : CCC_Vector3( N, &p, Fvector().set( -FLT_MAX, -FLT_MAX, -FLT_MAX ),Fvector().set( FLT_MAX, FLT_MAX, FLT_MAX ) ) {};
 	virtual void Execute(LPCSTR args) {
 		#ifndef	DEBUG
-		if (GameID() != eGameIDSingle) 
-		{
-			Msg("For this game type Demo Record is disabled.");
-			return;
-		};
+		//if (GameID() != eGameIDSingle) 
+		//{
+		//	Msg("For this game type Demo Record is disabled.");
+		//	return;
+		//};
 		#endif
 		CDemoRecord::GetGlobalPosition( p );
 		CCC_Vector3::Execute(args);
@@ -416,11 +443,11 @@ public:
 	  { bEmptyArgsHandled = TRUE; };
 	  virtual void Execute(LPCSTR args) {
 		#ifndef	DEBUG
-		if (GameID() != eGameIDSingle) 
-		{
-			Msg("For this game type Demo Play is disabled.");
-			return;
-		};
+		//if (GameID() != eGameIDSingle) 
+		//{
+		//	Msg("For this game type Demo Play is disabled.");
+		//	return;
+		//};
 		#endif
 		  if (0==g_pGameLevel)
 		  {
@@ -441,6 +468,8 @@ public:
 	  }
 };
 
+// helper functions --------------------------------------------
+
 bool valid_saved_game_name(LPCSTR file_name)
 {
 	LPCSTR		I = file_name;
@@ -455,9 +484,39 @@ bool valid_saved_game_name(LPCSTR file_name)
 	return		(true);
 }
 
+void get_files_list( xr_vector<shared_str>& files, LPCSTR dir, LPCSTR file_ext )
+{
+	VERIFY( dir && file_ext );
+	files.clear_not_free();
+
+	FS_Path* P = FS.get_path( dir );
+	P->m_Flags.set( FS_Path::flNeedRescan, TRUE );
+	FS.m_Flags.set( CLocatorAPI::flNeedCheck, TRUE );
+	FS.rescan_pathes();
+
+	LPCSTR fext;
+	STRCONCAT( fext, "*", file_ext );
+
+	FS_FileSet  files_set;
+	FS.file_list( files_set, dir, FS_ListFiles, fext );
+	u32 len_str_ext = xr_strlen( file_ext );
+
+	FS_FileSetIt itb = files_set.begin();
+	FS_FileSetIt ite = files_set.end();
+
+	for( ; itb != ite; ++itb )
+	{
+		LPCSTR fn_ext = (*itb).name.c_str();
+		VERIFY( xr_strlen(fn_ext) > len_str_ext );
+		string_path fn;
+		strncpy_s( fn, sizeof(fn), fn_ext, xr_strlen(fn_ext)-len_str_ext );
+		files.push_back( fn );
+	}
+	FS.m_Flags.set( CLocatorAPI::flNeedCheck, FALSE );
+}
 
 #include "UIGameCustom.h"
-#include "HUDManager.h"
+
 class CCC_ALifeSave : public IConsole_Command {
 public:
 	CCC_ALifeSave(LPCSTR N) : IConsole_Command(N)  { bEmptyArgsHandled = true; };
@@ -479,10 +538,11 @@ public:
 			return;
 		}
 
+		Console->Execute			("stat_memory");
+
 		string_path				S,S1;
 		S[0]					= 0;
-//.		sscanf					(args ,"%s",S);
-		xr_strcpy					(S,args);
+		strncpy_s				(S, sizeof(S), args, _MAX_PATH - 1 );
 		
 #ifdef DEBUG
 		CTimer					timer;
@@ -510,10 +570,10 @@ public:
 #ifdef DEBUG
 		Msg						("Game save overhead  : %f milliseconds",timer.GetElapsed_sec()*1000.f);
 #endif
-		SDrawStaticStruct* _s		= HUD().GetUI()->UIGame()->AddCustomStatic("game_saved", true);
+		SDrawStaticStruct* _s		= CurrentGameUI()->AddCustomStatic("game_saved", true);
 		_s->m_endTime				= Device.fTimeGlobal+3.0f;// 3sec
-		string_path					save_name;
-		strconcat					(sizeof(save_name),save_name,*CStringTable().translate("st_game_saved"),": ", S);
+		LPSTR						save_name;
+		STRCONCAT					(save_name, CStringTable().translate("st_game_saved").c_str(), ": ", S);
 		_s->wnd()->SetText			(save_name);
 
 		xr_strcat					(S,".dds");
@@ -527,23 +587,27 @@ public:
 #ifdef DEBUG
 		Msg						("Screenshot overhead : %f milliseconds",timer.GetElapsed_sec()*1000.f);
 #endif
+	}//virtual void Execute
+
+	virtual void fill_tips			(vecTips& tips, u32 mode)
+	{
+		get_files_list				(tips, "$game_saves$", SAVE_EXTENSION);
 	}
-};
+};//CCC_ALifeSave
 
 class CCC_ALifeLoadFrom : public IConsole_Command {
 public:
 	CCC_ALifeLoadFrom(LPCSTR N) : IConsole_Command(N)  { bEmptyArgsHandled = true; };
 	virtual void Execute(LPCSTR args)
 	{
+		string_path				saved_game;
+		strncpy_s				(saved_game, sizeof(saved_game), args, _MAX_PATH - 1 );
+
 		if (!ai().get_alife()) {
 			Log						("! ALife simulator has not been started yet");
 			return;
 		}
 
-		string256					saved_game;
-		saved_game[0]				= 0;
-//.		sscanf						(args,"%s",saved_game);
-		xr_strcpy					(saved_game, args);
 		if (!xr_strlen(saved_game)) {
 			Log						("! Specify file name!");
 			return;
@@ -580,8 +644,11 @@ public:
 			return;
 		}
 */
+
 		if(MainMenu()->IsActive())
 			MainMenu()->Activate(false);
+
+		Console->Execute			("stat_memory");
 
 		if (Device.Paused())
 			Device.Pause			(FALSE, TRUE, TRUE, "CCC_ALifeLoadFrom");
@@ -591,7 +658,13 @@ public:
 		net_packet.w_stringZ		(saved_game);
 		Level().Send				(net_packet,net_flags(TRUE));
 	}
-};
+	
+	virtual void fill_tips			(vecTips& tips, u32 mode)
+	{
+		get_files_list				(tips, "$game_saves$", SAVE_EXTENSION);
+	}
+
+};//CCC_ALifeLoadFrom
 
 class CCC_LoadLastSave : public IConsole_Command {
 public:
@@ -602,8 +675,16 @@ public:
 
 	virtual void	Execute				(LPCSTR args)
 	{
-		if (args && *args) {
-			xr_strcpy				(g_last_saved_game,args);
+		string_path				saved_game = "";
+		if ( args )
+		{
+			strncpy_s			(saved_game, sizeof(saved_game), args, _MAX_PATH - 1 );
+		}
+
+		
+		if (saved_game && *saved_game)
+		{
+			xr_strcpy				(g_last_saved_game,saved_game);
 			return;
 		}
 
@@ -628,14 +709,14 @@ public:
 			return;
 		}
 
-		string512				command;
+		LPSTR					command;
 		if (ai().get_alife()) {
-			strconcat			(sizeof(command),command,"load ",g_last_saved_game);
+			STRCONCAT			(command, "load ", g_last_saved_game);
 			Console->Execute	(command);
 			return;
 		}
 
-		strconcat				(sizeof(command),command,"start server(",g_last_saved_game,"/single/alife/load)");
+		STRCONCAT				(command, "start server(", g_last_saved_game, "/single/alife/load)");
 		Console->Execute		(command);
 	}
 	
@@ -757,19 +838,15 @@ public:
 		if (!ai().get_level_graph())
 			return;
 
-		string256			S;
-		S[0]				= 0;
-		sscanf				(args,"%s",S);
-
-		if (!*S)
+		if (!*args)
 		{
 			ai().level_graph().setup_current_level	(-1);
 			return;
 		}
 
-		const GameGraph::SLevel	*level = ai().game_graph().header().level(S,true);
+		const GameGraph::SLevel	*level = ai().game_graph().header().level(args,true);
 		if (!level) {
-			Msg				("! There is no level %s in the game graph",S);
+			Msg				("! There is no level %s in the game graph",args);
 			return;
 		}
 
@@ -1050,7 +1127,11 @@ public:
 #ifndef		DEBUG
 		  clamp				(step_count,50.f,200.f);
 #endif
-		  CPHWorld::SetStep(1.f/step_count);
+		  //IPHWorld::SetStep(1.f/step_count);
+		  ph_console::ph_step_time = 1.f/step_count;
+		  //physics_world()->SetStep(1.f/step_count);
+		  if(physics_world())
+			 physics_world()->SetStep(ph_console::ph_step_time);
 	  }
 	  virtual void	Status	(TStatus& S)
 	  {	
@@ -1085,6 +1166,25 @@ struct CCC_ClearSmartCastStats : public IConsole_Command {
 		clear_smart_cast_stats();
 	}
 };
+/*
+struct CCC_NoClip : public CCC_Mask 
+{
+public:
+	CCC_NoClip(LPCSTR N, Flags32* V, u32 M):CCC_Mask(N,V,M){};
+	virtual	void Execute(LPCSTR args)
+	{
+		CCC_Mask::Execute(args);
+		if (EQ(args,"on") || EQ(args,"1"))
+		{
+			if(g_pGameLevel && Level().CurrentViewEntity())
+			{
+				CActor* actor = smart_cast<CActor*>(Level().CurrentViewEntity());
+				actor->character_physics_support()->SetRemoved();
+			}
+		}
+	};
+};
+*/
 #endif
 
 #ifndef MASTER_GOLD
@@ -1092,50 +1192,84 @@ struct CCC_ClearSmartCastStats : public IConsole_Command {
 struct CCC_JumpToLevel : public IConsole_Command {
 	CCC_JumpToLevel(LPCSTR N) : IConsole_Command(N)  {};
 
-	virtual void Execute(LPCSTR args) {
-		if (!ai().get_alife()) {
+	virtual void Execute(LPCSTR level)
+	{
+		if (!ai().get_alife())
+		{
 			Msg				("! ALife simulator is needed to perform specified command!");
 			return;
 		}
-		string256		level;
-		sscanf(args,"%s",level);
 
 		GameGraph::LEVEL_MAP::const_iterator	I = ai().game_graph().header().levels().begin();
 		GameGraph::LEVEL_MAP::const_iterator	E = ai().game_graph().header().levels().end();
 		for ( ; I != E; ++I)
-			if (!xr_strcmp((*I).second.name(),level)) {
+			if (!xr_strcmp((*I).second.name(),level))
+			{
 				ai().alife().jump_to_level(level);
 				return;
 			}
 		Msg							("! There is no level \"%s\" in the game graph!",level);
 	}
+
+	virtual void	Save	(IWriter *F)	{};
+	virtual void	fill_tips(vecTips& tips, u32 mode)
+	{
+		if ( !ai().get_alife() )
+		{
+			Msg				("! ALife simulator is needed to perform specified command!");
+			return;
+		}
+
+		GameGraph::LEVEL_MAP::const_iterator	itb = ai().game_graph().header().levels().begin();
+		GameGraph::LEVEL_MAP::const_iterator	ite = ai().game_graph().header().levels().end();
+		for ( ; itb != ite; ++itb )
+		{
+			tips.push_back( (*itb).second.name() );
+		}
+	}
 };
 
+//#ifndef MASTER_GOLD
 class CCC_Script : public IConsole_Command {
 public:
-	CCC_Script(LPCSTR N) : IConsole_Command(N)  { bEmptyArgsHandled = true; };
-	virtual void Execute(LPCSTR args) {
-		string256	S;
-		S[0]		= 0;
-		sscanf		(args ,"%s",S);
-		if (!xr_strlen(S))
+	CCC_Script(LPCSTR N) : IConsole_Command(N)  { bEmptyArgsHandled = false; };
+
+	virtual void Execute(LPCSTR args)
+	{
+		if ( !xr_strlen(args) )
+		{
 			Log("* Specify script name!");
-		else {
+		}
+		else
+		{
 			// rescan pathes
 			FS_Path* P = FS.get_path("$game_scripts$");
 			P->m_Flags.set	(FS_Path::flNeedRescan,TRUE);
 			FS.rescan_pathes();
 			// run script
 			if (ai().script_engine().script_process(ScriptEngine::eScriptProcessorLevel))
-				ai().script_engine().script_process(ScriptEngine::eScriptProcessorLevel)->add_script(S,false,true);
+				ai().script_engine().script_process(ScriptEngine::eScriptProcessorLevel)->add_script(args,false,true);
 		}
+	}
+
+	virtual void Status( TStatus& S )
+	{
+		xr_strcpy( S, "<script_name> (Specify script name!)" );
+	}
+	virtual void Save( IWriter* F ) {}
+
+	virtual void fill_tips( vecTips& tips, u32 mode )
+	{
+		get_files_list( tips, "$game_scripts$", ".script" );
 	}
 };
 
 class CCC_ScriptCommand : public IConsole_Command {
 public:
-	CCC_ScriptCommand	(LPCSTR N) : IConsole_Command(N)  { bEmptyArgsHandled = true; };
-	virtual void	Execute				(LPCSTR args) {
+	CCC_ScriptCommand	(LPCSTR N) : IConsole_Command(N)  { bEmptyArgsHandled = false; };
+
+	virtual void	Execute				(LPCSTR args)
+	{
 		if (!xr_strlen(args))
 			Log("* Specify string to run!");
 		else {
@@ -1159,6 +1293,23 @@ public:
 
 			ai().script_engine().print_output	(ai().script_engine().lua(),*m_script_name,l_iErrorCode);
 		}
+	}//void	Execute
+
+	virtual void Status( TStatus& S )
+	{
+		xr_strcpy( S, "<script_name.function()> (Specify script and function name!)" );
+	}
+	virtual void Save( IWriter* F ) {}
+
+	virtual void fill_tips( vecTips& tips, u32 mode )
+	{
+		if ( mode == 1 )
+		{
+			get_files_list( tips, "$game_scripts$", ".script" );
+			return;
+		}
+
+		IConsole_Command::fill_tips( tips, mode );
 	}
 };
 
@@ -1179,6 +1330,14 @@ public:
 	virtual void	Info	(TInfo& I)
 	{
 		xr_strcpy				(I,"[0.001 - 1000.0]");
+	}
+	
+	virtual void	fill_tips(vecTips& tips, u32 mode)
+	{
+		TStatus  str;
+		xr_sprintf( str, sizeof(str), "%3.3f  (current)  [0.001 - 1000.0]", Device.time_factor() );
+		tips.push_back( str );
+		IConsole_Command::fill_tips( tips, mode );
 	}
 };
 
@@ -1334,6 +1493,9 @@ struct CCC_DbgBullets : public CCC_Integer {
 
 #include "attachable_item.h"
 #include "attachment_owner.h"
+#include "InventoryOwner.h"
+#include "Inventory.h"
+
 class CCC_TuneAttachableItem : public IConsole_Command
 {
 public		:
@@ -1347,13 +1509,25 @@ public		:
 		};
 
 		CObject* obj = Level().CurrentViewEntity();	VERIFY(obj);
-		CAttachmentOwner* owner = smart_cast<CAttachmentOwner*>(obj);
 		shared_str ssss = args;
+
+		CAttachmentOwner* owner = smart_cast<CAttachmentOwner*>(obj);
 		CAttachableItem* itm = owner->attachedItem(ssss);
-		if(itm){
+		if(itm)
+		{
 			CAttachableItem::m_dbgItem = itm;
+		}
+		else
+		{
+			CInventoryOwner* iowner = smart_cast<CInventoryOwner*>(obj);
+			PIItem active_item = iowner->m_inventory->ActiveItem();
+			if(active_item && active_item->object().cNameSect()==ssss )
+				CAttachableItem::m_dbgItem = active_item->cast_attachable_item();
+		}
+
+		if(CAttachableItem::m_dbgItem)
 			Msg("CCC_TuneAttachableItem switched to ON for [%s]",args);
-		}else
+		else
 			Msg("CCC_TuneAttachableItem cannot find attached item [%s]",args);
 	}
 
@@ -1406,13 +1580,14 @@ public:
 			return;
 		}
 
-		string_path				name;
-		string_path				fn;
+		LPCSTR					name;
 
 		if (0==strext(arguments))
-			strconcat			(sizeof(name),name,arguments,".ogf");
+			STRCONCAT			(name, arguments, ".ogf");
 		else
-			xr_strcpy			(name,sizeof(name),arguments);
+			STRCONCAT			(name, arguments);
+
+		string_path				fn;
 
 		if (!FS.exist(arguments) && !FS.exist(fn, "$level$", name) && !FS.exist(fn, "$game_meshes$", name)) {
 			Msg					("! Cannot find visual \"%s\"",arguments);
@@ -1585,15 +1760,46 @@ private:
 };
 
 #endif
+
+class CCC_DbgVar : public IConsole_Command
+{
+public:
+	CCC_DbgVar(LPCSTR N) : IConsole_Command(N)  { bEmptyArgsHandled = false; };
+	virtual void Execute(LPCSTR arguments) 
+	{
+		if (!arguments || !*arguments)
+		{
+			return;
+		}
+
+		if ( _GetItemCount(arguments, ' ') == 1 )
+		{
+			ai_dbg::show_var(arguments);
+		}
+		else
+		{
+			char  name[1024];
+			float f;
+			sscanf	(arguments, "%s %f", name, &f);
+			ai_dbg::set_var(name, f);
+		}
+
+	}
+};
+
 void CCC_RegisterCommands()
 {
 	// options
 	g_OptConCom.Init();
 
 	CMD1(CCC_MemStats,			"stat_memory"			);
+#ifdef DEBUG
+	CMD1(CCC_MemCheckpoint,		"stat_memory_checkpoint");
+#endif //#ifdef DEBUG	
 	// game
 	psActorFlags.set(AF_ALWAYSRUN, true);
 	CMD3(CCC_Mask,				"g_always_run",			&psActorFlags,	AF_ALWAYSRUN);
+	CMD3(CCC_Mask,				"g_crouch_toggle",		&psActorFlags,	AF_CROUCH_TOGGLE);
 	CMD1(CCC_GameDifficulty,	"g_game_difficulty"		);
 
 	CMD3(CCC_Mask,				"g_backrun",			&psActorFlags,	AF_RUN_BACKWARD);
@@ -1690,6 +1896,8 @@ void CCC_RegisterCommands()
 	CMD3(CCC_Mask,				"ai_draw_game_graph",				&psAI_Flags,	aiDrawGameGraph				);
 	CMD3(CCC_Mask,				"ai_draw_game_graph_stalkers",		&psAI_Flags,	aiDrawGameGraphStalkers		);
 	CMD3(CCC_Mask,				"ai_draw_game_graph_objects",		&psAI_Flags,	aiDrawGameGraphObjects		);
+	CMD3(CCC_Mask,				"ai_draw_game_graph_real_pos",		&psAI_Flags,	aiDrawGameGraphRealPos		);
+	
 
 	CMD3(CCC_Mask,				"ai_nil_object_access",	&psAI_Flags,	aiNilObjectAccess);
 
@@ -1761,10 +1969,11 @@ CMD4(CCC_Integer,			"hit_anims_tune",						&tune_hit_anims,		0, 1);
 #ifdef DEBUG
 	CMD1(CCC_PHGravity,			"ph_gravity"																					);
 	CMD4(CCC_FloatBlock,		"ph_timefactor",				&phTimefactor				,			0.000001f	,1000.f			);
-	CMD4(CCC_FloatBlock,		"ph_break_common_factor",		&phBreakCommonFactor		,			0.f		,1000000000.f	);
-	CMD4(CCC_FloatBlock,		"ph_rigid_break_weapon_factor",	&phRigidBreakWeaponFactor	,			0.f		,1000000000.f	);
-	CMD4(CCC_Integer,			"ph_tri_clear_disable_count",	&ph_tri_clear_disable_count	,			0,		255				);
-	CMD4(CCC_FloatBlock,		"ph_tri_query_ex_aabb_rate",	&ph_tri_query_ex_aabb_rate	,			1.01f	,3.f			);
+	CMD4(CCC_FloatBlock,		"ph_break_common_factor",		&ph_console::phBreakCommonFactor		,			0.f		,1000000000.f	);
+	CMD4(CCC_FloatBlock,		"ph_rigid_break_weapon_factor",	&ph_console::phRigidBreakWeaponFactor	,			0.f		,1000000000.f	);
+	CMD4(CCC_Integer,			"ph_tri_clear_disable_count",	&ph_console::ph_tri_clear_disable_count	,			0,		255				);
+	CMD4(CCC_FloatBlock,		"ph_tri_query_ex_aabb_rate",	&ph_console::ph_tri_query_ex_aabb_rate	,			1.01f	,3.f			);
+	CMD3(CCC_Mask,				"g_no_clip",					&psActorFlags,	AF_NO_CLIP	);
 #endif // DEBUG
 
 #ifndef MASTER_GOLD
@@ -1845,11 +2054,21 @@ extern BOOL dbg_draw_character_bones			;
 extern BOOL dbg_draw_character_physics			;
 extern BOOL dbg_draw_character_binds			;
 extern BOOL dbg_draw_character_physics_pones	;
-
+extern BOOL ik_cam_shift ;
 	CMD4(CCC_Integer,	"dbg_draw_character_bones"			,&dbg_draw_character_bones,	FALSE,	TRUE );
 	CMD4(CCC_Integer,	"dbg_draw_character_physics"		,&dbg_draw_character_physics,	FALSE,	TRUE );
 	CMD4(CCC_Integer,	"dbg_draw_character_binds"			,&dbg_draw_character_binds,	FALSE,	TRUE );
 	CMD4(CCC_Integer,	"dbg_draw_character_physics_pones"	,&dbg_draw_character_physics_pones,	FALSE,	TRUE );
+
+	CMD4(CCC_Integer,	"ik_cam_shift"	,&ik_cam_shift,	FALSE,	TRUE );
+
+extern	float ik_cam_shift_tolerance ;
+CMD4(CCC_Float,		"ik_cam_shift_tolerance",&ik_cam_shift_tolerance,	0.f, 2.f);
+float ik_cam_shift_speed ;
+CMD4(CCC_Float,		"ik_cam_shift_speed",&ik_cam_shift_speed,	0.f, 1.f);
+extern	BOOL dbg_draw_doors ;
+CMD4(CCC_Integer,	"dbg_draw_doors"	,&dbg_draw_doors,	FALSE,	TRUE );
+
 /*
 extern int ik_allign_free_foot;
 extern int ik_local_blending;
@@ -1868,8 +2087,12 @@ extern BOOL debug_step_info_load;
 	CMD4(CCC_Integer,	"debug_step_info_load"	,&debug_step_info_load,	FALSE,	TRUE );
 extern BOOL debug_character_material_load;
 	CMD4(CCC_Integer,	"debug_character_material_load"	,&debug_character_material_load,	FALSE,	TRUE );
-extern BOOL dbg_draw_camera_collision;
+extern XRPHYSICS_API BOOL dbg_draw_camera_collision;
 	CMD4(CCC_Integer,	"dbg_draw_camera_collision"	,&dbg_draw_camera_collision,	FALSE,	TRUE );
+extern XRPHYSICS_API float	camera_collision_character_skin_depth ;
+extern XRPHYSICS_API float	camera_collision_character_shift_z ;
+	CMD4(CCC_FloatBlock,"camera_collision_character_shift_z", &camera_collision_character_shift_z,	0.f, 1.f );
+	CMD4(CCC_FloatBlock,"camera_collision_character_skin_depth", &camera_collision_character_skin_depth, 0.f, 1.f	);
 extern BOOL	dbg_draw_animation_movement_controller;
 	CMD4(CCC_Integer,	"dbg_draw_animation_movement_controller"	,&dbg_draw_animation_movement_controller,	FALSE,	TRUE );
 
@@ -1903,6 +2126,8 @@ CMD3(CCC_Mask,		"dbg_track_obj_blends_flags"		,&dbg_track_obj_flags	,dbg_track_o
 CMD3(CCC_Mask,		"dbg_track_obj_blends_state"		,&dbg_track_obj_flags	,dbg_track_obj_blends_state			);
 CMD3(CCC_Mask,		"dbg_track_obj_blends_dump"			,&dbg_track_obj_flags	,dbg_track_obj_blends_dump			);
 
+CMD1(CCC_DbgVar,	"dbg_var");
+
 extern float	dbg_text_height_scale;													
 CMD4(CCC_FloatBlock,		"dbg_text_height_scale",	&dbg_text_height_scale	,			0.2f	,5.f	);
 #endif
@@ -1924,7 +2149,7 @@ CMD4(CCC_FloatBlock,		"dbg_text_height_scale",	&dbg_text_height_scale	,			0.2f	,
 
 #ifndef MASTER_GOLD
 	CMD1(CCC_StartTimeSingle,	"start_time_single");
-	CMD4(CCC_TimeFactorSingle,	"time_factor_single", &g_fTimeFactor, 0.f,flt_max);
+	CMD4(CCC_TimeFactorSingle,	"time_factor_single", &g_fTimeFactor, 0.f, 1000.0f);
 #endif // MASTER_GOLD
 
 
@@ -1952,7 +2177,7 @@ CMD4(CCC_FloatBlock,		"dbg_text_height_scale",	&dbg_text_height_scale	,			0.2f	,
 
 	CMD4(CCC_Integer,	"show_wnd_rect_all",		&g_show_wnd_rect2, 0, 1);
 	CMD4(CCC_Integer,	"dbg_show_ani_info",		&g_ShowAnimationInfo,	0, 1)	;
-	CMD4(CCC_Integer,	"dbg_dump_physics_step",	&g_bDebugDumpPhysicsStep, 0, 1);
+	CMD4(CCC_Integer,	"dbg_dump_physics_step",	&ph_console::g_bDebugDumpPhysicsStep, 0, 1);
 	CMD1(CCC_InvUpgradesHierarchy,	"inv_upgrades_hierarchy");
 	CMD1(CCC_InvUpgradesCurItem,	"inv_upgrades_cur_item");
 	CMD4(CCC_Integer,	"inv_upgrades_log",	&g_upgrades_log, 0, 1);
@@ -1970,8 +2195,49 @@ extern BOOL dbg_moving_bones_snd_player;
 	CMD4(CCC_Float,		"air_resistance_epsilon",	&air_resistance_epsilon,	.0f, 1.f);
 #endif // #ifdef DEBUG
 	
+	CMD4(CCC_Integer,	"g_sleep_time",			&psActorSleepTime,			1,		24		);
+	
+	CMD4(CCC_Integer,	"ai_use_old_vision",	&g_ai_use_old_vision, 0, 1);
+
+	CMD4(CCC_Float,		"ai_aim_predict_time",	&g_aim_predict_time, 0.f, 10.f);
+
+#ifdef DEBUG
+	//extern BOOL g_use_new_ballistics;
+	//CMD4(CCC_Integer,	"use_new_ballistics",	&g_use_new_ballistics, 0, 1);
+	extern float g_bullet_time_factor;
+	CMD4(CCC_Float,	"g_bullet_time_factor",	&g_bullet_time_factor, 0.f, 10.f);
+#endif
+
+	
+#ifdef DEBUG
+	extern BOOL g_ai_dbg_sight;
+	CMD4(CCC_Integer,	"ai_dbg_sight",	&g_ai_dbg_sight, 0, 1);
+
+	extern BOOL g_ai_aim_use_smooth_aim;
+	CMD4(CCC_Integer,	"ai_aim_use_smooth_aim",	&g_ai_aim_use_smooth_aim, 0, 1);
+#endif // #ifdef DEBUG
+
+	extern float g_ai_aim_min_speed;
+	CMD4(CCC_Float,	"ai_aim_min_speed",	&g_ai_aim_min_speed, 0.f, 10.f*PI );
+
+	extern float g_ai_aim_min_angle;
+	CMD4(CCC_Float,	"ai_aim_min_angle",	&g_ai_aim_min_angle, 0.f, 10.f*PI );
+
+	extern float g_ai_aim_max_angle;
+	CMD4(CCC_Float,	"ai_aim_max_angle",	&g_ai_aim_max_angle, 0.f, 10.f*PI );
+
+#ifdef DEBUG
+	extern BOOL g_debug_doors;
+	CMD4(CCC_Integer,	"ai_debug_doors",	&g_debug_doors, 0, 1);
+#endif // #ifdef DEBUG
 	
 	*g_last_saved_game	= 0;
 
+	CMD3(CCC_String,    "slot_0",				g_quick_use_slots[0], 32);
+	CMD3(CCC_String,    "slot_1",				g_quick_use_slots[1], 32);
+	CMD3(CCC_String,    "slot_2",				g_quick_use_slots[2], 32);
+	CMD3(CCC_String,    "slot_3",				g_quick_use_slots[3], 32);
+
+	CMD4(CCC_Integer,	"keypress_on_start",	&g_keypress_on_start, 0, 1);
 	register_mp_console_commands					();
 }

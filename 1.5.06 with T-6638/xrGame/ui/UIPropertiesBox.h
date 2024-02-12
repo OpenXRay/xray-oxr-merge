@@ -6,12 +6,14 @@
 
 #include "../../xrServerEntities/script_export_space.h"
 
-class CUIPropertiesBox: public CUIFrameWindow
+class CUIPropertiesBox:
+	public CUIFrameWindow,
+	public CUIWndCallback
 {
 private:
 	typedef CUIFrameWindow inherited; 
 public:
-						CUIPropertiesBox					();
+						CUIPropertiesBox					(CUIPropertiesBox* sub_property_box = NULL);
 	virtual				~CUIPropertiesBox					();
 
 			void		InitPropertiesBox					(Fvector2 pos, Fvector2 size);
@@ -36,8 +38,17 @@ public:
 
 	void				AutoUpdateSize						();
 
+	void				ShowSubMenu							();
+	void	xr_stdcall	OnItemReceivedFocus					(CUIWindow* w, void* d);
 protected:
 	CUIListBox			m_UIListWnd;
+private:
+	//I must not hide this menu, and my child sub menu must hide me...
+	CUIPropertiesBox*	m_sub_property_box;
+	void				SetParentSubMenu					(CUIPropertiesBox* parent_menu) { m_parent_sub_menu = parent_menu; };
+	Frect				m_last_show_rect;
+	CUIPropertiesBox*	m_parent_sub_menu;					//warning !!! dubling pointers to the same object !!!
+	CUIWindow*			m_item_sub_menu_initiator;			//fills in ShowSubMenu
 
 	DECLARE_SCRIPT_REGISTER_FUNCTION
 };

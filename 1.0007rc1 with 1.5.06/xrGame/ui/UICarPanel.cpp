@@ -6,14 +6,12 @@
 const LPCSTR CAR_PANEL_XML = "car_panel.xml";
 const LPCSTR POINTER_ARROW_TEX = "ui\\hud_map_arrow";
 
-void CUICarPanel::Init			(float x, float y, float width, float height)
+void CUICarPanel::InitCarPanel(Fvector2 pos, Fvector2 size)
 {
 	CUIXml uiXml;
-	bool result = uiXml.Init(CONFIG_PATH, UI_PATH, CAR_PANEL_XML);
-	R_ASSERT3(result, "xml file not found", CAR_PANEL_XML);
-
+	uiXml.Load			(CONFIG_PATH, UI_PATH, CAR_PANEL_XML);
 	CUIXmlInit	xml_init;
-	////////////////////////////////////////////////////////////////////
+
 	AttachChild(&UIStaticCarHealth);
 	xml_init.InitStatic(uiXml, "car_health_static", 0, &UIStaticCarHealth);
 
@@ -37,7 +35,8 @@ void CUICarPanel::Init			(float x, float y, float width, float height)
 
 
 
-	inherited::Init(x,y, width, height);
+	inherited::SetWndPos(pos);
+	inherited::SetWndSize(size);
 }
 
 //////////////////////////////////////////////////////////////////////////

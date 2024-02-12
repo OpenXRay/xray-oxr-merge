@@ -51,10 +51,10 @@ void UISecondTaskWnd::init_from_xml( CUIXml& xml, LPCSTR path )
 	m_background = UIHelper::CreateFrameWindow( xml, "background_frame", this );
 	m_caption    = UIHelper::CreateStatic( xml, "t_caption", this );
 //	m_counter    = UIHelper::CreateStatic( xml, "t_counter", this );
-	m_bt_close   = UIHelper::Create3tButtonEx( xml, "btn_close", this );
+	m_bt_close   = UIHelper::Create3tButton( xml, "btn_close", this );
 
 	Register( m_bt_close );
-	AddCallback( m_bt_close->WindowName(), BUTTON_DOWN, CUIWndCallback::void_function( this, &UISecondTaskWnd::OnBtnClose ) );
+	AddCallback( m_bt_close, BUTTON_DOWN, CUIWndCallback::void_function( this, &UITaskListWnd::OnBtnClose ) );
 
 	m_list = xr_new<CUIScrollView>();
 	m_list->SetAutoDelete( true );
@@ -68,9 +68,9 @@ void UISecondTaskWnd::init_from_xml( CUIXml& xml, LPCSTR path )
 	xml.SetLocalRoot( stored_root );
 }
 
-bool UISecondTaskWnd::OnMouse( float x, float y, EUIMessages mouse_action )
+bool UISecondTaskWnd::OnMouseAction( float x, float y, EUIMessages mouse_action )
 {
-	if ( inherited::OnMouse( x, y, mouse_action ) )
+	if ( inherited::OnMouseAction( x, y, mouse_action ) )
 	{
 		return true;
 	}
@@ -81,7 +81,8 @@ void UISecondTaskWnd::Show( bool status )
 {
 	inherited::Show( status );
 	GetMessageTarget()->SendMessage( this, PDA_TASK_HIDE_HINT, NULL );
-	UpdateList();
+	if(status)
+		UpdateList();
 }
 
 void UISecondTaskWnd::OnFocusReceive()
@@ -241,34 +242,30 @@ void UISecondTaskItem::update_view()
 	CMapLocation* ml = m_task->LinkedMapLocation();
 
 	if ( ml && ml->SpotEnabled() )
-	{
 		m_bt_view->SetCheck( false );
-	}
 	else
-	{
 		m_bt_view->SetCheck( true );
-	}
 
 
-	m_name->SetTextST( m_task->m_Title.c_str() );
+	m_name->TextItemControl()->SetTextST( m_task->m_Title.c_str() );
 	m_name->AdjustHeightToText();
 	float h1 = m_name->GetWndPos().y + m_name->GetHeight() + 10.0f;
 	h1 = _max( h1, GetHeight() );
 	SetHeight( h1 );
 
-	CGameTask* activ_task = Level().GameTaskManager().ActiveTask( eTaskTypeAdditional );
+	CGameTask* activ_task = Level().GameTaskManager().ActiveTask();
 
 	if ( m_task == activ_task )
 	{
-		m_name->SetTextColor( m_color_states[stt_activ] );
+		m_name->SetStateTextColor( m_color_states[stt_activ], S_Enabled );
 	}
 	else if ( m_task->m_read )
 	{
-		m_name->SetTextColor( m_color_states[stt_read] );
+		m_name->SetStateTextColor( m_color_states[stt_read], S_Enabled );
 	}
 	else
 	{
-		m_name->SetTextColor( m_color_states[stt_unread] );
+		m_name->SetStateTextColor( m_color_states[stt_unread], S_Enabled );
 	}
 
 }
@@ -311,9 +308,9 @@ void UISecondTaskItem::SendMessage( CUIWindow* pWnd, s16 msg, void* pData )
 	inherited::SendMessage( pWnd, msg, pData );
 }
 
-bool UISecondTaskItem::OnMouse( float x, float y, EUIMessages mouse_action )
+bool UISecondTaskItem::OnMouseAction( float x, float y, EUIMessages mouse_action )
 {
-	if ( inherited::OnMouse( x, y, mouse_action ) )
+	if ( inherited::OnMouseAction( x, y, mouse_action ) )
 	{
 		//return true;
 	}

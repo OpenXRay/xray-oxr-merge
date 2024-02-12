@@ -378,7 +378,7 @@ void CUIHudStatesWnd::SetAmmoIcon(const shared_str& sect_name)
 	m_ui_weapon_icon->SetWidth( w*UI().get_current_kx() );
 	m_ui_weapon_icon->SetHeight( h );
 }
-// ------------------------------------------------------------------------------------------------
+
 void CUIHudStatesWnd::UpdateZones()
 {
 	//float actor_radia = m_actor->conditions().GetRadiation() * m_actor_radia_factor;

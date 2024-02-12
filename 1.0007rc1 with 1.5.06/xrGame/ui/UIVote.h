@@ -12,7 +12,6 @@ class CUIFrameWindow;
 class CUIVote : public CUIDialogWnd 
 {
 public:
-	using CUIDialogWnd::Init;
 
 					CUIVote		();
 			void 	Init		();

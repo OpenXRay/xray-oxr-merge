@@ -11,10 +11,16 @@
 #include "configs_dumper.h"
 #include "configs_dump_verifyer.h"
 #include "screenshot_server.h"
+#include "../xrCore/fastdelegate.h"
 
-
+class CUIWindow;
 class CUISpeechMenu;
 class CUIMessageBoxEx;
+
+namespace award_system
+{
+	class reward_manager;
+}//namespace award_system
 
 
 struct SND_Message{
@@ -23,7 +29,7 @@ struct SND_Message{
 	u32			SoundID;
 	u32			LastStarted;
 	bool operator == (u32 ID){return SoundID == ID;}
-	void Load(u32 ID, u32 prior, LPCSTR name)
+	void Load(u32 const ID, u32 const prior, LPCSTR name)
 	{
 		SoundID = ID;
 		priority = prior;
@@ -44,8 +50,6 @@ struct cl_TeamStruct
 	//-----------------------------------
 	ui_shader			IndicatorShader;
 	ui_shader			InvincibleShader;
-	//ref_shader			IndicatorShader;
-	//ref_shader			InvincibleShader;
 
 	Fvector				IndicatorPos;
 	float				Indicator_r1;
@@ -109,6 +113,13 @@ struct Bonus_Struct
 class CUIVotingCategory;
 class CUIVote;
 class CUIMessageBoxEx;
+class CUIMpAdminMenu;
+
+namespace award_system
+{
+class reward_event_generator;
+}
+
 
 class game_cl_mp :public game_cl_GameState
 {
@@ -117,7 +128,7 @@ protected:
 
 	CL_TEAM_DATA_LIST				TeamList;
 
-	DEF_VECTOR(SNDMESSAGES, SND_Message);
+	DEF_VECTOR(SNDMESSAGES, SND_Message*);
 	SNDMESSAGES						m_pSndMessages;
 	bool							m_bJustRestarted;
 	DEF_VECTOR(SNDMESSAGESINPLAY, SND_Message*);
@@ -128,6 +139,7 @@ protected:
 
 	bool							m_bVotingActive;
 	CUIVotingCategory*				m_pVoteStartWindow;
+	CUIMpAdminMenu*					m_pAdminMenuWindow;
 	CUIVote*						m_pVoteRespondWindow;
 	CUIMessageBoxEx*				m_pMessageBox;
 	BOOL							m_bSpectatorSelected;
@@ -146,11 +158,6 @@ protected:
 	ui_shader				m_RadiationIconsShader;
 	ui_shader				m_BloodLossIconsShader;
 	ui_shader				m_RankIconsShader;
-	//ref_shader				m_EquipmentIconsShader;
-	//ref_shader				m_KillEventIconsShader;
-	//ref_shader				m_RadiationIconsShader;
-	//ref_shader				m_BloodLossIconsShader;
-	//ref_shader				m_RankIconsShader;
 
 	virtual const ui_shader&		GetEquipmentIconsShader	();
 	virtual const ui_shader&		GetKillEventIconsShader	();
@@ -179,6 +186,8 @@ protected:
 	
 	virtual		void		LoadBonuses				();
 
+	award_system::reward_event_generator*	m_reward_generator;
+				void				ReInitRewardGenerator	(game_PlayerState* local_ps);
 public:
 									game_cl_mp();
 	virtual							~game_cl_mp();
@@ -194,6 +203,7 @@ public:
 	virtual		bool				CanBeReady				();
 	virtual		CUIGameCustom*		createGameUI			();
 	virtual		void				shedule_Update			(u32 dt);
+				bool				IsLocalPlayerInitialized() const;
 
 	//// VOTING
 	virtual		bool				IsVotingActive			()	{ return m_bVotingActive; };
@@ -247,19 +257,36 @@ public:
 
 	virtual		bool				Is_Spectator_TeamCamera_Allowed () {return m_bSpectator_TeamCamera && !Level().IsDemoPlay();};
 	virtual		bool				Is_Spectator_Camera_Allowed			(CSpectator::EActorCameras Camera);
+	virtual		bool				Is_Rewarding_Allowed			() const = 0;
 				
 				void				SendPlayerStarted();
 	virtual		void				OnConnected				();
+	virtual		LPCSTR				GetGameScore			(string32&	score_dest) = 0;
 				
 	screenshot_manager				ss_manager;
 	mp_anticheat::configs_dumper	cd_manager;
 	mp_anticheat::configs_verifyer	cd_verifyer;
+	
+	award_system::reward_event_generator*	get_reward_generator() const { return m_reward_generator; };
+
+				void				AddRewardTask	(u32 const award_id);
+
+				void				AddSoundMessage		(LPCSTR sound_name, u32 const sound_priority, u32 const soundID);
+				void				PlaySndMessage		(u32 ID);
+				typedef fastdelegate::FastDelegate<void (u32 const)> player_info_reply_cb_t;
+				bool				RequestPlayersInfo	(player_info_reply_cb_t const pinfo_repl_cb);
 private:
 				u8*					buffer_for_compress;
 				u32					buffer_for_compress_size;
 				CMemoryWriter		upload_memory_writer;
 				void				reinit_compress_buffer(u32 need_size);
 				void				deinit_compress_buffer();
+				
+				award_system::reward_manager*	m_reward_manager;
+				void				start_receive_server_info	(ClientID const & svclient_id);
+				
+				player_info_reply_cb_t	m_players_info_reply;
+				void				ProcessPlayersInfoReply(NET_Packet & P);
 public:
 				void __stdcall		SendCollectedData	(u8 const* buffer, u32 buffer_size, u32 uncompressed_size);
 				void				PrepareToReceiveFile(ClientID const & from_client, shared_str const & client_session_id, clientdata_event_t response_event);
@@ -276,6 +303,7 @@ public:
 					CMemoryWriter						m_writer;
 					fr_callback_binder() : m_frnode(NULL), m_active(false) {};
 					void __stdcall		receiving_file_callback(file_transfer::receiving_status_t status, u32 bytes_received, u32 data_size);
+					void __stdcall		receiving_serverinfo_callback(file_transfer::receiving_status_t status, u32 bytes_received, u32 data_size);
 				};
 				struct detected_cheater_t
 				{
@@ -297,6 +325,7 @@ public:
 				void				decompress_and_save_screenshot	(LPCSTR file_name, u8* data, u32 data_size, u32 file_size);
 				void				decompress_and_process_config	(LPCSTR file_name, u8* data, u32 data_size, u32 file_size);
 
+				void				extract_server_info				(u8* data_ptr, u32 data_size);
 				fr_callback_binder*	get_receiver_cb_binder			();
 				void				draw_all_active_binder_states	();
 				void				draw_downloads					(bool draw);
@@ -307,9 +336,4 @@ public:
 				static LPCSTR	make_file_name(LPCSTR session_id, string_path & dest);
 //-------------------------------------------------------------------------------------------------
 #include "game_cl_mp_messages_menu.h"
-
-	DECLARE_SCRIPT_REGISTER_FUNCTION
 };
-add_to_type_list(game_cl_mp)
-#undef script_type_list
-#define script_type_list save_type_list(game_cl_mp)

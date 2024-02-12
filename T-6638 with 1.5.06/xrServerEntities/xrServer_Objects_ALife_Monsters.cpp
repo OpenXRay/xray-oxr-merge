@@ -1126,7 +1126,6 @@ CSE_ALifeMonsterAbstract::CSE_ALifeMonsterAbstract(LPCSTR caSection)	: CSE_ALife
 {
 	m_group_id					= 0xffff;
 
-
 	m_tNextGraphID				= m_tGraphID;
 	m_tPrevGraphID				= m_tGraphID;
 	m_fCurSpeed					= 0.0f;

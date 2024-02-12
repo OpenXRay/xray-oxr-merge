@@ -16,6 +16,7 @@
 #include "UICharacterInfo.h"
 #include "UIItemInfo.h"
 #include "UIDragDropListEx.h"
+#include "UIDragDropReferenceList.h"
 #include "UIInventoryUpgradeWnd.h"
 #include "UI3tButton.h"
 #include "UIMessageBoxEx.h"
@@ -624,19 +625,13 @@ void CUIActorMenu::ClearAllLists()
 	m_pDeadBodyBagList->ClearAll				(true);
 }
 
-bool CUIActorMenu::OnMouse( float x, float y, EUIMessages mouse_action )
+bool CUIActorMenu::OnMouseAction( float x, float y, EUIMessages mouse_action )
 {
 	inherited::OnMouse( x, y, mouse_action );
 	return true; // no click`s
 }
 
-void CUIActorMenu::OnMouseMove()
-{
-	//SetInfoItem( NULL );
-	inherited::OnMouseMove		();
-}
-
-bool CUIActorMenu::OnKeyboard(int dik, EUIMessages keyboard_action)
+bool CUIActorMenu::OnKeyboardAction(int dik, EUIMessages keyboard_action)
 {
 /*
 	if (UIPropertiesBox.GetVisible())
@@ -774,9 +769,9 @@ void CUIActorMenu::UpdateActorMP()
 	int money = Game().local_player->money_for_round;
 
 	string64 buf;
-	sprintf_s( buf, "%d RU", money );
+	xr_sprintf( buf, "%d RU", money );
 	m_ActorMoney->SetText( buf );
 
-	m_ActorCharacterInfo->InitCharacterMP( Game().local_player->name, "ui_npc_u_nebo_1" );
+	m_ActorCharacterInfo->InitCharacterMP( Game().local_player->getName(), "ui_npc_u_nebo_1" );
 
 }

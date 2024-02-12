@@ -54,8 +54,11 @@ public:
 template<class _Ty,	class _Other>	inline	bool operator==(const uialloc<_Ty>&, const uialloc<_Other>&)		{	return (true);							}
 template<class _Ty, class _Other>	inline	bool operator!=(const uialloc<_Ty>&, const uialloc<_Other>&)		{	return (false);							}
 
-template<typename T>	
-class	ui_list 		: public std::list<T,uialloc<T> >{ public: u32 size() const {return (u32)__super::size(); } };
+//. template<typename T>	
+//. class	ui_list 		: public std::list<T,uialloc<T> >{ public: u32 size() const {return (u32)__super::size(); } };
+
+
+#define	 ui_list xr_vector
 
 #define DEF_UILIST(N,T)		typedef ui_list< T > N;			typedef N::iterator N##_it;
 
@@ -96,15 +99,18 @@ public:
 
 	//поднять на вершину списка всех родителей окна и его самого
 	void					BringAllToTop		();
-	
 
+	//реакция на клавиатуру
+	virtual bool			OnKeyboardAction	(int dik, EUIMessages keyboard_action);
+	virtual bool			OnKeyboardHold		(int dik);
 
-	virtual bool 			OnMouse				(float x, float y, EUIMessages mouse_action);
+	virtual bool 			OnMouseAction		(float x, float y, EUIMessages mouse_action);
 	virtual void 			OnMouseMove			();
 	virtual void 			OnMouseScroll		(float iDirection);
 	virtual bool 			OnDbClick			();
 	virtual bool 			OnMouseDown			(int mouse_btn);
 	virtual void 			OnMouseUp			(int mouse_btn);
+
 	virtual void 			OnFocusReceive		();
 	virtual void 			OnFocusLost			();
 	
@@ -120,13 +126,8 @@ public:
 	void					SetMessageTarget	(CUIWindow* pWindow)								{m_pMessageTarget = pWindow;}
 	CUIWindow*				GetMessageTarget	();
 
-	//реакция на клавиатуру
-	virtual bool			OnKeyboard			(int dik, EUIMessages keyboard_action);
-	virtual bool			OnKeyboardHold		(int dik);
-	virtual void			SetKeyboardCapture	(CUIWindow* pChildWindow, bool capture_status);
+		 	void			SetKeyboardCapture	(CUIWindow* pChildWindow, bool capture_status);
 
-	
-	
 	//обработка сообщений не предусмотреных стандартными обработчиками
 	//ф-ция должна переопределяться
 	//pWnd - указатель на окно, которое послало сообщение
@@ -137,11 +138,11 @@ public:
 
 	//запрещение/разрешение на ввод с клавиатуры
 	virtual void			Enable				(bool status)									{m_bIsEnabled=status;}
-	virtual bool			IsEnabled			()												{return m_bIsEnabled;}
+			bool			IsEnabled			()												{return m_bIsEnabled;}
 
 	//убрать/показать окно и его дочерние окна
 	virtual void			Show				(bool status)									{SetVisible(status); Enable(status); }
-	IC		bool			IsShown				()												{return this->GetVisible();}
+	IC		bool			IsShown				()												{return GetVisible();}
 			void			ShowChildren		(bool show);
 	
 	//абсолютные координаты
@@ -185,13 +186,11 @@ public:
 	// Name of the window
 	const shared_str		WindowName			() const					{ return m_windowName; }
 	void					SetWindowName		(LPCSTR wn)					{ m_windowName = wn; }
-	LPCSTR					WindowName_script	()							{return *m_windowName;}
+	LPCSTR					WindowName_script	()							{return m_windowName.c_str();}
 	CUIWindow*				FindChild			(const shared_str name);
 
 	IC bool					CursorOverWindow	() const					{ return m_bCursorOverWindow; }
 	IC u32					FocusReceiveTime	() const					{ return m_dwFocusReceiveTime; }
-	virtual	bool			AlignHintWndPos		(Frect const& vis_rect, float border = 0.0f, float dx16pos = 0.0f );
-	static	bool			is_in				(Frect const& a, Frect const& b); //b in a
 	
 	IC bool					GetCustomDraw		() const					{return m_bCustomDraw;}
 	IC void					SetCustomDraw		(bool b) 					{m_bCustomDraw = b;}
@@ -251,6 +250,4 @@ public:
 	DECLARE_SCRIPT_REGISTER_FUNCTION
 };
 
-add_to_type_list(CUIWindow)
-#undef script_type_list
-#define script_type_list save_type_list(CUIWindow)
+bool fit_in_rect(CUIWindow* w, Frect const& vis_rect, float border = 0.0f, float dx16pos = 0.0f );

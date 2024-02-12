@@ -4,6 +4,8 @@
 #include "UIXmlInit.h"
 const LPCSTR MOTION_ICON_XML = "motion_icon.xml";
 
+//--extern BOOL g_old_style_ui_hud;
+
 CUIMotionIcon::CUIMotionIcon()
 {
 	m_curren_state	= stLast;
@@ -25,8 +27,7 @@ void CUIMotionIcon::ResetVisibility()
 void CUIMotionIcon::Init()
 {
 	CUIXml uiXml;
-	bool result = uiXml.Init(CONFIG_PATH, UI_PATH, MOTION_ICON_XML);
-	R_ASSERT3(result, "xml file not found", MOTION_ICON_XML);
+	uiXml.Load					(CONFIG_PATH, UI_PATH, MOTION_ICON_XML);
 
 	CUIXmlInit	xml_init;
 
@@ -98,6 +99,15 @@ void CUIMotionIcon::SetLuminosity(float Pos)
 {
 	Pos						= clampr(Pos, m_luminosity_progress.GetRange_min(), m_luminosity_progress.GetRange_max());
 	m_luminosity			= Pos;
+}
+
+void CUIMotionIcon::Draw()
+{
+/*if(g_old_style_ui_hud)
+	{
+		inherited::Draw();
+	}
+	*/
 }
 
 void CUIMotionIcon::Update()

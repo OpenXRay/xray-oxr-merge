@@ -70,8 +70,8 @@ void dx103DFluidData::CreateRTTextureAndViews(int rtIndex, D3D_TEXTURE3D_DESC Te
 {
 	// Create the texture
 	CHK_DX( HW.pDevice->CreateTexture3D(&TexDesc,NULL,&m_pRTTextures[rtIndex]));
+
 	// Create the render target view
-	
 	D3D_RENDER_TARGET_VIEW_DESC DescRT;
 	DescRT.Format = TexDesc.Format;
 	DescRT.ViewDimension =  D3D_RTV_DIMENSION_TEXTURE3D;

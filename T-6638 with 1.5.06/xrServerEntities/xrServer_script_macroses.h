@@ -21,9 +21,6 @@
 class CSE_Abstract;
 class NET_Packet;
 class CSE_ALifeMonsterAbstract;
-#ifdef XRGAME_EXPORTS
-class CALifeSmartTerrainTask;
-#endif //#ifdef XRGAME_EXPORTS
 
 #define INHERIT_PURE
 

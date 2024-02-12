@@ -9,14 +9,14 @@
 #include "../actor.h"
 #include "../HUDManager.h"
 #include "../PDA.h"
-#include "../WeaponHUD.h"
-#include "../character_info.h"
+//.7#include "../WeaponHUD.h"
+#include "../xrServerEntities/character_info.h"
 #include "../inventory.h"
 #include "../UIGameSP.h"
 #include "../weaponmagazined.h"
 #include "../missile.h"
 #include "../Grenade.h"
-#include "../xrServer_objects_ALife.h"
+#include "../xrServerEntities/xrServer_objects_ALife.h"
 #include "../alife_simulator.h"
 #include "../alife_object_registry.h"
 #include "../game_cl_base.h"
@@ -24,8 +24,8 @@
 #include "../seniority_hierarchy_holder.h"
 
 #include "../date_time.h"
-#include "../xrServer_Objects_ALife_Monsters.h"
-#include "../../LightAnimLibrary.h"
+#include "../xrServerEntities/xrServer_Objects_ALife_Monsters.h"
+#include "../../xrEngine/LightAnimLibrary.h"
 
 #include "UIInventoryUtilities.h"
 
@@ -41,7 +41,7 @@
 
 #ifdef DEBUG
 #	include "../attachable_item.h"
-#	include "../../xr_input.h"
+#	include "../../xrEngine/xr_input.h"
 #endif
 
 #include "UIScrollView.h"
@@ -49,21 +49,8 @@
 #include "UIColorAnimatorWrapper.h"
 #include "../game_news.h"
 
-#ifdef DEBUG
-#	include "../debug_renderer.h"
-
-void test_draw	();
-void test_key	(int dik);
-void test_update();
-#endif
-
-
 using namespace InventoryUtilities;
-
-//	hud adjust mode
-int			g_bHudAdjustMode			= 0;
-float		g_fHudAdjustValue			= 0.0f;
-
+//BOOL		g_old_style_ui_hud			= FALSE;
 const u32	g_clWhite					= 0xffffffff;
 
 #define		DEFAULT_MAP_SCALE			1.f
@@ -202,7 +189,8 @@ void CUIMainIngameWnd::Init()
 	UIInvincibleIcon.Show		(false);
 
 
-	if(GameID()==GAME_ARTEFACTHUNT){
+	if(GameID()==GAME_ARTEFACTHUNT)
+	{
 		xml_init.InitStatic		(uiXml, "artefact_static", 0, &UIArtefactIcon);
 		UIArtefactIcon.Show		(false);
 	}
@@ -265,12 +253,13 @@ void CUIMainIngameWnd::Init()
 	UIStaticDiskIO.SetStretchTexture		(TRUE);
 
 
-	HUD_SOUND::LoadSound					("maingame_ui", "snd_new_contact"		, m_contactSnd		, SOUND_TYPE_IDLE);
+	HUD_SOUND_ITEM::LoadSound					("maingame_ui", "snd_new_contact", m_contactSnd, SOUND_TYPE_IDLE);
 }
 
 float UIStaticDiskIO_start_time = 0.0f;
 void CUIMainIngameWnd::Draw()
 {
+	CActor* m_pActor		= smart_cast<CActor*>(Level().CurrentViewEntity());
 #ifdef DEBUG
 	test_draw				();
 #endif
@@ -296,17 +285,14 @@ void CUIMainIngameWnd::Draw()
 		cur_lum = luminocity*0.01f + cur_lum*0.99f;
 		UIMotionIcon.SetLuminosity((s16)iFloor(cur_lum*100.0f));
 	}
-	if(!m_pActor) return;
+	if ( !m_pActor || !m_pActor->g_Alive() ) return;
 
 	UIMotionIcon.SetNoise		((s16)(0xffff&iFloor(m_pActor->m_snd_noise*100.0f)));
+
 	CUIWindow::Draw				();
 	UIZoneMap->Render			();			
 
 	RenderQuickInfos			();		
-
-#ifdef DEBUG
-	draw_adjust_mode			();
-#endif
 }
 
 
@@ -462,13 +448,16 @@ void CUIMainIngameWnd::Update()
 
 			// ≈сли его нет, то берем последнее меньшее значение ()
 			if (rit == m_Thresholds[i].rend())
+		{
 				rit = std::find_if(m_Thresholds[i].rbegin(), m_Thresholds[i].rend(), std::bind2nd(std::less<float>(), value));
+		}
 
 			// ћинимальное и максимальное значени€ границы
 			float min = m_Thresholds[i].front();
 			float max = m_Thresholds[i].back();
 
-			if (rit != m_Thresholds[i].rend()){
+			if (rit != m_Thresholds[i].rend())
+			{
 				float v = *rit;
 				SetWarningIconColor(i, color_argb(0xFF, clampr<u32>(static_cast<u32>(255 * ((v - min) / (max - min) * 2)), 0, 255), 
 					clampr<u32>(static_cast<u32>(255 * (2.0f - (v - min) / (max - min) * 2)), 0, 255),
@@ -1059,7 +1048,7 @@ void CUIMainIngameWnd::AnimateContacts(bool b_snd)
 	UIPdaOnline.ResetClrAnimation	();
 
 	if(b_snd)
-		HUD_SOUND::PlaySound	(m_contactSnd, Fvector().set(0,0,0), 0, true );
+		HUD_SOUND_ITEM::PlaySound	(m_contactSnd, Fvector().set(0,0,0), 0, true );
 
 }
 
@@ -1071,7 +1060,7 @@ void CUIMainIngameWnd::SetPickUpItem	(CInventoryItem* PickUpItem)
 
 void CUIMainIngameWnd::UpdatePickUpItem	()
 {
-	if (!m_pPickUpItem || !Level().CurrentViewEntity() || Level().CurrentViewEntity()->CLS_ID != CLSID_OBJECT_ACTOR) 
+	if (!m_pPickUpItem || !Level().CurrentViewEntity() || !smart_cast<CActor*>(Level().CurrentViewEntity())) 
 	{
 		UIPickUpItemIcon.Show(false);
 		return;
@@ -1158,208 +1147,3 @@ void CUIMainIngameWnd::reset_ui()
 	m_pPickUpItem					= NULL;
 	UIMotionIcon.ResetVisibility	();
 }
-
-#ifdef DEBUG
-/*
-#include "d3dx9core.h"
-#include "winuser.h"
-#pragma comment(lib,"d3dx9.lib")
-#pragma comment(lib,"d3d9.lib")
-ID3DXFont*     g_pTestFont = NULL;
-ID3DXSprite*        g_pTextSprite = NULL;   // Sprite for batching draw text calls
-*/
-
-/*
-#include "UIGameTutorial.h"
-#include "../actor_statistic_mgr.h"
-CUIGameTutorial* g_tut = NULL;
-*/
-//#include "../postprocessanimator.h"
-//CPostprocessAnimator* pp = NULL;
-//extern void create_force_progress();
-
-//#include "UIVotingCategory.h"
-
-//CUIVotingCategory* v = NULL;
-#include "UIFrameWindow.h"
-CUIFrameWindow*		pUIFrame = NULL;
-
-void test_update()
-{
-	if(pUIFrame)
-		pUIFrame->Update();
-}
-
-void test_key	(int dik)
-{
-
-	if(dik==DIK_K)
-	{
-		if(!pUIFrame)
-		{
-			CUIXml uiXML;
-			uiXML.Init(CONFIG_PATH, UI_PATH, "talk.xml");
-
-			pUIFrame					= xr_new<CUIFrameWindow>();
-			CUIXmlInit::InitFrameWindow	(uiXML, "frame_window", 0, pUIFrame);
-		}else
-			xr_delete(pUIFrame);
-	}
-
-/*
-	if(dik==DIK_K){
-		if(g_pTestFont){
-			g_pTestFont->Release();
-			g_pTestFont = NULL;
-			
-			g_pTextSprite->Release();
-			return;
-		}
-	HRESULT hr;
-	static int _height	= -12;
-	static u32 _width	= 0;
-	static u32 _weigth	= FW_BOLD;
-	static BOOL _italic = FALSE;
-
-    hr = D3DXCreateFont( HW.pDevice, _height, _width, _weigth, 1, _italic, DEFAULT_CHARSET, 
-                         OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, 
-                         "Times New Roman", &g_pTestFont );
-
-
-	D3DXCreateSprite( HW.pDevice, &g_pTextSprite );
-
-	g_pTestFont->PreloadText("This is a trivial call to ID3DXFont::DrawText", xr_strlen("This is a trivial call to ID3DXFont::DrawText"));
-
-	}
-*/
-}
-/*
-D3DCOLOR _clr	= D3DXCOLOR( 1.0f, 0.0f, 0.0f, 1.0f );
-LPCSTR _str		= "This is a trivial call to ID3DXFont::DrawText";
-int _len		= 43;
-*/
-void test_draw	()
-{
-	if(pUIFrame)
-		pUIFrame->Draw();
-/*
-	if(g_pTestFont){
-
-//	g_pTestFont->PreloadText("This is a trivial call to ID3DXFont::DrawText", xr_strlen("This is a trivial call to ID3DXFont::DrawText"));
-//	g_pTestFont2->PreloadText("This is a trivial call to ID3DXFont::DrawText", xr_strlen("This is a trivial call to ID3DXFont::DrawText"));
-
-//	IDirect3DTexture9	*T;
-//	RECT				R;
-//	POINT				P;
-//	g_pTestFont2->PreloadGlyphs(0,255);
-//	g_pTestFont2->GetGlyphData(50, &T, &R, &P);
-//	R_CHK		(D3DXSaveTextureToFile	("x:\\test_font.dds",D3DXIFF_DDS,T,0));
-
-#define DT_TOP                      0x00000000
-#define DT_LEFT                     0x00000000
-#define DT_CENTER                   0x00000001
-#define DT_RIGHT                    0x00000002
-#define DT_VCENTER                  0x00000004
-#define DT_BOTTOM                   0x00000008
-#define DT_WORDBREAK                0x00000010
-#define DT_SINGLELINE               0x00000020
-#define DT_EXPANDTABS               0x00000040
-#define DT_TABSTOP                  0x00000080
-#define DT_NOCLIP                   0x00000100
-#define DT_EXTERNALLEADING          0x00000200
-#define DT_CALCRECT                 0x00000400
-#define DT_NOPREFIX                 0x00000800
-#define DT_INTERNAL                 0x00001000
-
-
-		RECT rc;
-        g_pTextSprite->Begin( D3DXSPRITE_ALPHABLEND | D3DXSPRITE_SORT_TEXTURE );
-
-		rc.left   = 50;
-		rc.top    = 150;
-		rc.right  = 250;
-		rc.bottom = 180;
-
-		for(int i=0; i<13; ++i){
-			g_pTestFont->DrawText( g_pTextSprite, _str, _len, &rc, DT_SINGLELINE, _clr);
-			rc.top			+= 30; rc.bottom		+= 30;
-		}
-
-		g_pTextSprite->End();
-
-	}
-*/
-}
-
-void CUIMainIngameWnd::draw_adjust_mode()
-{
-	if (g_bHudAdjustMode&&m_pWeapon) //draw firePoint,ShellPoint etc
-	{
-		CActor* pActor = smart_cast<CActor*>(Level().CurrentEntity());
-		if(!pActor)
-			return;
-
-		bool bCamFirstEye = !!m_pWeapon->GetHUDmode();
-		string32 hud_view="HUD view";
-		string32 _3rd_person_view="3-rd person view";
-		CGameFont* F		= UI()->Font()->pFontDI;
-		F->SetAligment		(CGameFont::alCenter);
-//.		F->SetSizeI			(0.02f);
-		F->OutSetI			(0.f,-0.8f);
-		F->SetColor			(0xffffffff);
-		F->OutNext			("Hud_adjust_mode=%d",g_bHudAdjustMode);
-		if(g_bHudAdjustMode==1)
-			F->OutNext			("adjusting zoom offset");
-		else if(g_bHudAdjustMode==2)
-			F->OutNext			("adjusting fire point for %s",bCamFirstEye?hud_view:_3rd_person_view);
-		else if(g_bHudAdjustMode==3)
-			F->OutNext			("adjusting missile offset");
-		else if(g_bHudAdjustMode==4)
-			F->OutNext			("adjusting shell point for %s",bCamFirstEye?hud_view:_3rd_person_view);
-		else if(g_bHudAdjustMode == 5)
-			F->OutNext			("adjusting fire point 2 for %s",bCamFirstEye?hud_view:_3rd_person_view);
-
-		if(bCamFirstEye)
-		{
-			CWeaponHUD *pWpnHud = NULL;
-			pWpnHud = m_pWeapon->GetHUD();
-
-			Fvector FP,SP,FP2;
-
-			CKinematics* V			= smart_cast<CKinematics*>(pWpnHud->Visual());
-			VERIFY					(V);
-			V->CalculateBones		();
-
-			// fire point&direction
-			Fmatrix& fire_mat		= V->LL_GetTransform(u16(pWpnHud->FireBone()));
-			Fmatrix& parent			= pWpnHud->Transform	();
-
-			const Fvector& fp		= pWpnHud->FirePoint();
-			const Fvector& fp2		= pWpnHud->FirePoint2();
-			const Fvector& sp		= pWpnHud->ShellPoint();
-
-			fire_mat.transform_tiny	(FP,fp);
-			parent.transform_tiny	(FP);
-
-			fire_mat.transform_tiny	(FP2,fp2);
-			parent.transform_tiny	(FP2);
-
-			fire_mat.transform_tiny	(SP,sp);
-			parent.transform_tiny	(SP);
-
-
-			RCache.dbg_DrawAABB(FP,0.01f,0.01f,0.01f,D3DCOLOR_XRGB(255,0,0));
-			RCache.dbg_DrawAABB(FP2,0.02f,0.02f,0.02f,D3DCOLOR_XRGB(0,0,255));
-			RCache.dbg_DrawAABB(SP,0.01f,0.01f,0.01f,D3DCOLOR_XRGB(0,255,0));
-		
-		}else{
-			Fvector FP = m_pWeapon->get_CurrentFirePoint();
-			Fvector FP2 = m_pWeapon->get_CurrentFirePoint2();
-			Fvector SP = m_pWeapon->get_LastSP();
-			RCache.dbg_DrawAABB(FP,0.01f,0.01f,0.01f,D3DCOLOR_XRGB(255,0,0));
-			RCache.dbg_DrawAABB(FP2,0.02f,0.02f,0.02f,D3DCOLOR_XRGB(0,0,255));
-			RCache.dbg_DrawAABB(SP,0.02f,0.02f,0.02f,D3DCOLOR_XRGB(0,255,0));
-		}
-	}
-}
-#endif

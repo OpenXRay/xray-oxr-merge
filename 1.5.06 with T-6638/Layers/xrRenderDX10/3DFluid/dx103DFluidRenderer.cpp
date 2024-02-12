@@ -165,13 +165,13 @@ void dx103DFluidRenderer::CreateGridBox ()
 	};
 	m_iGridBoxVertNum = sizeof(vertices)/sizeof(vertices[0]);
 
-	//D3D10_BUFFER_DESC bd;
-	//bd.Usage = D3D10_USAGE_DEFAULT;
+	//D3D_BUFFER_DESC bd;
+	//bd.Usage = D3D_USAGE_DEFAULT;
 	//bd.ByteWidth = sizeof(vertices);
-	//bd.BindFlags = D3D10_BIND_VERTEX_BUFFER;
+	//bd.BindFlags = D3Dxx_BIND_VERTEX_BUFFER;
 	//bd.CPUAccessFlags = 0;
 	//bd.MiscFlags = 0;
-	//D3D10_SUBRESOURCE_DATA InitData;
+	//D3Dxx_SUBRESOURCE_DATA InitData;
 	//InitData.pSysMem = vertices;
 	//V_RETURN( m_pD3DDevice->CreateBuffer( &bd, &InitData, &pGridBoxVertexBuffer ) );
 
@@ -192,20 +192,21 @@ void dx103DFluidRenderer::CreateGridBox ()
 	};
 	m_iGridBoxFaceNum = (sizeof(indices)/sizeof(indices[0]))/3;
 
-	//bd.Usage = D3D10_USAGE_DEFAULT;
+	//bd.Usage = D3D_USAGE_DEFAULT;
 	//bd.ByteWidth = sizeof(indices);
-	//bd.BindFlags = D3D10_BIND_INDEX_BUFFER;
+	//bd.BindFlags = D3Dxx_BIND_INDEX_BUFFER;
 	//bd.CPUAccessFlags = 0;
 	//bd.MiscFlags = 0;
 	//InitData.pSysMem = indices;
 	//V_RETURN( m_pD3DDevice->CreateBuffer( &bd, &InitData, &pGridBoxIndexBuffer ) );
 
 	CHK_DX(dx10BufferUtils::CreateIndexBuffer(&m_pGridBoxIndexBuffer, indices, sizeof(indices)));
+	HW.stats_manager.increment_stats				(sizeof(indices), enum_stats_buffer_type_index, D3DPOOL_MANAGED);
 
 	// Define the input layout
-	//D3D10_INPUT_ELEMENT_DESC layout[] =
+	//D3Dxx_INPUT_ELEMENT_DESC layout[] =
 	//{
-	//	{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D10_INPUT_PER_VERTEX_DATA, 0 },  
+	//	{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3Dxx_INPUT_PER_VERTEX_DATA, 0 },  
 	//};
 	//UINT numElements = sizeof(layout)/sizeof(layout[0]);
 	static D3DVERTEXELEMENT9 layout[] = 
@@ -215,7 +216,7 @@ void dx103DFluidRenderer::CreateGridBox ()
 	};
 
 	// Create the input layout
-	//D3D10_PASS_DESC PassDesc;
+	//D3Dxx_PASS_DESC PassDesc;
 	//pTechnique->GetPassByName("CompRayData_Back")->GetDesc( &PassDesc );
 	//V_RETURN( m_pD3DDevice->CreateInputLayout( layout, numElements, PassDesc.pIAInputSignature, PassDesc.IAInputSignatureSize, &pGridBoxLayout ) );
 
@@ -225,9 +226,9 @@ void dx103DFluidRenderer::CreateGridBox ()
 void dx103DFluidRenderer::CreateScreenQuad() 
 {
 	// Create our quad input layout
-	//const D3D10_INPUT_ELEMENT_DESC quadlayout[] =
+	//const D3Dxx_INPUT_ELEMENT_DESC quadlayout[] =
 	//{
-	//	{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D10_INPUT_PER_VERTEX_DATA, 0 },
+	//	{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3Dxx_INPUT_PER_VERTEX_DATA, 0 },
 	//};
 	//UINT numElements = sizeof(quadlayout)/sizeof(quadlayout[0]);
 
@@ -238,7 +239,7 @@ void dx103DFluidRenderer::CreateScreenQuad()
 	};
 
 	// Create the input layout
-	//D3D10_PASS_DESC PassDesc;
+	//D3Dxx_PASS_DESC PassDesc;
 	//V_RETURN(pTechnique->GetPassByName("QuadRaycast")->GetDesc( &PassDesc ));
 	//V_RETURN( m_pD3DDevice->CreateInputLayout( quadlayout, numElements, PassDesc.pIAInputSignature, PassDesc.IAInputSignatureSize, &pQuadLayout ) );
 
@@ -249,16 +250,16 @@ void dx103DFluidRenderer::CreateScreenQuad()
 	svQuad[2].pos = D3DXVECTOR3(-1.0f, -1.0f, 0.0f );
 	svQuad[3].pos = D3DXVECTOR3(1.0f, -1.0f, 0.0f );
 
-	//D3D10_BUFFER_DESC vbdesc =
+	//D3D_BUFFER_DESC vbdesc =
 	//{
 	//	4*sizeof(VsInput),
-	//	D3D10_USAGE_DEFAULT,
-	//	D3D10_BIND_VERTEX_BUFFER,
+	//	D3D_USAGE_DEFAULT,
+	//	D3Dxx_BIND_VERTEX_BUFFER,
 	//	0,
 	//	0
 	//};
 
-	//D3D10_SUBRESOURCE_DATA InitData;
+	//D3Dxx_SUBRESOURCE_DATA InitData;
 	//InitData.pSysMem = svQuad;
 	//InitData.SysMemPitch = 0;
 	//InitData.SysMemSlicePitch = 0;
@@ -276,7 +277,7 @@ void dx103DFluidRenderer::CreateJitterTexture()
 		data[i] = (unsigned char) (rand()/float(RAND_MAX)*256);
 	}
 
-	D3D10_TEXTURE2D_DESC desc;
+	D3D_TEXTURE2D_DESC desc;
 	desc.Width = 256;
 	desc.Height = 256;
 	desc.MipLevels = 1;
@@ -285,29 +286,29 @@ void dx103DFluidRenderer::CreateJitterTexture()
 	desc.Format = DXGI_FORMAT_R8_UNORM;
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
-	//desc.Usage = D3D10_USAGE_IMMUTABLE;
-	desc.Usage = D3D10_USAGE_DEFAULT;
-	desc.BindFlags = D3D10_BIND_SHADER_RESOURCE;
+	//desc.Usage = D3D_USAGE_IMMUTABLE;
+	desc.Usage = D3D_USAGE_DEFAULT;
+	desc.BindFlags = D3D_BIND_SHADER_RESOURCE;
 	desc.CPUAccessFlags = 0;
 	desc.MiscFlags = 0;
 
-	D3D10_SUBRESOURCE_DATA dataDesc;
+	D3D_SUBRESOURCE_DATA dataDesc;
 	dataDesc.pSysMem = data;
 	dataDesc.SysMemPitch = 256;
 
-	ID3D10Texture2D* NoiseTexture = NULL;
-	//ID3D10ShaderResourceView* JitterTextureSRV = NULL;
+	ID3DTexture2D* NoiseTexture = NULL;
+	//ID3DxxShaderResourceView* JitterTextureSRV = NULL;
 
 	CHK_DX( HW.pDevice->CreateTexture2D(&desc, &dataDesc, &NoiseTexture));
 
 	//( m_pD3DDevice->CreateTexture2D(&desc, &dataDesc, &NoiseTexture) );
 
 	// Create the shader resource view for jittering
-	//D3D10_SHADER_RESOURCE_VIEW_DESC descSRV;
+	//D3Dxx_SHADER_RESOURCE_VIEW_DESC descSRV;
 
 	//ZeroMemory( &descSRV, sizeof(descSRV) );
 	//descSRV.Format = DXGI_FORMAT_R8_UNORM;
-	//descSRV.ViewDimension = D3D10_SRV_DIMENSION_TEXTURE2D;
+	//descSRV.ViewDimension = D3D_SRV_DIMENSION_TEXTURE2D;
 	//descSRV.Texture2D.MipLevels = 1;
 	//descSRV.Texture2D.MostDetailedMip = 0;
 
@@ -400,25 +401,25 @@ void dx103DFluidRenderer::CreateHHGGTexture()
 
 	D3DXFloat32To16Array( converted, data, 4*iNumSamples );
 
-	D3D10_TEXTURE1D_DESC desc;
+	D3D_TEXTURE1D_DESC desc;
 	desc.Width = iNumSamples;
 	desc.MipLevels = 1;
 	desc.ArraySize = 1;
 	//desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 	desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
-	//desc.Usage = D3D10_USAGE_IMMUTABLE;
-	desc.Usage = D3D10_USAGE_DEFAULT;
-	desc.BindFlags = D3D10_BIND_SHADER_RESOURCE;
+	//desc.Usage = D3D_USAGE_IMMUTABLE;
+	desc.Usage = D3D_USAGE_DEFAULT;
+	desc.BindFlags = D3D_BIND_SHADER_RESOURCE;
 	desc.CPUAccessFlags = 0;
 	desc.MiscFlags = 0;
 
-	D3D10_SUBRESOURCE_DATA dataDesc;
+	D3D_SUBRESOURCE_DATA dataDesc;
 	//dataDesc.pSysMem = data;
 	//dataDesc.SysMemPitch = sizeof(data);
 	dataDesc.pSysMem = converted;
 	dataDesc.SysMemPitch = sizeof(converted);
 
-	ID3D10Texture1D* HHGGTexture = NULL;
+	ID3DTexture1D* HHGGTexture = NULL;
 
 	CHK_DX( HW.pDevice->CreateTexture1D(&desc, &dataDesc, &HHGGTexture));
 
@@ -482,15 +483,15 @@ void dx103DFluidRenderer::CreateRayDataResources( int width, int height )
 /*
 	DXGI_FORMAT volumeDataFmt = DXGI_FORMAT_R32G32B32A32_FLOAT;
 
-	D3D10_TEXTURE2D_DESC desc;
+	D3D_TEXTURE2D_DESC desc;
 	desc.ArraySize = 1;
-	desc.BindFlags = D3D10_BIND_SHADER_RESOURCE | D3D10_BIND_RENDER_TARGET;
+	desc.BindFlags = D3D_BIND_SHADER_RESOURCE | D3Dxx_BIND_RENDER_TARGET;
 	desc.CPUAccessFlags = 0;
 	desc.MipLevels = 1;
 	desc.MiscFlags = 0;
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
-	desc.Usage = D3D10_USAGE_DEFAULT;
+	desc.Usage = D3D_USAGE_DEFAULT;
 	desc.Width = width;
 	desc.Height = height;
 	desc.Format = volumeDataFmt;
@@ -504,9 +505,9 @@ void dx103DFluidRenderer::CreateRayDataResources( int width, int height )
 	desc.Format = DXGI_FORMAT_R32_FLOAT;
 	V_RETURN(m_pD3DDevice->CreateTexture2D(&desc,NULL,&pEdgeTex2D));
 
-	D3D10_RENDER_TARGET_VIEW_DESC DescRT;
+	D3Dxx_RENDER_TARGET_VIEW_DESC DescRT;
 	DescRT.Format = volumeDataFmt;
-	DescRT.ViewDimension = D3D10_RTV_DIMENSION_TEXTURE2D;
+	DescRT.ViewDimension = D3D_RTV_DIMENSION_TEXTURE2D;
 	DescRT.Texture2D.MipSlice = 0;
 	V_RETURN( m_pD3DDevice->CreateRenderTargetView(pRayDataTex2D, &DescRT, &pRayDataRTV));
 	V_RETURN( m_pD3DDevice->CreateRenderTargetView(pRayDataSmallTex2D, &DescRT, &pRayDataSmallRTV));
@@ -514,9 +515,9 @@ void dx103DFluidRenderer::CreateRayDataResources( int width, int height )
 	DescRT.Format = DXGI_FORMAT_R32_FLOAT;
 	V_RETURN( m_pD3DDevice->CreateRenderTargetView(pEdgeTex2D, &DescRT, &pEdgeRTV));
 
-	D3D10_SHADER_RESOURCE_VIEW_DESC SRVDesc;
+	D3Dxx_SHADER_RESOURCE_VIEW_DESC SRVDesc;
 	ZeroMemory( &SRVDesc, sizeof(SRVDesc) );
-	SRVDesc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURE2D;
+	SRVDesc.ViewDimension = D3D_SRV_DIMENSION_TEXTURE2D;
 	SRVDesc.Texture2D.MostDetailedMip = 0;
 	SRVDesc.Texture2D.MipLevels = 1;
 	SRVDesc.Format = volumeDataFmt;
@@ -667,7 +668,7 @@ void dx103DFluidRenderer::Draw(const dx103DFluidData &FluidData)
 	//=========================================================================
 
 	// Partial init of viewport struct used below
-	//D3D10_VIEWPORT rtViewport;
+	//D3Dxx_VIEWPORT rtViewport;
 	//rtViewport.TopLeftX = 0;
 	//rtViewport.TopLeftY = 0;
 	//rtViewport.MinDepth = 0;
@@ -689,7 +690,7 @@ void dx103DFluidRenderer::Draw(const dx103DFluidData &FluidData)
 	// Raycast into the temporary render target: 
 	//  raycasting is done at the smaller resolution, using a fullscreen quad
 	//m_pD3DDevice->ClearRenderTargetView( pRayCastRTV, color );
-	HW.pDevice->ClearRenderTargetView( RT[RRT_RayCastTex]->pRT, color );
+	HW.pContext->ClearRenderTargetView( RT[RRT_RayCastTex]->pRT, color );
 	//m_pD3DDevice->OMSetRenderTargets( 1, &pRayCastRTV , NULL ); 
 	CRenderTarget* pTarget = RImplementation.Target;
 	pTarget->u_setrt(RT[RRT_RayCastTex],0,0,0);		// LDR RT
@@ -718,8 +719,8 @@ void dx103DFluidRenderer::Draw(const dx103DFluidData &FluidData)
 	// Render to the back buffer sampling from the raycast texture that we just created
 	//  If and edge was detected at the current pixel we will raycast again to avoid
 	//  smoke aliasing artifacts at scene edges
-	//ID3D10RenderTargetView* pRTV = DXUTGetD3D10RenderTargetView();
-	//ID3D10DepthStencilView* pDSV = DXUTGetD3D10DepthStencilView();
+	//ID3DxxRenderTargetView* pRTV = DXUTGetD3DxxRenderTargetView();
+	//ID3DxxDepthStencilView* pDSV = DXUTGetD3DxxDepthStencilView();
 	//m_pD3DDevice->OMSetRenderTargets( 1, &pRTV , pDSV ); 
 	//	Restore render state
 	if( !RImplementation.o.dx10_msaa )
@@ -756,7 +757,7 @@ void dx103DFluidRenderer::ComputeRayData()
 	// Clear the color buffer to 0
 	float blackColor[4] = {0, 0, 0, 0 };
 	//m_pD3DDevice->ClearRenderTargetView(pRayDataRTV, blackColor);
-	HW.pDevice->ClearRenderTargetView( RT[RRT_RayDataTex]->pRT, blackColor );
+	HW.pContext->ClearRenderTargetView( RT[RRT_RayDataTex]->pRT, blackColor );
 	//m_pD3DDevice->OMSetRenderTargets(1, &pRayDataRTV, NULL);
 	CRenderTarget* pTarget = RImplementation.Target;
 	pTarget->u_setrt(RT[RRT_RayDataTex],0,0,0);		// LDR RT
@@ -764,7 +765,7 @@ void dx103DFluidRenderer::ComputeRayData()
 	RCache.set_Element(m_RendererTechnique[RS_CompRayData_Back]);
 
 	// Setup viewport to match the window's backbuffer
-	//D3D10_VIEWPORT rtViewport;
+	//D3Dxx_VIEWPORT rtViewport;
 	//rtViewport.TopLeftX = 0;
 	//rtViewport.TopLeftY = 0;
 	//rtViewport.MinDepth = 0;
@@ -801,7 +802,7 @@ void dx103DFluidRenderer::ComputeEdgeTexture()
 	RCache.set_Element(m_RendererTechnique[RS_QuadDownSampleRayDataTexture]);
 
 	// First setup viewport to match the size of the destination low-res texture
-	//D3D10_VIEWPORT rtViewport;
+	//D3Dxx_VIEWPORT rtViewport;
 	//rtViewport.TopLeftX = 0;
 	//rtViewport.TopLeftY = 0;
 	//rtViewport.MinDepth = 0;
@@ -836,7 +837,7 @@ void dx103DFluidRenderer::DrawScreenQuad()
 	//UINT offsets = 0;
 	//m_pD3DDevice->IASetInputLayout( pQuadLayout );
 	//m_pD3DDevice->IASetVertexBuffers( 0, 1, &pQuadVertexBuffer, &strides, &offsets );
-	//m_pD3DDevice->IASetPrimitiveTopology( D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
+	//m_pD3DDevice->IASetPrimitiveTopology( D3Dxx_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
 	//m_pD3DDevice->Draw( 4, 0 );
 
 	RCache.set_Geometry(m_GeomQuadVertex);
@@ -849,7 +850,7 @@ void dx103DFluidRenderer::DrawBox()
 //	UINT offset = 0;
 //	m_pD3DDevice->IASetVertexBuffers( 0, 1, &pGridBoxVertexBuffer, &stride, &offset );
 //	m_pD3DDevice->IASetIndexBuffer( pGridBoxIndexBuffer, DXGI_FORMAT_R32_UINT, 0 );
-//	m_pD3DDevice->IASetPrimitiveTopology( D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+//	m_pD3DDevice->IASetPrimitiveTopology( D3Dxx_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 //	m_pD3DDevice->IASetInputLayout(pGridBoxLayout);
 //	m_pD3DDevice->DrawIndexed(36, 0, 0);
 

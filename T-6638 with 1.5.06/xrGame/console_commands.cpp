@@ -573,7 +573,7 @@ public:
 		SDrawStaticStruct* _s		= CurrentGameUI()->AddCustomStatic("game_saved", true);
 		LPSTR						save_name;
 		STRCONCAT					(save_name, CStringTable().translate("st_game_saved").c_str(), ": ", S);
-		_s->wnd()->TextItemControl()->SetText(save_name);
+		_s->wnd()->SetText			(save_name);
 
 		xr_strcat				(S,".dds");
 		FS.update_path			(S1,"$game_saves$",S);
@@ -592,7 +592,6 @@ public:
 	{
 		get_files_list				(tips, "$game_saves$", SAVE_EXTENSION);
 	}
-
 };//CCC_ALifeSave
 
 class CCC_ALifeLoadFrom : public IConsole_Command {
@@ -1227,13 +1226,13 @@ struct CCC_JumpToLevel : public IConsole_Command {
 			tips.push_back( (*itb).second.name() );
 		}
 	}
-
 };
 
 //#ifndef MASTER_GOLD
 class CCC_Script : public IConsole_Command {
 public:
 	CCC_Script(LPCSTR N) : IConsole_Command(N)  { bEmptyArgsHandled = false; };
+
 	virtual void Execute( LPCSTR args )
 	{
 		if ( !xr_strlen(args) )
@@ -1262,7 +1261,6 @@ public:
 	{
 		get_files_list( tips, "$game_scripts$", ".script" );
 	}
-
 };
 
 class CCC_ScriptCommand : public IConsole_Command {
@@ -1496,6 +1494,7 @@ struct CCC_DbgBullets : public CCC_Integer {
 #include "attachment_owner.h"
 #include "InventoryOwner.h"
 #include "Inventory.h"
+
 class CCC_TuneAttachableItem : public IConsole_Command
 {
 public		:
@@ -1516,7 +1515,8 @@ public		:
 		if(itm)
 		{
 			CAttachableItem::m_dbgItem = itm;
-		}else
+		}
+		else
 		{
 			CInventoryOwner* iowner = smart_cast<CInventoryOwner*>(obj);
 			PIItem active_item = iowner->m_inventory->ActiveItem();
@@ -1760,7 +1760,8 @@ private:
 
 #endif
 
-class CCC_DbgVar : public IConsole_Command {
+class CCC_DbgVar : public IConsole_Command
+{
 public:
 	CCC_DbgVar(LPCSTR N) : IConsole_Command(N)  { bEmptyArgsHandled = false; };
 	virtual void Execute(LPCSTR arguments) 

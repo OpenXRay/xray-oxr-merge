@@ -142,18 +142,6 @@ void CSoundRender_CoreA::_initialize(int stage)
         bEAX 					= EAXTestSupport(FALSE);
     }
 
-	ZeroMemory					( &wfm, sizeof( WAVEFORMATEX ) );
-	switch	( psSoundFreq ){            
-	default:
-	case sf_22K:	wfm.nSamplesPerSec = 22050; break;
-	case sf_44K:	wfm.nSamplesPerSec = 44100; break;
-	}
-	wfm.wFormatTag				= WAVE_FORMAT_PCM;
-	wfm.nChannels				= 2;	//(dsCaps.dwFlags&DSCAPS_PRIMARYSTEREO)?2:1;
-	wfm.wBitsPerSample			= 16;	//(dsCaps.dwFlags&DSCAPS_PRIMARY16BIT)?16:8;
-	wfm.nBlockAlign				= wfm.wBitsPerSample / 8 * wfm.nChannels;
-	wfm.nAvgBytesPerSec			= wfm.nSamplesPerSec * wfm.nBlockAlign;
-
     inherited::_initialize		(stage);
 
 	if(stage==1)//first initialize

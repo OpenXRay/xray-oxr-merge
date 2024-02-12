@@ -2,7 +2,7 @@
 #include "ScriptXmlInit.h"
 #include "ui\UIXmlInit.h"
 #include "ui\UITextureMaster.h"
-#include "ui\UICheckButton.h" //#include "ui\UI3tButton.h"
+#include "ui\UICheckButton.h"
 #include "ui\UISpinNum.h"
 #include "ui\UISpinText.h"
 #include "ui\UIComboBox.h"
@@ -34,18 +34,6 @@ void _attach_child(CUIWindow* _child, CUIWindow* _parent)
 		_parent_scroll->AddWindow	(_child, true);
 	else
 		_parent->AttachChild		(_child);
-}
-CScriptXmlInit::CScriptXmlInit(){
-
-}
-
-CScriptXmlInit::CScriptXmlInit(const CScriptXmlInit&){
-	// do nothing
-}
-
-CScriptXmlInit& CScriptXmlInit::operator =(const CScriptXmlInit& other){
-	// do nothing
-	return (*this);
 }
 
 void CScriptXmlInit::ParseFile(LPCSTR xml_file)
@@ -245,6 +233,7 @@ CUIEditBox* CScriptXmlInit::InitCDkey(LPCSTR path, CUIWindow* parent)
 {
 	CUICDkey* pWnd					= xr_new<CUICDkey>();
 	CUIXmlInit::InitEditBox			(m_xml, path, 0, pWnd);
+	pWnd->assign_callbacks			( );
 	_attach_child					(pWnd, parent);
 	pWnd->SetCurrentOptValue		();
 	return							pWnd;	
@@ -270,7 +259,10 @@ void CScriptXmlInit::script_register(lua_State *L){
 		.def("InitFrameLine",			&CScriptXmlInit::InitFrameLine)
 		.def("InitEditBox",				&CScriptXmlInit::InitEditBox)		
 		.def("InitStatic",				&CScriptXmlInit::InitStatic)
+		.def("InitTextWnd",				&CScriptXmlInit::InitTextWnd)
 		.def("InitAnimStatic",			&CScriptXmlInit::InitAnimStatic)		
+		.def("InitSleepStatic",			&CScriptXmlInit::InitSleepStatic)		
+		.def("Init3tButton",			&CScriptXmlInit::Init3tButton)
 		.def("InitCheck",				&CScriptXmlInit::InitCheck)
 		.def("InitSpinNum",				&CScriptXmlInit::InitSpinNum)
 		.def("InitSpinFlt",				&CScriptXmlInit::InitSpinFlt)

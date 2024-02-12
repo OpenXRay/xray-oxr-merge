@@ -19,5 +19,5 @@ public:
 	void				SetCarHealth	(float value);
 	void				SetSpeed		(float speed);
 	void				SetRPM			(float rmp);
-	void				Init			(float x, float y, float width, float height);
+	void				InitCarPanel	(Fvector2 pos, Fvector2 size);
 };

@@ -29,7 +29,7 @@ class CUIInteractiveBackground : public CUIWindow
 {
 public:
 	CUIInteractiveBackground();
-	virtual ~CUIInteractiveBackground();
+	virtual ~CUIInteractiveBackground() {};
 
 			void InitIB	(Fvector2 pos, Fvector2 size);
 			void InitIB	(LPCSTR texture_e, Fvector2 pos, Fvector2 size);
@@ -67,12 +67,6 @@ CUIInteractiveBackground<T>::CUIInteractiveBackground()
 	m_stateDisabled    = NULL;
 	m_stateHighlighted = NULL;
 	m_stateTouched     = NULL;	
-}
-
-template <class T>
-CUIInteractiveBackground<T>::~CUIInteractiveBackground()
-{
-
 }
 
 template <class T>

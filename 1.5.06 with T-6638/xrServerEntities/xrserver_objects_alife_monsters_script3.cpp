@@ -86,11 +86,25 @@ void CSE_ALifeCreatureAbstract::script_register(lua_State *L)
 void CSE_ALifeOnlineOfflineGroup::script_register(lua_State *L)
 {
 	module(L)[
+		class_< MEMBERS::value_type >( "MEMBERS__value_type" )
+			.def_readonly("id", 	&MEMBERS::value_type::first )
+			.def_readonly("object",	&MEMBERS::value_type::second ),
+
 		luabind_class_dynamic_alife2(
 			CSE_ALifeOnlineOfflineGroup,
 			"cse_alife_online_offline_group",
 			CSE_ALifeDynamicObject,
 			CSE_ALifeSchedulable
 		)
+#ifdef XRGAME_EXPORTS
+		.def("register_member",		&CSE_ALifeOnlineOfflineGroup::register_member)
+		.def("unregister_member",	&CSE_ALifeOnlineOfflineGroup::unregister_member)
+		.def("commander_id",		&CSE_ALifeOnlineOfflineGroup::commander_id)
+		.def("squad_members",		&CSE_ALifeOnlineOfflineGroup::squad_members, return_stl_iterator)
+		.def("npc_count",			&CSE_ALifeOnlineOfflineGroup::npc_count)
+		.def("add_location_type",	&CSE_ALifeOnlineOfflineGroup::add_location_type)
+		.def("clear_location_types",&CSE_ALifeOnlineOfflineGroup::clear_location_types)
+		.def("force_change_position",&CSE_ALifeOnlineOfflineGroup::force_change_position)
+#endif //#ifdef XRGAME_EXPORTS
 	];
 }

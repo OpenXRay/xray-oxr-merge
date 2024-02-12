@@ -28,12 +28,12 @@ CUISkinSelectorWnd::CUISkinSelectorWnd(const char* strSectionName, s16 team)
 	m_pFrames		= xr_new<CUIStatic>();	AttachChild(m_pFrames);
 	m_pAnims[0]		= xr_new<CUIAnimatedStatic>(); m_pFrames->AttachChild(m_pAnims[0]);
 	m_pAnims[1]		= xr_new<CUIAnimatedStatic>(); m_pFrames->AttachChild(m_pAnims[1]);
-	m_pButtons[0]	= xr_new<CUI3tButtonEx>();	m_pFrames->AttachChild(m_pButtons[0]); m_pButtons[0]->SetMessageTarget(this);
-	m_pButtons[1]	= xr_new<CUI3tButtonEx>();	m_pFrames->AttachChild(m_pButtons[1]); m_pButtons[1]->SetMessageTarget(this);
+	m_pButtons[0]	= xr_new<CUI3tButton>();	m_pFrames->AttachChild(m_pButtons[0]); m_pButtons[0]->SetMessageTarget(this);
+	m_pButtons[1]	= xr_new<CUI3tButton>();	m_pFrames->AttachChild(m_pButtons[1]); m_pButtons[1]->SetMessageTarget(this);
 
-	m_pBtnAutoSelect= xr_new<CUI3tButtonEx>();	AttachChild(m_pBtnAutoSelect);
-	m_pBtnSpectator	= xr_new<CUI3tButtonEx>();	AttachChild(m_pBtnSpectator);
-	m_pBtnBack		= xr_new<CUI3tButtonEx>();	AttachChild(m_pBtnBack);
+	m_pBtnAutoSelect= xr_new<CUI3tButton>();	AttachChild(m_pBtnAutoSelect);
+	m_pBtnSpectator	= xr_new<CUI3tButton>();	AttachChild(m_pBtnSpectator);
+	m_pBtnBack		= xr_new<CUI3tButton>();	AttachChild(m_pBtnBack);
 
 	m_firstSkin = 0;
 	Init(strSectionName);	
@@ -177,7 +177,7 @@ void CUISkinSelectorWnd::SendMessage(CUIWindow *pWnd, s16 msg, void *pData)
 						OnBtnOK();					
 					}
 			break;
-		case STATIC_FOCUS_RECEIVED:
+		case WINDOW_FOCUS_RECEIVED:
 			if (pWnd == m_pButtons[0])
 			{
 				m_pAnims[0]->Rewind(0);

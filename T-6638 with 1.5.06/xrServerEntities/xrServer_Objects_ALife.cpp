@@ -104,15 +104,15 @@ struct story_name_predicate {
 SFillPropData::SFillPropData	()
 {
 	counter = 0;
-};
+}
 
 SFillPropData::~SFillPropData	()
 {
 	VERIFY	(0==counter);
-};
+}
 
 void	SFillPropData::load			()
-    {
+{
       // create ini
 #ifdef XRGAME_EXPORTS
     CInifile				*Ini = 	pGameIni;
@@ -198,7 +198,7 @@ void	SFillPropData::load			()
 		smart_covers.push_back	(luabind::object_cast<LPCSTR>(I.key()));
 
 	std::sort				(smart_covers.begin(), smart_covers.end(), logical_string_predicate());
-};
+}
 
 void	SFillPropData::unload			()
 {
@@ -209,7 +209,7 @@ void	SFillPropData::unload			()
     spawn_story_names.clear	();
 	character_profiles.clear();
 	smart_covers.clear		();
-};
+}
 
 void	SFillPropData::dec				()
 {
@@ -218,7 +218,7 @@ void	SFillPropData::dec				()
 
     if (!counter)
         unload				();
-};
+}
 
 void	SFillPropData::inc				()
 {
@@ -229,6 +229,7 @@ void	SFillPropData::inc				()
 
     ++counter;
 }
+
 static SFillPropData			fp_data;
 #endif // #ifdef XRSE_FACTORY_EXPORTS
 

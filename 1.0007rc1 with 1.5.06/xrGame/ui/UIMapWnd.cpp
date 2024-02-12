@@ -199,10 +199,12 @@ void CUIMapWnd::Init(LPCSTR xml_name, LPCSTR start_from)
 	else
 		sect_name = "level_maps_mp";
 
-	if (gameLtx.section_exist(sect_name.c_str())){
+	if (gameLtx.section_exist(sect_name.c_str()))
+	{
 		CInifile::Sect& S		= gameLtx.r_section(sect_name.c_str());
 		CInifile::SectCIt	it	= S.Data.begin(), end = S.Data.end();
-		for (;it!=end; it++){
+		for (;it!=end; it++)
+		{
 			shared_str map_name = it->first;
 			xr_strlwr(map_name);
 			R_ASSERT2	(m_GameMaps.end() == m_GameMaps.find(map_name), "Duplicate level name not allowed");
@@ -216,6 +218,7 @@ void CUIMapWnd::Init(LPCSTR xml_name, LPCSTR start_from)
 			l->OptimalFit( m_UILevelFrame->GetWndRect() );
 		}
 	}
+
 #ifdef DEBUG
 	GameMaps::iterator it = m_GameMaps.begin();
 	GameMaps::iterator it2;
@@ -255,14 +258,18 @@ void CUIMapWnd::Show(bool status)
 			it->second->SetClipRect	(ActiveMapRect());
 		}
 
-		if(	m_flags.test(lmFirst)){
+		if(	m_flags.test(lmFirst))
+		{
 			inherited::Update		();// only maps, not action planner
 			OnToolActorClicked		(NULL,NULL);
 			m_flags.set				(lmFirst,FALSE);
 			}
 		InventoryUtilities::SendInfoToActor("ui_pda_map_local");
-	}else{
-		if(GlobalMap()){
+	}
+	else
+	{
+		if(GlobalMap())
+		{
 			GlobalMap()->DetachAll();
 			GlobalMap()->Show(false);
 		}
@@ -321,15 +328,19 @@ void CUIMapWnd::SetTargetMap			(CUICustomMap* m, const Fvector2& pos, bool bZoom
 {
 	m_tgtMap							= m;
 
-	if(m==GlobalMap()){
+	if(m==GlobalMap())
+	{
 		CUIGlobalMap* gm				= GlobalMap();
 		SetZoom							(gm->GetMinZoom());
 		Frect vis_rect					= ActiveMapRect		();
 		vis_rect.getcenter				(m_tgtCenter);
-		Fvector2	_p;gm->GetAbsolutePos(_p);
+		Fvector2						_p;
+		gm->GetAbsolutePos				(_p);
 		m_tgtCenter.sub					(_p);
 		m_tgtCenter.div					(gm->GetCurrentZoom());
- 	}else{
+ 	}
+ 	else
+ 	{
 
 		if(bZoomIn && fsimilar(GlobalMap()->GetCurrentZoom(), GlobalMap()->GetMinZoom(),EPS_L ))
 			SetZoom(GlobalMap()->GetMaxZoom());
@@ -349,7 +360,8 @@ void CUIMapWnd::Draw()
 
 bool CUIMapWnd::OnKeyboardHold(int dik)
 {
-	switch(dik){
+	switch(dik)
+	{
 		case DIK_UP:
 		case DIK_DOWN:
 		case DIK_LEFT:
@@ -393,14 +405,20 @@ bool CUIMapWnd::OnKeyboard				(int dik, EUIMessages keyboard_action)
 
 bool CUIMapWnd::OnMouse(float x, float y, EUIMessages mouse_action)
 {
-	if(inherited::OnMouse(x,y,mouse_action)) return true;
+	if(inherited::OnMouse(x,y,mouse_action))
+	{
+		return true;
+	}
+
 	Fvector2 cursor_pos = GetUICursor()->GetCursorPosition();
 
-	if(GlobalMap() && !GlobalMap()->Locked() && ActiveMapRect().in( cursor_pos ) ){
+	if(GlobalMap() && !GlobalMap()->Locked() && ActiveMapRect().in( cursor_pos ) )
+	{
 		switch (mouse_action)
 		{
 		case WINDOW_MOUSE_MOVE:
-			if( pInput->iGetAsyncBtnState(0) ){
+			if( pInput->iGetAsyncBtnState(0) )
+			{
 				GlobalMap()->MoveWndDelta	(GetUICursor()->GetCursorPositionDelta());
 				UpdateScroll					();
 				m_hint->SetOwner				(NULL);
@@ -515,7 +533,8 @@ void CUIMapWnd::UpdateScroll()
 
 void CUIMapWnd::OnScrollV(CUIWindow*, void*)
 {
-	if (GlobalMap()){
+	if (GlobalMap())
+	{
 		int s_pos					= m_UIMainScrollV->GetScrollPos();
 		Fvector2 w_pos				= GlobalMap()->GetWndPos();
 		GlobalMap()->SetWndPos	(w_pos.x,float(-s_pos));
@@ -524,7 +543,8 @@ void CUIMapWnd::OnScrollV(CUIWindow*, void*)
 
 void CUIMapWnd::OnScrollH(CUIWindow*, void*)
 {
-	if (GlobalMap()){
+	if (GlobalMap())
+	{
 		int s_pos					= m_UIMainScrollH->GetScrollPos();
 		Fvector2 w_pos				= GlobalMap()->GetWndPos();
 		GlobalMap()->SetWndPos	(float(-s_pos),w_pos.y);
@@ -684,10 +704,14 @@ void CUIMapWnd::OnToolActorClicked		(CUIWindow*, void*)
 
 	CUICustomMap* lm			= NULL;
 	u16	idx						= GetIdxByName			(Level().name());
-	if (idx!=u16(-1)){
+	if (idx!=u16(-1))
+	{
 		lm						= GetMapByIdx			(idx);
-	}else
+	}
+	else
+	{
 		lm						= GlobalMap();
+	}
 
 	SetTargetMap				(lm, v2, true);
 }

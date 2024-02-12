@@ -1,21 +1,23 @@
 #include "stdafx.h"
 #include "UIPropertiesBox.h"
-#include "../hudmanager.h"
 #include "../level.h"
 #include "UIListBoxItem.h"
 #include "UIXmlInit.h"
 
 #define OFFSET_X (5.0f)
 #define OFFSET_Y (5.0f)
-//#define FRAME_BORDER_WIDTH	20.0f
-//#define FRAME_BORDER_HEIGHT	22.0f
-
 #define ITEM_HEIGHT (GetFont()->CurrentHeight()+2.0f)
 
-CUIPropertiesBox::CUIPropertiesBox()
+CUIPropertiesBox::CUIPropertiesBox(CUIPropertiesBox* sub_property_box)
 {
-	SetFont								(HUD().Font().pFontArial14);
+	SetFont								(UI().Font().pFontArial14);
 	m_UIListWnd.SetImmediateSelection	(true);
+
+	m_sub_property_box			= sub_property_box;
+	m_parent_sub_menu			= NULL;
+	m_item_sub_menu_initiator	= NULL;
+	if (m_sub_property_box)
+		m_sub_property_box->SetParentSubMenu(this);
 }
 
 CUIPropertiesBox::~CUIPropertiesBox()
@@ -50,18 +52,71 @@ void CUIPropertiesBox::SendMessage(CUIWindow *pWnd, s16 msg, void *pData)
 		if(msg == LIST_ITEM_CLICKED)
 		{
 			GetMessageTarget()->SendMessage	(this, PROPERTY_CLICKED);
-			Hide							();
+			if (!m_sub_property_box)	//i'm the last sub menu 
+			{
+				Hide							();
+				if (m_parent_sub_menu)	//if i have a parent sub menu, close it 
+					m_parent_sub_menu->Hide();
+			}
 		}
 	}
-	inherited::SendMessage(pWnd, msg, pData);
+	CUIWndCallback::OnEvent	(pWnd, msg, pData);
+	inherited::SendMessage	(pWnd, msg, pData);
 }
 
-bool CUIPropertiesBox::AddItem(const char*  str, void* pData, u32 tag_value)
+void CUIPropertiesBox::ShowSubMenu()
 {
-	CUIListBoxItem* itm		= m_UIListWnd.AddItem(str);
+	R_ASSERT(m_sub_property_box);
+	R_ASSERT(!m_sub_property_box->IsShown());
+	m_item_sub_menu_initiator = GetClickedItem();
+	
+	Frect		tmp_pbox_rect = m_last_show_rect;
+	
+	Fvector2	tmp_pbox_pos = GetWndPos();
+	tmp_pbox_pos.y +=
+		m_item_sub_menu_initiator->GetWndPos().y +
+		(m_item_sub_menu_initiator->GetHeight() / 2);
+
+	float right_limit = tmp_pbox_pos.x +
+		GetWidth() +
+		m_sub_property_box->GetWidth();
+	//show sub menu on left or right site 
+	if (right_limit < tmp_pbox_rect.x2)
+	{
+		//on right
+		tmp_pbox_rect.x1 = tmp_pbox_pos.x;
+		tmp_pbox_pos.x += GetWidth();
+	} else
+	{
+		//on left
+		tmp_pbox_rect.x2 = tmp_pbox_pos.x;
+	}
+	m_sub_property_box->Show(tmp_pbox_rect, tmp_pbox_pos);
+}
+
+void CUIPropertiesBox::OnItemReceivedFocus(CUIWindow* w, void* d)
+{
+	VERIFY(m_sub_property_box);
+	if (m_sub_property_box->IsShown() && (w != m_item_sub_menu_initiator))
+	{
+		m_sub_property_box->Hide();
+	}
+}
+
+bool CUIPropertiesBox::AddItem(LPCSTR  str, void* pData, u32 tag_value)
+{
+	CUIListBoxItem* itm		= m_UIListWnd.AddTextItem(str);
 	itm->SetTAG				(tag_value);
 	itm->SetData			(pData);
-
+	if (m_sub_property_box)
+	{
+		AddCallback(
+			itm,
+			WINDOW_FOCUS_RECEIVED,
+			CUIWndCallback::void_function( this, &CUIPropertiesBox::OnItemReceivedFocus )
+		);
+		Register(itm);
+	}
 	return true;
 }
 void CUIPropertiesBox::RemoveItemByTAG(u32 tag)
@@ -78,6 +133,7 @@ void CUIPropertiesBox::Show(const Frect& parent_rect, const Fvector2& point)
 {
 	Fvector2						prop_pos;
 	Fvector2 prop_size				= GetWndSize();
+	m_last_show_rect				= parent_rect;
 
 	if(point.x-prop_size.x > parent_rect.x1 && point.y+prop_size.y < parent_rect.y2)
 	{
@@ -114,9 +170,12 @@ void CUIPropertiesBox::Hide()
 	
 	if(GetParent()->GetMouseCapturer() == this)
 		GetParent()->SetCapture(this, false);
+	
+	if (m_sub_property_box)
+		m_sub_property_box->Hide();
 }
 
-bool CUIPropertiesBox::OnMouse(float x, float y, EUIMessages mouse_action)
+bool CUIPropertiesBox::OnMouseAction(float x, float y, EUIMessages mouse_action)
 {
 	bool cursor_on_box;
 
@@ -137,7 +196,7 @@ bool CUIPropertiesBox::OnMouse(float x, float y, EUIMessages mouse_action)
 		Hide();
 	}
 
-	return inherited::OnMouse(x, y, mouse_action);
+	return inherited::OnMouseAction(x, y, mouse_action);
 }
 
 void CUIPropertiesBox::AutoUpdateSize()
@@ -150,11 +209,6 @@ void CUIPropertiesBox::AutoUpdateSize()
 	m_UIListWnd.SetWidth(_max(20.0f,f));
 	m_UIListWnd.UpdateChildrenLenght();
 }
-
-//int CUIPropertiesBox::GetClickedIndex() 
-//{
-////	return m_iClickedElement;
-//}
 
 CUIListBoxItem* CUIPropertiesBox::GetClickedItem()
 {
@@ -169,7 +223,8 @@ void CUIPropertiesBox::Draw()
 	inherited::Draw();
 }
 
-bool CUIPropertiesBox::OnKeyboard(int dik, EUIMessages keyboard_action){
+bool CUIPropertiesBox::OnKeyboardAction(int dik, EUIMessages keyboard_action)
+{
 	Hide();
 	return true;
 }

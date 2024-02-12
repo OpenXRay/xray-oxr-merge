@@ -7,7 +7,7 @@
 #include "uidialogwnd.h"
 #include "../hudmanager.h"
 #include "../xr_level_controller.h"
-#include "../../xr_ioconsole.h"
+#include "../../xrEngine/xr_ioconsole.h"
 #include "../level.h"
 #include "../GameObject.h"
 
@@ -133,7 +133,6 @@ bool CUIDialogWnd::IR_OnMouseMove(int dx, int dy)
 	{ 
 		GetUICursor()->UpdateCursorPosition();
 		Fvector2 cPos = GetUICursor()->GetCursorPosition();
-
 		OnMouse(cPos.x, cPos.y , WINDOW_MOUSE_MOVE);
 	}
 	else if( !StopAnyMove() && g_pGameLevel ){

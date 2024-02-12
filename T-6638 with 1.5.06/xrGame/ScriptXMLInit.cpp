@@ -78,14 +78,6 @@ CUIStatic* CScriptXmlInit::InitStatic(LPCSTR path, CUIWindow* parent)
 	return pWnd;
 }
 
-CUITextWnd* CScriptXmlInit::InitTextWnd(LPCSTR path, CUIWindow* parent)
-{
-	CUITextWnd* pWnd = xr_new<CUITextWnd>();
-	CUIXmlInit::InitTextWnd(m_xml, path, 0, pWnd);
-	_attach_child(pWnd, parent);
-	return pWnd;
-}
-
 CUIStatic* CScriptXmlInit::InitAnimStatic(LPCSTR path, CUIWindow* parent)
 {
 	CUIAnimatedStatic* pWnd = xr_new<CUIAnimatedStatic>();

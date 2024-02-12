@@ -2,6 +2,8 @@
 #include "GameSpy_Patching.h"
 #include "GameSpy_Base_Defs.h"
 #include "../MainMenu.h"
+#include "../xrGameSpy/xrGameSpy_MainDefs.h"
+#include "../xrEngine/no_single.h"
 
 CGameSpy_Patching::CGameSpy_Patching()
 {
@@ -33,6 +35,68 @@ void	CGameSpy_Patching::LoadGameSpy(HMODULE hGameSpyDLL)
 {	
 	GAMESPY_LOAD_FN(xrGS_ptCheckForPatch);
 }
+
+
+static char const * QueryPatchVersionString(char* dest, u32 dest_size)
+{
+	HKEY KeyCDKey = 0;
+	
+	long res = RegOpenKeyEx(REGISTRY_BASE, 
+		REGISTRY_PATH, 0, KEY_READ, &KeyCDKey);
+
+	if (res != ERROR_SUCCESS || KeyCDKey == 0)
+		return "";
+
+	//string128 SourceID;
+	string128 LangID;
+	DWORD KeyValueSize = 128;
+	DWORD KeyValueType = REG_SZ;
+	//RegQueryValueEx(KeyCDKey, REGISTRY_VALUE_SKU, NULL, &KeyValueType, (LPBYTE)SourceID, &KeyValueSize);
+	//KeyValueSize = 128;
+	//KeyValueType = REG_SZ;
+	RegQueryValueEx(KeyCDKey, REGISTRY_VALUE_LANGUAGE, NULL, &KeyValueType, (LPBYTE)LangID, &KeyValueSize);
+
+	sprintf_s(dest, dest_size, "-%s", LangID);
+		
+	RegCloseKey(KeyCDKey);
+	return dest;
+}
+
+#define PATCH_SUFFIX ".exe"
+#define PATCH_SUFFIX_SIZE (sizeof(PATCH_SUFFIX) - 1)
+#define APPEND_DWURL_INFO_LEN 256
+static char const * ModifyDownloadUrl(char* dest, u32 dest_size, char const * origDownloadUrl)
+{
+	if (!origDownloadUrl)
+		return "";
+
+	strcpy_s(dest, dest_size, origDownloadUrl);
+	u32 url_size = xr_strlen(dest);
+	if (url_size < PATCH_SUFFIX_SIZE)
+		return dest;
+
+	char* search_ptr = (dest + url_size) - PATCH_SUFFIX_SIZE;
+	char* suffix_ptr = NULL;
+	while (search_ptr > dest)
+	{
+		suffix_ptr = strstr(search_ptr, PATCH_SUFFIX);
+		if (suffix_ptr)
+			break;
+		
+		search_ptr--;
+	}
+	if (!suffix_ptr)
+		return dest;
+
+	*suffix_ptr = 0;
+	string256 tmp_append_str;
+	strcat_s(dest, dest_size, QueryPatchVersionString(tmp_append_str, sizeof(tmp_append_str)));
+	strcat_s(dest, dest_size, PATCH_SUFFIX);
+	return dest;
+};
+
+
+
 
 bool g_bInformUserThatNoPatchFound = true;
 void __cdecl GS_ptPatchCallback ( PTBool available, PTBool mandatory, const char * versionName, int fileID, const char * downloadURL,  void * param )

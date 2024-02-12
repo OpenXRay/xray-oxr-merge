@@ -56,23 +56,23 @@ void ParseFile(LPCSTR path, CMemoryWriter& W, IReader *F, CXml* xml )
 	}
 }
 
-bool CXml::Init(LPCSTR path_alias, LPCSTR path, LPCSTR _xml_filename)
+void CXml::Load(LPCSTR path_alias, LPCSTR path, LPCSTR _xml_filename)
 {
 	shared_str fn			= correct_file_name(path, _xml_filename);
 
 	string_path				str;
 	sprintf					(str,"%s\\%s", path, *fn);
-	return Init				(path_alias, str);
+	return Load				(path_alias, str);
 }
 
 //инициализация и загрузка XML файла
-bool CXml::Init(LPCSTR path, LPCSTR  xml_filename)
+void CXml::Load(LPCSTR path, LPCSTR  xml_filename)
 {
-	strcpy					(m_xml_file_name, xml_filename);
+	strcpy_s					(m_xml_file_name, xml_filename);
 	// Load and parse xml file
 
 	IReader *F				= FS.r_open(path, xml_filename);
-	if(F==NULL)				return false;
+	R_ASSERT2				(F,xml_filename);
 
 	CMemoryWriter			W;
 	ParseFile				(path, W, F, this);
@@ -88,8 +88,6 @@ bool CXml::Init(LPCSTR path, LPCSTR  xml_filename)
 	} 
 
 	m_root					= m_Doc.FirstChildElement();
-
-	return true;
 }
 
 XML_NODE* CXml::NavigateToNode(XML_NODE* start_node, LPCSTR  path, int node_index)
@@ -100,7 +98,7 @@ XML_NODE* CXml::NavigateToNode(XML_NODE* start_node, LPCSTR  path, int node_inde
 	string_path					buf_str;
 	VERIFY						(xr_strlen(path)<200);
 	buf_str[0]					= 0;
-	strcpy						(buf_str, path);
+	strcpy_s						(buf_str, path);
 
 	char seps[]					= ":";
     char *token;

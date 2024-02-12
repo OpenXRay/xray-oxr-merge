@@ -226,7 +226,9 @@ IC void CBackend::set_Constants			(R_constant_table* C)
 	R_constant_table::c_table::iterator	end	= C->table.end	();
 	for (; it!=end; it++)	{
 		R_constant*		Cs	= &**it;
-		if (Cs->handler)	Cs->handler->setup(Cs);
+		VERIFY(Cs);
+		if (Cs && Cs->handler)
+			Cs->handler->setup(Cs);
 	}
 }
 

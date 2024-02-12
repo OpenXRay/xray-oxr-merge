@@ -41,6 +41,7 @@ void CUIStatix::OnFocusLost()
 {
 	CUIStatic::OnFocusLost	();
 	SetTextureColor				(0xffffffff);
+
 	if (!IsEnabled())
 	{
 		SetTextureColor(0x80ffffff);

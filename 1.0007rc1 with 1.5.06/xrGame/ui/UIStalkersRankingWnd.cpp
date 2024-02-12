@@ -1,7 +1,7 @@
 #include "StdAfx.h"
 #include "UIStalkersRankingWnd.h"
+
 #include "UIXmlInit.h"
-#include "UIPdaAux.h"
 #include "UIFrameWindow.h"
 #include "UIFrameLineWnd.h"
 #include "UIPdaListItem.h"
@@ -12,7 +12,7 @@
 #include "../Level.h"
 #include "../pda.h"
 #include "../actor.h"
-#include "../xrServer_Objects_ALife_Monsters.h"
+#include "../../xrServerEntities/xrServer_Objects_ALife_Monsters.h"
 
 #define		STALKERS_RANKING_XML			"stalkers_ranking.xml"
 #define		STALKERS_RANKING_CHARACTER_XML	"stalkers_ranking_character.xml"
@@ -29,7 +29,7 @@ TOP_LIST						g_all_statistic_humans;
 void CUIStalkersRankingWnd::Init()
 {
 	CUIXml								uiXml;
-	uiXml.Init							(CONFIG_PATH, UI_PATH,STALKERS_RANKING_XML);
+	uiXml.Load							(CONFIG_PATH, UI_PATH,STALKERS_RANKING_XML);
 
 	CUIXmlInit							xml_init;
 
@@ -66,9 +66,7 @@ void CUIStalkersRankingWnd::Init()
 
 	UICharacterInfo						= xr_new<CUICharacterInfo>(); UICharacterInfo->SetAutoDelete(true);
 	UICharacterWindow->AttachChild		(UICharacterInfo);
-	UICharacterInfo->Init				(0,0,UICharacterWindow->GetWidth(), 
-											UICharacterWindow->GetHeight(), 
-											STALKERS_RANKING_CHARACTER_XML);
+	UICharacterInfo->InitCharacterInfo	(Fvector2().set(0,0),UICharacterWindow->GetWndSize(), STALKERS_RANKING_CHARACTER_XML);
 
 	xml_init.InitAutoStaticGroup		(uiXml, "left_auto",	0,			UIInfoFrame);
 	xml_init.InitAutoStaticGroup		(uiXml, "right_auto",	0,			UICharIconFrame);
@@ -108,7 +106,7 @@ void CUIStalkersRankingWnd::FillList()
 {
 
 	CUIXml									uiXml;
-	uiXml.Init								(CONFIG_PATH, UI_PATH,STALKERS_RANKING_XML);
+	uiXml.Load								(CONFIG_PATH, UI_PATH,STALKERS_RANKING_XML);
 
 	UIList->Clear							();
 

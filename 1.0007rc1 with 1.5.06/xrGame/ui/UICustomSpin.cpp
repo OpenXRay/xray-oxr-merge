@@ -47,7 +47,8 @@ CUICustomSpin::~CUICustomSpin()
 	xr_delete					(m_pLines);
 }
 
-void CUICustomSpin::Init(float x, float y, float width, float height){
+void CUICustomSpin::Init(float x, float y, float width, float height)
+{
 	CUIWindow::Init				(x,y,width,SPIN_HEIGHT);
 	m_pFrameLine->Init			(0,0,width, SPIN_HEIGHT);
 	m_pFrameLine->InitTexture	("ui_spiner");

@@ -38,17 +38,19 @@ class IUISimpleTextureControl{
 public:
 	virtual ~IUISimpleTextureControl() {}
 	virtual void		CreateShader(const char* tex, const char* sh = "hud\\default")	= 0;
-	virtual void		SetShader(const ref_shader& sh)									= 0;
+	virtual void		SetShader(const ui_shader& sh)									= 0;
 	virtual void		SetTextureColor(u32 color)										= 0;
 	virtual u32			GetTextureColor()										const	= 0;
 	virtual void		SetOriginalRect(const Frect& r)									= 0;
 	virtual void		SetOriginalRectEx(const Frect& r)								= 0;
+	virtual const Frect& GetOriginalRect()										const	= 0;
 };
 
 class IUIMultiTextureOwner{
 public:
 	virtual ~IUIMultiTextureOwner() {}	
 	virtual void		InitTexture(const char* texture)								= 0;
+	virtual void		InitTextureEx(const char* texture, const char* shader)			= 0;
 	virtual bool		GetTextureAvailability()										= 0;
 	virtual void		SetTextureVisible(bool vis)										= 0;
 	virtual bool		GetTextureVisible()												= 0;
@@ -67,7 +69,6 @@ protected:
 
 class IUISingleTextureOwner : public CUIMultiTextureOwner, public IUISimpleTextureControl{
 public:	
-	virtual void		InitTextureEx(const char* texture, const char* shader)			= 0;
 	virtual void		SetStretchTexture(bool stretch)									= 0;
 	virtual bool		GetStretchTexture()												= 0;	
 };
@@ -95,32 +96,23 @@ public:
 						IUISimpleWindow						()			{};		
 	virtual				~IUISimpleWindow					()			{};
     
-	virtual void		Init(float x, float y, float width, float height)= 0;
 	virtual void		Draw()											= 0;
 	virtual void		Draw(float x, float y)							= 0;
 	virtual void		Update()										= 0;
 	virtual void		SetWndPos(const Fvector2& pos)					= 0;
-	virtual void		SetWndPos(float x, float y)						= 0;
 	virtual void		SetWndSize(const Fvector2& size)				= 0;
 	virtual void		SetWndRect(const Frect& rect)					= 0;
 	virtual void		SetHeight(float height)							= 0;
 	virtual void		SetWidth(float width)							= 0;
-/*
-private:
-						IUISimpleWindow									(const IUISimpleWindow& other);
-	IUISimpleWindow&	operator =										( const IUISimpleWindow& other );
-*/
 };
 
 class CUISimpleWindow : public IUISimpleWindow {
 public:
 							CUISimpleWindow()							{m_alignment=waNone; m_wndPos.set(0,0); m_wndSize.set(0,0);}
-	virtual void			Init(float x, float y, float width, float height)	{m_wndPos.set(x,y);m_wndSize.set(width, height);}
 	virtual void			SetWndPos(const Fvector2& pos)				{m_wndPos.set(pos.x,pos.y);}
-	virtual void			SetWndPos(float x, float y)					{m_wndPos.set(x,y);}
-	IC		Fvector2		GetWndPos()							const	{return m_wndPos;}
+	IC const Fvector2&		GetWndPos()							const	{return m_wndPos;}
 	virtual void			SetWndSize(const Fvector2& size)			{m_wndSize = size;}
-	IC		Fvector2		GetWndSize()						const	{return m_wndSize;}
+	IC const Fvector2&		GetWndSize()						const	{return m_wndSize;}
 	virtual void			SetHeight(float height)						{m_wndSize.y = height;}
 	IC		float			GetHeight()							const	{return m_wndSize.y;}
 	virtual void			SetWidth(float width)						{m_wndSize.x = width;}
@@ -128,10 +120,9 @@ public:
 	IC		void			SetVisible(bool vis)						{m_bShowMe = vis;}
 	IC		bool			GetVisible()						const	{return m_bShowMe;}
 	IC		void			SetAlignment(EWindowAlignment al)			{m_alignment = al;};
-	virtual void			SetWndRect(float x, float y, float width, float height) {
-																						m_wndPos.set(x,y); 
-																						m_wndSize.set(width,height); }
-	virtual void			SetWndRect(const Frect& rect)				{SetWndRect(rect.lt.x, rect.lt.y, rect.width(), rect.height());}
+	IC	EWindowAlignment	GetAlignment()						const	{return m_alignment;};
+
+	virtual void			SetWndRect(const Frect& rect)				{m_wndPos.set(rect.lt); rect.getsize(m_wndSize);}
 	IC		Frect			GetWndRect()						const	{Frect r; GetWndRect(r); return r;}
 	IC		void			GetWndRect(Frect& res)				const
 	{

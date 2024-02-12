@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="9.00"
 	Name="xrGameSpy"
 	ProjectGUID="{5535F6B4-7AE6-4B66-8AEA-CC31C14D7AB7}"
+	RootNamespace="xrGameSpy"
 	Keyword="Win32Proj"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -44,7 +46,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="../../sdk/include/stlport;../../sdk/include/"
-				PreprocessorDefinitions="WIN32;DEBUG;_WINDOWS;_USRDLL;XRGAMESPY_EXPORTS;_SECURE_SCL=0"
+				PreprocessorDefinitions="WIN32;DEBUG;_WINDOWS;_USRDLL;XRGAMESPY_EXPORTS;_SECURE_SCL=0;XRAY_DISABLE_GAMESPY_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="2"
@@ -78,6 +80,8 @@
 				MapFileName=""
 				SubSystem="2"
 				LargeAddressAware="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="..\..\..\libraries\$(ProjectName).lib"
 				TargetMachine="1"
 			/>
@@ -98,9 +102,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -140,7 +141,7 @@
 				EnableFiberSafeOptimizations="true"
 				WholeProgramOptimization="true"
 				AdditionalIncludeDirectories="../../sdk/include/stlport;../../sdk/include/"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;XRGAMESPY_EXPORTS;_SECURE_SCL=0"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;XRGAMESPY_EXPORTS;_SECURE_SCL=0;XRAY_DISABLE_GAMESPY_WARNINGS"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				BufferSecurityCheck="false"
@@ -180,6 +181,8 @@
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				LinkTimeCodeGeneration="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="..\..\..\libraries\$(ProjectName).lib"
 				TargetMachine="1"
 			/>
@@ -200,9 +203,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -461,49 +461,7 @@
 			Name="GameSpy"
 			>
 			<File
-				RelativePath=".\GameSpy\darray.c"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-						Detect64BitPortabilityProblems="false"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-						Detect64BitPortabilityProblems="false"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Xbox 360"
-					>
-					<Tool
-						Name="VCCLX360CompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Xbox 360"
-					>
-					<Tool
-						Name="VCCLX360CompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\GameSpy\darray.h"
-				>
-			</File>
-			<File
-				RelativePath=".\GameSpy\hashtable.c"
+				RelativePath=".\gamespy\darray.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -521,33 +479,13 @@
 						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Xbox 360"
-					>
-					<Tool
-						Name="VCCLX360CompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Xbox 360"
-					>
-					<Tool
-						Name="VCCLX360CompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\GameSpy\hashtable.h"
+				RelativePath=".\gamespy\darray.h"
 				>
 			</File>
 			<File
-				RelativePath=".\GameSpy\md5.h"
-				>
-			</File>
-			<File
-				RelativePath=".\GameSpy\md5c.c"
+				RelativePath=".\gamespy\hashtable.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -565,25 +503,17 @@
 						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Xbox 360"
-					>
-					<Tool
-						Name="VCCLX360CompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Xbox 360"
-					>
-					<Tool
-						Name="VCCLX360CompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\GameSpy\nonport.c"
+				RelativePath=".\gamespy\hashtable.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gamespy\md5.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gamespy\md5c.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -591,7 +521,6 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="0"
-						WarningLevel="0"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -600,37 +529,38 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="0"
-						WarningLevel="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Xbox 360"
-					>
-					<Tool
-						Name="VCCLX360CompilerTool"
-						UsePrecompiledHeader="0"
-						WarningLevel="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Xbox 360"
-					>
-					<Tool
-						Name="VCCLX360CompilerTool"
-						UsePrecompiledHeader="0"
-						WarningLevel="0"
 					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\GameSpy\nonport.h"
+				RelativePath=".\gamespy\nonport.c"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\gamespy\nonport.h"
 				>
 			</File>
 			<Filter
-				Name="Common"
+				Name="common"
 				>
 				<File
-					RelativePath=".\GameSpy\common\gsAssert.c"
+					RelativePath=".\gamespy\common\gsAssert.c"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -650,31 +580,13 @@
 							UsePrecompiledHeader="0"
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Xbox 360"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Xbox 360"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\GameSpy\common\gsAssert.h"
+					RelativePath=".\gamespy\common\gsAssert.h"
 					>
 				</File>
 				<File
-					RelativePath=".\GameSpy\common\gsAvailable.c"
+					RelativePath=".\gamespy\common\gsAvailable.c"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -692,33 +604,17 @@
 							UsePrecompiledHeader="0"
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\GameSpy\common\gsAvailable.h"
+					RelativePath=".\gamespy\common\gsAvailable.h"
 					>
 				</File>
 				<File
-					RelativePath=".\GameSpy\common\gsCommon.h"
+					RelativePath=".\gamespy\common\gsCommon.h"
 					>
 				</File>
 				<File
-					RelativePath=".\GameSpy\common\gsCrypt.c"
+					RelativePath=".\gamespy\common\gsCore.c"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -736,29 +632,37 @@
 							UsePrecompiledHeader="0"
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\GameSpy\common\gsCrypt.h"
+					RelativePath=".\gamespy\common\gsCore.h"
 					>
 				</File>
 				<File
-					RelativePath=".\GameSpy\common\gsDebug.c"
+					RelativePath=".\gamespy\common\gsCrypt.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\gamespy\common\gsCrypt.h"
+					>
+				</File>
+				<File
+					RelativePath=".\gamespy\common\gsDebug.c"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -778,31 +682,13 @@
 							UsePrecompiledHeader="0"
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Xbox 360"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Xbox 360"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\GameSpy\common\gsDebug.h"
+					RelativePath=".\gamespy\common\gsDebug.h"
 					>
 				</File>
 				<File
-					RelativePath=".\GameSpy\common\gsLargeInt.c"
+					RelativePath=".\gamespy\common\gsLargeInt.c"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -820,75 +706,13 @@
 							UsePrecompiledHeader="0"
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\GameSpy\common\gsLargeInt.h"
+					RelativePath=".\gamespy\common\gsLargeInt.h"
 					>
 				</File>
 				<File
-					RelativePath=".\GameSpy\common\gsMemory.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							Optimization="0"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Xbox 360"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Xbox 360"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							Optimization="0"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath=".\GameSpy\common\gsMemory.h"
-					>
-				</File>
-				<File
-					RelativePath=".\GameSpy\common\gsPlatform.c"
+					RelativePath=".\gamespy\common\gsMemory.c"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -908,31 +732,13 @@
 							UsePrecompiledHeader="0"
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Xbox 360"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Xbox 360"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\GameSpy\common\gsPlatform.h"
+					RelativePath=".\gamespy\common\gsMemory.h"
 					>
 				</File>
 				<File
-					RelativePath=".\GameSpy\common\gsPlatformSocket.c"
+					RelativePath=".\gamespy\common\gsPlatform.c"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -952,31 +758,13 @@
 							UsePrecompiledHeader="0"
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Xbox 360"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Xbox 360"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\GameSpy\common\gsPlatformSocket.h"
+					RelativePath=".\gamespy\common\gsPlatform.h"
 					>
 				</File>
 				<File
-					RelativePath=".\GameSpy\common\gsPlatformThread.c"
+					RelativePath=".\gamespy\common\gsPlatformSocket.c"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -996,31 +784,13 @@
 							UsePrecompiledHeader="0"
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Xbox 360"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Xbox 360"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\GameSpy\common\gsPlatformThread.h"
+					RelativePath=".\gamespy\common\gsPlatformSocket.h"
 					>
 				</File>
 				<File
-					RelativePath=".\GameSpy\common\gsPlatformUtil.c"
+					RelativePath=".\gamespy\common\gsPlatformThread.c"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -1040,71 +810,39 @@
 							UsePrecompiledHeader="0"
 						/>
 					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\gamespy\common\gsPlatformThread.h"
+					>
+				</File>
+				<File
+					RelativePath=".\gamespy\common\gsPlatformUtil.c"
+					>
 					<FileConfiguration
-						Name="Debug|Xbox 360"
+						Name="Debug|Win32"
 						ExcludedFromBuild="true"
 						>
 						<Tool
-							Name="VCCLX360CompilerTool"
+							Name="VCCLCompilerTool"
 							UsePrecompiledHeader="0"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Xbox 360"
+						Name="Release|Win32"
 						ExcludedFromBuild="true"
 						>
 						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath=".\GameSpy\common\gsPlatformUtil.h"
-					>
-				</File>
-				<File
-					RelativePath=".\GameSpy\common\gsRC4.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
 							Name="VCCLCompilerTool"
 							UsePrecompiledHeader="0"
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\GameSpy\common\gsRC4.h"
+					RelativePath=".\gamespy\common\gsPlatformUtil.h"
 					>
 				</File>
 				<File
-					RelativePath=".\GameSpy\common\gsSHA1.c"
+					RelativePath=".\gamespy\common\gsRC4.c"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -1122,29 +860,13 @@
 							UsePrecompiledHeader="0"
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\GameSpy\common\gsSHA1.h"
+					RelativePath=".\gamespy\common\gsRC4.h"
 					>
 				</File>
 				<File
-					RelativePath=".\GameSpy\common\gsSSL.c"
+					RelativePath=".\gamespy\common\gsSHA1.c"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -1162,29 +884,13 @@
 							UsePrecompiledHeader="0"
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\GameSpy\common\gsSSL.h"
+					RelativePath=".\gamespy\common\gsSHA1.h"
 					>
 				</File>
 				<File
-					RelativePath=".\GameSpy\common\gsStringUtil.c"
+					RelativePath=".\gamespy\common\gsSoap.c"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -1202,29 +908,13 @@
 							UsePrecompiledHeader="0"
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\GameSpy\common\gsStringUtil.h"
+					RelativePath=".\gamespy\common\gsSoap.h"
 					>
 				</File>
 				<File
-					RelativePath=".\GameSpy\common\gsXML.c"
+					RelativePath=".\gamespy\common\gsSSL.c"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -1232,7 +922,6 @@
 						<Tool
 							Name="VCCLCompilerTool"
 							UsePrecompiledHeader="0"
-							Detect64BitPortabilityProblems="false"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -1241,38 +930,94 @@
 						<Tool
 							Name="VCCLCompilerTool"
 							UsePrecompiledHeader="0"
-							Detect64BitPortabilityProblems="false"
 						/>
 					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\gamespy\common\gsSSL.h"
+					>
+				</File>
+				<File
+					RelativePath=".\gamespy\common\gsStringUtil.c"
+					>
 					<FileConfiguration
-						Name="Debug|Xbox 360"
+						Name="Debug|Win32"
 						>
 						<Tool
-							Name="VCCLX360CompilerTool"
+							Name="VCCLCompilerTool"
 							UsePrecompiledHeader="0"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Xbox 360"
+						Name="Release|Win32"
 						>
 						<Tool
-							Name="VCCLX360CompilerTool"
+							Name="VCCLCompilerTool"
 							UsePrecompiledHeader="0"
 						/>
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\GameSpy\common\gsXML.h"
+					RelativePath=".\gamespy\common\gsStringUtil.h"
+					>
+				</File>
+				<File
+					RelativePath=".\gamespy\common\gsUdpEngine.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\gamespy\common\gsUdpEngine.h"
+					>
+				</File>
+				<File
+					RelativePath=".\gamespy\common\gsXML.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\gamespy\common\gsXML.h"
 					>
 				</File>
 				<Filter
 					Name="win32"
 					>
 					<File
-						RelativePath=".\GameSpy\common\win32\gsSocketWin32.c"
+						RelativePath=".\gamespy\common\win32\gsSocketWin32.c"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
+							ExcludedFromBuild="true"
 							>
 							<Tool
 								Name="VCCLCompilerTool"
@@ -1281,31 +1026,16 @@
 						</FileConfiguration>
 						<FileConfiguration
 							Name="Release|Win32"
+							ExcludedFromBuild="true"
 							>
 							<Tool
 								Name="VCCLCompilerTool"
-								UsePrecompiledHeader="0"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Debug|Xbox 360"
-							>
-							<Tool
-								Name="VCCLX360CompilerTool"
-								UsePrecompiledHeader="0"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Xbox 360"
-							>
-							<Tool
-								Name="VCCLX360CompilerTool"
 								UsePrecompiledHeader="0"
 							/>
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath=".\GameSpy\common\win32\gsThreadWin32.c"
+						RelativePath=".\gamespy\common\win32\gsThreadWin32.c"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -1322,30 +1052,12 @@
 							>
 							<Tool
 								Name="VCCLCompilerTool"
-								UsePrecompiledHeader="0"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Debug|Xbox 360"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLX360CompilerTool"
-								UsePrecompiledHeader="0"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Xbox 360"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLX360CompilerTool"
 								UsePrecompiledHeader="0"
 							/>
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath=".\GameSpy\common\win32\Win32Common.c"
+						RelativePath=".\gamespy\common\win32\gsUtilWin32.c"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -1365,21 +1077,25 @@
 								UsePrecompiledHeader="0"
 							/>
 						</FileConfiguration>
+					</File>
+					<File
+						RelativePath=".\gamespy\common\win32\Win32Common.c"
+						>
 						<FileConfiguration
-							Name="Debug|Xbox 360"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
-								Name="VCCLX360CompilerTool"
+								Name="VCCLCompilerTool"
 								UsePrecompiledHeader="0"
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Xbox 360"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
-								Name="VCCLX360CompilerTool"
+								Name="VCCLCompilerTool"
 								UsePrecompiledHeader="0"
 							/>
 						</FileConfiguration>
@@ -1387,10 +1103,10 @@
 				</Filter>
 			</Filter>
 			<Filter
-				Name="QR2"
+				Name="gcdkey"
 				>
 				<File
-					RelativePath=".\GameSpy\Qr2\qr2.c"
+					RelativePath=".\Gamespy\gcdkey\gcdkeyc.c"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -1408,29 +1124,13 @@
 							UsePrecompiledHeader="0"
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\GameSpy\Qr2\qr2.h"
+					RelativePath=".\Gamespy\gcdkey\gcdkeyc.h"
 					>
 				</File>
 				<File
-					RelativePath=".\GameSpy\Qr2\qr2regkeys.c"
+					RelativePath=".\Gamespy\gcdkey\gcdkeys.c"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -1448,37 +1148,17 @@
 							UsePrecompiledHeader="0"
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\GameSpy\Qr2\qr2regkeys.h"
+					RelativePath=".\Gamespy\gcdkey\gcdkeys.h"
 					>
 				</File>
 			</Filter>
 			<Filter
-				Name="ServerBrowsing"
+				Name="qr2"
 				>
 				<File
-					RelativePath=".\GameSpy\ServerBrowsing\sb_ascii.h"
-					>
-				</File>
-				<File
-					RelativePath=".\GameSpy\ServerBrowsing\sb_crypt.c"
+					RelativePath=".\gamespy\qr2\qr2.c"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -1496,33 +1176,13 @@
 							UsePrecompiledHeader="0"
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\GameSpy\ServerBrowsing\sb_crypt.h"
+					RelativePath=".\gamespy\qr2\qr2.h"
 					>
 				</File>
 				<File
-					RelativePath=".\GameSpy\ServerBrowsing\sb_internal.h"
-					>
-				</File>
-				<File
-					RelativePath=".\GameSpy\ServerBrowsing\sb_queryengine.c"
+					RelativePath=".\gamespy\qr2\qr2regkeys.c"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -1540,325 +1200,25 @@
 							UsePrecompiledHeader="0"
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\GameSpy\ServerBrowsing\sb_server.c"
+					RelativePath=".\gamespy\qr2\qr2regkeys.h"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath=".\GameSpy\ServerBrowsing\sb_serverbrowsing.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath=".\GameSpy\ServerBrowsing\sb_serverbrowsing.h"
-					>
-				</File>
-				<File
-					RelativePath=".\GameSpy\ServerBrowsing\sb_serverlist.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-				</File>
-			</Filter>
-			<Filter
-				Name="CD-Key"
-				>
-				<File
-					RelativePath=".\GameSpy\CDKey\gcdkeyc.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-							WarningLevel="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-							WarningLevel="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-							WarningLevel="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-							WarningLevel="0"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath=".\GameSpy\CDKey\gcdkeyc.h"
-					>
-				</File>
-				<File
-					RelativePath=".\GameSpy\CDKey\gcdkeys.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-							Detect64BitPortabilityProblems="false"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-							Detect64BitPortabilityProblems="false"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath=".\GameSpy\CDKey\gcdkeys.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="Patching"
-				>
-				<File
-					RelativePath=".\GameSpy\Patching\pt.h"
-					>
-				</File>
-				<File
-					RelativePath=".\GameSpy\Patching\ptMain.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-							Detect64BitPortabilityProblems="false"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-							Detect64BitPortabilityProblems="false"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
 				</File>
 			</Filter>
 			<Filter
 				Name="ghttp"
 				>
 				<File
-					RelativePath=".\GameSpy\ghttp\ghttp.h"
+					RelativePath=".\gamespy\ghttp\ghttp.h"
 					>
 				</File>
 				<File
-					RelativePath=".\GameSpy\ghttp\ghttpASCII.h"
+					RelativePath=".\gamespy\ghttp\ghttpASCII.h"
 					>
 				</File>
 				<File
-					RelativePath=".\GameSpy\ghttp\ghttpBuffer.c"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath=".\GameSpy\ghttp\ghttpBuffer.h"
-					>
-				</File>
-				<File
-					RelativePath=".\GameSpy\ghttp\ghttpCallbacks.c"
+					RelativePath=".\gamespy\ghttp\ghttpBuffer.c"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -1876,29 +1236,13 @@
 							UsePrecompiledHeader="0"
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\GameSpy\ghttp\ghttpCallbacks.h"
+					RelativePath=".\gamespy\ghttp\ghttpBuffer.h"
 					>
 				</File>
 				<File
-					RelativePath=".\GameSpy\ghttp\ghttpCommon.c"
+					RelativePath=".\gamespy\ghttp\ghttpCallbacks.c"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -1916,29 +1260,13 @@
 							UsePrecompiledHeader="0"
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\GameSpy\ghttp\ghttpCommon.h"
+					RelativePath=".\gamespy\ghttp\ghttpCallbacks.h"
 					>
 				</File>
 				<File
-					RelativePath=".\GameSpy\ghttp\ghttpConnection.c"
+					RelativePath=".\gamespy\ghttp\ghttpCommon.c"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -1956,29 +1284,13 @@
 							UsePrecompiledHeader="0"
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\GameSpy\ghttp\ghttpConnection.h"
+					RelativePath=".\gamespy\ghttp\ghttpCommon.h"
 					>
 				</File>
 				<File
-					RelativePath=".\GameSpy\ghttp\ghttpEncryption.c"
+					RelativePath=".\gamespy\ghttp\ghttpConnection.c"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -1996,29 +1308,13 @@
 							UsePrecompiledHeader="0"
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\GameSpy\ghttp\ghttpEncryption.h"
+					RelativePath=".\gamespy\ghttp\ghttpConnection.h"
 					>
 				</File>
 				<File
-					RelativePath=".\GameSpy\ghttp\ghttpMain.c"
+					RelativePath=".\gamespy\ghttp\ghttpEncryption.c"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -2036,29 +1332,13 @@
 							UsePrecompiledHeader="0"
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\GameSpy\ghttp\ghttpMain.h"
+					RelativePath=".\gamespy\ghttp\ghttpEncryption.h"
 					>
 				</File>
 				<File
-					RelativePath=".\GameSpy\ghttp\ghttpPost.c"
+					RelativePath=".\gamespy\ghttp\ghttpMain.c"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -2066,7 +1346,6 @@
 						<Tool
 							Name="VCCLCompilerTool"
 							UsePrecompiledHeader="0"
-							Detect64BitPortabilityProblems="false"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2075,32 +1354,15 @@
 						<Tool
 							Name="VCCLCompilerTool"
 							UsePrecompiledHeader="0"
-							Detect64BitPortabilityProblems="false"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Xbox 360"
-						>
-						<Tool
-							Name="VCCLX360CompilerTool"
-							UsePrecompiledHeader="0"
 						/>
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\GameSpy\ghttp\ghttpPost.h"
+					RelativePath=".\gamespy\ghttp\ghttpMain.h"
 					>
 				</File>
 				<File
-					RelativePath=".\GameSpy\ghttp\ghttpProcess.c"
+					RelativePath=".\gamespy\ghttp\ghttpPost.c"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -2108,7 +1370,6 @@
 						<Tool
 							Name="VCCLCompilerTool"
 							UsePrecompiledHeader="0"
-							Detect64BitPortabilityProblems="false"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -2117,28 +1378,1207 @@
 						<Tool
 							Name="VCCLCompilerTool"
 							UsePrecompiledHeader="0"
-							Detect64BitPortabilityProblems="false"
 						/>
 					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\gamespy\ghttp\ghttpPost.h"
+					>
+				</File>
+				<File
+					RelativePath=".\gamespy\ghttp\ghttpProcess.c"
+					>
 					<FileConfiguration
-						Name="Debug|Xbox 360"
+						Name="Debug|Win32"
 						>
 						<Tool
-							Name="VCCLX360CompilerTool"
+							Name="VCCLCompilerTool"
 							UsePrecompiledHeader="0"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Xbox 360"
+						Name="Release|Win32"
 						>
 						<Tool
-							Name="VCCLX360CompilerTool"
+							Name="VCCLCompilerTool"
 							UsePrecompiledHeader="0"
 						/>
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\GameSpy\ghttp\ghttpProcess.h"
+					RelativePath=".\gamespy\ghttp\ghttpProcess.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="serverbrowsing"
+				>
+				<File
+					RelativePath=".\gamespy\serverbrowsing\sb_ascii.h"
+					>
+				</File>
+				<File
+					RelativePath=".\gamespy\serverbrowsing\sb_crypt.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\gamespy\serverbrowsing\sb_crypt.h"
+					>
+				</File>
+				<File
+					RelativePath=".\gamespy\serverbrowsing\sb_internal.h"
+					>
+				</File>
+				<File
+					RelativePath=".\gamespy\serverbrowsing\sb_queryengine.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\gamespy\serverbrowsing\sb_server.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\gamespy\serverbrowsing\sb_serverbrowsing.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\gamespy\serverbrowsing\sb_serverbrowsing.h"
+					>
+				</File>
+				<File
+					RelativePath=".\gamespy\serverbrowsing\sb_serverlist.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+			</Filter>
+			<Filter
+				Name="GP"
+				>
+				<File
+					RelativePath=".\Gamespy\GP\gp.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\GP\gp.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamespy\GP\gpi.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\GP\gpi.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamespy\GP\gpiBuddy.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\GP\gpiBuddy.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamespy\GP\gpiBuffer.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\GP\gpiBuffer.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamespy\GP\gpiCallback.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\GP\gpiCallback.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamespy\GP\gpiConnect.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\GP\gpiConnect.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamespy\GP\gpiInfo.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\GP\gpiInfo.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamespy\GP\gpiKeys.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\GP\gpiKeys.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamespy\GP\gpiOperation.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\GP\gpiOperation.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamespy\GP\gpiPeer.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\GP\gpiPeer.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamespy\GP\gpiProfile.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\GP\gpiProfile.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamespy\GP\gpiPS3.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\GP\gpiPS3.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamespy\GP\gpiSearch.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\GP\gpiSearch.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamespy\GP\gpiTransfer.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\GP\gpiTransfer.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamespy\GP\gpiUnique.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\GP\gpiUnique.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamespy\GP\gpiUtility.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\GP\gpiUtility.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="pt"
+				>
+				<File
+					RelativePath=".\Gamespy\pt\pt.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamespy\pt\ptMain.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+			</Filter>
+			<Filter
+				Name="gstats"
+				>
+				<File
+					RelativePath=".\Gamespy\gstats\gbucket.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\gstats\gbucket.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamespy\gstats\gpersist.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamespy\gstats\gstats.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\gstats\gstats.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="sake"
+				>
+				<File
+					RelativePath=".\Gamespy\sake\sake.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamespy\sake\sakeMain.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\sake\sakeMain.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamespy\sake\sakeRequest.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\sake\sakeRequest.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamespy\sake\sakeRequestInternal.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamespy\sake\sakeRequestMisc.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\sake\sakeRequestModify.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\sake\sakeRequestRead.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+			</Filter>
+			<Filter
+				Name="qt2"
+				>
+				<File
+					RelativePath=".\Gamespy\gt2\gt2.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamespy\gt2\gt2Auth.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\gt2\gt2Auth.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamespy\gt2\gt2Buffer.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\gt2\gt2Buffer.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamespy\gt2\gt2Callback.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\gt2\gt2Callback.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamespy\gt2\gt2Connection.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\gt2\gt2Connection.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamespy\gt2\gt2Encode.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\gt2\gt2Encode.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamespy\gt2\gt2Filter.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\gt2\gt2Filter.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamespy\gt2\gt2Main.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\gt2\gt2Main.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamespy\gt2\gt2Message.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\gt2\gt2Message.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamespy\gt2\gt2Socket.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\gt2\gt2Socket.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamespy\gt2\gt2Utility.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\gt2\gt2Utility.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="natneg"
+				>
+				<File
+					RelativePath=".\Gamespy\natneg\NATify.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\natneg\NATify.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamespy\natneg\natneg.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\natneg\natneg.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamespy\natneg\nninternal.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="sc"
+				>
+				<File
+					RelativePath=".\Gamespy\sc\sc.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamespy\sc\sci.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamespy\sc\sciInterface.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\sc\sciInterface.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamespy\sc\sciMain.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\sc\sciReport.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\sc\sciReport.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamespy\sc\sciSerialize.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\sc\sciSerialize.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gamespy\sc\sciWebServices.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\sc\sciWebServices.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="webservices"
+				>
+				<File
+					RelativePath=".\Gamespy\webservices\AuthService.c"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\Gamespy\webservices\AuthService.h"
 					>
 				</File>
 			</Filter>
@@ -2212,6 +2652,54 @@
 			</File>
 			<File
 				RelativePath=".\xrGameSpy_HTTP.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="xrGameSpy_GP"
+			>
+			<File
+				RelativePath=".\xrGameSpy_GP.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\xrGameSpy_GP.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="xrGameSpy_SAKE"
+			>
+			<File
+				RelativePath=".\xrGameSpy_SAKE.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\xrGameSpy_SAKE.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="xrGameSpy_Core"
+			>
+			<File
+				RelativePath=".\xrGameSpy_Core.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\xrGameSpy_Core.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="xrGameSpy_ATLAS"
+			>
+			<File
+				RelativePath=".\xrGameSpy_ATLAS.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\xrGameSpy_ATLAS.h"
 				>
 			</File>
 		</Filter>

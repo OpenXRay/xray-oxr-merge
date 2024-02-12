@@ -13,12 +13,14 @@
 #include "ai_space.h"
 #include "script_engine.h"
 #include "luabind/error.hpp"
+#ifdef XRGAME_EXPORTS
+#include "alife_smart_terrain_task.h"
+#endif //#ifdef XRGAME_EXPORTS
 
 //#define USE_WRITER_READER
 class CSE_Abstract;
 class NET_Packet;
 class CSE_ALifeMonsterAbstract;
-class CALifeSmartTerrainTask;
 
 #define INHERIT_PURE
 
@@ -70,6 +72,17 @@ class CALifeSmartTerrainTask;
 #else
 #	define INHERIT_DYNAMIC_ALIFE \
 		INHERIT_ALIFE
+#endif
+
+#ifdef XRGAME_EXPORTS
+#define INHERIT_ONLINE_OFFLINE_GROUP \
+	INHERIT_DYNAMIC_ALIFE \
+	DEFINE_LUA_WRAPPER_METHOD_V0		(update) \
+	DEFINE_LUA_WRAPPER_METHOD_0			(get_current_task,CALifeSmartTerrainTask*)
+#else
+#define INHERIT_ONLINE_OFFLINE_GROUP \
+	INHERIT_DYNAMIC_ALIFE \
+	DEFINE_LUA_WRAPPER_METHOD_V0		(update)
 #endif
 
 #ifdef XRGAME_EXPORTS

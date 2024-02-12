@@ -38,9 +38,9 @@ private:
 	xr_vector<StateRecord>	m_StateArray;
 };
 
-extern dx10StateCache<ID3D10RasterizerState, D3D10_RASTERIZER_DESC> RSManager;
-extern dx10StateCache<ID3D10DepthStencilState, D3D10_DEPTH_STENCIL_DESC> DSSManager;
-extern dx10StateCache<ID3D10BlendState, D3D10_BLEND_DESC> BSManager;
+extern dx10StateCache<ID3DRasterizerState, D3D_RASTERIZER_DESC> RSManager;
+extern dx10StateCache<ID3DDepthStencilState, D3D_DEPTH_STENCIL_DESC> DSSManager;
+extern dx10StateCache<ID3DBlendState, D3D_BLEND_DESC> BSManager;
 
 #include "dx10StateCacheImpl.h"
 

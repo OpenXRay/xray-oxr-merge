@@ -26,9 +26,9 @@ CUISpawnWnd::CUISpawnWnd()
 
 	m_pTextDesc		= xr_new<CUIScrollView>();	AttachChild(m_pTextDesc);
 
-	m_pBtnAutoSelect= xr_new<CUI3tButtonEx>();	AttachChild(m_pBtnAutoSelect);
-	m_pBtnSpectator	= xr_new<CUI3tButtonEx>();	AttachChild(m_pBtnSpectator);
-	m_pBtnBack		= xr_new<CUI3tButtonEx>();	AttachChild(m_pBtnBack);
+	m_pBtnAutoSelect= xr_new<CUI3tButton>();	AttachChild(m_pBtnAutoSelect);
+	m_pBtnSpectator	= xr_new<CUI3tButton>();	AttachChild(m_pBtnSpectator);
+	m_pBtnBack		= xr_new<CUI3tButton>();	AttachChild(m_pBtnBack);
 	
 	Init();	
 }
@@ -69,9 +69,9 @@ void CUISpawnWnd::Init()
 	//m_pImage2->SetStretchTexture(true);
 	//InitTeamLogo();
 
-	CUIXmlInit::Init3tButtonEx(xml_doc,"team_selector:btn_spectator",	0,m_pBtnSpectator);
-	CUIXmlInit::Init3tButtonEx(xml_doc,"team_selector:btn_autoselect",0,m_pBtnAutoSelect);
-	CUIXmlInit::Init3tButtonEx(xml_doc,"team_selector:btn_back",		0,m_pBtnBack);
+	CUIXmlInit::Init3tButton(xml_doc,"team_selector:btn_spectator",	0,m_pBtnSpectator);
+	CUIXmlInit::Init3tButton(xml_doc,"team_selector:btn_autoselect",0,m_pBtnAutoSelect);
+	CUIXmlInit::Init3tButton(xml_doc,"team_selector:btn_back",		0,m_pBtnBack);
 }
 
 void CUISpawnWnd::InitTeamLogo(){

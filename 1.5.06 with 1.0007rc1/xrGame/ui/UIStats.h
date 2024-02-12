@@ -6,7 +6,8 @@
 class CUIXml;
 class CUIFrameWindow;
 
-class CUIStats : public CUIScrollView {
+class CUIStats : public CUIScrollView
+{
 public:
 				CUIStats		();
 	virtual		~CUIStats		();

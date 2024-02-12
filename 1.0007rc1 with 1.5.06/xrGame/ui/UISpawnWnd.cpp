@@ -53,8 +53,7 @@ CUISpawnWnd::~CUISpawnWnd()
 void CUISpawnWnd::Init()
 {
 	CUIXml xml_doc;
-	bool xml_result = xml_doc.Init(CONFIG_PATH, UI_PATH, "spawn.xml");
-	R_ASSERT3(xml_result, "xml file not found", "spawn.xml");
+	xml_doc.Load(CONFIG_PATH, UI_PATH, "spawn.xml");
 
 	CUIXmlInit::InitWindow(xml_doc,"team_selector",						0,	this);
 	CUIXmlInit::InitStatic(xml_doc,"team_selector:caption",				0,	m_pCaption);
@@ -93,17 +92,19 @@ void CUISpawnWnd::SendMessage(CUIWindow *pWnd, s16 msg, void *pData)
 	if (BUTTON_CLICKED == msg)
 	{
 		Game().StartStopMenu(this,true);
-		game_cl_TeamDeathmatch * tdm = smart_cast<game_cl_TeamDeathmatch *>(&(Game()));
+		game_cl_mp * game = smart_cast<game_cl_mp*>(&Game());
+		VERIFY(game);
+		//game_cl_TeamDeathmatch * tdm = smart_cast<game_cl_TeamDeathmatch *>(&(Game()));
 		if (pWnd == m_pImage1)
-			tdm->OnTeamSelect(0);
+			game->OnTeamSelect(0);
 		else if (pWnd == m_pImage2)
-			tdm->OnTeamSelect(1);
+			game->OnTeamSelect(1);
 		else if (pWnd == m_pBtnAutoSelect)
-			tdm->OnTeamSelect(-1);
+			game->OnTeamSelect(-1);
 		else if (pWnd == m_pBtnSpectator)
-			tdm->OnSpectatorSelect();
+			game->OnSpectatorSelect();
 		else if (pWnd == m_pBtnBack)
-			tdm->OnTeamMenuBack();
+			game->OnTeamMenuBack();
 	}
 
 	inherited::SendMessage(pWnd, msg, pData);
@@ -134,36 +135,38 @@ bool CUISpawnWnd::OnKeyboard(int dik, EUIMessages keyboard_action)
 		return false;
 	}
 
-	game_cl_TeamDeathmatch * dm = smart_cast<game_cl_TeamDeathmatch *>(&(Game()));
+	game_cl_mp* game = smart_cast<game_cl_mp*>(&Game());
+	VERIFY(game);
+	//game_cl_TeamDeathmatch * dm = smart_cast<game_cl_TeamDeathmatch *>(&(Game()));
 	
 	if (DIK_1 == dik || DIK_2 == dik)
 	{
-		dm->StartStopMenu(this,true);
+		game->StartStopMenu(this,true);
 		
 		if (DIK_1 == dik)
-			dm->OnTeamSelect(0);
+			game->OnTeamSelect(0);
 		else
-			dm->OnTeamSelect(1);
+			game->OnTeamSelect(1);
 		return true;
 	}
 	switch (dik)
 	{
 	case DIK_ESCAPE:
-		dm->StartStopMenu(this,true);
-		dm->OnTeamMenuBack();
+		game->StartStopMenu(this,true);
+		game->OnTeamMenuBack();
 		return true;
 	case DIK_SPACE:
-		dm->StartStopMenu(this,true);
-		dm->OnTeamSelect(-1);
+		game->StartStopMenu(this,true);
+		game->OnTeamSelect(-1);
 		return true;
 	case DIK_RETURN:
-		dm->StartStopMenu(this,true);
+		game->StartStopMenu(this,true);
 		if (m_pImage1->GetSelectedState())
-			dm->OnTeamSelect(0);
+			game->OnTeamSelect(0);
 		else if (m_pImage2->GetSelectedState())
-			dm->OnTeamSelect(1);
+			game->OnTeamSelect(1);
 		else
-			dm->OnTeamSelect(-1);		
+			game->OnTeamSelect(-1);		
 		return true;
 	}
 

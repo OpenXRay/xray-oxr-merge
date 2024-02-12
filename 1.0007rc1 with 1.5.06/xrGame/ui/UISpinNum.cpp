@@ -36,9 +36,9 @@ bool CUISpinNum::IsChanged()
     return m_iVal != val;
 }
 
-void CUISpinNum::Init(float x, float y, float width, float height)
+void CUISpinNum::InitSpin(Fvector2 pos, Fvector2 size)
 {
-	CUICustomSpin::Init(x,y,width,height);
+	CUICustomSpin::InitSpin(pos, size);
 	SetValue();
 }
 
@@ -114,9 +114,9 @@ bool CUISpinFlt::IsChanged()
     return !fsimilar		(m_fVal,val);
 }
 
-void CUISpinFlt::Init(float x, float y, float width, float height)
+void CUISpinFlt::InitSpin(Fvector2 pos, Fvector2 size)
 {
-	CUICustomSpin::Init(x,y,width,height);
+	CUICustomSpin::InitSpin(pos, size);
 	SetValue();
 }
 

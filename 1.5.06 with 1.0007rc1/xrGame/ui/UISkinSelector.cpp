@@ -31,12 +31,12 @@ CUISkinSelectorWnd::CUISkinSelectorWnd(const char* strSectionName, s16 team)
 	m_pFrames		= xr_new<CUIStatic>();	AttachChild(m_pFrames);
 	m_pAnims[0]		= xr_new<CUIAnimatedStatic>(); m_pFrames->AttachChild(m_pAnims[0]);
 	m_pAnims[1]		= xr_new<CUIAnimatedStatic>(); m_pFrames->AttachChild(m_pAnims[1]);
-	m_pButtons[0]	= xr_new<CUI3tButtonEx>();	m_pFrames->AttachChild(m_pButtons[0]); m_pButtons[0]->SetMessageTarget(this);
-	m_pButtons[1]	= xr_new<CUI3tButtonEx>();	m_pFrames->AttachChild(m_pButtons[1]); m_pButtons[1]->SetMessageTarget(this);
+	m_pButtons[0]	= xr_new<CUI3tButton>();	m_pFrames->AttachChild(m_pButtons[0]); m_pButtons[0]->SetMessageTarget(this);
+	m_pButtons[1]	= xr_new<CUI3tButton>();	m_pFrames->AttachChild(m_pButtons[1]); m_pButtons[1]->SetMessageTarget(this);
 
-	m_pBtnAutoSelect= xr_new<CUI3tButtonEx>();	AttachChild(m_pBtnAutoSelect);
-	m_pBtnSpectator	= xr_new<CUI3tButtonEx>();	AttachChild(m_pBtnSpectator);
-	m_pBtnBack		= xr_new<CUI3tButtonEx>();	AttachChild(m_pBtnBack);
+	m_pBtnAutoSelect= xr_new<CUI3tButton>();	AttachChild(m_pBtnAutoSelect);
+	m_pBtnSpectator	= xr_new<CUI3tButton>();	AttachChild(m_pBtnSpectator);
+	m_pBtnBack		= xr_new<CUI3tButton>();	AttachChild(m_pBtnBack);
 
 	m_firstSkin = 0;
 	//---------------------------------------------------
@@ -127,15 +127,15 @@ void CUISkinSelectorWnd::Init(const char* strSectionName)
 	CUIXmlInit::InitStatic(xml_doc,"skin_selector:background",	0,	m_pBackground);
 	CUIXmlInit::InitStatic(xml_doc,"skin_selector:image_frames",0,	m_pFrames);
 
-	CUIXmlInit::Init3tButtonEx(xml_doc,"skin_selector:image_frames:btn_left",	0,	m_pButtons[0]);
-	CUIXmlInit::Init3tButtonEx(xml_doc,"skin_selector:image_frames:btn_right",0,	m_pButtons[1]);
+	CUIXmlInit::Init3tButton(xml_doc,"skin_selector:image_frames:btn_left",	0,	m_pButtons[0]);
+	CUIXmlInit::Init3tButton(xml_doc,"skin_selector:image_frames:btn_right",0,	m_pButtons[1]);
 
 	CUIXmlInit::InitAnimatedStatic(xml_doc,"skin_selector:image_frames:a_static_1",	0,	m_pAnims[0]);
 	CUIXmlInit::InitAnimatedStatic(xml_doc,"skin_selector:image_frames:a_static_2",	0,	m_pAnims[1]);
 
-	CUIXmlInit::Init3tButtonEx(xml_doc,"skin_selector:btn_spectator",	0,m_pBtnSpectator);
-	CUIXmlInit::Init3tButtonEx(xml_doc,"skin_selector:btn_autoselect",0,m_pBtnAutoSelect);
-	CUIXmlInit::Init3tButtonEx(xml_doc,"skin_selector:btn_back",		0,m_pBtnBack);
+	CUIXmlInit::Init3tButton(xml_doc,"skin_selector:btn_spectator",	0,m_pBtnSpectator);
+	CUIXmlInit::Init3tButton(xml_doc,"skin_selector:btn_autoselect",0,m_pBtnAutoSelect);
+	CUIXmlInit::Init3tButton(xml_doc,"skin_selector:btn_back",		0,m_pBtnBack);
 
 	if (xml_doc.NavigateToNode("skin_selector:skin_shader",0))
 		m_shader = xml_doc.Read("skin_selector:skin_shader",0,"");

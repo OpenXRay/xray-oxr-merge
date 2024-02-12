@@ -513,7 +513,6 @@ bool CUIMapWnd::UpdateZoom( bool b_zoom_in )
 
 void CUIMapWnd::SendMessage(CUIWindow* pWnd, s16 msg, void* pData)
 {
-//	inherited::SendMessage( pWnd, msg, pData);
 	CUIWndCallback::OnEvent(pWnd, msg, pData);
 }
 

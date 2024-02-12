@@ -47,8 +47,6 @@ distribution.
 
 #ifdef TIXML_USE_STL
 	#include <string>
-// 	#include <iostream>
-//	#include <sstream>
 	#define TIXML_STRING		xr_string
 #else
 	#include "tinystr.h"

@@ -69,12 +69,13 @@ void CUIStatsPlayerInfo::Update(){
 	xr_vector<PI_FIELD_INFO>&	field_info = *m_field_info;
 
 	for (u32 i = 0; i<m_fields.size(); i++)
-		m_fields[i]->SetText(GetInfoByID(*field_info[i].name));
+		m_fields[i]->TextItemControl()->SetText(GetInfoByID(*field_info[i].name));
 
 	m_pPlayerInfo = NULL;
 }
 
-void CUIStatsPlayerInfo::AddField(float len, CGameFont* pF, u32 text_col, bool icon){
+void CUIStatsPlayerInfo::AddField(float len, CGameFont* pF, u32 text_col, bool icon)
+{
 	CUIStatic* wnd = icon ? xr_new<CUIStatsIcon>() : xr_new<CUIStatic>();
 	wnd->SetAutoDelete	(true);
 
@@ -87,13 +88,13 @@ void CUIStatsPlayerInfo::AddField(float len, CGameFont* pF, u32 text_col, bool i
 		wnd->SetWndPos	(Fvector2().set(m_fields.back()->GetWndRect().right,0.0f));
 		wnd->SetWndSize	(Fvector2().set(len,this->GetHeight()));
 
-		wnd->SetTextAlignment(CGameFont::alCenter);
+		wnd->TextItemControl()->SetTextAlignment(CGameFont::alCenter);
 	}
 	if (pF)
-		wnd->SetFont(pF);
+		wnd->TextItemControl()->SetFont(pF);
 
-	wnd->SetTextColor(text_col);
-	wnd->SetTextComplexMode(false);
+	wnd->TextItemControl()->SetTextColor(text_col);
+	wnd->TextItemControl()->SetTextComplexMode(false);
 	m_fields.push_back(wnd);
 	AttachChild(wnd);
 }
@@ -103,15 +104,15 @@ const char* CUIStatsPlayerInfo::GetInfoByID(const char* id){
 	CStringTable st;
 
 	if (0 == xr_strcmp(id,"name"))
-		strcpy_s(ans,m_pPlayerInfo->name);
+		xr_strcpy(ans,m_pPlayerInfo->getName());
 	else if (0 == xr_strcmp(id,"frags"))
-		sprintf_s(ans,"%d",(int)m_pPlayerInfo->frags());
+		xr_sprintf(ans,"%d",(int)m_pPlayerInfo->frags());
 	else if (0 == xr_strcmp(id,"deaths"))
-		sprintf_s(ans,"%d",(int)m_pPlayerInfo->m_iDeaths);
+		xr_sprintf(ans,"%d",(int)m_pPlayerInfo->m_iDeaths);
 	else if (0 == xr_strcmp(id,"ping"))
-		sprintf_s(ans,"%d",(int)m_pPlayerInfo->ping);
+		xr_sprintf(ans,"%d",(int)m_pPlayerInfo->ping);
 	else if (0 == xr_strcmp(id,"artefacts"))
-		sprintf_s(ans,"%d",(int)m_pPlayerInfo->af_count);
+		xr_sprintf(ans,"%d",(int)m_pPlayerInfo->af_count);
 	else if (0 == xr_strcmp(id,"rank"))
 	{
 		int team = m_pPlayerInfo->team;
@@ -119,34 +120,34 @@ const char* CUIStatsPlayerInfo::GetInfoByID(const char* id){
 			team -= 1;
 
 		if (0 == team)
-            sprintf_s(ans,"ui_hud_status_green_0%d",(int)m_pPlayerInfo->rank + 1);
+            xr_sprintf(ans,"ui_hud_status_green_0%d",(int)m_pPlayerInfo->rank + 1);
 		else
-			sprintf_s(ans,"ui_hud_status_blue_0%d",(int)m_pPlayerInfo->rank + 1);
+			xr_sprintf(ans,"ui_hud_status_blue_0%d",(int)m_pPlayerInfo->rank + 1);
 
 	}
 	else if (0 == xr_strcmp(id, "death_atf"))
 	{		
 		if (m_pPlayerInfo->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD))
-			strcpy_s(ans,"death");
+			xr_strcpy(ans,"death");
 		else if (GameID() == eGameIDArtefactHunt)
 		{
 			game_cl_ArtefactHunt* pGameAHunt = smart_cast<game_cl_ArtefactHunt*>(&(Game()));
 			R_ASSERT(pGameAHunt);
 			if (m_pPlayerInfo->GameID == pGameAHunt->artefactBearerID)
-				strcpy_s(ans,"artefact");
+				xr_strcpy(ans,"artefact");
 			else
-				strcpy_s(ans,"");
+				xr_strcpy(ans,"");
 		}
 		else
-			strcpy_s(ans,"");
+			xr_strcpy(ans,"");
 		
 	}
 	else if (0 == xr_strcmp(id, "status"))
 	{
 		if (m_pPlayerInfo->testFlag(GAME_PLAYER_FLAG_READY))
-			strcpy_s(ans,*st.translate("st_mp_ready"));
+			xr_strcpy(ans,*st.translate("st_mp_ready"));
 		else
-			strcpy_s(ans,"");
+			xr_strcpy(ans,"");
 	}
 	else
 		R_ASSERT2(false, "invalid info ID");

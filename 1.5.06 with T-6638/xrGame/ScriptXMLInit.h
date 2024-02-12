@@ -13,7 +13,6 @@ class CUISpinFlt;
 class CUIComboBox;
 class CUIButton;
 class CUI3tButton;
-class CUI3tButtonEx;
 class CUICheckButton;
 class CUIListWnd;
 class CUITabControl;
@@ -34,12 +33,6 @@ class CUIProgressBar;
 class CScriptXmlInit
 {
 public:
-	DECLARE_SCRIPT_REGISTER_FUNCTION
-
-	CScriptXmlInit();
-	CScriptXmlInit(const CScriptXmlInit& other);
-	CScriptXmlInit& operator= (const CScriptXmlInit& other);
-
 	void ParseFile		(LPCSTR xml_file);
 	void InitWindow		(LPCSTR path, int index, CUIWindow* pWnd);
 	//void InitList		(LPCSTR path, int index, CUIListWnd* pWnd);
@@ -58,7 +51,6 @@ public:
 	CUIComboBox*		InitComboBox(LPCSTR path, CUIWindow* parent);
 	CUIButton*			InitButton(LPCSTR path, CUIWindow* parent);
 	CUI3tButton*		Init3tButton(LPCSTR path, CUIWindow* parent);
-	CUI3tButtonEx*		Init3tButtonEx(LPCSTR path, CUIWindow* parent);
 
 	CUITabControl*		InitTab(LPCSTR path, CUIWindow* parent);
 	CServerList*		InitServerList(LPCSTR path, CUIWindow* parent);
@@ -74,4 +66,6 @@ public:
 	void				InitAutoStaticGroup(LPCSTR path, CUIWindow* pWnd);
 protected:
 	CUIXml	m_xml;
+public:
+	DECLARE_SCRIPT_REGISTER_FUNCTION
 };

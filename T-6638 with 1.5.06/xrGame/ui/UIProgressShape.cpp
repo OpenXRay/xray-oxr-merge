@@ -7,9 +7,12 @@
 
 CUIProgressShape::CUIProgressShape()
 {
+	m_pBackground	= NULL;
 	m_bText			= false;
-//	m_pTexture		= xr_new<CUIStatic>();
-//	AttachChild		(m_pTexture);	
+	m_pTexture		= xr_new<CUIStatic>();
+	AttachChild		(m_pTexture);	
+	m_pBackground	= xr_new<CUIStatic>();
+	AttachChild		(m_pBackground);
 	m_blend			= true;
 	m_angle_begin	= 0.0f;
 	m_angle_end		= PI_MUL_2;
@@ -17,7 +20,8 @@ CUIProgressShape::CUIProgressShape()
 
 CUIProgressShape::~CUIProgressShape()
 {
-//	xr_delete		(m_pTexture);
+	xr_delete		(m_pTexture);
+	xr_delete		(m_pBackground);
 }	
 
 void CUIProgressShape::SetPos(float pos){

@@ -35,10 +35,11 @@ struct ServerInfo{
 	string128	m_SessionName;
 	string128	m_ServerGameType;
 	string128	m_ServerVersion;
-	u8			m_GameType;
+	u32			m_GameType;
 
 	s16						m_ServerNumPlayers;
 	s16						m_ServerMaxPlayers;
+	string128				m_ServerUpTime;
 	s16						m_ServerNumTeams;
 	bool					m_bDedicated;
 	bool					m_bFFire;
@@ -58,7 +59,7 @@ struct ServerInfo{
 	ServerInfo () {};
 	ServerInfo (string128 NewAddress) 
 	{
-		strcpy(m_Address, NewAddress);
+		strcpy_s(m_Address, NewAddress);
 	};
 
 	bool			operator	==		(LPCSTR Address){int res = xr_strcmp(m_Address, Address);return	res	 == 0;};

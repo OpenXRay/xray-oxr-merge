@@ -469,11 +469,11 @@ bool CScriptStorage::parse_namespace(LPCSTR caNamespaceName, LPSTR b, u32 const 
 			*S1				= 0;
 
 		if (i)
-			xr_strcat		(b,b_size,"{");
-		xr_strcat			(b,b_size,S);
-		xr_strcat			(b,b_size,"=");
+			xr_strcat	(b,b_size,"{");
+		xr_strcat		(b,b_size,S);
+		xr_strcat		(b,b_size,"=");
 		if (i)
-			xr_strcat		(c,c_size,"}");
+			xr_strcat	(c,c_size,"}");
 		if (S1)
 			S			= ++S1;
 		else
@@ -626,7 +626,7 @@ bool CScriptStorage::namespace_loaded(LPCSTR N, bool remove_from_stack)
 	lua_pushstring 			(lua(),"_G"); 
 	lua_rawget 				(lua(),LUA_GLOBALSINDEX); 
 	string256				S2;
-	xr_strcpy					(S2,N);
+	xr_strcpy				(S2,N);
 	LPSTR					S = S2;
 	for (;;) { 
 		if (!xr_strlen(S)) {
@@ -708,7 +708,7 @@ bool CScriptStorage::object	(LPCSTR namespace_name, LPCSTR identifier, int type)
 luabind::object CScriptStorage::name_space(LPCSTR namespace_name)
 {
 	string256			S1;
-	xr_strcpy				(S1,namespace_name);
+	xr_strcpy			(S1,namespace_name);
 	LPSTR				S = S1;
 	luabind::object		lua_namespace = luabind::get_globals(lua());
 	for (;;) {
@@ -725,7 +725,8 @@ luabind::object CScriptStorage::name_space(LPCSTR namespace_name)
 
 #include <boost/noncopyable.hpp>
 
-struct raii_guard : private boost::noncopyable {
+struct raii_guard : private boost::noncopyable
+{
 	int m_error_code;
 	LPCSTR const& m_error_description;
 	raii_guard	(int error_code, LPCSTR const& m_description) : m_error_code(error_code), m_error_description(m_description) {}

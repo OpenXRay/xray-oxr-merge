@@ -6,7 +6,6 @@
 class CUIWindow;
 class CUIFrameWindow;
 class CUIStatic;
-class CUITextWnd;
 class CUICheckButton;
 class CUISpinNum;
 class CUISpinText;

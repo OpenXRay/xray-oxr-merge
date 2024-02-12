@@ -13,11 +13,12 @@ class CUITrackBar : public CUIWindow, public CUIOptionsItem
 public:
 					CUITrackBar				();
 	// CUIOptionsItem
-	virtual void 	SetCurrentValue			();
-	virtual void 	SaveValue				();
-	virtual bool 	IsChanged				();
-	virtual void 	SeveBackUpValue			();
-	virtual void 	Undo					();
+	virtual void	SetCurrentOptValue		();	// opt->current
+	virtual void	SaveBackUpOptValue		();	// current->backup
+	virtual void	SaveOptValue			();	// current->opt
+	virtual void	UndoOptValue			();	// backup->current
+	virtual bool	IsChangedOptValue		() const;	// backup!=current
+	
 	virtual void	Draw					();
 	virtual void	Update					();
 	virtual bool	OnMouseAction			(float x, float y, EUIMessages mouse_action);
@@ -33,6 +34,9 @@ public:
 			void	SetCheck				(bool b);
 			int		GetIValue				(){return m_i_val;}
 			float		GetFValue				(){return m_f_val;}
+			void	SetOptIBounds			(int imin, int imax);
+			void	SetOptFBounds			(float fmin, float fmax);
+
 protected:
 			void 	UpdatePos				();
 			void 	UpdatePosRelativeToMouse();
@@ -50,14 +54,14 @@ protected:
 			float				m_f_max;
 			float				m_f_min;
 			float				m_f_step;
-			float				m_f_back_up;
+			float				m_f_opt_backup_value;
 		};
 		struct{
 			int					m_i_val;
 			int					m_i_max;
 			int					m_i_min;
 			int					m_i_step;
-			int					m_i_back_up;
+			int					m_i_opt_backup_value;
 		};
 	};
 };

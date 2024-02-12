@@ -126,7 +126,7 @@ public:
     // Given the position of the R joint find the corresponding 
     // swivel angle. Must call SetGoal or SetGoalPos first.
     // 
-
+	float Length( ) const { return get_translation( T ) + get_translation( S ); }
     float PosToAngle(const float p[3]);
 
     //

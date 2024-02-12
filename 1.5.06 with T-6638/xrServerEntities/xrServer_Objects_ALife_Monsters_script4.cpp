@@ -10,6 +10,9 @@
 #include "xrServer_Objects_ALife_Monsters.h"
 #include "xrServer_script_macroses.h"
 #include "alife_human_brain.h"
+#ifdef XRGAME_EXPORTS
+#include "relation_registry.h"
+#endif
 
 using namespace luabind;
 

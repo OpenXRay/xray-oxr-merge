@@ -31,7 +31,7 @@ void CUIActorInfoWnd::Init()
 {
 	CUIXml									uiXml;
 	CUIXmlInit								xml_init;
-	uiXml.Init								(CONFIG_PATH, UI_PATH,ACTOR_STATISTIC_XML);
+	uiXml.Load								(CONFIG_PATH, UI_PATH,ACTOR_STATISTIC_XML);
 
 	xml_init.InitWindow						(uiXml, "main_wnd", 0, this);
 
@@ -70,7 +70,7 @@ void CUIActorInfoWnd::Init()
 
 	UICharacterInfo							= xr_new<CUICharacterInfo>(); UICharacterInfo->SetAutoDelete(true);
 	UICharacterWindow->AttachChild			(UICharacterInfo);
-	UICharacterInfo->Init					(0,0,UICharacterWindow->GetWidth(), UICharacterWindow->GetHeight(), ACTOR_CHARACTER_XML);
+	UICharacterInfo->InitCharacterInfo		(Fvector2().set(0,0),UICharacterWindow->GetWndSize(), ACTOR_CHARACTER_XML);
 
 	//Элементы автоматического добавления
 	xml_init.InitAutoStatic					(uiXml, "right_auto_static", UICharIconFrame);
@@ -92,7 +92,7 @@ void CUIActorInfoWnd::Show(bool status)
 void CUIActorInfoWnd::FillPointsInfo			()
 {
 	CUIXml									uiXml;
-	uiXml.Init								(CONFIG_PATH, UI_PATH,ACTOR_STATISTIC_XML);
+	uiXml.Load								(CONFIG_PATH, UI_PATH,ACTOR_STATISTIC_XML);
 
 	UIMasterList->Clear						();
 
@@ -181,7 +181,7 @@ void CUIActorInfoWnd::FillPointsDetail(const shared_str& id)
 
 	UIDetailList->Clear						();
 	CUIXml									uiXml;
-	uiXml.Init								(CONFIG_PATH, UI_PATH,ACTOR_STATISTIC_XML);
+	uiXml.Load									(CONFIG_PATH, UI_PATH,ACTOR_STATISTIC_XML);
 	uiXml.SetLocalRoot						(uiXml.NavigateToNode("actor_stats_wnd",0));
 	
 	string512 path;

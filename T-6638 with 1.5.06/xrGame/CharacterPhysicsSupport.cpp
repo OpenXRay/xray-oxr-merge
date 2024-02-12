@@ -80,7 +80,6 @@ CCharacterPhysicsSupport::~CCharacterPhysicsSupport()
 	VERIFY( !m_interactive_motion );
 	xr_delete( m_collision_activating_delay );
 	bone_fix_clear();
-	
 }
 
 CCharacterPhysicsSupport::CCharacterPhysicsSupport( EType atype, CEntityAlive* aentity ) 
@@ -208,8 +207,6 @@ void CCharacterPhysicsSupport::in_NetSpawn( CSE_Abstract* e )
 	{
 		if( m_eType == etStalker )
 		{
-			//pK->LL_GetData( 0 ).shape.flags.set(SBoneShape::sfVisibilityIgnore,TRUE);
-			//pK->LL_GetData( pK->LL_BoneID("bip01") ).shape.flags.set(SBoneShape::sfVisibilityIgnore,TRUE);
 			ka->PlayCycle( "waunded_1_idle_0" );
 		}
 		else
@@ -1339,8 +1336,8 @@ void CCharacterPhysicsSupport::set_collision_hit_callback( ICollisionHitCallback
 	
 	xr_delete( m_collision_hit_callback );
 	m_collision_hit_callback = cc;
-
 }
+
 ICollisionHitCallback * CCharacterPhysicsSupport::get_collision_hit_callback()
 {
 	return m_collision_hit_callback;

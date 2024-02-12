@@ -292,6 +292,10 @@ void CUIActorMenu::OnInventoryAction(PIItem pItem, u16 action_type)
 					}
 					++i;
 				}
+				CUICellItem*		ci   = NULL;
+				if(GetMenuMode()==mmDeadBodySearch && FindItemInList(m_pDeadBodyBagList, pItem, ci))
+					break;
+
 				if ( !b_already )
 				{
 					if ( lst_to_add )
@@ -354,20 +358,28 @@ void CUIActorMenu::AttachAddon(PIItem item_to_upgrade)
 	SetCurrentItem								(NULL);
 }
 
-void CUIActorMenu::DetachAddon(LPCSTR addon_name)
+void CUIActorMenu::DetachAddon(LPCSTR addon_name, PIItem itm)
 {
 	PlaySnd										(eDetachAddon);
 	if (OnClient())
 	{
 		NET_Packet								P;
+		if(itm==NULL)
 		CGameObject::u_EventGen					(P, GE_ADDON_DETACH, CurrentIItem()->object().ID());
+		else
+			CGameObject::u_EventGen				(P, GE_ADDON_DETACH, itm->object().ID());
+
 		P.w_stringZ								(addon_name);
 		CGameObject::u_EventSend				(P);
+		return;
 	}
+	if(itm==NULL)
 	CurrentIItem()->Detach						(addon_name, true);
+	else
+		itm->Detach								(addon_name, true);
 }
 
-void CUIActorMenu::InitCellForSlot( u32 slot_idx ) 
+void CUIActorMenu::InitCellForSlot( u16 slot_idx )
 {
 	VERIFY( KNIFE_SLOT <= slot_idx && slot_idx <= DETECTOR_SLOT );
 	PIItem item	= m_pActorInvOwner->inventory().ItemFromSlot(slot_idx);
@@ -392,8 +404,8 @@ void CUIActorMenu::InitInventoryContents(CUIDragDropListEx* pBagList)
 
 	CUIDragDropListEx*			curr_list = NULL;
 	//Slots
-	InitCellForSlot				(PISTOL_SLOT);
-	InitCellForSlot				(RIFLE_SLOT);
+	InitCellForSlot				(INV_SLOT_2);
+	InitCellForSlot				(INV_SLOT_3);
 	InitCellForSlot				(OUTFIT_SLOT);
 	InitCellForSlot				(DETECTOR_SLOT);
 	InitCellForSlot				(GRENADE_SLOT);
@@ -603,11 +615,11 @@ CUIDragDropListEx* CUIActorMenu::GetSlotList(u16 slot_idx)
 	}
 	switch ( slot_idx )
 	{
-		case PISTOL_SLOT:
+		case INV_SLOT_2:
 			return m_pInventoryPistolList;
 			break;
 
-		case RIFLE_SLOT:
+		case INV_SLOT_3:
 			return m_pInventoryAutomaticList;
 			break;
 
@@ -750,8 +762,7 @@ void CUIActorMenu::ActivatePropertiesBox()
 		Fvector2 cursor_pos;
 		Frect    vis_rect;
 		GetAbsoluteRect				( vis_rect );
-
-		cursor_pos					= GetUICursor()->GetCursorPosition();
+		cursor_pos					= GetUICursor().GetCursorPosition();
 		cursor_pos.sub				( vis_rect.lt );
 		m_UIPropertiesBox->Show		( vis_rect, cursor_pos );
 		PlaySnd						( eProperties );
@@ -761,30 +772,38 @@ void CUIActorMenu::ActivatePropertiesBox()
 void CUIActorMenu::PropertiesBoxForSlots( PIItem item, bool& b_show )
 {
 	CCustomOutfit* pOutfit = smart_cast<CCustomOutfit*>( item );
-	CInventory*  inv = &m_pActorInvOwner->inventory();
+	CHelmet* pHelmet		= smart_cast<CHelmet*>		( item );
+	CInventory&  inv		= m_pActorInvOwner->inventory();
 
 	// Флаг-признак для невлючения пункта контекстного меню: Dreess Outfit, если костюм уже надет
 	bool bAlreadyDressed = false;
-	u32 const cur_slot = item->GetSlot();
+	u16 cur_slot			= item->BaseSlot();
 
-	if ( !pOutfit && cur_slot != NO_ACTIVE_SLOT
-		&& !inv->m_slots[cur_slot].m_bPersistent && inv->CanPutInSlot(item) )
+	if (	!pOutfit && !pHelmet &&
+			cur_slot != NO_ACTIVE_SLOT &&
+			!inv.SlotIsPersistent(cur_slot) &&
+			inv.CanPutInSlot(item, cur_slot) )
 	{
 		m_UIPropertiesBox->AddItem( "st_move_to_slot",  NULL, INVENTORY_TO_SLOT_ACTION );
 		b_show = true;
 	}
-	if ( item->Belt() && inv->CanPutInBelt( item ) )
+	if (	item->Belt() &&
+			inv.CanPutInBelt( item ) )
 	{
 		m_UIPropertiesBox->AddItem( "st_move_on_belt",  NULL, INVENTORY_TO_BELT_ACTION );
 		b_show = true;
 	}
 
-	if ( item->Ruck() && inv->CanPutInRuck( item )
-		&& ( cur_slot == (u32)(-1) || !inv->m_slots[cur_slot].m_bPersistent ) )
+	if (	item->Ruck() &&
+			inv.CanPutInRuck(item) &&
+			( cur_slot == NO_ACTIVE_SLOT || !inv.SlotIsPersistent(cur_slot) ) )
 	{
 		if( !pOutfit )
 		{
+			if( !pHelmet )
 			m_UIPropertiesBox->AddItem( "st_move_to_bag",  NULL, INVENTORY_TO_BAG_ACTION );
+			else
+				m_UIPropertiesBox->AddItem( "st_undress_helmet",  NULL, INVENTORY_TO_BAG_ACTION );
 		}
 		else
 		{
@@ -796,6 +815,13 @@ void CUIActorMenu::PropertiesBoxForSlots( PIItem item, bool& b_show )
 	if ( pOutfit && !bAlreadyDressed )
 	{
 		m_UIPropertiesBox->AddItem( "st_dress_outfit",  NULL, INVENTORY_TO_SLOT_ACTION );
+		b_show			= true;
+	}
+
+	CCustomOutfit* outfit_in_slot = m_pActorInvOwner->GetOutfit();
+	if ( pHelmet && !bAlreadyDressed && (!outfit_in_slot || outfit_in_slot->bIsHelmetAvaliable))
+	{
+		m_UIPropertiesBox->AddItem( "st_dress_helmet",  NULL, INVENTORY_TO_SLOT_ACTION );
 		b_show			= true;
 	}
 }
@@ -979,7 +1005,7 @@ void CUIActorMenu::ProcessPropertiesBoxClicked( CUIWindow* w, void* d )
 	
 	switch ( m_UIPropertiesBox->GetClickedItem()->GetTAG() )
 	{
-	case INVENTORY_TO_SLOT_ACTION:	ToSlot( cell_item, true  );		break;
+	case INVENTORY_TO_SLOT_ACTION:	ToSlot( cell_item, true, item->BaseSlot() );		break;
 	case INVENTORY_TO_BELT_ACTION:	ToBelt( cell_item, false );		break;
 	case INVENTORY_TO_BAG_ACTION:	ToBag ( cell_item, false );		break;
 	case INVENTORY_EAT_ACTION:		TryUseItem( cell_item );		break;
@@ -1046,6 +1072,14 @@ void CUIActorMenu::ProcessPropertiesBoxClicked( CUIWindow* w, void* d )
 		{
 			TryRepairItem(this,0);
 			return;
+			break;
+		}
+	case INVENTORY_PLAY_ACTION:
+		{
+			CPda* pPda = smart_cast<CPda*>(item);
+			if(!pPda)
+				break;
+			pPda->PlayScriptFunction();
 			break;
 		}
 	}//switch

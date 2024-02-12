@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "UIDragDropListEx.h"
 #include "UIScrollBar.h"
-#include "../object_broker.h"
+#include "object_broker.h"
 #include "UICellItem.h"
 
 CUIDragItem* CUIDragDropListEx::m_drag_item = NULL;
@@ -15,7 +15,6 @@ void CUICell::Clear()
 
 CUIDragDropListEx::CUIDragDropListEx()
 {
-
 	m_flags.zero				();
 	m_container					= xr_new<CUICellContainer>(this);
 	m_vScrollBar				= xr_new<CUIScrollBar>();

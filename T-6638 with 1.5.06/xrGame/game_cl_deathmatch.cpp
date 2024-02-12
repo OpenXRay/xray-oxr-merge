@@ -27,8 +27,6 @@
 #include "game_cl_deathmatch_snd_messages.h"
 #include "game_base_menu_events.h"
 
-
-
 #include "ActorCondition.h"
 
 #ifdef _new_buy_wnd
@@ -608,7 +606,7 @@ void game_cl_Deathmatch::shedule_Update			(u32 dt)
 					string64			S;
 					ConvertTime2String	(&S, Rest);
 					string128			FullS;
-					xr_sprintf				(FullS, "%s : %s", *st.translate("mp_time2respawn"), S);
+					xr_sprintf			(FullS, "%s : %s", *st.translate("mp_time2respawn"), S);
 
 					m_game_ui->SetForceRespawnTimeCaption(FullS);
 				};

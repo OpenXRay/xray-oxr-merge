@@ -16,7 +16,7 @@ const u32			SKIN_TEX_WIDTH			= 128;
 
 class CUIStatic;
 class CUIStatix;
-class CUI3tButtonEx;
+class CUI3tButton;
 class CUIAnimatedStatic;
 class CExtraContentFilter;
 
@@ -57,11 +57,11 @@ protected:
 	CUIStatic*		m_pBackground;
 	CUIStatic*		m_pFrames;
 	CUIStatix*		m_pImage[4];
-	CUI3tButtonEx*	m_pButtons[2];
+	CUI3tButton*	m_pButtons[2];
 	CUIAnimatedStatic* m_pAnims[2];
-	CUI3tButtonEx*	m_pBtnAutoSelect;
-	CUI3tButtonEx*	m_pBtnSpectator;
-	CUI3tButtonEx*	m_pBtnBack;
+	CUI3tButton*	m_pBtnAutoSelect;
+	CUI3tButton*	m_pBtnSpectator;
+	CUI3tButton*	m_pBtnBack;
 	
 	shared_str		m_strSection;
 	shared_str		m_shader;

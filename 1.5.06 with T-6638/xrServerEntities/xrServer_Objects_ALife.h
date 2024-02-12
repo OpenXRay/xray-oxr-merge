@@ -26,6 +26,24 @@ class CSE_ALifeObject;
 class CALifeSmartTerrainTask;
 class CALifeMonsterAbstract;
 
+struct SFillPropData
+{
+    RTokenVec 	locations[4];
+    RStringVec	level_ids;
+	RTokenVec 	story_names;
+	RTokenVec 	spawn_story_names;
+	RStringVec	character_profiles;
+    RStringVec	smart_covers;
+
+    u32			counter;
+	SFillPropData					();
+	~SFillPropData					();
+	void							load					();
+	void							unload					();
+	void							inc						();
+	void							dec						();
+};
+
 SERVER_ENTITY_DECLARE_BEGIN(CSE_ALifeSchedulable,IPureSchedulableObject)
 	CSE_ALifeItemWeapon				*m_tpCurrentBestWeapon;
 	CSE_ALifeDynamicObject			*m_tpBestDetector;
@@ -117,6 +135,7 @@ public:
 			bool					move_offline		() const;
 			void					can_switch_online	(bool value);
 			void					can_switch_offline	(bool value);
+			void					use_ai_locations	(bool value);
 			void					interactive			(bool value);
 			void					move_offline		(bool value);
 			bool					visible_for_map		() const;
@@ -286,6 +305,8 @@ SERVER_ENTITY_DECLARE_BEGIN(CSE_ALifeDynamicObject,CSE_ALifeObject)
 	virtual	bool					redundant				() const;
 			void					attach					(CSE_ALifeInventoryItem *tpALifeInventoryItem,	bool		bALifeRequest,	bool bAddChildren = true);
 			void					detach					(CSE_ALifeInventoryItem *tpALifeInventoryItem,	ALife::OBJECT_IT	*I = 0,	bool bALifeRequest = true,	bool bRemoveChildren = true);
+	virtual void					clear_client_data		();
+	virtual void					on_failed_switch_online	();
 #endif
 	virtual CSE_ALifeDynamicObject	*cast_alife_dynamic_object	() {return this;}
 SERVER_ENTITY_DECLARE_END
@@ -592,10 +613,16 @@ add_to_type_list(CSE_ALifeObjectBreakable)
 
 SERVER_ENTITY_DECLARE_BEGIN2(CSE_ALifeObjectClimable,CSE_Shape,CSE_ALifeDynamicObject)
 CSE_ALifeObjectClimable	(LPCSTR caSection);
+shared_str						material;
 virtual							~CSE_ALifeObjectClimable	();
 virtual bool					used_ai_locations	() const;
 virtual bool					can_switch_offline	() const;
 virtual ISE_Shape*  __stdcall	shape				();
+
+#ifndef XRGAME_EXPORTS
+virtual	void		__stdcall	set_additional_info	(void* info);
+#endif
+
 SERVER_ENTITY_DECLARE_END
 
 add_to_type_list(CSE_ALifeObjectClimable)

@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="9.00"
 	Name="xrNetServer"
 	ProjectGUID="{435BAC9A-B225-457D-AB40-C9BD0CC8838C}"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -94,7 +95,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="Ws2_32.lib dxerr9.lib"
+				AdditionalDependencies="Ws2_32.lib dxerr.lib"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\..\sdk\libraries;..\..\..\libraries"
@@ -107,6 +108,8 @@
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				LinkTimeCodeGeneration="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="..\..\..\libraries\$(ProjectName).lib"
 			/>
 			<Tool
@@ -126,9 +129,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -207,7 +207,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="Ws2_32.lib dxerr9.lib"
+				AdditionalDependencies="Ws2_32.lib dxerr.lib"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\..\sdk\libraries;..\..\..\libraries"
@@ -218,6 +218,8 @@
 				LargeAddressAware="2"
 				OptimizeReferences="0"
 				EnableCOMDATFolding="0"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="..\..\..\libraries\$(ProjectName).lib"
 			/>
 			<Tool
@@ -237,9 +239,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -316,7 +315,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="Ws2_32.lib dxerr9.lib"
+				AdditionalDependencies="Ws2_32.lib dxerr.lib"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\..\sdk\libraries;..\..\..\libraries"
@@ -325,6 +324,8 @@
 				MapFileName=""
 				SubSystem="2"
 				LargeAddressAware="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="..\..\..\libraries\$(ProjectName).lib"
 			/>
 			<Tool
@@ -344,9 +345,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -668,6 +666,14 @@
 		</File>
 		<File
 			RelativePath=".\ip_filter.h"
+			>
+		</File>
+		<File
+			RelativePath=".\NET_AuthCheck.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\NET_AuthCheck.h"
 			>
 		</File>
 		<File

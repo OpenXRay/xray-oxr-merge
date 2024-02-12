@@ -6,6 +6,8 @@
 // 
 // Copyright 2005 GSC GameWorld
 
+#pragma once
+
 #include "KillMessageStruct.h"
 #include "UIPdaMsgListItem.h"
 

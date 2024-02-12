@@ -247,5 +247,4 @@ void	CBlender_Compile::r_End			()
 	dest.C					= 0;
 	ref_matrix_list			temp(0);
 	SH->passes.push_back	(DEV->_CreatePass(dest));
-	//SH->passes.push_back	(DEV->_CreatePass(dest.state,dest.ps,dest.vs,dest.gs,dest.constants,dest.T,temp,dest.C));
 }

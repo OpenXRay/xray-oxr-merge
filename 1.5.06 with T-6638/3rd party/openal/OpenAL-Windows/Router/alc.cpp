@@ -480,7 +480,7 @@ ALvoid BuildDeviceSpecifierList()
 											}
 										}
 									}
-
+									/*
 									// add to capture device list
 									if (alcIsExtensionPresentFxn(NULL, "ALC_EXT_CAPTURE")) 
 									{
@@ -500,6 +500,7 @@ ALvoid BuildDeviceSpecifierList()
 											} while (strlen(specifier) > 0);
 										}
 									}
+									*/
 								}
 
 								FreeLibrary(dll);

@@ -101,133 +101,126 @@ struct story_name_predicate {
 };
 
 #ifdef XRSE_FACTORY_EXPORTS
-struct SFillPropData{
-    RTokenVec 	locations[4];
-    RStringVec	level_ids;
-	RTokenVec 	story_names;
-	RTokenVec 	spawn_story_names;
-	RStringVec	character_profiles;
-    RStringVec	smart_covers;
+SFillPropData::SFillPropData	()
+{
+	counter = 0;
+}
 
-    u32			counter;
-                SFillPropData	()
-    {
-        counter = 0;
-    }
-                ~SFillPropData	()
-    {
-    	VERIFY	(0==counter);
-    }
-    void		load			()
-    {
-        // create ini
+SFillPropData::~SFillPropData	()
+{
+	VERIFY	(0==counter);
+}
+
+void	SFillPropData::load			()
+{
+    // create ini
 #ifdef XRGAME_EXPORTS
-        CInifile				*Ini = 	pGameIni;
+    CInifile				*Ini = 	pGameIni;
 #else // XRGAME_EXPORTS
-        CInifile				*Ini = 0;
-        string_path				gm_name;
-        FS.update_path			(gm_name,"$game_config$",GAME_CONFIG);
-        R_ASSERT3				(FS.exist(gm_name),"Couldn't find file",gm_name);
-        Ini						= xr_new<CInifile>(gm_name);
+    CInifile				*Ini = 0;
+    string_path				gm_name;
+    FS.update_path			(gm_name,"$game_config$",GAME_CONFIG);
+    R_ASSERT3				(FS.exist(gm_name),"Couldn't find file",gm_name);
+    Ini						= xr_new<CInifile>(gm_name);
 #endif // XRGAME_EXPORTS
 
-        // location type
-        LPCSTR					N,V;
-        u32 					k;
-		for (int i=0; i<GameGraph::LOCATION_TYPE_COUNT; ++i){
-            VERIFY				(locations[i].empty());
-            string256			caSection, T;
-            strconcat			(sizeof(caSection),caSection,SECTION_HEADER,itoa(i,T,10));
-            R_ASSERT			(Ini->section_exist(caSection));
-            for (k = 0; Ini->r_line(caSection,k,&N,&V); ++k)
-                locations[i].push_back	(xr_rtoken(V,atoi(N)));
-        }
-        
-		// level names/ids
-        VERIFY					(level_ids.empty());
-        for (k = 0; Ini->r_line("levels",k,&N,&V); ++k)
-            level_ids.push_back	(Ini->r_string_wb(N,"caption"));
+    // location type
+    LPCSTR					N,V;
+    u32 					k;
+	for (int i=0; i<GameGraph::LOCATION_TYPE_COUNT; ++i){
+        VERIFY				(locations[i].empty());
+        string256			caSection, T;
+        strconcat			(sizeof(caSection),caSection,SECTION_HEADER,itoa(i,T,10));
+        R_ASSERT			(Ini->section_exist(caSection));
+        for (k = 0; Ini->r_line(caSection,k,&N,&V); ++k)
+            locations[i].push_back	(xr_rtoken(V,atoi(N)));
+    }
+    
+	// level names/ids
+    VERIFY					(level_ids.empty());
+    for (k = 0; Ini->r_line("levels",k,&N,&V); ++k)
+        level_ids.push_back	(Ini->r_string_wb(N,"caption"));
 
-        // story names
-		{
-			VERIFY					(story_names.empty());
-			LPCSTR section 			= "story_ids";
-			R_ASSERT				(Ini->section_exist(section));
-			for (k = 0; Ini->r_line(section,k,&N,&V); ++k)
-				story_names.push_back	(xr_rtoken(V,atoi(N)));
+    // story names
+	{
+		VERIFY					(story_names.empty());
+		LPCSTR section 			= "story_ids";
+		R_ASSERT				(Ini->section_exist(section));
+		for (k = 0; Ini->r_line(section,k,&N,&V); ++k)
+			story_names.push_back	(xr_rtoken(V,atoi(N)));
 
-			std::sort				(story_names.begin(),story_names.end(),story_name_predicate());
-			story_names.insert		(story_names.begin(),xr_rtoken("NO STORY ID",ALife::_STORY_ID(-1)));
-		}
+		std::sort				(story_names.begin(),story_names.end(),story_name_predicate());
+		story_names.insert		(story_names.begin(),xr_rtoken("NO STORY ID",ALife::_STORY_ID(-1)));
+	}
 
-        // spawn story names
-		{
-			VERIFY					(spawn_story_names.empty());
-			LPCSTR section 			= "spawn_story_ids";
-			R_ASSERT				(Ini->section_exist(section));
-			for (k = 0; Ini->r_line(section,k,&N,&V); ++k)
-				spawn_story_names.push_back	(xr_rtoken(V,atoi(N)));
+    // spawn story names
+	{
+		VERIFY					(spawn_story_names.empty());
+		LPCSTR section 			= "spawn_story_ids";
+		R_ASSERT				(Ini->section_exist(section));
+		for (k = 0; Ini->r_line(section,k,&N,&V); ++k)
+			spawn_story_names.push_back	(xr_rtoken(V,atoi(N)));
 
-			std::sort				(spawn_story_names.begin(),spawn_story_names.end(),story_name_predicate());
-			spawn_story_names.insert(spawn_story_names.begin(),xr_rtoken("NO SPAWN STORY ID",ALife::_SPAWN_STORY_ID(-1)));
-		}
+		std::sort				(spawn_story_names.begin(),spawn_story_names.end(),story_name_predicate());
+		spawn_story_names.insert(spawn_story_names.begin(),xr_rtoken("NO SPAWN STORY ID",ALife::_SPAWN_STORY_ID(-1)));
+	}
 
 #ifndef AI_COMPILER
-		//character profiles indexes
-		VERIFY					(character_profiles.empty());
-		for(int i = 0; i<=CCharacterInfo::GetMaxIndex(); i++)
-		{
-			character_profiles.push_back(CCharacterInfo::IndexToId(i));
-		}
+	//character profiles indexes
+	VERIFY					(character_profiles.empty());
+	for(int i = 0; i<=CCharacterInfo::GetMaxIndex(); i++)
+	{
+		character_profiles.push_back(CCharacterInfo::IndexToId(i));
+	}
 
-		std::sort(character_profiles.begin(), character_profiles.end(), SortStringsByAlphabetPred);
+	std::sort(character_profiles.begin(), character_profiles.end(), SortStringsByAlphabetPred);
 #endif // AI_COMPILER
-		
-        // destroy ini
+	
+    // destroy ini
 #ifndef XRGAME_EXPORTS
-		xr_delete				(Ini);
+	xr_delete				(Ini);
 #endif // XRGAME_EXPORTS
 
-		luabind::object			table;
-		R_ASSERT				(ai().script_engine().function_object("smart_covers.descriptions", table, LUA_TTABLE));
-		luabind::object::iterator	I = table.begin();
-		luabind::object::iterator	E = table.end();
-		for ( ; I != E; ++I)
-			smart_covers.push_back	(luabind::object_cast<LPCSTR>(I.key()));
+	luabind::object			table;
+	R_ASSERT				(ai().script_engine().function_object("smart_covers.descriptions", table, LUA_TTABLE));
+	luabind::object::iterator	I = table.begin();
+	luabind::object::iterator	E = table.end();
+	for ( ; I != E; ++I)
+		smart_covers.push_back	(luabind::object_cast<LPCSTR>(I.key()));
 
-		std::sort				(smart_covers.begin(), smart_covers.end(), logical_string_predicate());
-    }
+	std::sort				(smart_covers.begin(), smart_covers.end(), logical_string_predicate());
+}
 
-    void		unload			()
-    {
-        for (int i=0; i<GameGraph::LOCATION_TYPE_COUNT; ++i)
-            locations[i].clear	();
-        level_ids.clear			();
-        story_names.clear		();
-        spawn_story_names.clear	();
-		character_profiles.clear();
-		smart_covers.clear		();
-    }
+void	SFillPropData::unload			()
+{
+    for (int i=0; i<GameGraph::LOCATION_TYPE_COUNT; ++i)
+        locations[i].clear	();
+    level_ids.clear			();
+    story_names.clear		();
+    spawn_story_names.clear	();
+	character_profiles.clear();
+	smart_covers.clear		();
+}
 
-    void 		dec				()
-    {
-        VERIFY					(counter > 0);
-        --counter;
+void	SFillPropData::dec				()
+{
+    VERIFY					(counter > 0);
+    --counter;
 
-        if (!counter)
-            unload				();
-    }
+    if (!counter)
+        unload				();
+}
 
-    void 		inc				()
-    {
-        VERIFY					(counter < 0xffffffff);
+void	SFillPropData::inc				()
+{
+    VERIFY					(counter < 0xffffffff);
 
-        if (!counter)
-            load				();
+    if (!counter)
+        load				();
 
-        ++counter;
-    }
-};
+    ++counter;
+}
+
 static SFillPropData			fp_data;
 #endif // #ifdef XRSE_FACTORY_EXPORTS
 
@@ -1048,6 +1041,11 @@ bool CSE_ALifeObject::interactive			() const
 		!!m_flags.is(flVisibleForAI) &&
 		!!m_flags.is(flUsefulForAI)
 	);
+}
+
+void CSE_ALifeObject::use_ai_locations		(bool value)
+{
+	m_flags.set					(flUsedAI_Locations, BOOL(value));
 }
 
 void CSE_ALifeObject::can_switch_online		(bool value)
@@ -2419,6 +2417,7 @@ CSE_ALifeObjectClimable::CSE_ALifeObjectClimable	(LPCSTR caSection) : CSE_Shape(
 	//m_health					= 100.f;
 	//m_flags.set					(flUseSwitches,FALSE);
 	//m_flags.set					(flSwitchOffline,FALSE);
+	material  = "materials\\fake_ladders";
 }
 
 CSE_ALifeObjectClimable::~CSE_ALifeObjectClimable	()
@@ -2438,6 +2437,8 @@ void CSE_ALifeObjectClimable::STATE_Read		(NET_Packet	&tNetPacket, u16 size)
 	if(m_wVersion>99)
 		inherited2::STATE_Read		(tNetPacket,size);
 	cform_read(tNetPacket);
+	if(m_wVersion>126)
+		tNetPacket.r_stringZ( material );
 }
 
 void CSE_ALifeObjectClimable::STATE_Write	(NET_Packet	&tNetPacket)
@@ -2445,6 +2446,7 @@ void CSE_ALifeObjectClimable::STATE_Write	(NET_Packet	&tNetPacket)
 	//inherited1::STATE_Write		(tNetPacket);
 	inherited2::STATE_Write		(tNetPacket);
 	cform_write(tNetPacket);
+	tNetPacket.w_stringZ( material );
 }
 
 void CSE_ALifeObjectClimable::UPDATE_Read	(NET_Packet	&tNetPacket)
@@ -2466,6 +2468,12 @@ void CSE_ALifeObjectClimable::FillProps		(LPCSTR pref, PropItemVec& values)
 	//inherited1::FillProps			(pref,values);
 	inherited2::FillProps			(pref,values);
 	//PHelper().CreateFloat		(values, PrepareKey(pref,*s_name,"Health"),			&m_health,			0.f, 100.f);
+}
+
+void CSE_ALifeObjectClimable::set_additional_info(void* info)
+{
+	LPCSTR material_name = (LPCSTR)info;
+	material				= material_name;
 }
 #endif // #ifndef XRGAME_EXPORTS
 

@@ -54,11 +54,7 @@
 #include "UIHudStatesWnd.h"
 #include "UIActorMenu.h"
 
-void test_draw	();
-void test_key	(int dik);
-
 #include "../Include/xrRender/Kinematics.h"
-
 
 using namespace InventoryUtilities;
 //BOOL		g_old_style_ui_hud			= FALSE;
@@ -410,7 +406,6 @@ void CUIMainIngameWnd::Update()
 			R_ASSERT(!"Unknown type of warning icon");
 		}
 
-
 		xr_vector<float>::reverse_iterator	rit;
 
 		// Сначала проверяем на точное соответсвие
@@ -733,64 +728,3 @@ void CUIMainIngameWnd::reset_ui()
 		m_ui_hud_states->reset_ui();
 	}
 }
-
-
-#include "../../xrEngine/xr_input.h"
-#include "../GamePersistent.h"
-
-void hud_adjust_mode_keyb(int dik);
-void hud_draw_adjust_mode();
-
-#ifdef DEBUG
-	void attach_adjust_mode_keyb(int dik);
-	void attach_draw_adjust_mode();
-#endif
-
-struct TS{
-	ref_sound test_sound;
-};
-TS* pTS = NULL;
-void test_key(int dik)
-{
-	hud_adjust_mode_keyb	(dik);
-#ifdef DEBUG
-	attach_adjust_mode_keyb	(dik);
-#endif
-/*
-	if(dik==DIK_V)
-	{
-		if (!pTS)
-		{
-			pTS =  xr_new<TS>();
-			Msg("created");
-		}else
-		{
-			xr_delete(pTS);
-			Msg("destroyed");
-		}
-	}
-	if(dik==DIK_B && pTS)
-	{
-		pTS->test_sound.create("music\\combat\\theme1_intro", st_Effect, 0);
-		pTS->test_sound.play_at_pos(Actor(), Fvector().set(0,0,0), sm_2D);
-		pTS->test_sound.attach_tail("music\\combat\\theme1_combat_2");
-	}
-	if(dik==DIK_N && pTS)
-	{
-		pTS->test_sound.attach_tail("music\\combat\\theme1_combat_2");
-	}
-	if(dik==DIK_M && pTS)
-	{
-		pTS->test_sound.attach_tail("music\\combat\\theme1_final");
-	}
-*/
-}
-
-void test_draw()
-{
-	hud_draw_adjust_mode();
-#ifdef DEBUG
-	attach_draw_adjust_mode();
-#endif
-}
-

@@ -22,6 +22,8 @@
 #	include "alife_time_manager.h"
 #	include "ef_storage.h"
 #	include "game_graph.h"
+#	include "ai_space.h"
+#	include "alife_group_registry.h"
 #	include "alife_simulator.h"
 #	include "alife_registry_container.h"
 #	include "ef_primary.h"
@@ -30,6 +32,9 @@
 #	include "alife_simulator.h"
 #	include "alife_object_registry.h"
 #	include "date_time.h"
+#	include "custommonster.h"
+#	include "movement_manager.h"
+#	include "location_manager.h"
 #endif
 
 void setup_location_types_section(GameGraph::TERRAIN_VECTOR &m_vertex_types, CInifile const * ini, LPCSTR section)
@@ -129,6 +134,8 @@ CSE_ALifeTraderAbstract::CSE_ALifeTraderAbstract(LPCSTR caSection)
 	m_rank						= NO_RANK;
 	m_reputation				= NO_REPUTATION;
 #endif
+	m_deadbody_can_take			= true;
+	m_deadbody_closed			= false;
 
 	m_trader_flags.zero			();
 	m_trader_flags.set			(eTraderFlagInfiniteAmmo,FALSE);
@@ -172,6 +179,9 @@ void CSE_ALifeTraderAbstract::STATE_Write	(NET_Packet &tNetPacket)
 	tNetPacket.w_s32			(NO_REPUTATION);
 #endif
 	save_data					(m_character_name, tNetPacket);
+	
+	tNetPacket.w_u8				( (m_deadbody_can_take)? 1 : 0 );
+	tNetPacket.w_u8				( (m_deadbody_closed)? 1 : 0 );
 }
 
 void CSE_ALifeTraderAbstract::STATE_Read	(NET_Packet &tNetPacket, u16 size)
@@ -239,6 +249,12 @@ void CSE_ALifeTraderAbstract::STATE_Read	(NET_Packet &tNetPacket, u16 size)
 	specific_character			();
 #endif
 
+	if ( m_wVersion > 124 )
+	{
+		u8 temp;
+		tNetPacket.r_u8	( temp );		m_deadbody_can_take = (temp == 1);
+		tNetPacket.r_u8	( temp );		m_deadbody_closed   = (temp == 1);
+	}
 }
 
 void CSE_ALifeTraderAbstract::OnChangeProfile(PropValue* sender)
@@ -1108,6 +1124,8 @@ IC	void CSE_ALifeCreatureAbstract::set_killer_id	(ALife::_OBJECT_ID const killer
 ////////////////////////////////////////////////////////////////////////////
 CSE_ALifeMonsterAbstract::CSE_ALifeMonsterAbstract(LPCSTR caSection)	: CSE_ALifeCreatureAbstract(caSection), CSE_ALifeSchedulable(caSection)
 {
+	m_group_id					= 0xffff;
+
 	m_tNextGraphID				= m_tGraphID;
 	m_tPrevGraphID				= m_tGraphID;
 	m_fCurSpeed					= 0.0f;
@@ -1328,6 +1346,7 @@ CSE_ALifeCreatureActor::CSE_ALifeCreatureActor	(LPCSTR caSection) : CSE_ALifeCre
 	accel.set					(0.f,0.f,0.f);
 	velocity.set				(0.f,0.f,0.f);
 	m_holderID					=u16(-1);
+	mstate						= 0;
 }
 
 CSE_ALifeCreatureActor::~CSE_ALifeCreatureActor()
@@ -1962,7 +1981,6 @@ void CSE_ALifePsyDogPhantom::FillProps	(LPCSTR pref, PropItemVec& values)
 //////////////////////////////////////////////////////////////////////////
 CSE_ALifeHumanAbstract::CSE_ALifeHumanAbstract(LPCSTR caSection) : CSE_ALifeTraderAbstract(caSection), CSE_ALifeMonsterAbstract(caSection)
 {
-	m_group_id					= 0xffff;
 }
 
 CSE_ALifeHumanAbstract::~CSE_ALifeHumanAbstract()

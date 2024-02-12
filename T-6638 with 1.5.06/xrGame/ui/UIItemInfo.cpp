@@ -166,6 +166,7 @@ void CUIItemInfo::InitItemInfo(LPCSTR xml_name)
 		UIItemImage->TextureOff			();
 		UIItemImageSize.set				(UIItemImage->GetWidth(),UIItemImage->GetHeight());
 	}
+
 	if ( uiXml.NavigateToNode( "outfit_info", 0 ) )
 	{
 		UIOutfitInfo				= xr_new<CUIOutfitInfo>();

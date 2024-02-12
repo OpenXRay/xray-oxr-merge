@@ -51,7 +51,9 @@ bool	CGameSpy_GCD_Server::Init()
 		Msg("! xrGS::CDKey : Failes to Initialize!");
 		return false;
 	};
+#ifndef MASTER_GOLD
 	Msg("- xrGS::CDKey : Initialized");
+#endif // #ifndef MASTER_GOLD
 	return true;
 };
 

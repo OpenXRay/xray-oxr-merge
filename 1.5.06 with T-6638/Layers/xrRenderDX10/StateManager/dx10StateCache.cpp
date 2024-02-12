@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "dx10StateCache.h"
 
-dx10StateCache<ID3D10RasterizerState, D3D10_RASTERIZER_DESC>		RSManager;
-dx10StateCache<ID3D10DepthStencilState, D3D10_DEPTH_STENCIL_DESC>	DSSManager;
-dx10StateCache<ID3D10BlendState, D3D10_BLEND_DESC>					BSManager;
+dx10StateCache<ID3DRasterizerState, D3D_RASTERIZER_DESC>		RSManager;
+dx10StateCache<ID3DDepthStencilState, D3D_DEPTH_STENCIL_DESC>	DSSManager;
+dx10StateCache<ID3DBlendState, D3D_BLEND_DESC>					BSManager;
 
 template <class IDeviceState, class StateDecs>
 dx10StateCache<IDeviceState, StateDecs>
@@ -46,52 +46,52 @@ dx10StateCache<IDeviceState, StateDecs>
 
 template <>
 void 
-dx10StateCache<ID3D10RasterizerState, D3D10_RASTERIZER_DESC>
-::CreateState( D3D10_RASTERIZER_DESC desc, ID3D10RasterizerState** ppIState )
+dx10StateCache<ID3DRasterizerState, D3D_RASTERIZER_DESC>
+::CreateState( D3D_RASTERIZER_DESC desc, ID3DRasterizerState** ppIState )
 {
 	CHK_DX(HW.pDevice->CreateRasterizerState( &desc, ppIState));
 
 	//	TODO: DX10: Remove this.
 #ifdef	DEBUG
-	Msg("ID3D10RasterizerState #%d created.", m_StateArray.size());
+	Msg("ID3DRasterizerState #%d created.", m_StateArray.size());
 #endif	//	DEBUG
 }
 
 template <>
 void 
-dx10StateCache<ID3D10DepthStencilState, D3D10_DEPTH_STENCIL_DESC>
-::CreateState( D3D10_DEPTH_STENCIL_DESC desc, ID3D10DepthStencilState** ppIState )
+dx10StateCache<ID3DDepthStencilState, D3D_DEPTH_STENCIL_DESC>
+::CreateState( D3D_DEPTH_STENCIL_DESC desc, ID3DDepthStencilState** ppIState )
 {
 	CHK_DX(HW.pDevice->CreateDepthStencilState( &desc, ppIState));
 
 	//	TODO: DX10: Remove this.
 #ifdef	DEBUG
-	Msg("ID3D10DepthStencilState #%d created.", m_StateArray.size());
+	Msg("ID3DDepthStencilState #%d created.", m_StateArray.size());
 #endif	//	DEBUG
 }
 
 template <>
 void 
-dx10StateCache<ID3D10BlendState, D3D10_BLEND_DESC>
-::CreateState( D3D10_BLEND_DESC desc, ID3D10BlendState** ppIState )
+dx10StateCache<ID3DBlendState, D3D_BLEND_DESC>
+::CreateState( D3D_BLEND_DESC desc, ID3DBlendState** ppIState )
 {
 	CHK_DX(HW.pDevice->CreateBlendState( &desc, ppIState));
 
 	//	TODO: DX10: Remove this.
 #ifdef	DEBUG
-	Msg("ID3D10BlendState #%d created.", m_StateArray.size());
+	Msg("ID3DBlendState #%d created.", m_StateArray.size());
 #endif	//	DEBUG
 }
 
 /*
 template <>
 void 
-dx10StateCache<ID3D10RasterizerState, D3D10_RASTERIZER_DESC>
-::ResetDescription( D3D10_RASTERIZER_DESC &desc )
+dx10StateCache<ID3DxxRasterizerState, D3D_RASTERIZER_DESC>
+::ResetDescription( D3D_RASTERIZER_DESC &desc )
 {
 	ZeroMemory(&desc, sizeof(desc));
-	desc.FillMode = D3D10_FILL_SOLID;
-	desc.CullMode = D3D10_CULL_BACK;
+	desc.FillMode = D3D_FILL_SOLID;
+	desc.CullMode = D3Dxx_CULL_BACK;
 	desc.FrontCounterClockwise = FALSE;
 	desc.DepthBias = 0;
 	desc.DepthBiasClamp = 0.0f;
@@ -104,47 +104,47 @@ dx10StateCache<ID3D10RasterizerState, D3D10_RASTERIZER_DESC>
 
 template <>
 void 
-dx10StateCache<ID3D10DepthStencilState, D3D10_DEPTH_STENCIL_DESC>
-::ResetDescription( D3D10_DEPTH_STENCIL_DESC &desc )
+dx10StateCache<ID3DxxDepthStencilState, D3D_DEPTH_STENCIL_DESC>
+::ResetDescription( D3D_DEPTH_STENCIL_DESC &desc )
 {
 	ZeroMemory(&desc, sizeof(desc));
 	desc.DepthEnable = TRUE;
-	desc.DepthWriteMask = D3D10_DEPTH_WRITE_MASK_ALL;
-	desc.DepthFunc = D3D10_COMPARISON_LESS;
+	desc.DepthWriteMask = D3D_DEPTH_WRITE_MASK_ALL;
+	desc.DepthFunc = D3Dxx_COMPARISON_LESS;
 	desc.StencilEnable = TRUE;
 	desc.StencilReadMask = 0xFF;
 	desc.StencilWriteMask = 0xFF;
 
-	desc.FrontFace.StencilFailOp = D3D10_STENCIL_OP_KEEP;
-	desc.FrontFace.StencilDepthFailOp = D3D10_STENCIL_OP_KEEP;
-	desc.FrontFace.StencilPassOp = D3D10_STENCIL_OP_KEEP;
-	desc.FrontFace.StencilFunc = D3D10_COMPARISON_ALWAYS;
+	desc.FrontFace.StencilFailOp = D3Dxx_STENCIL_OP_KEEP;
+	desc.FrontFace.StencilDepthFailOp = D3Dxx_STENCIL_OP_KEEP;
+	desc.FrontFace.StencilPassOp = D3Dxx_STENCIL_OP_KEEP;
+	desc.FrontFace.StencilFunc = D3Dxx_COMPARISON_ALWAYS;
 
-	desc.BackFace.StencilFailOp = D3D10_STENCIL_OP_KEEP;
-	desc.BackFace.StencilDepthFailOp = D3D10_STENCIL_OP_KEEP;
-	desc.BackFace.StencilPassOp = D3D10_STENCIL_OP_KEEP;
-	desc.BackFace.StencilFunc = D3D10_COMPARISON_ALWAYS;
+	desc.BackFace.StencilFailOp = D3Dxx_STENCIL_OP_KEEP;
+	desc.BackFace.StencilDepthFailOp = D3Dxx_STENCIL_OP_KEEP;
+	desc.BackFace.StencilPassOp = D3Dxx_STENCIL_OP_KEEP;
+	desc.BackFace.StencilFunc = D3Dxx_COMPARISON_ALWAYS;
 }
 
 template <>
 void 
-dx10StateCache< ID3D10BlendState , D3D10_BLEND_DESC >
-::ResetDescription( D3D10_BLEND_DESC &desc )
+dx10StateCache< ID3DxxBlendState , D3D_BLEND_DESC >
+::ResetDescription( D3D_BLEND_DESC &desc )
 {
 	ZeroMemory(&desc, sizeof(desc));
 
 	desc.AlphaToCoverageEnable = FALSE;
-	desc.SrcBlend = D3D10_BLEND_ONE;
-	desc.DestBlend = D3D10_BLEND_ZERO;
-	desc.BlendOp = D3D10_BLEND_OP_ADD;
-	desc.SrcBlendAlpha = D3D10_BLEND_ONE;
-	desc.DestBlendAlpha = D3D10_BLEND_ZERO;
-	desc.BlendOpAlpha = D3D10_BLEND_OP_ADD;
+	desc.SrcBlend = D3Dxx_BLEND_ONE;
+	desc.DestBlend = D3Dxx_BLEND_ZERO;
+	desc.BlendOp = D3Dxx_BLEND_OP_ADD;
+	desc.SrcBlendAlpha = D3Dxx_BLEND_ONE;
+	desc.DestBlendAlpha = D3Dxx_BLEND_ZERO;
+	desc.BlendOpAlpha = D3Dxx_BLEND_OP_ADD;
 
 	for ( int i=0; i<8; ++i)
 	{
 		desc.BlendEnable[i] = FALSE;
-		desc.RenderTargetWriteMask[i] = D3D10_COLOR_WRITE_ENABLE_ALL;
+		desc.RenderTargetWriteMask[i] = D3Dxx_COLOR_WRITE_ENABLE_ALL;
 	}
 }
 */

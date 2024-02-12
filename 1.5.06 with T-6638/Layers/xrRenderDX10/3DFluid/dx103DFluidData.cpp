@@ -29,19 +29,19 @@ DXGI_FORMAT	dx103DFluidData::m_VPRenderTargetFormats[ VP_NUM_TARGETS ] =
 
 dx103DFluidData::dx103DFluidData()
 {
-	D3D10_TEXTURE3D_DESC desc;
+	D3D_TEXTURE3D_DESC desc;
 	desc.BindFlags = D3D10_BIND_SHADER_RESOURCE | D3D10_BIND_RENDER_TARGET;
 	desc.CPUAccessFlags = 0; 
 	desc.MipLevels = 1;
 	desc.MiscFlags = 0;
-	desc.Usage = D3D10_USAGE_DEFAULT;
+	desc.Usage = D3D_USAGE_DEFAULT;
 	desc.Width =  FluidManager.GetTextureWidth();
 	desc.Height = FluidManager.GetTextureHeight();
 	desc.Depth =  FluidManager.GetTextureDepth();
 
-	D3D10_SHADER_RESOURCE_VIEW_DESC SRVDesc;
+	D3D_SHADER_RESOURCE_VIEW_DESC SRVDesc;
 	ZeroMemory( &SRVDesc, sizeof(SRVDesc) );
-	SRVDesc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURE3D;
+	SRVDesc.ViewDimension = D3D_SRV_DIMENSION_TEXTURE3D;
 	SRVDesc.Texture3D.MipLevels = 1;
 	SRVDesc.Texture3D.MostDetailedMip = 0;
 
@@ -66,14 +66,15 @@ dx103DFluidData::~dx103DFluidData()
 	}
 }
 
-void dx103DFluidData::CreateRTTextureAndViews(int rtIndex, D3D10_TEXTURE3D_DESC TexDesc)
+void dx103DFluidData::CreateRTTextureAndViews(int rtIndex, D3D_TEXTURE3D_DESC TexDesc)
 {
 	// Create the texture
 	CHK_DX( HW.pDevice->CreateTexture3D(&TexDesc,NULL,&m_pRTTextures[rtIndex]));
+
 	// Create the render target view
-	D3D10_RENDER_TARGET_VIEW_DESC DescRT;
+	D3D_RENDER_TARGET_VIEW_DESC DescRT;
 	DescRT.Format = TexDesc.Format;
-	DescRT.ViewDimension =  D3D10_RTV_DIMENSION_TEXTURE3D;
+	DescRT.ViewDimension =  D3D_RTV_DIMENSION_TEXTURE3D;
 	DescRT.Texture3D.FirstWSlice = 0;
 	DescRT.Texture3D.MipSlice = 0;
 	DescRT.Texture3D.WSize = TexDesc.Depth;
@@ -82,7 +83,7 @@ void dx103DFluidData::CreateRTTextureAndViews(int rtIndex, D3D10_TEXTURE3D_DESC 
 
 	float color[4] = {0, 0, 0, 0 };
 
-	HW.pDevice->ClearRenderTargetView( m_pRenderTargetViews[rtIndex], color );
+	HW.pContext->ClearRenderTargetView( m_pRenderTargetViews[rtIndex], color );
 }
 
 void dx103DFluidData::DestroyRTTextureAndViews(int rtIndex)
@@ -176,7 +177,7 @@ void dx103DFluidData::ParseProfile(const xr_string &Profile)
 		string32	EmitterSectionName;
 		CEmitter	&Emitter = m_Emitters[i];
 		ZeroMemory(&Emitter, sizeof(Emitter));
-		sprintf_s(EmitterSectionName, "emitter%02d", i);
+		xr_sprintf(EmitterSectionName, "emitter%02d", i);
 
 		Emitter.m_eType = (dx103DFluidEmitters::EmitterType)ini.r_token( EmitterSectionName, "Type", emitter_type_token);
 

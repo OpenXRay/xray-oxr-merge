@@ -1,21 +1,32 @@
 #include "stdafx.h"
+
+#include "CharacterPhysicsSupport.h"
 #include "alife_space.h"
 #include "hit.h"
 #include "PHDestroyable.h"
-#include "CharacterPhysicsSupport.h"
 #include "PHMovementControl.h"
 #include "CustomMonster.h"
-#include "PhysicsShell.h"
+
+
+
 #include "../Include/xrRender/KinematicsAnimated.h"
-#include "Actor.h"
 
-#include "Extendedgeom.h"
-#include "Physics.h"
 
-#include "PHActivationShape.h"
+
+#include "../xrphysics/PhysicsShell.h"
+#include "../xrphysics/iActivationShape.h"
+//#include "../xrphysics/Extendedgeom.h"
+#include "../xrphysics/geometry.h"
+//#include "../xrphysics/phdynamicdata.h"
+#include "../xrphysics/IPHCapture.h"
+//#include "../xrphysics/ICollideValidator.h"
+#include "../xrphysics/IPHWorld.h"
+
+//#include "Physics.h"
+
+
 #include "IKLimbsController.h"
-#include "PHCapture.h"
-#include "PHCollideValidator.h"
+#include "Actor.h"
 #include "ai/stalker/ai_stalker.h"
 #include "imotion_position.h"
 #include "imotion_velocity.h"
@@ -23,12 +34,9 @@
 #include "xrServer_Object_Base.h"
 #include "interactive_animation.h"
 #include "stalker_animation_manager.h"
-#include "geometry.h"
 #include "inventoryowner.h"
 #include "inventory.h"
-#include "phdynamicdata.h"
 #include "activatingcharcollisiondelay.h"
-#include "ai/stalker/ai_stalker.h"
 #include "stalker_movement_manager_smart_cover.h"
 
 //const float default_hinge_friction = 5.f;//gray_wolf comment
@@ -42,14 +50,14 @@ extern	BOOL death_anim_debug;
 #define USE_SMART_HITS
 #define USE_IK
 
-void  NodynamicsCollide( bool& do_colide, bool bo1, dContact& c, SGameMtl * /*material_1*/, SGameMtl * /*material_2*/ )
-{
-	dBodyID body1=dGeomGetBody( c.geom.g1 );
-	dBodyID body2=dGeomGetBody( c.geom.g2 );
-	if( !body1 || !body2 || ( dGeomUserDataHasCallback( c.geom.g1,NodynamicsCollide )&& dGeomUserDataHasCallback( c.geom.g2, NodynamicsCollide ) ) )
-		return;
-	do_colide = false; 
-}
+//void  NodynamicsCollide( bool& do_colide, bool bo1, dContact& c, SGameMtl * /*material_1*/, SGameMtl * /*material_2*/ )
+//{
+//	dBodyID body1=dGeomGetBody( c.geom.g1 );
+//	dBodyID body2=dGeomGetBody( c.geom.g2 );
+//	if( !body1 || !body2 || ( dGeomUserDataHasCallback( c.geom.g1,NodynamicsCollide )&& dGeomUserDataHasCallback( c.geom.g2, NodynamicsCollide ) ) )
+//		return;
+//	do_colide = false; 
+//}
 
 
 
@@ -60,6 +68,7 @@ IC bool is_imotion(interactive_motion *im)
 
 CCharacterPhysicsSupport::~CCharacterPhysicsSupport()
 {
+	set_collision_hit_callback( 0 );
 	if( m_flags.test( fl_skeleton_in_shell ) )
 	{
 		if( m_physics_skeleton )
@@ -1230,7 +1239,8 @@ void CCharacterPhysicsSupport::in_ChangeVisual()
 			xr_delete(m_physics_skeleton)			;
 		}
 		CreateSkeleton(m_physics_skeleton);
-		if(m_pPhysicsShell)m_pPhysicsShell->Deactivate();
+		if(m_pPhysicsShell)
+			m_pPhysicsShell->Deactivate();
 		xr_delete(m_pPhysicsShell);
 		ActivateShell(NULL);
 	}
@@ -1285,41 +1295,19 @@ void		 CCharacterPhysicsSupport::in_NetRelcase(CObject* O)
 		m_sv_hit = SHit();
 }
  
-bool CCharacterPhysicsSupport::set_collision_hit_callback( SCollisionHitCallback* cc )
+void CCharacterPhysicsSupport::set_collision_hit_callback( ICollisionHitCallback* cc )
 {
-	if(!cc)
-	{
-		m_collision_hit_callback=NULL;
-		return true;
-	}
-	if(m_pPhysicsShell)
-	{
-		VERIFY2(cc->m_collision_hit_callback!=0,"No callback function");
+	
+	xr_delete( m_collision_hit_callback );
 		m_collision_hit_callback=cc;
-		return true;
-	}else return false;
 }
-SCollisionHitCallback * CCharacterPhysicsSupport::get_collision_hit_callback()
+
+ICollisionHitCallback * CCharacterPhysicsSupport::get_collision_hit_callback()
 {
 	return m_collision_hit_callback;
 }
 
-void	StaticEnvironmentCB ( bool& do_colide, bool bo1, dContact& c, SGameMtl* material_1, SGameMtl* material_2 )
-{
-	dJointID contact_joint	= dJointCreateContact(0, ContactGroup, &c);
 
-	if(bo1)
-	{
-		((CPHIsland*)(retrieveGeomUserData(c.geom.g1)->callback_data))->DActiveIsland()->ConnectJoint(contact_joint);
-		dJointAttach			(contact_joint, dGeomGetBody(c.geom.g1), 0);
-	}
-	else
-	{
-		((CPHIsland*)(retrieveGeomUserData(c.geom.g2)->callback_data))->DActiveIsland()->ConnectJoint(contact_joint);
-		dJointAttach			(contact_joint, 0, dGeomGetBody(c.geom.g2));
-	}
-	do_colide=false;
-}
 
 void						CCharacterPhysicsSupport::FlyTo(const	Fvector &disp)
 {
