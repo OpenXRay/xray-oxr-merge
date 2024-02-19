@@ -49,13 +49,7 @@ void CUICustomEdit::Register_callbacks()
 	ec().assign_callback( DIK_RETURN,      text_editor::ks_free, Callback( this, &CUICustomEdit::press_commit ) );
 	ec().assign_callback( DIK_NUMPADENTER, text_editor::ks_free, Callback( this, &CUICustomEdit::press_commit ) );
 	ec().assign_callback( DIK_GRAVE,       text_editor::ks_free, Callback( this, &CUICustomEdit::nothing ) );
-
-//	ec().assign_callback( DIK_TAB,   text_editor::ks_free,  Callback( this, &CConsole::Find_cmd      ) );
-//	ec().assign_callback( DIK_TAB,   text_editor::ks_Shift, Callback( this, &CConsole::Find_cmd_back ) );
-//	ec().assign_callback( DIK_UP,    text_editor::ks_free,  Callback( this, &CConsole::Prev_cmd      ) );
-//	ec().assign_callback( DIK_DOWN,  text_editor::ks_free,  Callback( this, &CConsole::Next_cmd      ) );
-//	ec().assign_callback( DIK_TAB,   text_editor::ks_Alt,   Callback( this, &CConsole::GamePause ) );
-
+	ec().assign_callback( DIK_TAB,		   text_editor::ks_free, Callback( this, &CUICustomEdit::press_tab ) );
 }
 
 void  CUICustomEdit::Init( u32 max_char_count, bool number_only_mode, bool read_mode, bool fn_mode )
@@ -108,14 +102,12 @@ void CUICustomEdit::OnFocusLost()
 
 void CUICustomEdit::SendMessage(CUIWindow* pWnd, s16 msg, void* pData)
 {
-//	if(pWnd == GetParent())
-//	{
-		//кто-то другой захватил клавиатуру
-		if ( msg == WINDOW_KEYBOARD_CAPTURE_LOST )
-		{
-			m_bInputFocus = false;
-		}
-//	}
+	//кто-то другой захватил клавиатуру
+	if ( msg == WINDOW_KEYBOARD_CAPTURE_LOST && m_bInputFocus)
+	{
+		m_bInputFocus = false;
+		GetMessageTarget()->SendMessage		( this, EDIT_TEXT_COMMIT, NULL );
+	}
 }
 
 bool CUICustomEdit::OnMouseAction(float x, float y, EUIMessages mouse_action)
@@ -178,21 +170,12 @@ void CUICustomEdit::Update()
 	{
 		m_last_key_state_time = Device.dwTimeGlobal;
 	}
-	else
-	{
-		if ( m_last_key_state_time + 7000 < Device.dwTimeGlobal ) // 7 sec
-		{
-			ec().reset_key_state();
-		}
-	}
 
 	inherited::Update();
 }
 
 void  CUICustomEdit::Draw()
 {
-	VERIFY( m_pLines );
-
 	Fvector2 pos, out;
 	GetAbsolutePos( pos );
 	CGameFont* font		= TextItemControl()->m_pFont;
@@ -236,7 +219,19 @@ void  CUICustomEdit::Draw()
 		strncpy_s( m_out_str, sizeof(m_out_str), astr, jx );
 
 		TextItemControl()->SetText( m_out_str );
-		m_dx_cur = font->SizeOf_( istr ); // cursor_str
+
+		if(TextItemControl()->IsPasswordMode())
+		{
+			string256 passText;
+			shared_str str(istr);
+			int sz = (int)str.size();
+			for (int i = 0; i < sz; i++)
+				passText[i] = '*';
+			passText[sz] = 0;
+			m_dx_cur			= font->SizeOf_(passText); // cursor_str
+		}
+		else
+			m_dx_cur = font->SizeOf_( istr ); // cursor_str
 
 		m_force_update = false;
 	}
@@ -245,8 +240,8 @@ void  CUICustomEdit::Draw()
 
 	if ( m_bInputFocus ) //draw cursor here
 	{
-		out.x = pos.x + 0.0f + GetTextX() + m_pLines->GetIndentByAlign();
-		out.y = pos.y + 2.0f + GetTextY() + m_pLines->GetVIndentByAlign();
+		out.x = pos.x + 0.0f + TextItemControl()->m_TextOffset.x + TextItemControl()->GetIndentByAlign();
+		out.y = pos.y + 2.0f + TextItemControl()->m_TextOffset.y + TextItemControl()->GetVIndentByAlign();
 		UI().ClientToScreenScaled( out );
 
 		out.x += m_dx_cur; // cursor_str
@@ -258,7 +253,6 @@ void  CUICustomEdit::Draw()
 
 void CUICustomEdit::Show( bool status )
 {
-	ec().reset_key_state();
 	m_force_update = true;
 	inherited::Show( status );
 }
@@ -283,7 +277,7 @@ void CUICustomEdit::Enable(bool status)
 	inherited::Enable( status );
 	if ( !status )
 	{
-		SendMessage( this, WINDOW_KEYBOARD_CAPTURE_LOST );
+		GetMessageTarget()->SendMessage( this, WINDOW_KEYBOARD_CAPTURE_LOST );
 	}
 }
 
@@ -302,8 +296,9 @@ void CUICustomEdit::press_escape()
 	}
 	else
 	{
-		GetParent()->SetKeyboardCapture( this, false );
 		m_bInputFocus = false;
+		GetParent()->SetKeyboardCapture	( this, false );
+		GetMessageTarget()->SendMessage	( this, EDIT_TEXT_CANCEL, NULL );
 	}
 }
 
@@ -312,4 +307,24 @@ void CUICustomEdit::press_commit()
 	m_bInputFocus = false;
 	GetParent()->SetKeyboardCapture( this, false );
 	GetMessageTarget()->SendMessage( this, EDIT_TEXT_COMMIT, NULL );
+}
+
+void CUICustomEdit::press_tab()
+{
+	if (!m_next_focus_capturer)
+		return;
+
+	m_bInputFocus						= false;
+	GetParent()->SetKeyboardCapture		( this, false );
+	GetMessageTarget()->SendMessage		( this, EDIT_TEXT_COMMIT, NULL );
+	GetParent()->SetKeyboardCapture		( m_next_focus_capturer, true );
+	m_next_focus_capturer->CaptureFocus	( true );
+}
+
+void CUICustomEdit::CaptureFocus(bool bCapture) 
+{ 
+	if(bCapture)
+		GetParent()->SetKeyboardCapture(this, true);
+
+	m_bInputFocus = bCapture; 
 }

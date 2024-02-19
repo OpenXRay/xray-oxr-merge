@@ -42,11 +42,10 @@ struct LIST_SRV_ITEM {
 class CUIListItemServer : public CUIListItem
 {
 public:
-	CUIListItemServer();
+							CUIListItemServer();
 
 	virtual void Draw();
 
-	// own
 			void			InitItemServer			(LIST_SRV_ITEM& params, Fvector2 pos, Fvector2 size);
 			void			SetParams				(LIST_SRV_ITEM& params);
 			void			CreateConsoleCommand	(xr_string& command, LPCSTR player_name, LPCSTR player_pass, LPCSTR server_psw);
@@ -63,14 +62,14 @@ protected:
 	LIST_SRV_ITEM			m_srv_info;
 
 	CUIWindow 				m_icon;
-	CUIStatic 				m_iconPass;
-	CUIStatic 				m_iconDedicated;
-	CUIStatic 				m_iconPunkBuster;
-	CUIStatic 				m_iconUserPass;
-	CUIStatic 				m_server;
-	CUIStatic 				m_map;
-	CUIStatic 				m_game;
-	CUIStatic 				m_players;
-	CUIStatic 				m_ping;
-	CUIStatic 				m_version;
+	CUIStatic* 				m_iconPass;
+	CUIStatic* 				m_iconDedicated;
+	CUIStatic* 				m_iconPunkBuster;
+	CUIStatic* 				m_iconUserPass;
+	CUIStatic* 				m_server;
+	CUIStatic* 				m_map;
+	CUIStatic* 				m_game;
+	CUIStatic* 				m_players;
+	CUIStatic* 				m_ping;
+	CUIStatic* 				m_version;
 };

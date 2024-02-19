@@ -83,7 +83,7 @@ public:
 	virtual void	OnFocusLost			();
 	virtual void	Update				();
 	virtual void	SendMessage			( CUIWindow* pWnd, s16 msg, void* pData );
-	virtual bool	OnMouseAction				( float x, float y, EUIMessages mouse_action );
+	virtual bool	OnMouseAction		( float x, float y, EUIMessages mouse_action );
 
 private:
 			void	hide_hint			();
@@ -97,7 +97,7 @@ public:
 private: // m_
 	CGameTask*		m_task;
 	CUI3tButton*	m_name;
-//	CUICheckButton*	m_bt_view;
+	CUICheckButton*	m_bt_view;
 	CUIStatic*		m_st_story;
 	CUI3tButton*	m_bt_focus;
 

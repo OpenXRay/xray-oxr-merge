@@ -965,8 +965,8 @@ bool CWeapon::SwitchAmmoType( u32 flags )
 	bool b1, b2;
 	do 
 	{
-		l_newType = (l_newType+1) % m_ammoTypes.size();
-		b1 = l_newType != m_ammoType;
+		l_newType = u8( (u32(l_newType+1)) % m_ammoTypes.size() );
+		b1 = (l_newType != m_ammoType);
 		b2 = unlimited_ammo() ? false : ( !m_pInventory->GetAny( m_ammoTypes[l_newType].c_str() ) );						
 	} while( b1 && b2 );
 
@@ -1041,16 +1041,16 @@ void CWeapon::SpawnAmmo(u32 boxCurr, LPCSTR ammoSect, u32 ParentID)
 
 int CWeapon::GetSuitableAmmoTotal( bool use_item_to_spawn ) const
 {
-	int l_count = iAmmoElapsed;
+	int ae_count = iAmmoElapsed;
 	if ( !m_pInventory )
 	{
-		return l_count;
+		return ae_count;
 	}
 
 	//чтоб не делать лишних пересчетов
 	if ( m_pInventory->ModifyFrame() <= m_BriefInfo_CalcFrame )
 	{
-		return l_count + m_iAmmoCurrentTotal;
+		return ae_count + m_iAmmoCurrentTotal;
 	}
 	m_BriefInfo_CalcFrame = Device.dwFrame;
 	iAmmoCurrent = 0;
@@ -1086,7 +1086,7 @@ int CWeapon::GetSuitableAmmoTotal( bool use_item_to_spawn ) const
 
 		m_iAmmoCurrentTotal += inventory_owner().ammo_in_box_to_spawn();
 	}
-	return l_count + m_iAmmoCurrentTotal;
+	return ae_count + m_iAmmoCurrentTotal;
 }
 
 int CWeapon::GetCurrentTypeAmmoTotal() const

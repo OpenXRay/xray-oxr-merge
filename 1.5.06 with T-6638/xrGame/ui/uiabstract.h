@@ -8,83 +8,24 @@
 
 typedef CGameFont::EAligment ETextAlignment;
 
-class IUIFontControl
-{
-public:	
-	virtual ~IUIFontControl()											 {};
-	virtual void			SetTextColor(u32 color)						= 0;
-	virtual u32				GetTextColor()								= 0;
-	virtual void			SetFont(CGameFont* pFont)					= 0;
-	virtual CGameFont*		GetFont()									= 0;
-	virtual void			SetTextAlignment(ETextAlignment alignment)	= 0;
-	virtual ETextAlignment	GetTextAlignment()							= 0;
-};
-
 typedef enum {
 	valTop = 0,
 	valCenter,
 	valBotton
 } EVTextAlignment;
 
-class IUITextControl : public IUIFontControl
+class ITextureOwner
 {
 public:
-	virtual ~IUITextControl()											 {};
-	virtual void SetText(const char* text)								= 0;
-	virtual const char* GetText()										= 0;
-};
-
-
-// Texture controls
-class IUISimpleTextureControl
-{
-public:
-	virtual ~IUISimpleTextureControl() {}
-	virtual void		CreateShader(const char* tex, const char* sh = "hud\\default")	= 0;
-	virtual void		SetShader(const ui_shader& sh)									= 0;
+	virtual				~ITextureOwner			()												{}	
+	virtual void		InitTexture				(LPCSTR texture)								= 0;
+	virtual void		InitTextureEx			(LPCSTR texture, LPCSTR shader)					= 0;
+	virtual void		SetTextureRect			(const Frect& r)								= 0;
+	virtual const Frect& GetTextureRect			()										const	= 0;
 	virtual void		SetTextureColor(u32 color)										= 0;
 	virtual u32			GetTextureColor()										const	= 0;
-	virtual void		SetOriginalRect(const Frect& r)									= 0;
-	virtual void		SetOriginalRectEx(const Frect& r)								= 0;
-	virtual const Frect& GetOriginalRect()										const	= 0;
-};
-
-class IUIMultiTextureOwner
-{
-public:
-	virtual ~IUIMultiTextureOwner() {}	
-	virtual void		InitTexture(const char* texture)								= 0;
-	virtual void		InitTextureEx(const char* texture, const char* shader)			= 0;
-	virtual bool		GetTextureAvailability()										= 0;
-	virtual void		SetTextureVisible(bool vis)										= 0;
-	virtual bool		GetTextureVisible()												= 0;
-};
-
-class CUIMultiTextureOwner : public IUIMultiTextureOwner
-{
-public:
-	CUIMultiTextureOwner(){m_bTextureAvailable = false; m_bTextureVisible = false;}
-	virtual bool		GetTextureAvailability()	{return m_bTextureAvailable;}
-	virtual void		SetTextureVisible(bool vis)	{m_bTextureVisible = true;}
-	virtual bool		GetTextureVisible()			{return m_bTextureVisible;}
-protected:
-	bool m_bTextureAvailable;
-	bool m_bTextureVisible;
-};
-
-class IUISingleTextureOwner : public CUIMultiTextureOwner, public IUISimpleTextureControl{
-public:	
 	virtual void		SetStretchTexture(bool stretch)									= 0;
 	virtual bool		GetStretchTexture()												= 0;	
-};
-
-class CUISingleTextureOwner : public IUISingleTextureOwner
-{
-public:
-	virtual void		SetStretchTexture(bool stretch)	{m_bStretchTexture = stretch;}
-	virtual bool		GetStretchTexture()				{return m_bStretchTexture;}
-protected:
-	bool m_bStretchTexture;
 };
 
 // Window
@@ -105,6 +46,8 @@ public:
 	IC const Fvector2&		GetWndPos()							const	{return m_wndPos;}
 	virtual void			SetWndSize(const Fvector2& size)			{m_wndSize = size;}
 	IC const Fvector2&		GetWndSize()						const	{return m_wndSize;}
+	virtual void			SetWndRect			(const Frect& rect)							{m_wndPos.set(rect.lt); rect.getsize(m_wndSize);}
+
 	virtual void			SetHeight(float height)						{m_wndSize.y = height;}
 	IC		float			GetHeight()							const	{return m_wndSize.y;}
 	virtual void			SetWidth(float width)						{m_wndSize.x = width;}
@@ -114,7 +57,6 @@ public:
 	IC		void			SetAlignment(EWindowAlignment al)			{m_alignment = al;};
 	IC	EWindowAlignment	GetAlignment()						const	{return m_alignment;};
 
-	virtual void			SetWndRect(const Frect& rect)				{m_wndPos.set(rect.lt); rect.getsize(m_wndSize);}
 	IC		Frect			GetWndRect()						const	{Frect r; GetWndRect(r); return r;}
 	IC		void			GetWndRect(Frect& res)				const
 	{

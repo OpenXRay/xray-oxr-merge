@@ -126,6 +126,7 @@ void CUIItemInfo::InitItemInfo(LPCSTR xml_name)
 	{
 //		UIConditionWnd					= xr_new<CUIConditionParams>();
 //		UIConditionWnd->InitFromXml		(uiXml);
+
 		UIWpnParams						= xr_new<CUIWpnParams>();
 		UIWpnParams->InitFromXml		(uiXml);
 
@@ -274,7 +275,7 @@ void CUIItemInfo::InitItem(CUICellItem* pCellItem, CInventoryItem* pCompareItem,
 			UITradeTip->Show(true);
 		}
 	}
-	
+
 	if ( UIDesc )
 	{
 		pos = UIDesc->GetWndPos();

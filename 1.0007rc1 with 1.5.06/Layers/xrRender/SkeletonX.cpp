@@ -345,10 +345,10 @@ void CSkeletonX::_Load	(const char* N, IReader *data, u32& dwVertCount)
 	// Load vertices
 	R_ASSERT	(data->find_chunk(OGF_VERTICES));
 			
-	u16			hw_bones	= u16((HW.Caps.geometry.dwRegisters-22)/3);
-	u16			sw_bones	= 0;
+	u16			hw_bones_cnt	= u16((HW.Caps.geometry.dwRegisters-22)/3);
+	u16			sw_bones_cnt	= 0;
 #ifdef _EDITOR
-	hw_bones	= 0;
+	hw_bones_cnt	= 0;
 #endif
 
 	u32			dwVertType,size,it,crc;
@@ -357,33 +357,45 @@ void CSkeletonX::_Load	(const char* N, IReader *data, u32& dwVertCount)
 
 	RenderMode						= RM_SKINNING_SOFT;
 	Render->shader_option_skinning	(-1);
+	
 	switch		(dwVertType)
 	{
 	case OGF_VERTEXFORMAT_FVF_1L: // 1-Link
 		{
 			size				= dwVertCount*sizeof(vertBoned1W);
-			vertBoned1W* VO = (vertBoned1W*)data->pointer();
-			for (it=0; it<dwVertCount; it++)	{
-				u16		mid = (u16)VO[it].matrix;
-				if		(bids.end() == std::find(bids.begin(),bids.end(),mid))	bids.push_back(mid);
-				if		(mid>sw_bones)	sw_bones = mid;
+			vertBoned1W* pVO = (vertBoned1W*)data->pointer();
+
+			for (it=0; it<dwVertCount; ++it)
+			{
+				const vertBoned1W& VB = pVO[it];
+				u16 mid				= (u16)VB.matrix;
+				
+				if	(bids.end() == std::find(bids.begin(),bids.end(),mid))
+					bids.push_back(mid);
+				if	(mid>sw_bones)
+					sw_bones_cnt = mid;
 			}
 #ifdef _EDITOR
 			// software
 			crc					= crc32	(data->pointer(),size);
 			Vertices1W.create	(crc,dwVertCount,(vertBoned1W*)data->pointer());
 #else
-			if	(1==bids.size())	{
+			if	(1==bids.size())
+			{
 				// HW- single bone
 				RenderMode						= RM_SINGLE;
 				RMS_boneid						= *bids.begin();
 				Render->shader_option_skinning	(0);
-			} else if (sw_bones<=hw_bones) {
+			}
+			else if(sw_bones_cnt<=hw_bones_cnt) 
+			{
 				// HW- one weight
 				RenderMode						= RM_SKINNING_1B;
-				RMS_bonecount					= sw_bones+1;
+				RMS_bonecount					= sw_bones_cnt+1;
 				Render->shader_option_skinning	(1);
-			} else {
+			}
+			else
+			{
 				// software
 				crc					= crc32	(data->pointer(),size);
 				Vertices1W.create	(crc,dwVertCount,(vertBoned1W*)data->pointer());
@@ -395,19 +407,27 @@ void CSkeletonX::_Load	(const char* N, IReader *data, u32& dwVertCount)
 	case OGF_VERTEXFORMAT_FVF_2L: // 2-Link
 		{
 			size			= dwVertCount*sizeof(vertBoned2W);
-			vertBoned2W* VO = (vertBoned2W*)data->pointer();
-			for (it=0; it<dwVertCount; it++)	{
-				if	(VO[it].matrix0>sw_bones)	sw_bones = VO[it].matrix0;
-				if	(VO[it].matrix1>sw_bones)	sw_bones = VO[it].matrix1;
-				if	(bids.end() == std::find(bids.begin(),bids.end(),VO[it].matrix0))	bids.push_back(VO[it].matrix0);
-				if	(bids.end() == std::find(bids.begin(),bids.end(),VO[it].matrix1))	bids.push_back(VO[it].matrix1);
+			vertBoned2W* pVO = (vertBoned2W*)data->pointer();
+			for (it=0; it<dwVertCount; ++it)
+			{
+				if	(VO[it].matrix0>sw_bones_cnt)
+					sw_bones = pVO[it].matrix0;
+				if	(VO[it].matrix1>sw_bones_cnt)
+					sw_bones = pVO[it].matrix1;
+				if	(bids.end() == std::find(bids.begin(),bids.end(),pVO[it].matrix0))
+					bids.push_back(pVO[it].matrix0);
+				if	(bids.end() == std::find(bids.begin(),bids.end(),pVO[it].matrix1))
+					bids.push_back(pVO[it].matrix1);
 			}
-			if (sw_bones<=hw_bones) {
+			if (sw_bones_cnt<=hw_bones_cnt)
+			{
 				// HW- two weights
 				RenderMode						= RM_SKINNING_2B;
-				RMS_bonecount					= sw_bones+1;
+				RMS_bonecount					= sw_bones_cnt+1;
 				Render->shader_option_skinning	(2);
-			} else {
+			}
+			else
+			{
 				// software
 				crc			= crc32	(data->pointer(),size);
 				Vertices2W.create	(crc,dwVertCount,(vertBoned2W*)data->pointer());
@@ -432,29 +452,16 @@ void CSkeletonX::_Load	(const char* N, IReader *data, u32& dwVertCount)
 
 BOOL	CSkeletonX::has_visible_bones		()
 {
-	//IRender_Visual*	me	= dynamic_cast<IRender_Visual*>	(this);
-	//Msg	("~ has_visible_bones: mode[%d] - count[%d], name=%s",RenderMode,BonesUsed.size(),me->dbg_name.c_str());	//.
-	if	(RM_SINGLE==RenderMode)	{
-	//	Msg	("* has_visible_bones: bone-list: |%d:%s",RMS_boneid,Parent->LL_BoneName_dbg(RMS_boneid));
+	if	(RM_SINGLE==RenderMode)
+	{
 		return Parent->LL_GetBoneVisible((u16)RMS_boneid)	;
 	}
 
-	/*
-	string4096	all="",single="";
 	for (u32 it=0; it<BonesUsed.size(); it++)
-	{
-		sprintf		(single,"|%d:%s",BonesUsed[it],Parent->LL_BoneName_dbg(BonesUsed[it]));
-		strcat		(all,single);
-	}
-	Msg	("* has_visible_bones: bone-list: %s",all);
-	*/
-
-	for (u32 it=0; it<BonesUsed.size(); it++)
-		if (Parent->LL_GetBoneVisible(BonesUsed[it]))	{
-			// Msg		("* has_visible_bones: visible: %d",	BonesUsed[it]);
+		if (Parent->LL_GetBoneVisible(BonesUsed[it]))
+		{
 			return	TRUE	;
 		}
-	// Msg		("* has_visible_bones: non-visible");
 	return	FALSE;
 }
 

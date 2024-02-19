@@ -94,13 +94,6 @@ public:
 	CUIWindow*				GetChildMouseHandler();
 
 
-	//поднять на вершину списка выбранное дочернее окно
-	bool					BringToTop			(CUIWindow* pChild);
-
-	//поднять на вершину списка всех родителей окна и его самого
-	void					BringAllToTop		();
-
-	//реакция на клавиатуру
 	virtual bool			OnKeyboardAction	(int dik, EUIMessages keyboard_action);
 	virtual bool			OnKeyboardHold		(int dik);
 
@@ -114,8 +107,6 @@ public:
 	virtual void 			OnFocusReceive		();
 	virtual void 			OnFocusLost			();
 	
-			bool 			HasChildMouseHandler();
-
 	//захватить/освободить мышь окном
 	//сообщение посылается дочерним окном родительскому
 	void					SetCapture			(CUIWindow* pChildWindow, bool capture_status);
@@ -136,7 +127,6 @@ public:
 	
 	
 
-	//запрещение/разрешение на ввод с клавиатуры
 	virtual void			Enable				(bool status)									{m_bIsEnabled=status;}
 			bool			IsEnabled			()												{return m_bIsEnabled;}
 
@@ -208,11 +198,6 @@ protected:
 	//дочернее окно которое, захватило ввод мыши
 	CUIWindow*				m_pMouseCapturer;
 	
-	//кто изначально иницировал
-	//захват фокуса, только он теперь
-	//может весь фокус и освободить
-	CUIWindow*				m_pOrignMouseCapturer;
-
 	//дочернее окно которое, захватило ввод клавиатуры
 	CUIWindow*				m_pKeyboardCapturer;
 
@@ -234,12 +219,10 @@ protected:
 	bool					m_bAutoDelete;
 
 	bool					m_bPP;
-	//разрешен ли ввод пользователя
 	bool					m_bIsEnabled;
 
 	// Если курсор над окном
 	bool					m_bCursorOverWindow;
-	bool					m_bClickable;
 	bool					m_bCustomDraw;
 
 #ifdef DEBUG

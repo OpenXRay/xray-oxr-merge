@@ -20,10 +20,14 @@ public:
 	virtual bool	IsChangedOptValue	() const;	// backup!=current
 	
 			void	CreateCDKeyEntry();			
+			void	assign_callbacks();
 
 	virtual void	Show			(bool status);
 	virtual void	Draw			();
 	virtual void	OnFocusLost		();
+
+private:
+	void xr_stdcall	paste_from_clipboard();
 
 private:
 	string512		m_opt_backup_value;

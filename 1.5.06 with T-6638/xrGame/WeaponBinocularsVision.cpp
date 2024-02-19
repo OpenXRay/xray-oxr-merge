@@ -172,10 +172,10 @@ void SBinocVisibleObj::Update()
 		}
 	}
 
-	m_lt.SetWndPos		( Fvector2().set((cur_rect.lt.x)+2,	(cur_rect.lt.y)+2) );
-	m_lb.SetWndPos		( Fvector2().set((cur_rect.lt.x)+2,	(cur_rect.rb.y)-14) );
-	m_rt.SetWndPos		( Fvector2().set((cur_rect.rb.x)-14,	(cur_rect.lt.y)+2) );
-	m_rb.SetWndPos		( Fvector2().set((cur_rect.rb.x)-14,	(cur_rect.rb.y)-14) );
+	m_lt.SetWndPos		( Fvector2().set((cur_rect.lt.x),	(cur_rect.lt.y)) );
+	m_lb.SetWndPos		( Fvector2().set((cur_rect.lt.x),	(cur_rect.rb.y)) );
+	m_rt.SetWndPos		( Fvector2().set((cur_rect.rb.x),	(cur_rect.lt.y)) );
+	m_rb.SetWndPos		( Fvector2().set((cur_rect.rb.x),	(cur_rect.rb.y)) );
 
 	m_flags.set			(flVisObjNotValid, FALSE);
 }
@@ -188,7 +188,6 @@ CBinocularsVision::CBinocularsVision(const shared_str& sect)
 
 CBinocularsVision::~CBinocularsVision()
 {
-	m_snd_found.destroy	();
 	delete_data			(m_active_objects);
 }
 
@@ -255,8 +254,16 @@ void CBinocularsVision::Update()
 
 	it = m_active_objects.begin();
 	for(;it!=m_active_objects.end();++it)
+	{
+		SBinocVisibleObj* visObj			= (*it);
+		
+		BOOL bLocked = visObj->m_flags.test(flTargetLocked);
+		
 		(*it)->Update						();
-
+		
+		if(bLocked != visObj->m_flags.test(flTargetLocked))
+			m_sounds.PlaySound	("catch_snd", Fvector().set(0,0,0), NULL, true);
+	}
 }
 
 void CBinocularsVision::Draw()
@@ -270,7 +277,8 @@ void CBinocularsVision::Load(const shared_str& section)
 {
 	m_rotating_speed	= pSettings->r_float(section,"vis_frame_speed");
 	m_frame_color		= pSettings->r_fcolor(section,"vis_frame_color");
-	m_snd_found.create	(pSettings->r_string(section,"found_snd"),st_Effect,sg_SourceType);
+	m_sounds.LoadSound	(section.c_str(),"found_snd", "found_snd", false, SOUND_TYPE_NO_SOUND);
+	m_sounds.LoadSound	(section.c_str(),"catch_snd", "catch_snd", false, SOUND_TYPE_NO_SOUND);
 }
 
 void CBinocularsVision::remove_links(CObject *object)

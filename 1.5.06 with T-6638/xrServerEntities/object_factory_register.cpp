@@ -6,13 +6,14 @@
 //	Description : Object factory
 ////////////////////////////////////////////////////////////////////////////
 
-#include "stdafx.h"
+#include "pch_script.h"
 #pragma hdrstop
 
 #include "object_factory_impl.h"
 
 // server entities includes
 #include "xrServer_Objects_ALife_All.h"
+#include "xrServer_Objects_ALife_Smartcovers.h"
 #include "clsid_game.h"
 
 // client entities includes
@@ -114,6 +115,7 @@
 #	include "StalkerOutfit.h"
 #	include "MilitaryOutfit.h"
 #	include "ExoOutfit.h"
+#	include "ActorHelmet.h"
 
 #	include "f1.h"
 #	include "rgd5.h"

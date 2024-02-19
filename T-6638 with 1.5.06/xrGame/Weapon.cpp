@@ -1098,13 +1098,11 @@ int CWeapon::GetSuitableAmmoTotal( bool use_item_to_spawn ) const
 		m_iAmmoCurrentTotal += GetAmmoCount_forType( m_ammoTypes[i] );
 
 		if ( !use_item_to_spawn )
-		{
 			continue;
-		}
+
 		if ( !inventory_owner().item_to_spawn() )
-		{
 			continue;
-		}
+
 		m_iAmmoCurrentTotal += inventory_owner().ammo_in_box_to_spawn();
 	}
 	return ae_count + m_iAmmoCurrentTotal;

@@ -359,7 +359,6 @@ void ui_actor_state_item::init_from_xml( CUIXml& xml, LPCSTR path )
 	xml.SetLocalRoot( stored_root );
 }
 
-
 void ui_actor_state_item::set_text( float value )
 {
 	if ( !m_static )

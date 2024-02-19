@@ -26,7 +26,7 @@ protected:
 	u32				weather_counter;
 
 	struct SWeatherData{
-		CUIStatic*	m_static;
+		CUIStatic*	m_text;
 		shared_str	m_weather_name;
 		shared_str	m_weather_time;
 	};

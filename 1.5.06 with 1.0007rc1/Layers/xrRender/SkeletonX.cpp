@@ -217,14 +217,15 @@ void CSkeletonX::_Load	(const char* N, IReader *data, u32& dwVertCount)
 				RenderMode						= RM_SINGLE;
 				RMS_boneid						= *bids.begin();
 				Render->shader_option_skinning	(0);
-			}else 
-			if(sw_bones_cnt<=hw_bones_cnt) 
+			}
+			else if(sw_bones_cnt<=hw_bones_cnt) 
 			{
 				// HW- one weight
 				RenderMode						= RM_SKINNING_1B;
 				RMS_bonecount					= sw_bones_cnt+1;
 				Render->shader_option_skinning	(1);
-			}else 
+			}
+			else
 			{
 				// software
 				crc								= crc32	(data->pointer(),size);
@@ -260,7 +261,7 @@ void CSkeletonX::_Load	(const char* N, IReader *data, u32& dwVertCount)
 				RMS_bonecount					= sw_bones_cnt+1;
 				Render->shader_option_skinning	(2);
 			}
-			else 
+			else
 			{
 				// software
 				crc								= crc32	(data->pointer(),size);

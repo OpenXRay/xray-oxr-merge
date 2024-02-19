@@ -1084,7 +1084,7 @@ bool CUIXmlInit::InitAnimatedStatic(CUIXml &xml_doc, const char *path, int index
 	return true;
 }
 
-bool CUIXmlInit::InitTexture(CUIXml& xml_doc, LPCSTR path, int index, IUIMultiTextureOwner* pWnd)
+bool CUIXmlInit::InitTexture(CUIXml& xml_doc, LPCSTR path, int index, ITextureOwner* pWnd)
 {
 	string256 buf;	
 	LPCSTR texture	= NULL;

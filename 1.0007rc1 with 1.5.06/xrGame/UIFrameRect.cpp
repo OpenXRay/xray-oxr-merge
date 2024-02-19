@@ -2,9 +2,6 @@
 #include "uiFrameRect.h"
 #include "hudmanager.h"
 #include "ui\uitexturemaster.h"
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
 
 CUIFrameRect::CUIFrameRect()
 {
@@ -15,14 +12,12 @@ CUIFrameRect::CUIFrameRect()
 
 void CUIFrameRect::Init(LPCSTR texture, float x, float y, float w, float h)//, DWORD align)
 {
-	//SetPos			(x,y);
-	//SetSize			(w,h);
-	//SetAlign		(align);
 	CUISimpleWindow::Init(x,y,w,h);
 	InitTexture(texture);
 }
 
-void CUIFrameRect::InitTexture(const char* texture){
+void CUIFrameRect::InitTexture(LPCSTR texture)
+{
 	string_path		fn,buf;
 	strcpy			(buf,texture); if (strext(buf)) *strext(buf)=0;
 
@@ -67,7 +62,7 @@ void CUIFrameRect::InitTexture(const char* texture){
 
 void CUIFrameRect::UpdateSize()
 {
-	VERIFY(g_bRendering);
+//	VERIFY(g_bRendering);
 	// texture size
 	Fvector2  ts;
 	float rem_x, rem_y;
@@ -138,16 +133,18 @@ void CUIFrameRect::UpdateSize()
 void CUIFrameRect::Draw()
 {
 	if (!uFlags.is(flValidSize)) 
+	{
+		VERIFY(g_bRendering);
 		UpdateSize();
+	}
 
 	for (int k=0; k<fmMax; ++k) 
 		if(m_itm_mask.test(u16(1<<k)))
 			frame[k].Render	();
 }
 
-void CUIFrameRect::Update(){
-
-}
+void CUIFrameRect::Update()
+{}
 
 void CUIFrameRect::SetWndPos(float x, float y)
 {
@@ -159,17 +156,20 @@ void CUIFrameRect::SetWndPos(float x, float y)
 	uFlags.set						(flValidSize, false);
 }
 
-void CUIFrameRect::SetWndSize(const Fvector2& size){
+void CUIFrameRect::SetWndSize(const Fvector2& size)
+{
 	CUISimpleWindow::SetWndSize(size);
 	uFlags.set(flValidSize, false);
 }
 
-void CUIFrameRect::SetWndRect(const Frect& rect){
+void CUIFrameRect::SetWndRect(const Frect& rect)
+{
 	CUISimpleWindow::SetWndRect(rect);
 	uFlags.set(flValidSize, false);
 }
 
-void CUIFrameRect::SetWndPos(const Fvector2& pos){
+void CUIFrameRect::SetWndPos(const Fvector2& pos)
+{
 
 //.	Fvector2 _old_pos = GetWndPos();
 //.	if(_old_pos.similar(pos,EPS,EPS))	return;
@@ -178,22 +178,25 @@ void CUIFrameRect::SetWndPos(const Fvector2& pos){
 	uFlags.set(flValidSize, false);
 }
 
-void CUIFrameRect::SetHeight(float height){
+void CUIFrameRect::SetHeight(float height)
+{
 	CUISimpleWindow::SetHeight(height);
 	uFlags.set(flValidSize, false);
 }
 
-void CUIFrameRect::SetWidth(float width){
+void CUIFrameRect::SetWidth(float width)
+{
 	CUISimpleWindow::SetWidth(width);
 	uFlags.set(flValidSize, false);
 }
 
-void CUIFrameRect::Draw(float x, float y){
+void CUIFrameRect::Draw(float x, float y)
+{
 	Fvector2 p = GetWndPos	();
 	float dx = p.x - x;
 	float dy = p.y - y;
 	if ( !fis_zero(dx) || !fis_zero(dy))
-		SetWndPos(x, y);
+		SetWndPos(Fvector2().set(x,y));
 	
 	Draw();
 }

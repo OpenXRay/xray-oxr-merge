@@ -411,7 +411,6 @@ void CUILevelMap::Draw()
 				if(sp->m_scale_bounds.x > 0.0f)
 					sp->SetVisible		(sp->m_scale_bounds.x<gmz);
 			}
-
 		}
 	}
 	inherited::Draw();
@@ -425,7 +424,6 @@ void CUILevelMap::Init_internal	(const shared_str& name, CInifile& pLtx, const s
 	tmp.x					*= UI().get_current_kx();
 	tmp.z					*= UI().get_current_kx();
 	m_GlobalRect.set		(tmp.x, tmp.y, tmp.z, tmp.w);
-
 
 #ifdef DEBUG
 	float kw = m_GlobalRect.width	()	/	BoundRect().width	();

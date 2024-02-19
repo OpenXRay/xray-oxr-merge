@@ -713,8 +713,8 @@ void fill_vid_mode_list(CHW* _hw)
 		_hw->pD3D->EnumAdapterModes(_hw->DevAdapter, _hw->Caps.fTarget, i, &Mode);
 		if(Mode.Width < 800)		continue;
 
-		xr_sprintf						(str,sizeof(str),"%dx%d", Mode.Width, Mode.Height);
-	
+		xr_sprintf					(str,sizeof(str),"%dx%d", Mode.Width, Mode.Height);
+
 		if(_tmp.end() != std::find_if(_tmp.begin(), _tmp.end(), _uniq_mode(str)))
 			continue;
 

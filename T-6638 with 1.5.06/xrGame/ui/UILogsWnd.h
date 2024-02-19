@@ -36,13 +36,13 @@ private:
 	CUIFrameWindow*		m_center_background;
 
 	CUIStatic*			m_center_caption;
-//	CUICharacterInfo*	m_actor_ch_info;
+	CUICharacterInfo*	m_actor_ch_info;
 
 	CUICheckButton*		m_filter_news;
 	CUICheckButton*		m_filter_talk;
 	
-//	CUIStatic*			m_date_caption;
-//	CUIStatic*			m_date;
+	CUIStatic*			m_date_caption;
+	CUIStatic*			m_date;
 
 	CUIStatic*			m_period_caption;
 	CUIStatic*			m_period;

@@ -42,6 +42,7 @@ public:
 	void				TryAddArtefactInfo	(const shared_str& af_section);
 	void				TryAddOutfitInfo	(CInventoryItem& pInvItem, CInventoryItem* pCompareItem);
 	void				TryAddUpgradeInfo	(CInventoryItem& pInvItem);
+	void				TryAddBoosterInfo	(CInventoryItem& pInvItem);
 	
 	virtual void		Draw				();
 	bool				m_b_FitToHeight;

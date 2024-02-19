@@ -81,8 +81,8 @@ public:
 			bool	testFlag				(u16 f) const;
 			void	setFlag					(u16 f);
 			void	resetFlag				(u16 f);
-			LPCSTR	getName					(){return name;}
-			void	setName					(LPCSTR s){strcpy_s(name,s);}
+			LPCSTR	getName					() const {return name;}
+			void	setName					(LPCSTR s){xr_strcpy(name,s);}
 			void	SetGameID				(u16 NewID);
 			bool	HasOldID				(u16 ID);
 			bool	IsSkip					() const {return testFlag(GAME_PLAYER_FLAG_SKIP);}
@@ -143,15 +143,6 @@ protected:
 
 	u32								m_round_start_time;
 	string64						m_round_start_time_str;
-//	u32								buy_time;
-//	s32								fraglimit; //dm,tdm,ah
-//	s32								timelimit; //dm
-//	u32								damageblocklimit;//dm,tdm
-//	xr_vector<game_TeamState>		teams;//dm,tdm,ah
-	// for Artefact Hunt
-//	u8								artefactsNum;//ah
-//	u16								artefactBearerID;//ah,ZoneMap
-//	u8								teamInPossession;//ah,ZoneMap
 protected:
 	virtual		void				switch_Phase			(u32 new_phase);
 	virtual		void				OnSwitchPhase			(u32 old_phase, u32 new_phase)	{};	

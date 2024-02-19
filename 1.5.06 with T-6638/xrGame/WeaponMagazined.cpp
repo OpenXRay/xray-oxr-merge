@@ -19,6 +19,9 @@
 #include "MPPlayersBag.h"
 #include "ui/UIXmlInit.h"
 #include "ui/UIStatic.h"
+#include "game_object_space.h"
+#include "script_callback_ex.h"
+#include "script_game_object.h"
 
 ENGINE_API	bool	g_dedicated_server;
 
@@ -166,10 +169,6 @@ void CWeaponMagazined::Reload()
 	inherited::Reload();
 	TryReload();
 }
-
-#include "game_object_space.h"
-#include "script_callback_ex.h"
-#include "script_game_object.h"
 
 bool CWeaponMagazined::TryReload() 
 {
@@ -637,7 +636,9 @@ void CWeaponMagazined::switch2_Fire	()
 	CInventoryOwner* io		= smart_cast<CInventoryOwner*>(H_Parent());
 	CInventoryItem* ii		= smart_cast<CInventoryItem*>(this);
 #ifdef DEBUG
-	VERIFY2					(io,make_string("no inventory owner, item %s",*cName()));
+	if (!io)
+		return;
+	//VERIFY2					(io,make_string("no inventory owner, item %s",*cName()));
 
 	if (ii != io->inventory().ActiveItem())
 		Msg					("! not an active item, item %s, owner %s, active item %s",*cName(),*H_Parent()->cName(),io->inventory().ActiveItem() ? *io->inventory().ActiveItem()->object().cName() : "no_active_item");
@@ -862,13 +863,32 @@ bool CWeaponMagazined::Attach(PIItem pIItem, bool b_send_event)
         return inherited::Attach(pIItem, b_send_event);
 }
 
+bool CWeaponMagazined::DetachScope(const char* item_section_name, bool b_spawn_item)
+{
+	bool detached = false;
+	SCOPES_VECTOR_IT it = m_scopes.begin();
+	for(; it!=m_scopes.end(); it++)
+	{
+		LPCSTR iter_scope_name = pSettings->r_string((*it),"scope_name");
+		if(!xr_strcmp(iter_scope_name, item_section_name))
+		{
+			m_cur_scope = NULL;
+			detached = true;
+		}
+	}
+	return detached;
+}
 
 bool CWeaponMagazined::Detach(const char* item_section_name, bool b_spawn_item)
 {
 	if(		m_eScopeStatus == ALife::eAddonAttachable &&
-			0 != (m_flagsAddOnState&CSE_ALifeItemWeapon::eWeaponAddonScope) &&
-			(m_sScopeName == item_section_name))
+			DetachScope(item_section_name, b_spawn_item))
 	{
+		if ((m_flagsAddOnState & CSE_ALifeItemWeapon::eWeaponAddonScope) == 0)
+		{
+			Msg("ERROR: scope addon already detached.");
+			return true;
+		}
 		m_flagsAddOnState &= ~CSE_ALifeItemWeapon::eWeaponAddonScope;
 		
 		UpdateAddonsVisibility();
@@ -877,9 +897,13 @@ bool CWeaponMagazined::Detach(const char* item_section_name, bool b_spawn_item)
 		return CInventoryItemObject::Detach(item_section_name, b_spawn_item);
 	}
 	else if(m_eSilencerStatus == ALife::eAddonAttachable &&
-			0 != (m_flagsAddOnState&CSE_ALifeItemWeapon::eWeaponAddonSilencer) &&
 			(m_sSilencerName == item_section_name))
 	{
+		if ((m_flagsAddOnState & CSE_ALifeItemWeapon::eWeaponAddonSilencer) == 0)
+		{
+			Msg("ERROR: silencer addon already detached.");
+			return true;
+		}
 		m_flagsAddOnState &= ~CSE_ALifeItemWeapon::eWeaponAddonSilencer;
 
 		UpdateAddonsVisibility();
@@ -887,9 +911,13 @@ bool CWeaponMagazined::Detach(const char* item_section_name, bool b_spawn_item)
 		return CInventoryItemObject::Detach(item_section_name, b_spawn_item);
 	}
 	else if(m_eGrenadeLauncherStatus == ALife::eAddonAttachable &&
-			0 != (m_flagsAddOnState&CSE_ALifeItemWeapon::eWeaponAddonGrenadeLauncher) &&
 			(m_sGrenadeLauncherName == item_section_name))
 	{
+		if ((m_flagsAddOnState & CSE_ALifeItemWeapon::eWeaponAddonGrenadeLauncher) == 0)
+		{
+			Msg("ERROR: grenade launcher addon already detached.");
+			return true;
+		}
 		m_flagsAddOnState &= ~CSE_ALifeItemWeapon::eWeaponAddonGrenadeLauncher;
 
 		UpdateAddonsVisibility();
@@ -949,7 +977,7 @@ void CWeaponMagazined::InitAddons()
 		}
 	}
 
-	if ( IsSilencerAttached() && SilencerAttachable() )
+	if ( IsSilencerAttached()/* && SilencerAttachable() */)
 	{		
 		m_sFlameParticlesCurrent	= m_sSilencerFlameParticles;
 		m_sSmokeParticlesCurrent	= m_sSilencerSmokeParticles;

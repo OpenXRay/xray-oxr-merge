@@ -21,7 +21,6 @@ CUI3tButton::CUI3tButton()
 	m_bCheckMode		= false;
 }
 
-
 CUI3tButton::~CUI3tButton()
 {
 }

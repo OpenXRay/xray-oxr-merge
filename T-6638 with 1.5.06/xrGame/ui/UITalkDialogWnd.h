@@ -44,10 +44,17 @@ public:
 
 	//список вопросов, которые мы можем задавать персонажу
 
-//	Fvector2			m_btn_pos[3];
+	//элементы интерфейса диалога
+	CUIStatic			UIDialogFrameTop;
+	CUIStatic			UIDialogFrameBottom;
+	
+	Fvector2			m_btn_pos[3];
 	CUI3tButton			UIToTradeButton;
-//	CUI3tButton			UIToExitButton;
+	CUI3tButton			UIToExitButton;
 
+	//информация о персонажах 
+	CUIStatic			UIOurIcon;
+	CUIStatic			UIOthersIcon;
 	CUICharacterInfo	UICharacterInfoLeft;
 	CUICharacterInfo	UICharacterInfoRight;
 

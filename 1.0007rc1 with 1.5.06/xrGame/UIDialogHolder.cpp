@@ -19,7 +19,7 @@ bool dlgItem::operator < (const dlgItem& itm) const
 
 bool operator == (const dlgItem& i1, const dlgItem& i2)
 {
-	return i1.wnd == i2.wnd;
+	return (i1.wnd == i2.wnd) && (i1.enabled == i2.enabled);
 }
 
 recvItem::recvItem(CUIDialogWnd* r)
@@ -38,6 +38,7 @@ CDialogHolder::CDialogHolder()
 	shedule.t_max			= 20;
 	shedule_register		();
 	Device.seqFrame.Add		(this,REG_PRIORITY_LOW-1000);
+	m_b_in_update			= false;
 }
 
 CDialogHolder::~CDialogHolder()
@@ -64,7 +65,7 @@ void CDialogHolder::StartMenu (CUIDialogWnd* pDialog, bool bDoHideIndicators)
 		
 		if(bDoHideIndicators){
 			psHUD_Flags.set				(HUD_CROSSHAIR_RT, FALSE);
-			HUD().GetUI					()->HideGameIndicators();
+			HUD().GetUI					()->ShowGameIndicators(false);
 		}
 	}
 	pDialog->SetHolder				(this);
@@ -101,8 +102,7 @@ void CDialogHolder::StopMenu (CUIDialogWnd* pDialog)
 			bool b					= !!m_input_receivers.back().m_flags.test(recvItem::eCrosshair);
 			psHUD_Flags.set			(HUD_CROSSHAIR_RT, b);
 			b						= !!m_input_receivers.back().m_flags.test(recvItem::eIndicators);
-			if(b)					HUD().GetUI()->ShowGameIndicators();
-			else					HUD().GetUI()->HideGameIndicators();
+			HUD().GetUI()->ShowGameIndicators(b);
 		}
 		RemoveDialogToRender	(pDialog);
 		SetMainInputReceiver	(NULL,false);
@@ -122,18 +122,28 @@ void CDialogHolder::StopMenu (CUIDialogWnd* pDialog)
 void CDialogHolder::AddDialogToRender(CUIWindow* pDialog)
 {
 	dlgItem itm(pDialog);
-	xr_vector<dlgItem>::iterator it = std::find(m_dialogsToRender.begin(),m_dialogsToRender.end(),itm);
-	if( (it == m_dialogsToRender.end()) || ( it != m_dialogsToRender.end() && (*it).enabled==false)  )
-	{
+	itm.enabled		= true;
+
+	bool bAdd		= (m_dialogsToRender_new.end() == std::find(m_dialogsToRender_new.begin(),m_dialogsToRender_new.end(),itm));
+	if(!bAdd)		return;
+	
+	bAdd			= (m_dialogsToRender.end() == std::find(m_dialogsToRender.begin(),m_dialogsToRender.end(),itm));
+	if(!bAdd)		return;
+
+	if(m_b_in_update)
+		m_dialogsToRender_new.push_back(itm);
+	else
 		m_dialogsToRender.push_back(itm);
+
 		pDialog->Show(true);
 	}
-}
 
 void CDialogHolder::RemoveDialogToRender(CUIWindow* pDialog)
 {
 	dlgItem itm(pDialog);
+	itm.enabled		= true;
 	xr_vector<dlgItem>::iterator it = std::find(m_dialogsToRender.begin(),m_dialogsToRender.end(),itm);
+
 	if(it != m_dialogsToRender.end())
 	{
 		(*it).wnd->Show(false);
@@ -150,6 +160,17 @@ void CDialogHolder::DoRenderDialogs()
 	for(; it!=m_dialogsToRender.end();++it){
 		if( (*it).enabled && (*it).wnd->IsShown() )
 			(*it).wnd->Draw();
+	}
+}
+
+void  CDialogHolder::OnExternalHideIndicators()
+{
+	xr_vector<recvItem>::iterator it = m_input_receivers.begin();
+	xr_vector<recvItem>::iterator it_e = m_input_receivers.end();
+	for(;it!=it_e;++it)
+	{
+		(*it).m_flags.set(recvItem::eIndicators, FALSE);
+		(*it).m_flags.set(recvItem::eCrosshair, FALSE);
 	}
 }
 
@@ -189,25 +210,40 @@ void CDialogHolder::SetMainInputReceiver	(CUIDialogWnd* ir, bool _find_remove)
 		m_input_receivers.push_back(recvItem(ir));
 	}
 };
-//. #include "ai_space.h"
-//. #include "script_engine.h"
+
 void CDialogHolder::StartStopMenu(CUIDialogWnd* pDialog, bool bDoHideIndicators)
 {
-//.	ai().script_engine().script_log	(eLuaMessageTypeError,"foo");
 	if( pDialog->IsShown() )
 		StopMenu(pDialog);
 	else
+	{
 		StartMenu(pDialog, bDoHideIndicators);
+	}
 	
 }
 
 void CDialogHolder::OnFrame	()
 {
+	m_b_in_update = true;
+	CUIDialogWnd* wnd = MainInputReceiver();
+	if ( wnd && wnd->IsEnabled() )
+	{
+		wnd->Update();
+	}
+	//else
+{
 	xr_vector<dlgItem>::iterator it = m_dialogsToRender.begin();
 	for(; it!=m_dialogsToRender.end();++it)
 		if((*it).enabled && (*it).wnd->IsEnabled())
 			(*it).wnd->Update();
+	}
 
+	m_b_in_update = false;
+	if(m_dialogsToRender_new.size())
+	{
+		m_dialogsToRender.insert	(m_dialogsToRender.end(),m_dialogsToRender_new.begin(),m_dialogsToRender_new.end());
+		m_dialogsToRender_new.clear	();
+	}
 }
 
 void CDialogHolder::shedule_Update(u32 dt)

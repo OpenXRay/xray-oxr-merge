@@ -63,20 +63,23 @@ void CDetailManager::hw_Load_Geom()
 	u32			vSize		= sizeof(vertHW);
 	Msg("* [DETAILS] %d v(%d), %d p",dwVerts,vSize,dwIndices/3);
 
-#ifndef	USE_DX10
+#if !defined(USE_DX10) && !defined(USE_DX11)
 	// Determine POOL & USAGE
 	u32 dwUsage		=	D3DUSAGE_WRITEONLY;
 
 	// Create VB/IB
 	R_CHK			(HW.pDevice->CreateVertexBuffer(dwVerts*vSize,dwUsage,0,D3DPOOL_MANAGED,&hw_VB,0));
+	HW.stats_manager.increment_stats_vb				(hw_VB);
 	R_CHK			(HW.pDevice->CreateIndexBuffer(dwIndices*2,dwUsage,D3DFMT_INDEX16,D3DPOOL_MANAGED,&hw_IB,0));
+	HW.stats_manager.increment_stats_ib				(hw_IB);
+
 #endif	//	USE_DX10
 	Msg("* [DETAILS] Batch(%d), VB(%dK), IB(%dK)",hw_BatchSize,(dwVerts*vSize)/1024, (dwIndices*2)/1024);
 
 	// Fill VB
 	{
 		vertHW*			pV;
-#ifdef	USE_DX10
+#if defined(USE_DX10) || defined(USE_DX11)
 		vertHW*			pVOriginal;
 		pVOriginal	=	xr_alloc<vertHW>(dwVerts);
 		pV = pVOriginal;		
@@ -103,8 +106,9 @@ void CDetailManager::hw_Load_Geom()
 				}
 			}
 		}
-#ifdef	USE_DX10
+#if defined(USE_DX10) || defined(USE_DX11)
 		R_CHK(dx10BufferUtils::CreateVertexBuffer(&hw_VB, pVOriginal, dwVerts*vSize));
+		HW.stats_manager.increment_stats_vb		( hw_VB);
 		xr_free(pVOriginal);
 #else	//	USE_DX10
 		R_CHK			(hw_VB->Unlock());
@@ -114,7 +118,7 @@ void CDetailManager::hw_Load_Geom()
 	// Fill IB
 	{
 		u16*			pI;
-#ifdef	USE_DX10
+#if defined(USE_DX10) || defined(USE_DX11)
 		u16*			pIOriginal;
 		pIOriginal = xr_alloc<u16>(dwIndices);
 		pI	= pIOriginal;
@@ -132,8 +136,9 @@ void CDetailManager::hw_Load_Geom()
 				offset		=	u16(offset+u16(D.number_vertices));
 			}
 		}
-#ifdef	USE_DX10
+#if defined(USE_DX10) || defined(USE_DX11)
 		R_CHK(dx10BufferUtils::CreateIndexBuffer(&hw_IB, pIOriginal, dwIndices*2));
+		HW.stats_manager.increment_stats_ib		(hw_IB);
 		xr_free(pIOriginal);
 #else	//	USE_DX10
 		R_CHK			(hw_IB->Unlock());
@@ -148,11 +153,13 @@ void CDetailManager::hw_Unload()
 {
 	// Destroy VS/VB/IB
 	hw_Geom.destroy				();
+	HW.stats_manager.decrement_stats_vb		( hw_VB);
+	HW.stats_manager.decrement_stats_ib		( hw_IB);
 	_RELEASE					(hw_IB);
 	_RELEASE					(hw_VB);
 }
 
-#ifndef	USE_DX10
+#if !defined(USE_DX10) && !defined(USE_DX11)
 void CDetailManager::hw_Load_Shaders()
 {
 	// Create shader to access constant storage
@@ -172,17 +179,17 @@ void CDetailManager::hw_Render()
 {
 	// Render-prepare
 	//	Update timer
-	//	Can't use Device.fTimeDelta since it is smoothed! Don't know why, but smoothed value looks more choppy!
-	float fDelta = Device.fTimeGlobal-m_global_time_old;
+	//	Can't use RDEVICE.fTimeDelta since it is smoothed! Don't know why, but smoothed value looks more choppy!
+	float fDelta = RDEVICE.fTimeGlobal-m_global_time_old;
 	if ( (fDelta<0) || (fDelta>1))	fDelta = 0.03;
-	m_global_time_old = Device.fTimeGlobal;
+	m_global_time_old = RDEVICE.fTimeGlobal;
 
 	m_time_rot_1	+= (PI_MUL_2*fDelta/swing_current.rot1);
 	m_time_rot_2	+= (PI_MUL_2*fDelta/swing_current.rot2);
 	m_time_pos		+= fDelta*swing_current.speed;
 
-	//float		tm_rot1		= (PI_MUL_2*Device.fTimeGlobal/swing_current.rot1);
-	//float		tm_rot2		= (PI_MUL_2*Device.fTimeGlobal/swing_current.rot2);
+	//float		tm_rot1		= (PI_MUL_2*RDEVICE.fTimeGlobal/swing_current.rot1);
+	//float		tm_rot2		= (PI_MUL_2*RDEVICE.fTimeGlobal/swing_current.rot2);
 	float		tm_rot1		= m_time_rot_1;
 	float		tm_rot2		= m_time_rot_2;
 
@@ -196,7 +203,7 @@ void CDetailManager::hw_Render()
 	// Wave0
 	float		scale			=	1.f/float(quant);
 	Fvector4	wave;
-	//wave.set				(1.f/5.f,		1.f/7.f,	1.f/3.f,	Device.fTimeGlobal*swing_current.speed);
+	//wave.set				(1.f/5.f,		1.f/7.f,	1.f/3.f,	RDEVICE.fTimeGlobal*swing_current.speed);
 	wave.set				(1.f/5.f,		1.f/7.f,	1.f/3.f,	m_time_pos);
 	RCache.set_c			(&*hwc_consts,	scale,		scale,		ps_r__Detail_l_aniso,	ps_r__Detail_l_ambient);				// consts
 	RCache.set_c			(&*hwc_wave,	wave.div(PI_MUL_2));	// wave
@@ -204,7 +211,7 @@ void CDetailManager::hw_Render()
 	hw_Render_dump			(&*hwc_array,	1, 0, c_hdr );
 
 	// Wave1
-	//wave.set				(1.f/3.f,		1.f/7.f,	1.f/5.f,	Device.fTimeGlobal*swing_current.speed);
+	//wave.set				(1.f/3.f,		1.f/7.f,	1.f/5.f,	RDEVICE.fTimeGlobal*swing_current.speed);
 	wave.set				(1.f/3.f,		1.f/7.f,	1.f/5.f,	m_time_pos);
 	RCache.set_c			(&*hwc_wave,	wave.div(PI_MUL_2));	// wave
 	RCache.set_c			(&*hwc_wind,	dir2);																					// wind-dir
@@ -212,13 +219,13 @@ void CDetailManager::hw_Render()
 
 	// Still
 	RCache.set_c			(&*hwc_s_consts,scale,		scale,		scale,				1.f);
-	RCache.set_c			(&*hwc_s_xform,	Device.mFullTransform);
+	RCache.set_c			(&*hwc_s_xform,	RDEVICE.mFullTransform);
 	hw_Render_dump			(&*hwc_s_array,	0, 1, c_hdr );
 }
 
 void	CDetailManager::hw_Render_dump		(ref_constant x_array, u32 var_id, u32 lod_id, u32 c_offset)
 {
-	Device.Statistic->RenderDUMP_DT_Count	= 0;
+	RDEVICE.Statistic->RenderDUMP_DT_Count	= 0;
 
 	// Matrices and offsets
 	u32		vOffset	=	0;
@@ -287,7 +294,7 @@ void	CDetailManager::hw_Render_dump		(ref_constant x_array, u32 var_id, u32 lod_
 					dwBatch	++;
 					if (dwBatch == hw_BatchSize)	{
 						// flush
-						Device.Statistic->RenderDUMP_DT_Count					+=	dwBatch;
+						RDEVICE.Statistic->RenderDUMP_DT_Count					+=	dwBatch;
 						u32 dwCNT_verts			= dwBatch * Object.number_vertices;
 						u32 dwCNT_prims			= (dwBatch * Object.number_indices)/3;
 						RCache.get_ConstantCache_Vertex().b_dirty				=	TRUE;
@@ -303,7 +310,7 @@ void	CDetailManager::hw_Render_dump		(ref_constant x_array, u32 var_id, u32 lod_
 			// flush if nessecary
 			if (dwBatch)
 			{
-				Device.Statistic->RenderDUMP_DT_Count	+= dwBatch;
+				RDEVICE.Statistic->RenderDUMP_DT_Count	+= dwBatch;
 				u32 dwCNT_verts			= dwBatch * Object.number_vertices;
 				u32 dwCNT_prims			= (dwBatch * Object.number_indices)/3;
 				RCache.get_ConstantCache_Vertex().b_dirty				=	TRUE;

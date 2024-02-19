@@ -54,7 +54,6 @@ struct net_updateInvData
 };
 
 
-
 class CInventoryItem : 
 	public CAttachableItem,
 	public CHitImmunity
@@ -77,6 +76,7 @@ protected:
 								FInInterpolation	=(1<<9),
 								FInInterpolate		=(1<<10),
 								FIsQuestItem		=(1<<11),
+								FIsHelperItem		=(1<<12),
 	};
 
 	Flags16						m_flags;
@@ -108,7 +108,7 @@ public:
 	virtual bool				ActivateItem		();									// !!! Переопределить. (см. в Inventory.cpp)
 	virtual void				DeactivateItem		();								// !!! Переопределить. (см. в Inventory.cpp)
 	virtual bool				Action				(u16 cmd, u32 flags) {return false;}	// true если известная команда, иначе false
-
+	virtual void				DiscardState		() {};
 
 	virtual void				OnH_B_Chield		();
 	virtual void				OnH_A_Chield		();
@@ -142,14 +142,15 @@ public:
 	shared_str					m_nameShort;
 	shared_str					m_nameComplex;
 
-	EItemPlace					m_eItemCurrPlace;
+	SInvItemPlace				m_ItemCurrPlace;
 
 
-	virtual void				OnMoveToSlot		() {};
-	virtual void				OnMoveToBelt		() {};
-	virtual void				OnMoveToRuck		(EItemPlace prev) {};
+	virtual void				OnMoveToSlot		(const SInvItemPlace& prev) {};
+	virtual void				OnMoveToBelt		(const SInvItemPlace& prev) {};
+	virtual void				OnMoveToRuck		(const SInvItemPlace& prev) {};
 					
 			Irect			GetInvGridRect		() const;
+			Irect				GetUpgrIconRect		() const;
 			const shared_str&	GetIconName			() const		{return m_icon_name;};
 			Frect			GetKillMsgRect		() const;
 	//---------------------------------------------------------------------
@@ -158,7 +159,9 @@ public:
 	IC		void				SetCondition		(float val)					{m_fCondition = val;}
 			void				ChangeCondition		(float fDeltaCondition);
 
-			u32					GetSlot				()  const					{return m_slot;}
+			u16					BaseSlot			()  const					{return m_ItemCurrPlace.base_slot_id;}
+			u16					CurrSlot			()  const					{return m_ItemCurrPlace.slot_id;}
+			u16					CurrPlace			()  const					{return m_ItemCurrPlace.type;}
 
 			bool				Belt				()							{return !!m_flags.test(Fbelt);}
 			void				Belt				(bool on_belt)				{m_flags.set(Fbelt,on_belt);}
@@ -174,14 +177,11 @@ public:
 	virtual bool 				IsNecessaryItem	    (CInventoryItem* item);
 	virtual bool				IsNecessaryItem	    (const shared_str& item_sect){return false;};
 protected:	
-	u32							m_slot;
 	u32							m_cost;
 	float						m_weight;
 	float						m_fCondition;
 	shared_str					m_Description;
 protected:
-
-	ALife::_TIME_ID				m_dwItemRemoveTime;
 	ALife::_TIME_ID				m_dwItemIndependencyTime;
 
 	float						m_fControlInertionFactor;
@@ -274,6 +274,7 @@ protected:
 public:
 	IC bool	has_any_upgrades			() { return (m_upgrades.size() != 0); }
 	bool	has_upgrade					( const shared_str& upgrade_id );
+	bool	has_upgrade_group			( const shared_str& upgrade_group_id );
 	void	add_upgrade					( const shared_str& upgrade_id, bool loading );
 	bool	get_upgrades_str			( string2048& res ) const;
 
@@ -307,10 +308,9 @@ protected:
 	bool								m_just_after_spawn;
 	bool								m_activated;
 
-	bool    m_is_helper;
 public:
-	bool	is_helper_item				()				 { return m_is_helper; }
-	void	set_is_helper				(bool is_helper) { m_is_helper = is_helper; }
+	IC bool	is_helper_item				()				 { return !!m_flags.test(FIsHelperItem); }
+	IC void	set_is_helper				(bool is_helper) { m_flags.set(FIsHelperItem,is_helper); }
 }; // class CInventoryItem
 
 #include "inventory_item_inline.h"

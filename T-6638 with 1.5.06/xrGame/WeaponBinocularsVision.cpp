@@ -264,7 +264,6 @@ void CBinocularsVision::Update()
 		if(bLocked != visObj->m_flags.test(flTargetLocked))
 			m_sounds.PlaySound	("catch_snd", Fvector().set(0,0,0), NULL, true);
 	}
-
 }
 
 void CBinocularsVision::Draw()

@@ -18,6 +18,9 @@
 #include "game_cl_base_weapon_usage_statistic.h"
 #include "string_table.h"
 #include "../xrGameSpy/xrGameSpy_MainDefs.h"
+#include "DemoPlay_Control.h"
+#include "account_manager_console.h"
+#include "gamespy/GameSpy_GP.h"
 
 EGameIDs ParseStringToGameType(LPCSTR str);
 LPCSTR		GameTypeToString		(EGameIDs gt, bool bShort);
@@ -27,6 +30,7 @@ LPCSTR		DelHyphens				(LPCSTR c);
 extern	float	g_cl_lvInterp;
 extern	int		g_cl_InterpolationType; //0 - Linear, 1 - BSpline, 2 - HSpline
 extern	u32		g_cl_InterpolationMaxPoints;
+extern	int		g_cl_save_demo;
 extern string64	gsCDKey;
 extern	u32		g_dwMaxCorpses;
 extern	float	g_fTimeFactor;
@@ -82,20 +86,32 @@ extern	int		g_sv_Skip_Winner_Waiting;
 extern	int 	g_sv_Wait_For_Players_Ready;
 extern	int 	G_DELAYED_ROUND_TIME;	
 extern	int		g_sv_Pending_Wait_Time;
-extern	int		g_sv_Client_Reconnect_Time;
+extern	u32		g_sv_Client_Reconnect_Time;
 		int		g_dwEventDelay			= 0	;
 
+extern	u32		g_sv_adm_menu_ban_time;
+extern	xr_token g_ban_times[];
+
+extern	int		g_sv_adm_menu_ping_limit;
 extern	u32		g_sv_cta_dwInvincibleTime;
 //extern	u32		g_sv_cta_dwAnomalySetLengthTime;
 extern	u32		g_sv_cta_artefactReturningTime;
 extern	u32		g_sv_cta_activatedArtefactRet;
 //extern	s32		g_sv_cta_ScoreLimit;
 extern	u32		g_sv_cta_PlayerScoresDelayTime;
+extern	u32		g_sv_cta_rankUpToArtsCountDiv;
 
 extern	BOOL	g_draw_downloads;
 extern	BOOL	g_sv_mp_save_proxy_screenshots;
 extern	BOOL	g_sv_mp_save_proxy_configs;
 
+#ifdef DEBUG
+extern s32		lag_simmulator_min_ping;
+extern s32		lag_simmulator_max_ping;
+#endif
+
+extern BOOL		g_sv_write_updates_bin;
+extern u32		g_sv_traffic_optimization_level;
 
 void XRNETSERVER_API DumpNetCompressorStats	(bool brief);
 BOOL XRNETSERVER_API g_net_compressor_enabled;
@@ -310,8 +326,14 @@ struct SearcherClientByName
 	bool operator()(IClient* client)
 	{
 		xrClientData*	temp_client = smart_cast<xrClientData*>(client);
+		LPSTR tmp_player = NULL;
+		if (!temp_client->ps)
+			return false;
 
-		if (!xr_strcmp(player_name, temp_client->ps->getName()))
+		STRCONCAT(tmp_player, temp_client->ps->getName());
+		xr_strlwr(tmp_player);
+
+		if (!xr_strcmp(player_name, tmp_player))
 		{
 			return true;
 		}
@@ -552,6 +574,8 @@ public:
 
 }; //class CCC_MakeConfigDump
 
+
+
 class CCC_SetDemoPlaySpeed : public IConsole_Command {
 public:
 					CCC_SetDemoPlaySpeed	(LPCSTR N) : IConsole_Command(N)  { bEmptyArgsHandled = false; };
@@ -568,9 +592,179 @@ public:
 	};
 
 	virtual void	Info	(TInfo& I){xr_strcpy(I,"Set demo play speed (0.0, 8.0]"); }
-};
+}; //class CCC_SetDemoPlaySpeed
 
-/*
+class DemoPlayControlArgParser
+{
+protected:
+	demoplay_control::EAction	m_action;
+	shared_str					m_action_param;
+	bool	ParseControlString		(LPCSTR args_string)
+	{
+		string16		action_name;
+		action_name[0]	= 0;
+		string32		param_name;
+		param_name[0]	= 0;
+
+		sscanf_s(args_string, "%16s %32s",
+			action_name, sizeof(action_name),
+			param_name, sizeof(param_name));
+		m_action_param = param_name;
+
+		if (!xr_strcmp(action_name, "roundstart"))
+		{
+			m_action = demoplay_control::on_round_start;
+		} else if (!xr_strcmp(action_name, "kill"))
+		{
+			m_action = demoplay_control::on_kill;
+		} else if (!xr_strcmp(action_name, "die"))
+		{
+			m_action = demoplay_control::on_die;
+		} else if (!xr_strcmp(action_name, "artefacttake"))
+		{
+			m_action = demoplay_control::on_artefactcapturing;
+		} else if (!xr_strcmp(action_name, "artefactdrop"))
+		{
+			m_action = demoplay_control::on_artefactloosing;
+		} else if (!xr_strcmp(action_name, "artefactdeliver"))
+		{
+			m_action = demoplay_control::on_artefactdelivering;
+		} else 
+		{
+			return false;
+		}
+		return true;
+	};
+	inline LPCSTR GetInfoString()
+	{
+		return "<roundstart,kill,die,artefacttake,artefactdrop,artefactdeliver> [player name]";
+	}
+}; //class DemoPlayControlArgParser
+
+class CCC_DemoPlayPauseOn :
+	public IConsole_Command,
+	public DemoPlayControlArgParser
+{
+public:
+					CCC_DemoPlayPauseOn		(LPCSTR N) : IConsole_Command(N)  { bEmptyArgsHandled = false; };
+	virtual void	Execute					(LPCSTR args) 
+	{
+		if (!Level().IsDemoPlayStarted())
+		{
+			Msg("! Demo play not started.");
+			return;
+		}
+		if (!ParseControlString(args))
+		{
+			TInfo tmp_info;
+			Info(tmp_info);
+			Msg(tmp_info);
+			return;
+		}
+		demoplay_control* dp_control = Level().GetDemoPlayControl();
+		R_ASSERT(dp_control);
+		dp_control->pause_on(m_action, m_action_param);
+	};
+
+	virtual void	Info	(TInfo& I)
+	{
+		LPCSTR info_str = NULL;
+		STRCONCAT(info_str,
+			"Play demo until specified event (then pause playing). Format: mpdemoplay_pause_on ",
+			DemoPlayControlArgParser::GetInfoString());
+		xr_strcpy(I, info_str);
+	}
+}; //class CCC_DemoPlayPauseOn
+
+class CCC_DemoPlayCancelPauseOn : public IConsole_Command {
+public:
+					CCC_DemoPlayCancelPauseOn	(LPCSTR N) : IConsole_Command(N)  { bEmptyArgsHandled = true; };
+	virtual void	Execute					(LPCSTR args) 
+	{
+		if (!Level().IsDemoPlayStarted())
+		{
+			Msg("! Demo play not started.");
+			return;
+		}
+		demoplay_control* dp_control = Level().GetDemoPlayControl();
+		R_ASSERT(dp_control);
+		dp_control->cancel_pause_on();
+	};
+
+	virtual void	Info	(TInfo& I){xr_strcpy(I,"Cancels mpdemoplay_pause_on."); }
+}; //class CCC_DemoPlayCancelPauseOn
+
+class CCC_DemoPlayRewindUntil :
+	public IConsole_Command,
+	public DemoPlayControlArgParser
+{
+public:
+					CCC_DemoPlayRewindUntil	(LPCSTR N) : IConsole_Command(N)  { bEmptyArgsHandled = false; };
+	virtual void	Execute					(LPCSTR args) 
+	{
+		if (!Level().IsDemoPlayStarted())
+		{
+			Msg("! Demo play not started.");
+			return;
+		}
+		if (!ParseControlString(args))
+		{
+			TInfo tmp_info;
+			Info(tmp_info);
+			Msg(tmp_info);
+			return;
+		}
+		demoplay_control* dp_control = Level().GetDemoPlayControl();
+		R_ASSERT(dp_control);
+		dp_control->rewind_until(m_action, m_action_param);
+	};
+
+	virtual void	Info	(TInfo& I)
+	{
+		LPCSTR info_str = NULL;
+		STRCONCAT(info_str,
+			"Rewind demo until specified event (then pause playing). Format: mpdemoplay_rewind_until ",
+			DemoPlayControlArgParser::GetInfoString());
+		xr_strcpy(I, info_str);
+	}
+}; //class CCC_DemoPlayRewindUntil
+
+class CCC_DemoPlayStopRewind : public IConsole_Command {
+public:
+					CCC_DemoPlayStopRewind	(LPCSTR N) : IConsole_Command(N)  { bEmptyArgsHandled = true; };
+	virtual void	Execute					(LPCSTR args) 
+	{
+		if (!Level().IsDemoPlayStarted())
+		{
+			Msg("! Demo play not started.");
+			return;
+		}
+		demoplay_control* dp_control = Level().GetDemoPlayControl();
+		R_ASSERT(dp_control);
+		dp_control->stop_rewind();
+	};
+
+	virtual void	Info	(TInfo& I){xr_strcpy(I,"Stops rewinding (mpdemoplay_rewind_until)."); }
+}; //class CCC_DemoPlayStopRewind
+
+class CCC_DemoPlayRestart : public IConsole_Command {
+public:
+					CCC_DemoPlayRestart	(LPCSTR N) : IConsole_Command(N)  { bEmptyArgsHandled = true; };
+	virtual void	Execute					(LPCSTR args) 
+	{
+		if (!Level().IsDemoPlay())
+		{
+			Msg("! No demo play started.");
+			return;
+		}
+		Level().RestartPlayDemo();
+	};
+
+	virtual void	Info	(TInfo& I){xr_strcpy(I,"Restarts playing demo."); }
+}; //class CCC_DemoPlayRestart
+
+
+
 class CCC_MulDemoPlaySpeed : public IConsole_Command {
 public:
 					CCC_MulDemoPlaySpeed(LPCSTR N) : IConsole_Command(N)  { bEmptyArgsHandled = true; };
@@ -597,12 +791,18 @@ public:
 			Msg("! Demo play not started.");
 			return;
 		}
-		Level().SetDemoPlaySpeed(Level().GetDemoPlaySpeed() / 2);
+		float curr_demo_speed = Level().GetDemoPlaySpeed();
+		if (curr_demo_speed <= 0.2f)
+		{
+			Msg("! Can't decrease demo speed");
+			return;
+		}
+		Level().SetDemoPlaySpeed(curr_demo_speed / 2);
 	};
 
 	virtual void	Info	(TInfo& I){xr_strcpy(I,"Decreases demo play speed"); };
 };
-*/
+
 class CCC_ScreenshotAllPlayers : public IConsole_Command {
 public:
 	CCC_ScreenshotAllPlayers (LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
@@ -1023,6 +1223,65 @@ public:
 	virtual void	Info	(TInfo& I){xr_strcpy(I,"List Players. Format: \"sv_listplayers [ filter string ]\""); }
 };
 
+class CCC_Name : public IConsole_Command
+{
+public:
+	CCC_Name(LPCSTR N) : IConsole_Command(N)  { bLowerCaseArgs = false;	bEmptyArgsHandled = false; };
+	virtual void	Status	(TStatus& S)
+	{ 
+		S[0]=0;
+		if( IsGameTypeSingle() )									return;
+		if (!(&Level()))											return;
+		if (!(&Game()))												return;
+		game_PlayerState* tmp_player = Game().local_player;
+		if (!tmp_player)											return;
+		xr_sprintf( S, "is \"%s\" ", tmp_player->getName());
+	}
+
+	virtual void	Save	(IWriter *F)	{}
+
+	virtual void Execute(LPCSTR args) 
+	{
+		if (IsGameTypeSingle())		return;
+		if (!(&Level()))			return;
+		if (!(&Game()))				return;
+
+		game_PlayerState* tmp_player = Game().local_player;
+		if (!tmp_player)			return;
+
+		if (tmp_player->m_account.is_online())
+		{
+			Msg("! Can't change name in online mode.");
+			return;
+		}
+		
+		if (!xr_strlen(args)) return;
+		if (strchr(args, '/'))
+		{
+			Msg("!  '/' is not allowed in names!");
+			return;
+		}
+		string4096 NewName = "";
+		u32 const max_name_length	=	GP_UNIQUENICK_LEN - 1;
+		if (xr_strlen(args)>max_name_length)
+		{
+			strncpy_s(NewName, args, max_name_length);
+			NewName[max_name_length] = 0;
+		}
+		else
+			xr_strcpy(NewName, args);
+	
+		NET_Packet				P;
+		Game().u_EventGen		(P,GE_GAME_EVENT,Game().local_player->GameID);
+		P.w_u16					(GAME_EVENT_PLAYER_NAME);
+		P.w_stringZ				(NewName);
+		Game().u_EventSend		(P);
+	}
+
+	virtual void	Info	(TInfo& I)	{xr_strcpy(I,"player name"); }
+};
+
+
 class CCC_ListPlayers_Banned : public IConsole_Command {
 public:
 					CCC_ListPlayers_Banned	(LPCSTR N) : IConsole_Command(N)  { bEmptyArgsHandled = true; };
@@ -1426,16 +1685,15 @@ public:
 class CCC_SetWeather : public IConsole_Command {
 public:
 					CCC_SetWeather	(LPCSTR N) : IConsole_Command(N)  { bEmptyArgsHandled = false; };
-	virtual void	Execute			(LPCSTR args) 
+	virtual void	Execute			(LPCSTR weather_name) 
 	{
 		if (!g_pGamePersistent) return;
 		if (!OnServer())		return;
 
-		string256				weather_name;		
-		weather_name[0]			= 0;
-		sscanf					(args,"%s", weather_name);
-		if (!weather_name[0])	return;
+		if ( weather_name && weather_name[0] )
+		{
 		g_pGamePersistent->Environment().SetWeather(weather_name);		
+		}
 	};
 
 	virtual void	Info	(TInfo& I){xr_strcpy(I,"Set new weather"); }
@@ -1565,10 +1823,7 @@ public:
 	CCC_RadminCmd(LPCSTR N) : IConsole_Command(N)  { bEmptyArgsHandled = false; };
 	virtual void Execute(LPCSTR arguments)
 	{
-		if (!g_pGameLevel)
-			return;
-
-		if(IsGameTypeSingle())
+		if ( IsGameTypeSingle() || xr_strlen(arguments) >= 512 )
 			return;
 
 		if(strstr(arguments,"login")==arguments)
@@ -1731,54 +1986,6 @@ public:
 
 #endif // BATTLEYE
 
-class CCC_Name : public IConsole_Command
-{
-public:
-	CCC_Name(LPCSTR N) : IConsole_Command(N)  { bLowerCaseArgs = false;	bEmptyArgsHandled = false; };
-	virtual void	Status	(TStatus& S)
-	{ 
-		S[0]=0;
-		if( IsGameTypeSingle() )									return;
-		if (!(&Level()))											return;
-		if (!(&Game()))												return;
-		if (!Game().local_player || !Game().local_player->name )	return;
-		xr_sprintf( S, "is \"%s\" ", Game().local_player->name );
-	}
-
-	virtual void	Save	(IWriter *F)	{}
-
-	virtual void Execute(LPCSTR args) 
-	{
-		if (IsGameTypeSingle())		return;
-		if (!(&Level()))			return;
-		if (!(&Game()))				return;
-		if (!Game().local_player)	return;
-		
-		if (!xr_strlen(args)) return;
-		if (strchr(args, '/'))
-		{
-			Msg("!  '/' is not allowed in names!");
-			return;
-		}
-		string4096 NewName = "";
-		if (xr_strlen(args)>17)
-		{
-			strncpy(NewName, args, 17);
-			NewName[17] = 0;
-		}
-		else
-			xr_strcpy(NewName, args);
-	
-		NET_Packet				P;
-		Game().u_EventGen		(P,GE_GAME_EVENT,Game().local_player->GameID);
-		P.w_u16					(GAME_EVENT_PLAYER_NAME);
-		P.w_stringZ				(NewName);
-		Game().u_EventSend		(P);
-	}
-
-	virtual void	Info	(TInfo& I)	{xr_strcpy(I,"player name"); }
-};
-
 class CCC_SvStatus : public IConsole_Command {
 public:
 					CCC_SvStatus(LPCSTR N) : IConsole_Command(N)  { bEmptyArgsHandled = true; };
@@ -1885,11 +2092,21 @@ void register_mp_console_commands()
 	CMD1(CCC_BanPlayerByIP,				"sv_banplayer_ip"			);
 	CMD1(CCC_MakeScreenshot,			"make_screenshot"			);
 	CMD1(CCC_MakeConfigDump,			"make_config_dump"			);
-
-	CMD1(CCC_SetDemoPlaySpeed,			"mpdemoplay_speed_set"		);
-
 	CMD1(CCC_ScreenshotAllPlayers,		"screenshot_all"			);
 	CMD1(CCC_ConfigsDumpAll,			"config_dump_all"			);
+
+
+	CMD1(CCC_SetDemoPlaySpeed,			"mpdemoplay_speed_set"		);
+	CMD1(CCC_DemoPlayPauseOn,			"mpdemoplay_pause_on"		);
+	CMD1(CCC_DemoPlayCancelPauseOn,		"mpdemoplay_cancel_pause_on");
+	CMD1(CCC_DemoPlayRewindUntil,		"mpdemoplay_rewind_until"	);
+	CMD1(CCC_DemoPlayStopRewind,		"mpdemoplay_stop_rewind"	);
+	CMD1(CCC_DemoPlayRestart,			"mpdemoplay_restart"		);
+	CMD1(CCC_MulDemoPlaySpeed,			"mpdemoplay_mulspeed"		);
+	CMD1(CCC_DivDemoPlaySpeed,			"mpdemoplay_divspeed"		);
+	
+	
+	
 #ifdef DEBUG
 	CMD1(CCC_DbgMakeScreenshot,			"dbg_make_screenshot"		);
 #endif
@@ -1955,7 +2172,7 @@ void register_mp_console_commands()
 
 	//. CMD4(CCC_Integer,		"sv_pending_wait_time",		&g_sv_Pending_Wait_Time, 0, 60000);
 
-	CMD4(CCC_Integer,		"sv_client_reconnect_time",		&g_sv_Client_Reconnect_Time, 0, 60);
+	CMD4(CCC_Integer,		"sv_client_reconnect_time",		(int*)&g_sv_Client_Reconnect_Time, 0, 60);
 
 	CMD4(CCC_SV_Integer,	"sv_rpoint_freeze_time", (int*)&g_sv_base_dwRPointFreezeTime, 0, 60000);
 	CMD4(CCC_SV_Integer,	"sv_vote_enabled", &g_sv_base_iVotingEnabled, 0, 0x00FF);
@@ -1965,13 +2182,14 @@ void register_mp_console_commands()
 	CMD4(CCC_SV_Integer,	"sv_spectr_lookat"			,	(int*)&g_sv_mp_bSpectator_LookAt	, 0, 1);
 	CMD4(CCC_SV_Integer,	"sv_spectr_freelook"		,	(int*)&g_sv_mp_bSpectator_FreeLook	, 0, 1);
 	CMD4(CCC_SV_Integer,	"sv_spectr_teamcamera"		,	(int*)&g_sv_mp_bSpectator_TeamCamera, 0, 1);	
+	CMD4(CCC_Integer,		"cl_mpdemosave"				,	(int*)&g_cl_save_demo, 0, 1);
 	
 	CMD4(CCC_SV_Integer,	"sv_vote_participants"		,	(int*)&g_sv_mp_bCountParticipants	,	0,	1);	
 	CMD4(CCC_SV_Float,		"sv_vote_quota"				,	&g_sv_mp_fVoteQuota					, 0.0f,1.0f);
 	CMD4(CCC_SV_Float,		"sv_vote_time"				,	&g_sv_mp_fVoteTime					, 0.5f,10.0f);
 
 	CMD4(CCC_SV_Integer,	"sv_forcerespawn"			,	(int*)&g_sv_dm_dwForceRespawn		,	0,3600);	//sec
-	CMD4(CCC_SV_Integer,	"sv_fraglimit"				,	&g_sv_dm_dwFragLimit				,	0,100);
+	CMD4(CCC_SV_Integer,	"sv_fraglimit"				,	&g_sv_dm_dwFragLimit				,	0,1000);
 	CMD4(CCC_SV_Integer,	"sv_timelimit"				,	&g_sv_dm_dwTimeLimit				,	0,180);		//min
 	CMD4(CCC_SV_Integer,	"sv_dmgblockindicator"		,	(int*)&g_sv_dm_bDamageBlockIndicators,	0, 1);
 	CMD4(CCC_SV_Integer,	"sv_dmgblocktime"			,	(int*)&g_sv_dm_dwDamageBlockTime	,	0, 600);	//sec
@@ -2013,13 +2231,35 @@ void register_mp_console_commands()
 	CMD4(CCC_SV_Integer,	"bemsg"    , (int*)&g_be_message_out, 0, 1 );
 #endif // BATTLEYE
 //-----------------
+	CMD3(CCC_Token,			"sv_adm_menu_ban_time",			&g_sv_adm_menu_ban_time, g_ban_times); //min
+//	CMD4(CCC_Integer,		"sv_adm_menu_ban_time",			(int*)&g_sv_adm_menu_ban_time, 1, 60); //min
+	CMD4(CCC_Integer,		"sv_adm_menu_ping_limit",		(int*)&g_sv_adm_menu_ping_limit, 1, 200); //min
+
 	CMD4(CCC_Integer,		"sv_invincible_time",			(int*)&g_sv_cta_dwInvincibleTime, 0, 60); //sec
 	CMD4(CCC_Integer,		"sv_artefact_returning_time",	(int*)&g_sv_cta_artefactReturningTime, 0, 5 * 60); //sec
 	CMD4(CCC_Integer,		"sv_activated_return",		(int*)&g_sv_cta_activatedArtefactRet, 0, 1)
 	CMD4(CCC_Integer,		"sv_show_player_scores_time",	(int*)&g_sv_cta_PlayerScoresDelayTime, 1, 20); //sec
+	CMD4(CCC_Integer,		"sv_cta_runkup_to_arts_div",	(int*)&g_sv_cta_rankUpToArtsCountDiv, 0, 10);
 	CMD1(CCC_CompressorStatus,"net_compressor_status");
 	CMD4(CCC_SV_Integer,	"net_compressor_enabled"		,	(int*)&g_net_compressor_enabled	,	0,1);
 	CMD4(CCC_SV_Integer,	"net_compressor_gather_stats"	,	(int*)&g_net_compressor_gather_stats,0,1);
 	CMD1(CCC_MpStatistics,	"sv_dump_online_statistics");
 	CMD4(CCC_SV_Integer,	"sv_dump_online_statistics_period"	,	(int*)&g_sv_mp_iDumpStatsPeriod	,	0,60); //min
+#ifdef DEBUG
+	CMD4(CCC_SV_Integer,	"cl_dbg_min_ping",			(int*)&lag_simmulator_min_ping,	0,	1000);
+	CMD4(CCC_SV_Integer,	"cl_dbg_max_ping",			(int*)&lag_simmulator_max_ping,	0,	1000);
+#endif
+
+	//GameSpy Presence and Messaging
+	CMD1(CCC_CreateGameSpyAccount,			"gs_create_account");
+	CMD1(CCC_GapySpyListProfiles,			"gs_list_profiles");
+	CMD1(CCC_GameSpyLogin,					"gs_login");
+	CMD1(CCC_GameSpyLogout,					"gs_logout");
+	CMD1(CCC_GameSpyDeleteProfile,			"gs_delete_profile");
+	CMD1(CCC_GameSpyPrintProfile,			"gs_print_profile");
+	CMD1(CCC_GameSpySuggestUNicks,			"gs_suggest_unicks");
+	CMD1(CCC_GameSpyRegisterUniqueNick,		"gs_register_unique_nick");
+	CMD1(CCC_GameSpyProfile,				"gs_profile");
+	CMD4(CCC_Integer,						"sv_write_update_bin",				&g_sv_write_updates_bin, 0, 1);
+	CMD4(CCC_Integer,						"sv_traffic_optimization_level",	(int*)&g_sv_traffic_optimization_level, 0, 7);
 }

@@ -13,7 +13,6 @@ protected:
 
 	CUI3tButton*	m_DecButton;
 	CUI3tButton*	m_IncButton;
-
 	CUIScrollBox*	m_ScrollBox;
 
 	CUIStaticItem*	m_StaticBackground;
@@ -56,7 +55,7 @@ public:
 			void	InitScrollBar		(Fvector2 pos, float length, bool bIsHorizontal, LPCSTR profile = "default");
 
 	virtual void	SendMessage			(CUIWindow *pWnd, s16 msg, void *pData);
-	virtual bool	OnMouse				(float x, float y, EUIMessages mouse_action);
+	virtual bool	OnMouseAction		(float x, float y, EUIMessages mouse_action);
 	virtual bool 	OnMouseDown			(int mouse_btn);
 			bool	OnMouseDownEx		();
 	virtual void	OnMouseUp			(int mouse_btn);

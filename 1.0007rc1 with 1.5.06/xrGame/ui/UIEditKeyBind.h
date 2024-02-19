@@ -19,7 +19,7 @@ public:
 	virtual void	Register				(const char* entry, const char* group);
 	virtual void	SetCurrentValue			();
 	virtual void	SaveValue				();
-	virtual	void	OnMessage				(const char* message);
+	virtual	void	OnMessage				(LPCSTR message);
 	virtual bool	IsChanged				();
 
 	// CUIWindow methods
@@ -29,13 +29,13 @@ public:
 	virtual void	OnFocusLost				();
 	virtual bool	OnKeyboard				(int dik, EUIMessages keyboard_action);
 	// IUITextControl
-	virtual void	SetText					(const char* text);
-
+	virtual void	SetText					(LPCSTR text);
+			void	SetEditMode				(bool b);
 protected:
 	void			BindAction2Key			();
 	virtual void	InitTexture				(LPCSTR texture, bool horizontal = true);
 
-	bool		m_bEditMode;
+	bool		m_bIsEditMode;
 	bool		m_bChanged;
 
 	CUIColorAnimatorWrapper*				m_pAnimation;

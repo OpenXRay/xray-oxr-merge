@@ -3,6 +3,7 @@
 #include "UIWndCallback.h"
 #include "../../xrServerEntities/associative_vector.h"
 #include "../GameTaskDefs.h"
+#include "UICheckButton.h"
 
 class CUIMapWnd;
 class CUIStatic;
@@ -11,7 +12,9 @@ class CUIXml;
 class CUITaskItem;
 class CUI3tButton;
 class CUIFrameLineWnd;
-class UISecondTaskWnd;
+class CUIFrameWindow;
+class CUICheckButton;
+class UITaskListWnd;
 class UIMapLegend;
 class UIHint;
 
@@ -21,24 +24,30 @@ class CUITaskWnd			:	public CUIWindow,
 private:
 	typedef CUIWindow		inherited;
 
-	CUIFrameLineWnd*		m_background;
+	CUIFrameWindow*			m_background;
 	CUIStatic*				m_center_background;
 	CUIStatic*				m_right_bottom_background;
-	CUIFrameLineWnd*		m_task_split;
 
 	CUIMapWnd*				m_pMapWnd;
 	CUITaskItem*			m_pStoryLineTaskItem;
-	CUITaskItem*			m_pSecondaryTaskItem;
 
-	CUI3tButton*			m_BtnSecondaryTaskWnd;
-	CUIStatic*				m_second_task_index;
+	CUI3tButton*			m_BtnTaskListWnd;
+	CUIStatic*				m_devider;
 	u32						m_actual_frame;
 
 	CUI3tButton*			m_btn_focus;
-	CUI3tButton*			m_btn_focus2;
 
-	UISecondTaskWnd*		m_second_task_wnd;
-	bool					m_second_task_wnd_show;
+	CUICheckButton*			m_cbTreasures;
+	CUICheckButton*			m_cbQuestNpcs;
+	CUICheckButton*			m_cbSecondaryTasks;
+	CUICheckButton*			m_cbPrimaryObjects;
+	bool					m_bTreasuresEnabled;
+	bool					m_bQuestNpcsEnabled;
+	bool					m_bSecondaryTasksEnabled;
+	bool					m_bPrimaryObjectsEnabled;
+
+	UITaskListWnd*			m_task_wnd;
+	bool					m_task_wnd_show;
 	UIMapLegend*			m_map_legend_wnd;
 
 public:
@@ -59,7 +68,16 @@ public:
 			void				ShowMapLegend			(bool status);
 			void				Switch_ShowMapLegend	();
 
-			void				Show_SecondTasksWnd		(bool status);
+			bool				IsTreasuresEnabled		(){return m_bTreasuresEnabled;};
+			bool				IsQuestNpcsEnabled		(){return m_bQuestNpcsEnabled;};
+			bool				IsSecondaryTasksEnabled	(){return m_bSecondaryTasksEnabled;};
+			bool				IsPrimaryObjectsEnabled	(){return m_bPrimaryObjectsEnabled;};
+			void				TreasuresEnabled		(bool enable) {m_bTreasuresEnabled = enable; m_cbTreasures->SetCheck(enable);};
+			void				QuestNpcsEnabled		(bool enable) {m_bQuestNpcsEnabled = enable; m_cbQuestNpcs->SetCheck(enable);};
+			void				SecondaryTasksEnabled	(bool enable) {m_bSecondaryTasksEnabled = enable; m_cbSecondaryTasks->SetCheck(enable);};
+			void				PrimaryObjectsEnabled	(bool enable) {m_bPrimaryObjectsEnabled = enable; m_cbPrimaryObjects->SetCheck(enable);};
+
+			void				Show_TaskListWnd		(bool status);
 
 private:
 	void						TaskSetTargetMap		(CGameTask* task);
@@ -67,11 +85,13 @@ private:
 
 	void						OnNextTaskClicked		();
 	void 						OnPrevTaskClicked		();
-	void xr_stdcall				OnShowSecondTaskWnd		(CUIWindow* w, void* d);
-
+	void xr_stdcall				OnShowTaskListWnd		(CUIWindow* w, void* d);
 	void xr_stdcall				OnTask1DbClicked		(CUIWindow*, void*);
-	void xr_stdcall				OnTask2DbClicked		(CUIWindow*, void*);
 
+	void xr_stdcall				OnShowTreasures			(CUIWindow*, void*);
+	void xr_stdcall				OnShowPrimaryObjects	(CUIWindow*, void*);
+	void xr_stdcall				OnShowSecondaryTasks	(CUIWindow*, void*);
+	void xr_stdcall				OnShowQuestNpcs			(CUIWindow*, void*);
 };
 
 class CUITaskItem : public CUIWindow

@@ -92,10 +92,26 @@ CUIStatic* CScriptXmlInit::InitAnimStatic(LPCSTR path, CUIWindow* parent)
 	return pWnd;
 }
 
+CUIStatic* CScriptXmlInit::InitSleepStatic(LPCSTR path, CUIWindow* parent)
+{
+	CUISleepStatic* pWnd = xr_new<CUISleepStatic>();
+	CUIXmlInit::InitSleepStatic(m_xml, path, 0, pWnd);
+	_attach_child(pWnd, parent);
+	return pWnd;
+}
+
 CUIScrollView* CScriptXmlInit::InitScrollView(LPCSTR path, CUIWindow* parent)
 {
 	CUIScrollView* pWnd = xr_new<CUIScrollView>();
 	CUIXmlInit::InitScrollView(m_xml, path, 0, pWnd);
+	_attach_child(pWnd, parent);
+	return pWnd;
+}
+
+CUIListBox*	CScriptXmlInit::InitListBox(LPCSTR path, CUIWindow* parent)
+{
+	CUIListBox* pWnd = xr_new<CUIListBox>();
+	CUIXmlInit::InitListBox(m_xml, path, 0, pWnd);
 	_attach_child(pWnd, parent);
 	return pWnd;
 }
@@ -281,6 +297,7 @@ void CScriptXmlInit::script_register(lua_State *L){
 		.def("InitKeyBinding",			&CScriptXmlInit::InitKeyBinding)
 		.def("InitMMShniaga",			&CScriptXmlInit::InitMMShniaga)
 		.def("InitScrollView",			&CScriptXmlInit::InitScrollView)
+		.def("InitListBox",				&CScriptXmlInit::InitListBox)
 		.def("InitAutoStaticGroup",		&CScriptXmlInit::InitAutoStaticGroup)
 		.def("InitProgressBar",			&CScriptXmlInit::InitProgressBar)
 	];

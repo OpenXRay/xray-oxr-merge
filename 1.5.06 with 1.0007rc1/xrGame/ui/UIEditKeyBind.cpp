@@ -117,7 +117,7 @@ bool CUIEditKeyBind::OnKeyboard(int dik, EUIMessages keyboard_action){
 		m_keyboard			= dik_to_ptr(dik, true);
 		if(!m_keyboard)			return true;
 
-		strcpy_s				(message, m_action->action_name);
+		strcpy_s			(message, m_action->action_name);
 		strcat				(message, "=");
 		strcat				(message, m_keyboard->key_name);		
 		SetText				(m_keyboard->key_local_name.c_str());
@@ -140,6 +140,7 @@ void CUIEditKeyBind::Update()
 		SetTextColor((subst_alpha(GetTextColor(), color_get_A(m_pAnimation->GetColor()))));
 	}
 }
+
 void CUIEditKeyBind::SetEditMode(bool b)
 {
 	m_bIsEditMode = b;
@@ -214,7 +215,7 @@ void CUIEditKeyBind::OnMessage(LPCSTR message)
 		return;
 
 	string64			command;
-	strcpy_s				(command, message);
+	strcpy_s			(command, message);
 	command[eq]			= 0;
 
     if (0 == xr_strcmp(m_action->action_name, command))

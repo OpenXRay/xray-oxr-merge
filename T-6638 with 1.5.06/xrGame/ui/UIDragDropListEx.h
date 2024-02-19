@@ -196,6 +196,4 @@ protected:
 				void			Shrink				();
 				void			ClearAll			(bool bDestroy);
 				void			clear_select_armament();
-
-
 };

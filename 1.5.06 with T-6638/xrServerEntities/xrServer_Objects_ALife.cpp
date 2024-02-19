@@ -135,6 +135,15 @@ void	SFillPropData::load			()
         for (k = 0; Ini->r_line(caSection,k,&N,&V); ++k)
             locations[i].push_back	(xr_rtoken(V,atoi(N)));
     }
+    for (k = 0; Ini->r_line("graph_points_draw_color_palette",k,&N,&V); ++k)
+	{
+		u32 color;
+		if(1==sscanf(V,"%x", &color))
+		{
+			location_colors[N]  = color;
+		}else
+			Msg("! invalid record format in [graph_points_draw_color_palette] %s=%s",N,V);
+	}
     
 	// level names/ids
     VERIFY					(level_ids.empty());

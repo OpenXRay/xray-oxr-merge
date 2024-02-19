@@ -36,7 +36,6 @@ public:
 			float		GetFValue				(){return m_f_val;}
 			void	SetOptIBounds			(int imin, int imax);
 			void	SetOptFBounds			(float fmin, float fmax);
-
 protected:
 			void 	UpdatePos				();
 			void 	UpdatePosRelativeToMouse();

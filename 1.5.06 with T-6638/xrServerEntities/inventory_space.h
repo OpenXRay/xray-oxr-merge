@@ -31,7 +31,7 @@ typedef xr_vector<PIItem>			TIItemContainer;
 
 enum EItemPlace
 {			
-	eItemPlaceUndefined,
+	eItemPlaceUndefined = 0,
 	eItemPlaceSlot,
 	eItemPlaceBelt,
 	eItemPlaceRuck

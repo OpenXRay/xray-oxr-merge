@@ -77,13 +77,13 @@ void CUITalkDialogWnd::InitTalkDialogWnd()
 	AttachChild					(&UIToTradeButton);
 	CUIXmlInit::Init3tButton	(*m_uiXml, "button", 0, &UIToTradeButton);
 
-	//AttachChild					(&UIToExitButton);
-	//CUIXmlInit::Init3tButton	(*m_uiXml, "button_exit", 0, &UIToExitButton);
+	AttachChild					(&UIToExitButton);
+	CUIXmlInit::Init3tButton	(*m_uiXml, "button_exit", 0, &UIToExitButton);
 
-	//m_btn_pos[0]				= UIToTradeButton.GetWndPos();
-	//m_btn_pos[1]				= UIToExitButton.GetWndPos();
-	//m_btn_pos[2].x				= (m_btn_pos[0].x+m_btn_pos[1].x)/2.0f;
-	//m_btn_pos[2].y				= m_btn_pos[0].y;
+	m_btn_pos[0]				= UIToTradeButton.GetWndPos();
+	m_btn_pos[1]				= UIToExitButton.GetWndPos();
+	m_btn_pos[2].x				= (m_btn_pos[0].x+m_btn_pos[1].x)/2.0f;
+	m_btn_pos[2].y				= m_btn_pos[0].y;
 	// шрифт для индикации имени персонажа в окне разговора
 	CUIXmlInit::InitFont		(*m_uiXml, "font", 0, m_iNameTextColor, m_pNameTextFont);
 
@@ -96,7 +96,7 @@ void CUITalkDialogWnd::InitTalkDialogWnd()
 	Register					(&UIToTradeButton);
 	AddCallbackStr				("question_item",LIST_ITEM_CLICKED,CUIWndCallback::void_function(this, &CUITalkDialogWnd::OnQuestionClicked));
 	AddCallback					(&UIToTradeButton,BUTTON_CLICKED,CUIWndCallback::void_function(this, &CUITalkDialogWnd::OnTradeClicked));
-//	AddCallback					(&UIToExitButton,BUTTON_CLICKED,CUIWndCallback::void_function(this, &CUITalkDialogWnd::OnExitClicked));
+	AddCallback					(&UIToExitButton,BUTTON_CLICKED,CUIWndCallback::void_function(this, &CUITalkDialogWnd::OnExitClicked));
 }
 
 void CUITalkDialogWnd::Show()
@@ -258,7 +258,22 @@ void CUITalkDialogWnd::SetOsoznanieMode(bool b)
 
 void CUITalkDialogWnd::UpdateButtonsLayout(bool b_disable_break, bool trade_enabled)
 {
+	UIToExitButton.Show			(!b_disable_break);
 	UIToTradeButton.Show		(trade_enabled);
+
+	if(UIToExitButton.IsShown() && UIToTradeButton.IsShown())
+	{
+		UIToTradeButton.SetWndPos(m_btn_pos[0]);
+		UIToExitButton.SetWndPos(m_btn_pos[1]);
+	}else
+	if(UIToExitButton.IsShown())
+	{
+		UIToExitButton.SetWndPos(m_btn_pos[2]);
+	}else
+	if(UIToTradeButton.IsShown())
+	{
+		UIToTradeButton.SetWndPos(m_btn_pos[2]);
+	}
 }
 
 void CUIQuestionItem::SendMessage				(CUIWindow* pWnd, s16 msg, void* pData)
@@ -286,11 +301,11 @@ CUIQuestionItem::CUIQuestionItem			(CUIXml* xml_doc, LPCSTR path)
 	Register						(m_text);
 	AddCallback						(m_text,BUTTON_CLICKED,CUIWndCallback::void_function(this, &CUIQuestionItem::OnTextClicked));
 
-	m_num_text						= xr_new<CUITextWnd>();
+	m_num_text						= xr_new<CUIStatic>();
 	m_num_text->SetAutoDelete		(true);
 	AttachChild						(m_num_text);
 	strconcat						(sizeof(str),str,path,":num_text");
-	xml_init.InitTextWnd			(*xml_doc, str, 0, m_num_text);
+	xml_init.InitStatic				(*xml_doc, str, 0, m_num_text);
 }
 
 void CUIQuestionItem::Init			(LPCSTR val, LPCSTR text)
@@ -310,8 +325,8 @@ void	CUIQuestionItem::OnTextClicked(CUIWindow* w, void*)
 
 CUIAnswerItem::CUIAnswerItem			(CUIXml* xml_doc, LPCSTR path)
 {
-	m_text							= xr_new<CUITextWnd>();m_text->SetAutoDelete(true);
-	m_name							= xr_new<CUITextWnd>();m_name->SetAutoDelete(true);
+	m_text							= xr_new<CUIStatic>();m_text->SetAutoDelete(true);
+	m_name							= xr_new<CUIStatic>();m_name->SetAutoDelete(true);
 	AttachChild						(m_text);
 	AttachChild						(m_name);
 
@@ -324,10 +339,10 @@ CUIAnswerItem::CUIAnswerItem			(CUIXml* xml_doc, LPCSTR path)
 	m_min_height					= xml_doc->ReadAttribFlt(path,0,"min_height",15.0f);
 	m_bottom_footer					= xml_doc->ReadAttribFlt(path,0,"bottom_footer",0.0f);
 	strconcat						(sizeof(str),str,path,":content_text");
-	xml_init.InitTextWnd			(*xml_doc, str, 0, m_text);
+	xml_init.InitStatic				(*xml_doc, str, 0, m_text);
 
 	strconcat						(sizeof(str),str,path,":name_caption");
-	xml_init.InitTextWnd				(*xml_doc, str, 0, m_name);
+	xml_init.InitStatic				(*xml_doc, str, 0, m_name);
 	SetAutoDelete					(true);
 }
 

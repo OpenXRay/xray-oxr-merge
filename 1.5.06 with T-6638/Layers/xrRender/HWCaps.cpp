@@ -108,7 +108,7 @@ u32 GetGpuNum()
 #endif
 }
 
-#ifndef	USE_DX10
+#if !defined(USE_DX10) && !defined(USE_DX11)
 void CHWCaps::Update()
 {
 	D3DCAPS9					caps;

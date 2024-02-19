@@ -2,19 +2,13 @@
 #include "UIListBoxItem.h"
 #include "UIScrollView.h"
 #include "object_broker.h"
+#include "UIStatic.h"
 
-CUIListBoxItem::CUIListBoxItem()
+CUIListBoxItem::CUIListBoxItem(float height)
+:m_text(NULL),tag(u32(-1))
 {
-	txt_color			= 0xffffffff;
-	txt_color_s			= 0xffffffff;
-	tag					= u32(-1);
-	m_bTextureAvailable = false;
-	AttachChild			(&m_text);
-}
-
-CUIListBoxItem::~CUIListBoxItem()
-{
-	delete_data			(fields);
+	SetHeight		(height);
+	m_text			= AddTextField("---", 10.0f);
 }
 
 void CUIListBoxItem::SetTAG(u32 value)
@@ -29,13 +23,10 @@ u32 CUIListBoxItem::GetTAG()
 
 void CUIListBoxItem::Draw()
 {
-	m_bTextureAvailable = m_bSelected;
+	if(m_bSelected)
+		DrawElements();
 
-	u32 CurColor = m_text.GetTextColor();
-	u32 ResColor = (IsEnabled() ? 0xff000000 : 0x80000000) | (CurColor & 0x00ffffff);
-	m_text.SetTextColor(ResColor);
-
-	inherited::Draw();
+	CUIWindow::Draw	();
 }
 
 void CUIListBoxItem::OnFocusReceive()
@@ -47,6 +38,16 @@ void CUIListBoxItem::OnFocusReceive()
 void CUIListBoxItem::InitDefault()
 {
 	InitTexture("ui_listline","hud\\default");
+}
+
+void CUIListBoxItem::SetFont(CGameFont* F)
+{
+	m_text->SetFont(F);
+}
+
+CGameFont* CUIListBoxItem::GetFont()
+{
+	return (m_text)?m_text->GetFont():NULL;
 }
 
 bool CUIListBoxItem::OnMouseDown(int mouse_btn)
@@ -61,58 +62,61 @@ bool CUIListBoxItem::OnMouseDown(int mouse_btn)
 		return false;
 }
 
-void CUIListBoxItem::SetSelected(bool b)
+void CUIListBoxItem::SetTextColor(u32 color)
 {
-	CUISelectable::SetSelected(b);
-	u32 col;
-	if (b)
-		col = txt_color_s;	
-	else
-		col = txt_color;
-
-	m_text.SetTextColor(col);
-	for (u32 i = 0; i<fields.size(); i++)
-		fields[i]->SetTextColor(col);
+	m_text->SetTextColor(color);
 }
 
-void CUIListBoxItem::SetTextColor(u32 color, u32 color_s)
+u32 CUIListBoxItem::GetTextColor()
 {
-	txt_color			= color;
-	txt_color_s			= color_s;
-	m_text.SetTextColor(color);
+	return (m_text)?m_text->GetTextColor():0xffffffff;
 }
 
-float CUIListBoxItem::FieldsLength()
+float CUIListBoxItem::FieldsLength() const
 {
-	float c = 0;
-	for (u32 i = 0; i<fields.size(); i++)
-		c += fields[i]->GetWidth();
-	return c;
-}
+	if(m_ChildWndList.empty())
+		return 0.0f;
 
-CUIStatic* CUIListBoxItem::AddField(LPCSTR txt, float len, LPCSTR key)
-{
-	fields.push_back		(xr_new<CUIStatic>());
-	CUIStatic* st			= fields.back();
-	AttachChild				(st);
-	st->SetWndPos			(Fvector2().set(FieldsLength(),0.0f));
-	st->SetWndSize			(Fvector2().set(GetWidth(), len));
-	st->SetFont				(m_text.GetFont());
-	st->SetTextColor		(txt_color);
-	st->SetText				(txt);	
-	st->SetWindowName		(key);
+	float len = 0.0f;
+/*
+	WINDOW_LIST::const_iterator it		= m_ChildWndList.begin();
+	WINDOW_LIST::const_iterator it_e	= m_ChildWndList.end();
 
-	return st;
-}
-
-LPCSTR CUIListBoxItem::GetField(LPCSTR key)
-{
-	for (u32 i = 0; i<fields.size(); i++)
+	for(;it!=it_e;++it)
 	{
-		if (0 == xr_strcmp(fields[i]->WindowName(),key))
-			return fields[i]->GetText();
+		CUIWindow* w	= *it;
+		len				+= w->GetWndPos().x + w->GetWidth();
 	}
-	return NULL;
+*/
+	CUIWindow* w	= m_ChildWndList.back();
+	len				+= w->GetWndPos().x + w->GetWidth();
+	return len;
+}
+
+CUIStatic* CUIListBoxItem::AddIconField(float width)
+{
+	CUIStatic* st			= xr_new<CUIStatic>();
+	st->SetAutoDelete		(true);
+	st->SetWndPos			(Fvector2().set(FieldsLength(),0.0f));
+	st->SetWndSize			(Fvector2().set(width, GetHeight()));
+	AttachChild				(st);
+	return					st;
+}
+
+CUITextWnd* CUIListBoxItem::AddTextField(LPCSTR txt, float width)
+{
+	CUITextWnd* st			= xr_new<CUITextWnd>();
+	st->SetAutoDelete		(true);
+	st->SetWndPos			(Fvector2().set(FieldsLength(),0.0f));
+	st->SetWndSize			(Fvector2().set(width, GetHeight()));
+
+	AttachChild				(st);
+
+	st->SetFont				(GetFont());
+	st->SetTextColor		(GetTextColor());
+	st->SetText				(txt);	
+	st->SetVTextAlignment	(valCenter);	
+	return							st;
 }
 
 void CUIListBoxItem::SetData(void* data)
@@ -123,4 +127,14 @@ void CUIListBoxItem::SetData(void* data)
 void* CUIListBoxItem::GetData()
 {
 	return pData;
+}
+
+void CUIListBoxItem::SetText(LPCSTR txt)
+{
+	m_text->SetText(txt);
+}
+
+LPCSTR CUIListBoxItem::GetText()							
+{
+	return m_text->GetText();
 }

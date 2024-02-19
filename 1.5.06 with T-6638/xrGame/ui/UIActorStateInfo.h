@@ -73,8 +73,6 @@ public:
 	virtual			~ui_actor_state_item	();
 			void	init_from_xml			( CUIXml& xml, LPCSTR path );
 	
-	virtual bool	OnMouseAction			( float x, float y, EUIMessages mouse_action );
-			
 			void	set_text				( float value ); // 0..1
 			void	set_progress			( float value ); // 0..1
 			void	set_progress_shape		( float value ); // 0..1

@@ -18,7 +18,9 @@
 #include "UI3tButton.h"
 #include "UICheckButton.h"
 #include "UIFrameLineWnd.h"
+#include "UIFixedScrollBar.h"
 #include "UIHint.h"
+#include "UITaskWnd.h"
 
 #include "../GameTaskDefs.h"
 #include "../gametask.h"
@@ -30,16 +32,16 @@
 #include "../actor.h"
 
 
-UISecondTaskWnd::UISecondTaskWnd()
+UITaskListWnd::UITaskListWnd()
 {
 	hint_wnd = NULL;
 }
 
-UISecondTaskWnd::~UISecondTaskWnd()
+UITaskListWnd::~UITaskListWnd()
 {
 }
 
-void UISecondTaskWnd::init_from_xml( CUIXml& xml, LPCSTR path )
+void UITaskListWnd::init_from_xml( CUIXml& xml, LPCSTR path )
 {
 	VERIFY( hint_wnd );
 	CUIXmlInit::InitWindow( xml, path, 0, this );
@@ -63,12 +65,12 @@ void UISecondTaskWnd::init_from_xml( CUIXml& xml, LPCSTR path )
 	m_orig_h = GetHeight();
 
 	m_list->SetWindowName("---second_task_list");
-	m_list->m_sort_function = fastdelegate::MakeDelegate( this, &UISecondTaskWnd::SortingLessFunction );
+	m_list->m_sort_function = fastdelegate::MakeDelegate( this, &UITaskListWnd::SortingLessFunction );
 
 	xml.SetLocalRoot( stored_root );
 }
 
-bool UISecondTaskWnd::OnMouseAction( float x, float y, EUIMessages mouse_action )
+bool UITaskListWnd::OnMouseAction( float x, float y, EUIMessages mouse_action )
 {
 	if ( inherited::OnMouseAction( x, y, mouse_action ) )
 	{
@@ -77,7 +79,14 @@ bool UISecondTaskWnd::OnMouseAction( float x, float y, EUIMessages mouse_action 
 	return true;
 }
 
-void UISecondTaskWnd::Show( bool status )
+void UITaskListWnd::OnMouseScroll( float iDirection )
+{
+	if ( iDirection == WINDOW_MOUSE_WHEEL_UP )
+		m_list->ScrollBar()->TryScrollDec();
+	else if ( iDirection == WINDOW_MOUSE_WHEEL_DOWN )
+		m_list->ScrollBar()->TryScrollInc();
+}
+void UITaskListWnd::Show( bool status )
 {
 	inherited::Show( status );
 	GetMessageTarget()->SendMessage( this, PDA_TASK_HIDE_HINT, NULL );
@@ -85,39 +94,42 @@ void UISecondTaskWnd::Show( bool status )
 		UpdateList();
 }
 
-void UISecondTaskWnd::OnFocusReceive()
+void UITaskListWnd::OnFocusReceive()
 {
 	inherited::OnFocusReceive();
 	GetMessageTarget()->SendMessage( this, PDA_TASK_HIDE_HINT, NULL );
 }
 
-void UISecondTaskWnd::OnFocusLost()
+void UITaskListWnd::OnFocusLost()
 {
 	inherited::OnFocusLost();
 	GetMessageTarget()->SendMessage( this, PDA_TASK_HIDE_HINT, NULL );
 }
 
-void UISecondTaskWnd::Update()
+void UITaskListWnd::Update()
 {
 	inherited::Update();
 //	UpdateCounter();
 }
 
-void UISecondTaskWnd::SendMessage( CUIWindow* pWnd, s16 msg, void* pData )
+void UITaskListWnd::SendMessage( CUIWindow* pWnd, s16 msg, void* pData )
 {
 	GetMessageTarget()->SendMessage( pWnd, msg, pData );
 	inherited::SendMessage( pWnd, msg, pData );
 	CUIWndCallback::OnEvent( pWnd, msg, pData );
 }
 
-void UISecondTaskWnd::OnBtnClose( CUIWindow* w, void* d )
+void UITaskListWnd::OnBtnClose( CUIWindow* w, void* d )
 {
-	Show( false );
+	Show(false);
+	m_bt_close->SetButtonState(CUIButton::BUTTON_NORMAL);
 }
 
-void UISecondTaskWnd::UpdateList()
+void UITaskListWnd::UpdateList()
 {
-	m_list->Clear(); // delete[] UISecondTaskItem*
+	int prev_scroll_pos	= m_list->GetCurrentScrollPos	();
+
+	m_list->Clear();
 	
 	u32 count_for_check = 0;
 	vGameTasks& tasks = Level().GameTaskManager().GetGameTasks();
@@ -128,7 +140,7 @@ void UISecondTaskWnd::UpdateList()
 		CGameTask* task = (*itb).game_task;
 		if ( task && task->GetTaskType() == eTaskTypeAdditional && task->GetTaskState() == eTaskStateInProgress )
 		{
-			UISecondTaskItem* item = xr_new<UISecondTaskItem>();
+			UITaskListWndItem* item = xr_new<UITaskListWndItem>();
 			if ( item->init_task( task, this ) )
 			{
 				m_list->AddWindow( item, true );
@@ -136,36 +148,32 @@ void UISecondTaskWnd::UpdateList()
 			}
 		}
 	}// for
-	//float h1 = m_list->GetWndPos().y + m_list->GetHeight() + 15.0f;
-	//h1 = _max( h1, 120.0f );
-	//h1 = _min( h1, m_orig_h );//_min
-	//SetHeight( m_orig_h );
-	//m_background->SetHeight( m_orig_h );
+	m_list->SetScrollPos(prev_scroll_pos);
 }
 
-bool UISecondTaskWnd::SortingLessFunction( CUIWindow* left, CUIWindow* right )
+bool UITaskListWnd::SortingLessFunction( CUIWindow* left, CUIWindow* right )
 {
-	UISecondTaskItem* lpi = smart_cast<UISecondTaskItem*>(left);
-	UISecondTaskItem* rpi = smart_cast<UISecondTaskItem*>(right);
+	UITaskListWndItem* lpi = smart_cast<UITaskListWndItem*>(left);
+	UITaskListWndItem* rpi = smart_cast<UITaskListWndItem*>(right);
 	VERIFY( lpi && rpi );
 	return ( lpi->get_priority_task() > rpi->get_priority_task() );
 }
 
 /*
-void UISecondTaskWnd::UpdateCounter()
+void UITaskListWnd::UpdateCounter()
 {
 	u32  m_progress_task_count = Level().GameTaskManager().GetTaskCount( eTaskStateInProgress, eTaskTypeAdditional );
 	CGameTask* act_task = Level().GameTaskManager().ActiveTask( eTaskTypeAdditional );
 	u32 task2_index     = Level().GameTaskManager().GetTaskIndex( act_task, eTaskStateInProgress, eTaskTypeAdditional );
 
 	string32 buf;
-	sprintf_s( buf, sizeof(buf), "%d / %d", task2_index, m_progress_task_count );
+	xr_sprintf( buf, sizeof(buf), "%d / %d", task2_index, m_progress_task_count );
 	m_counter->SetText( buf );
 }
 */
 // - -----------------------------------------------------------------------------------------------
 
-UISecondTaskItem::UISecondTaskItem()
+UITaskListWndItem::UITaskListWndItem()
 {
 	m_task = NULL;
 	
@@ -174,17 +182,17 @@ UISecondTaskItem::UISecondTaskItem()
 	m_color_states[2] = (u32)(-1);
 }
 
-UISecondTaskItem::~UISecondTaskItem()
+UITaskListWndItem::~UITaskListWndItem()
 {
 }
 
-IC u32 UISecondTaskItem::get_priority_task() const
+IC u32 UITaskListWndItem::get_priority_task() const
 {
 	VERIFY(m_task);
 	return m_task->m_priority;
 }
 
-bool UISecondTaskItem::init_task( CGameTask* task, UISecondTaskWnd* parent )
+bool UITaskListWndItem::init_task( CGameTask* task, UITaskListWnd* parent )
 {
 	VERIFY( task );
 	if ( !task )
@@ -199,9 +207,10 @@ bool UISecondTaskItem::init_task( CGameTask* task, UISecondTaskWnd* parent )
 
 	CUIXmlInit::InitWindow( xml, "second_task_wnd:task_item", 0, this );
 	
-	m_name     = UIHelper::Create3tButtonEx( xml, "second_task_wnd:task_item:name", this );
+	m_name     = UIHelper::Create3tButton( xml, "second_task_wnd:task_item:name", this );
 	m_bt_view  = UIHelper::CreateCheck(      xml, "second_task_wnd:task_item:btn_view", this );
-	m_bt_focus = UIHelper::Create3tButtonEx( xml, "second_task_wnd:task_item:btn_focus", this );
+	m_st_story = UIHelper::CreateStatic( xml, "second_task_wnd:task_item:st_story", this );
+	m_bt_focus = UIHelper::Create3tButton( xml, "second_task_wnd:task_item:btn_focus", this );
 	
 	m_bt_view->set_hint_wnd(  parent->hint_wnd );
 	m_bt_focus->set_hint_wnd( parent->hint_wnd );
@@ -213,14 +222,14 @@ bool UISecondTaskItem::init_task( CGameTask* task, UISecondTaskWnd* parent )
 	return true;
 }
 
-void UISecondTaskItem::hide_hint()
+void UITaskListWndItem::hide_hint()
 {
 	show_hint_can   = false;
 	show_hint       = false;
 	GetMessageTarget()->SendMessage( this, PDA_TASK_HIDE_HINT, NULL );
 }
 
-void UISecondTaskItem::Update()
+void UITaskListWndItem::Update()
 {
 	inherited::Update();
 	update_view();
@@ -236,16 +245,20 @@ void UISecondTaskItem::Update()
 	}
 }
 
-void UISecondTaskItem::update_view()
+void UITaskListWndItem::update_view()
 {
 	VERIFY( m_task );
 	CMapLocation* ml = m_task->LinkedMapLocation();
 
 	if ( ml && ml->SpotEnabled() )
-		m_bt_view->SetCheck( false );
+		m_bt_focus->Show(true);
 	else
-		m_bt_view->SetCheck( true );
+		m_bt_focus->Show(false);
 
+	if(m_task->GetTaskType()==eTaskTypeStoryline)
+		m_st_story->InitTexture("ui_inGame2_PDA_icon_Primary_mission");
+	else
+		m_st_story->InitTexture("ui_inGame2_PDA_icon_Secondary_mission");
 
 	m_name->TextItemControl()->SetTextST( m_task->m_Title.c_str() );
 	m_name->AdjustHeightToText();
@@ -270,7 +283,7 @@ void UISecondTaskItem::update_view()
 
 }
 
-void UISecondTaskItem::SendMessage( CUIWindow* pWnd, s16 msg, void* pData )
+void UITaskListWndItem::SendMessage( CUIWindow* pWnd, s16 msg, void* pData )
 {
 	if ( pWnd == m_bt_focus )
 	{
@@ -303,12 +316,17 @@ void UISecondTaskItem::SendMessage( CUIWindow* pWnd, s16 msg, void* pData )
 			Level().GameTaskManager().SetActiveTask( m_task );
 			return;
 		}
+
+		if ( msg == WINDOW_LBUTTON_DB_CLICK )
+		{
+			GetMessageTarget()->SendMessage( this, PDA_TASK_SET_TARGET_MAP, (void*)m_task );
+		}
 	}
 
 	inherited::SendMessage( pWnd, msg, pData );
 }
 
-bool UISecondTaskItem::OnMouseAction( float x, float y, EUIMessages mouse_action )
+bool UITaskListWndItem::OnMouseAction( float x, float y, EUIMessages mouse_action )
 {
 	if ( inherited::OnMouseAction( x, y, mouse_action ) )
 	{
@@ -329,14 +347,14 @@ bool UISecondTaskItem::OnMouseAction( float x, float y, EUIMessages mouse_action
 	return true;
 }
 
-void UISecondTaskItem::OnFocusReceive()
+void UITaskListWndItem::OnFocusReceive()
 {
 	inherited::OnFocusReceive();
 	hide_hint();
 	show_hint_can = true;
 }
 
-void UISecondTaskItem::OnFocusLost()
+void UITaskListWndItem::OnFocusLost()
 {
 	inherited::OnFocusLost();
 	hide_hint();

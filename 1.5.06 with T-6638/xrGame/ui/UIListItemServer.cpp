@@ -34,28 +34,28 @@ void CUIListItemServer::InitItemServer			(LIST_SRV_ITEM& params, Fvector2 pos, F
 	m_icon.SetWndSize(Fvector2().set(params.size.icon, size.y));
 	offset += params.size.icon;
 
-	m_server.SetWndPos(Fvector2().set(offset, 0.0f));
-	m_server.SetWndSize(Fvector2().set(params.size.server, size.y));
+	m_server->SetWndPos(Fvector2().set(offset, 0.0f));
+	m_server->SetWndSize(Fvector2().set(params.size.server, size.y));
 	offset += params.size.server;
 
-	m_map.SetWndPos(Fvector2().set(offset, 0.0f));
-	m_map.SetWndSize(Fvector2().set(params.size.map, size.y));
+	m_map->SetWndPos(Fvector2().set(offset, 0.0f));
+	m_map->SetWndSize(Fvector2().set(params.size.map, size.y));
 	offset += params.size.map;
 
-	m_game.SetWndPos(Fvector2().set(offset, 0.0f));
-	m_game.SetWndSize(Fvector2().set(params.size.game, size.y));
+	m_game->SetWndPos(Fvector2().set(offset, 0.0f));
+	m_game->SetWndSize(Fvector2().set(params.size.game, size.y));
 	offset += params.size.game;
 
-	m_players.SetWndPos(Fvector2().set(offset, 0.0f));
-	m_players.SetWndSize(Fvector2().set(params.size.players, size.y));
+	m_players->SetWndPos(Fvector2().set(offset, 0.0f));
+	m_players->SetWndSize(Fvector2().set(params.size.players, size.y));
 	offset += params.size.players;
 
-	m_ping.SetWndPos(Fvector2().set(offset, 0.0f));
-	m_ping.SetWndSize(Fvector2().set(params.size.ping, size.y));
+	m_ping->SetWndPos(Fvector2().set(offset, 0.0f));
+	m_ping->SetWndSize(Fvector2().set(params.size.ping, size.y));
 	offset += params.size.ping;
 
-	m_version.SetWndPos(Fvector2().set(offset, 0.0f));
-	m_version.SetWndSize(Fvector2().set(params.size.version, size.y));
+	m_version->SetWndPos(Fvector2().set(offset, 0.0f));
+	m_version->SetWndSize(Fvector2().set(params.size.version, size.y));
 
 	float icon_size = CUITextureMaster::GetTextureHeight("ui_icon_password");
 	m_iconPass.SetWndPos(Fvector2().set(0.0f, 0.0f));
@@ -93,14 +93,14 @@ void CUIListItemServer::SetParams(LIST_SRV_ITEM& params)
 	cut_string_by_length	(m_game.GetFont(), _game_name, buff, sizeof(buff), m_game.GetWidth());
 	m_game.SetText			(buff);
 
-	m_players.SetTextST		(*params.info.players);
-	m_ping.SetTextST		(*params.info.ping);
-	m_version.SetTextST		(*params.info.version);
+	m_players->SetText		(params.info.players.c_str());
+	m_ping->SetText			(params.info.ping.c_str());
+	m_version->SetText		(params.info.version.c_str());
 
-	m_iconPass.Show			(params.info.icons.pass);
-	m_iconDedicated.Show	(params.info.icons.dedicated);
-	m_iconPunkBuster.Show	(params.info.icons.punkbuster);
-	m_iconUserPass.Show		(params.info.icons.user_pass);
+	m_iconPass->Show		(params.info.icons.pass);
+	m_iconDedicated->Show	(params.info.icons.dedicated);
+	m_iconPunkBuster->Show	(params.info.icons.punkbuster);
+	m_iconUserPass->Show	(params.info.icons.user_pass);
 
 	SetValue				(params.info.Index);
 }

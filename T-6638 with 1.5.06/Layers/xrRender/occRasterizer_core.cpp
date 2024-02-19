@@ -139,7 +139,7 @@ void i_scan		(int curY, float leftX, float lhx, float rightX, float rhx, float s
 	Z				= Zend-dZ;
 	for (; i>=limit; i--, Z-=dZ)
 	{
-		if (shared(currentTri,pFrame[i+1])) 
+		if (shared(currentTri,pFrame[i+1]))
 		{
 			//float ZR = (Z+2*pDepth[i+1])*one_div_3;
 			if (Z<pDepth[i])	{ pFrame[i]	= currentTri; pDepth[i]	= __max(Z,pDepth[i+1]); dwPixels++; }

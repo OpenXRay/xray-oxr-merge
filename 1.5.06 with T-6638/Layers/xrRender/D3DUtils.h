@@ -8,8 +8,8 @@
 //----------------------------------------------------
 
 #ifdef _EDITOR
-#	define DU_DRAW_DIP	Device.DIP
-#	define DU_DRAW_DP	Device.DP
+#	define DU_DRAW_DIP	EDevice.DIP
+#	define DU_DRAW_DP	EDevice.DP
 #else
 #	define DU_DRAW_DIP	RCache.dbg_DIP
 #	define DU_DRAW_DP	RCache.dbg_DP
@@ -109,7 +109,7 @@ public:
     IC virtual void __stdcall DrawFaceNormal(const Fvector& C, const Fvector& N, float size, u32 clr){
         Fvector P; P.mad(C,N,size);DrawLine(C,P,clr);}
     virtual void __stdcall DrawSelectionBox(const Fvector& center, const Fvector& size, u32* c=0);
-    IC virtual void __stdcall DrawSelectionBox(const Fbox& box, u32* c=0){
+    IC virtual void __stdcall DrawSelectionBoxB(const Fbox& box, u32* c=0){
         Fvector S,C;
         box.getsize(S);
         box.getcenter(C);
@@ -139,6 +139,7 @@ public:
 	virtual void __stdcall DrawObjectAxis(const Fmatrix& T, float sz, BOOL sel);
 	virtual void __stdcall DrawSelectionRect(const Ivector2& m_SelStart, const Ivector2& m_SelEnd);
 
+	virtual void __stdcall DrawIndexedPrimitive	(int prim_type, u32 pc, const Fvector& pos, const Fvector* vb, const u32& vb_size, const u32* ib, const u32& ib_size, const u32& clr_argb, float scale=1.0f){};
     virtual void __stdcall DrawPrimitiveL(D3DPRIMITIVETYPE pt, u32 pc, Fvector* vertices, int vc, u32 color, BOOL bCull, BOOL bCycle);
     virtual void __stdcall DrawPrimitiveTL(D3DPRIMITIVETYPE pt, u32 pc, FVF::TL* vertices, int vc, BOOL bCull, BOOL bCycle);
     virtual void __stdcall DrawPrimitiveLIT(D3DPRIMITIVETYPE pt, u32 pc, FVF::LIT* vertices, int vc, BOOL bCull, BOOL bCycle);

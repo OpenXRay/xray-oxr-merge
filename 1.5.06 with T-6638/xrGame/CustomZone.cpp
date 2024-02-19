@@ -469,12 +469,17 @@ void CCustomZone::UpdateWorkload	(u32 dt)
 
 		if (m_actor_effector)
 		{
-			m_actor_effector->Update(m_fDistanceToCurEntity, radius);
+			m_actor_effector->Update(m_fDistanceToCurEntity, radius, m_eHitTypeBlowout);
 		}
 	}
 
 	if(m_pLight && m_pLight->get_active())
 		UpdateBlowoutLight	();
+
+	if(m_zone_flags.test(eUseSecondaryHit) && m_eZoneState!=eZoneStateIdle && m_eZoneState!=eZoneStateDisabled)
+	{
+		UpdateSecondaryHit();
+	}
 }
 
 // called only in "fast-mode"
@@ -1140,6 +1145,8 @@ bool CCustomZone::Enable()
 {
 	if (IsEnabled()) return false;
 
+	o_switch_2_fast();
+
 	for(OBJECT_INFO_VEC_IT it = m_ObjectInfoMap.begin(); 
 		m_ObjectInfoMap.end() != it; ++it) 
 	{
@@ -1155,6 +1162,7 @@ bool CCustomZone::Enable()
 bool CCustomZone::Disable()
 {
 	if (!IsEnabled()) return false;
+	o_switch_2_slow();
 
 	for(OBJECT_INFO_VEC_IT it = m_ObjectInfoMap.begin(); m_ObjectInfoMap.end() != it; ++it) 
 	{
@@ -1165,6 +1173,9 @@ bool CCustomZone::Disable()
 		StopObjectIdleParticles(pObject);
 	}
 	StopIdleParticles	();
+	if (m_actor_effector)
+		m_actor_effector->Stop();
+
 	return false;
 };
 

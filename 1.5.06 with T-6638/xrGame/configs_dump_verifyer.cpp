@@ -184,7 +184,7 @@ LPCSTR configs_verifyer::get_diff(CInifile & received,
 			return diff_str;
 		}
 	}
-	strcpy_s(dst_diff, "unknown diff or currepted config dump");
+	xr_strcpy(dst_diff, "unknown diff or currepted config dump");
 	return dst_diff;
 }
 
@@ -196,14 +196,14 @@ bool const configs_verifyer::verify(u8* data, u32 data_size, string256 & diff)
 	
 	string16	tmp_digit;
 	u32			ap_index = 1;
-	sprintf_s	(tmp_digit, "%d", ap_index);
+	xr_sprintf	(tmp_digit, "%d", ap_index);
 	while		(tmp_ini.line_exist(active_params_section, tmp_digit))
 	{
 		LPCSTR	tmp_ap_section		= tmp_ini.r_string(active_params_section, tmp_digit);
 		tmp_active_params.w_string	(active_params_section, tmp_digit, tmp_ap_section);
 		m_original_ap.load_to		(tmp_ap_section, tmp_active_params);
 		++ap_index;
-		sprintf_s					(tmp_digit, "%d", ap_index);
+		xr_sprintf					(tmp_digit, "%d", ap_index);
 	}
 	
 	m_orig_config_body.seek			(m_orig_config_end_pos);
@@ -214,7 +214,7 @@ bool const configs_verifyer::verify(u8* data, u32 data_size, string256 & diff)
 		!tmp_ini.line_exist(cd_info_secion, cd_creation_date) ||
 		!tmp_ini.line_exist(cd_info_secion, cd_digital_sign_key))
 	{
-		strcpy_s(diff, "invalid dump");
+		xr_strcpy(diff, "invalid dump");
 		return false;
 	}
 
@@ -235,7 +235,7 @@ bool const configs_verifyer::verify(u8* data, u32 data_size, string256 & diff)
 	u8	tmp_checksum[crypto::xr_sha256::digest_length];
 	if (!verify_dsign(data, data_size, tmp_checksum))
 	{
-		strcpy_s(diff, "invalid digital sign");
+		xr_strcpy(diff, "invalid digital sign");
 		return false;
 	}
 

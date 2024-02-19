@@ -13,15 +13,18 @@
 #include "stalker_animation_data_storage.h"
 #include "client_spawn_manager.h"
 #include "seniority_hierarchy_holder.h"
-#include "hudmanager.h"
 #include "UIGameCustom.h"
 #include "string_table.h"
 #include "file_transfer.h"
+#include "UI/UIGameTutorial.h"
+#include "ui/UIPdaWnd.h"
+#include "../xrNetServer/NET_AuthCheck.h"
 
+#include "../xrphysics/physicscommon.h"
 ENGINE_API bool g_dedicated_server;
 
 const int max_objects_size			= 2*1024;
-const int max_objects_size_in_save	= 6*1024;
+const int max_objects_size_in_save	= 8*1024;
 
 extern bool	g_b_ClearGameCaptions;
 
@@ -30,11 +33,9 @@ void CLevel::remove_objects	()
 	if (!IsGameTypeSingle()) Msg("CLevel::remove_objects - Start");
 	BOOL						b_stored = psDeviceFlags.test(rsDisableObjectsAsCrows);
 	
-//.	if (game)
-//.		Game().reset_ui				();
-
-	if (OnServer()) {
-		VERIFY					(Server);
+	if (OnServer())
+	{
+			R_ASSERT				(Server);
 		Server->SLS_Clear		();
 	}
 	
@@ -43,7 +44,8 @@ void CLevel::remove_objects	()
 
 	snd_Events.clear			();
 
-	for (int i=0; i<20; ++i) {
+	for (int i=0; i<20; ++i)
+	{
 		psNET_Flags.set			(NETFLAG_MINIMIZEUPDATES,FALSE);
 		// ugly hack for checks that update is twice on frame
 		// we need it since we do updates for checking network messages
@@ -104,17 +106,14 @@ void CLevel::net_Stop		()
 {
 	Msg							("- Disconnect");
 
-	if(HUD().GetUI())
-		HUD().GetUI()->UIGame()->HideShownDialogs();
+	if(CurrentGameUI())
+		CurrentGameUI()->UIGame()->HideShownDialogs();
 
 	bReady						= false;
 	m_bGameConfigStarted		= FALSE;
 
 	if (m_file_transfer)
-	{
 		xr_delete(m_file_transfer);
-	}
-
 
 	if (IsDemoPlay() && m_current_spectator)	//destroying demo spectator ...
 	{
@@ -123,6 +122,9 @@ void CLevel::net_Stop		()
 		m_current_spectator = NULL;
 		
 	}
+	else if(IsDemoSave() && !IsDemoInfoSaved())
+		SaveDemoInfo();
+
 	remove_objects				();
 	
 	//WARNING ! remove_objects() uses this flag, so position of this line must e here ..
@@ -131,7 +133,8 @@ void CLevel::net_Stop		()
 	IGame_Level::net_Stop		();
 	IPureClient::Disconnect		();
 
-	if (Server) {
+	if (Server)
+	{
 		Server->Disconnect		();
 		xr_delete				(Server);
 	}
@@ -216,7 +219,7 @@ u32	CLevel::Objects_net_Save	(NET_Packet* _Packet, u32 start, u32 max_object_siz
 	for (; start<Objects.o_count(); start++)	{
 		CObject		*_P = Objects.o_get_by_iterator(start);
 		CGameObject *P = smart_cast<CGameObject*>(_P);
-//		Msg			("save:iterating:%d:%s",P->ID(),*P->cName());
+//		Msg			("save:iterating:%d:%s, size[%d]",P->ID(),*P->cName(), Packet.w_tell() );
 		if (P && !P->getDestroy() && P->net_SaveRelevant())	{
 			Packet.w_u16			(u16(P->ID())	);
 			Packet.w_chunk_open16	(position);
@@ -257,13 +260,8 @@ void CLevel::ClientSave	()
 	}
 }
 
-extern		float		phTimefactor;
+//extern	XRPHYSICS_API	float		phTimefactor;
 extern		BOOL		g_SV_Disable_Auth_Check;
-
-#pragma todo("remove next deadlock checking after testing...")
-#ifdef DEBUG
-extern	bool csMessagesAndNetQueueDeadLockDetect;
-#endif
 
 void CLevel::Send		(NET_Packet& P, u32 dwFlags, u32 dwTimeout)
 {
@@ -279,7 +277,6 @@ void CLevel::Send		(NET_Packet& P, u32 dwFlags, u32 dwTimeout)
 #ifdef DEBUG
 		VERIFY2(Server->IsPlayersMonitorLockedByMe() == false, "potential deadlock detected");
 #endif
-		VERIFY2(csMessagesAndNetQueueDeadLockDetect == false, "deadlock detected!");
 		Server->OnMessageSync	(P,Game().local_svdpnid	);
 	}else											
 		IPureClient::Send	(P,dwFlags,dwTimeout	);
@@ -324,6 +321,15 @@ BOOL			CLevel::Connect2Server				(LPCSTR options)
 	NET_Packet					P;
 	m_bConnectResultReceived	= false	;
 	m_bConnectResult			= true	;
+
+	if(!psNET_direct_connect)
+	{
+		xr_auth_strings_t	tmp_ignore;
+		xr_auth_strings_t	tmp_check;
+		fill_auth_check_params	(tmp_ignore, tmp_check);
+		FS.auth_generate		(tmp_ignore, tmp_check);
+	}
+
 	if (!Connect(options))		return	FALSE;
 	//---------------------------------------------------------------------------
 	if(psNET_direct_connect) m_bConnectResultReceived = true;
@@ -358,6 +364,11 @@ BOOL			CLevel::Connect2Server				(LPCSTR options)
 	Msg							("%c client : connection %s - <%s>", m_bConnectResult ?'*':'!', m_bConnectResult ? "accepted" : "rejected", m_sConnectResult.c_str());
 	if		(!m_bConnectResult) 
 	{
+		if(Server)
+		{
+			Server->Disconnect		();
+			xr_delete				(Server);
+		}
 		OnConnectRejected	();	
 		Disconnect		()	;
 		return FALSE		;
@@ -390,8 +401,9 @@ void			CLevel::OnBuildVersionChallenge		()
 {
 	NET_Packet P;
 	P.w_begin				(M_CL_AUTH);
-#ifdef DEBUG
+#ifdef USE_DEBUG_AUTH
 	u64 auth = MP_DEBUG_AUTH;
+	Msg("* Sending auth value ...");
 #else
 	u64 auth = FS.auth_get();
 #endif //#ifdef DEBUG
@@ -407,17 +419,20 @@ void			CLevel::OnConnectResult				(NET_Packet*	P)
 	u8  res1					= P->r_u8();
 	string512 ResultStr			;	
 	P->r_stringZ_s(ResultStr)		;
+	ClientID tmp_client_id;
+	P->r_clientID				(tmp_client_id);
+	SetClientID					(tmp_client_id);
 	if (!result)				
 	{
 		m_bConnectResult	= false			;	
 		switch (res1)
 		{
-		case 0:		//Standart error
+		case ecr_data_verification_failed:		//Standart error
 			{
 				if (strstr(ResultStr, "Data verification failed. Cheater?"))
 					MainMenu()->SetErrorDialog(CMainMenu::ErrDifferentVersion);
 			}break;
-		case 1:		//GameSpy CDKey
+		case ecr_cdkey_validation_failed:		//GameSpy CDKey
 			{
 				if (!xr_strcmp(ResultStr, "Invalid CD Key"))
 					MainMenu()->SetErrorDialog(CMainMenu::ErrCDKeyInvalid);//, ResultStr);
@@ -426,11 +441,11 @@ void			CLevel::OnConnectResult				(NET_Packet*	P)
 				if (!xr_strcmp(ResultStr, "Your CD Key is disabled. Contact customer service."))
 					MainMenu()->SetErrorDialog(CMainMenu::ErrCDKeyDisabled);//, ResultStr);
 			}break;		
-		case 2:		//login+password
+		case ecr_password_verification_failed:		//login+password
 			{
 				MainMenu()->SetErrorDialog(CMainMenu::ErrInvalidPassword);
 			}break;
-		case 3:
+		case ecr_have_been_banned:
 			{
 				if (!xr_strlen(ResultStr))
 				{
@@ -439,13 +454,29 @@ void			CLevel::OnConnectResult				(NET_Packet*	P)
 					);
 				} else
 				{
-					MainMenu()->OnSessionTerminate(ResultStr);
+					MainMenu()->OnSessionTerminate(
+						CStringTable().translate(ResultStr).c_str()
+					);
 				}
 			}break;
+		case ecr_profile_error:
+			{
+				if (!xr_strlen(ResultStr))
+				{
+					MainMenu()->OnSessionTerminate(
+						CStringTable().translate("st_profile_error").c_str()
+					);
+				} else
+				{
+					MainMenu()->OnSessionTerminate(
+						CStringTable().translate(ResultStr).c_str()
+					);
+				}
+			}
 		}
 	};	
 	m_sConnectResult			= ResultStr;
-	if (IsDemoSave())
+	if (IsDemoSave() && result)
 	{
 		P->r_u8(); //server client or not
 		shared_str server_options;
@@ -548,20 +579,20 @@ void				CLevel::net_OnChangeSelfName			(NET_Packet* P)
 	if (!strstr(*m_caClientOptions, "/name="))
 	{
 		string1024 tmpstr;
-		strcpy_s(tmpstr, *m_caClientOptions);
-		strcat_s(tmpstr, "/name=");
-		strcat_s(tmpstr, NewName);
+		xr_strcpy(tmpstr, *m_caClientOptions);
+		xr_strcat(tmpstr, "/name=");
+		xr_strcat(tmpstr, NewName);
 		m_caClientOptions = tmpstr;
 	}
 	else
 	{
 		string1024 tmpstr;
-		strcpy_s(tmpstr, *m_caClientOptions);
+		xr_strcpy(tmpstr, *m_caClientOptions);
 		*(strstr(tmpstr, "name=")+5) = 0;
-		strcat_s(tmpstr, NewName);
+		xr_strcat(tmpstr, NewName);
 		const char* ptmp = strstr(strstr(*m_caClientOptions, "name="), "/");
 		if (ptmp)
-			strcat_s(tmpstr, ptmp);
+			xr_strcat(tmpstr, ptmp);
 		m_caClientOptions = tmpstr;
 	}
 }

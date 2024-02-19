@@ -3,7 +3,7 @@
 
 dxConsoleRender::dxConsoleRender()
 {
-#ifdef USE_DX10
+#if defined(USE_DX10) || defined(USE_DX11)
 	m_Shader.create("hud\\crosshair");
 	m_Geom.create(FVF::F_TL, RCache.Vertex.Buffer(), RCache.QuadIB);
 #endif
@@ -22,7 +22,7 @@ void dxConsoleRender::OnRender(bool bGame)
 	D3DRECT R = { 0,0,Device.dwWidth,Device.dwHeight};
 	if		(bGame) R.y2 /= 2;
 
-#ifdef	USE_DX10
+#if defined(USE_DX10) || defined(USE_DX11)
 	u32	vOffset = 0;
 	//	TODO: DX10: Implement console background clearing for DX10
 	FVF::TL*	verts = (FVF::TL*)RCache.Vertex.Lock(4, m_Geom->vb_stride, vOffset);

@@ -135,6 +135,7 @@ bool COMotion::Load(IReader& F)
     }else{
 		if (vers!=EOBJ_OMOTION_VERSION) return false;
 	    Clear	();
+
         for (int ch=0; ch<ctMaxChannel; ch++){
             envs[ch] = xr_new<CEnvelope> ();
             envs[ch]->Load_2(F);
@@ -286,6 +287,24 @@ st_BoneMotion* CSMotion::FindBoneMotion(shared_str name)
 	for(BoneMotionIt bm_it=bone_mots.begin(); bm_it!=bone_mots.end(); bm_it++)
     	if (bm_it->name.equal(name)) return &*bm_it;
     return 0;
+}
+
+void CSMotion::add_empty_motion	(shared_str const &bone_id)
+{
+	VERIFY					(!FindBoneMotion(bone_id));
+
+    st_BoneMotion			motion;
+
+	motion.SetName			(bone_id.c_str());
+	// flRKeyAbsent = (1<<1),
+	motion.m_Flags.assign	( 1 << 1);
+
+	for (int ch=0; ch<ctMaxChannel; ch++){
+		motion.envs[ch] = xr_new<CEnvelope> ();
+//		motion.envs[ch];
+	}
+
+	bone_mots.push_back		(motion);
 }
 
 void CSMotion::CopyMotion(CSMotion* source){
@@ -460,8 +479,10 @@ void CSMotion::Optimize()
 void CSMotion::SortBonesBySkeleton(BoneVec& bones)
 {
 	BoneMotionVec new_bone_mots;
-	for (BoneIt b_it=bones.begin(); b_it!=bones.end(); b_it++){
-    	st_BoneMotion* BM = FindBoneMotion((*b_it)->Name()); R_ASSERT(BM);
+	for (BoneIt b_it=bones.begin(); b_it!=bones.end(); ++b_it)
+	{
+    	st_BoneMotion* BM = FindBoneMotion((*b_it)->Name());
+    	R_ASSERT(BM);
 		new_bone_mots.push_back(*BM);
     }
     bone_mots.clear	();
@@ -486,7 +507,8 @@ void SAnimParams::Update(float dt, float speed, bool loop)
 	if (!bPlay) return;
 	bWrapped	= false;
 	t			+=speed*dt;
-    if (t>max_t){
+    if (t>max_t)
+    {
 		bWrapped= true;
 		if (loop)
         {

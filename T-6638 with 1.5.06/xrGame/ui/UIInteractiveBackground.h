@@ -54,7 +54,6 @@ CUIInteractiveBackground<T>::CUIInteractiveBackground()
 	ZeroMemory(m_states,S_Total* sizeof(T*));
 }
 
-
 template <class T>
 void CUIInteractiveBackground<T>::InitIB(Fvector2 pos, Fvector2 size)
 {

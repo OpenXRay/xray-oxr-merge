@@ -1,14 +1,15 @@
 #pragma once
 #include "UIFrameLineWnd.h"
 
+class CUITextWnd;
+class CUIStatic;
+
 class CUIListBoxItem : public CUIFrameLineWnd, public CUISelectable
 {
 	typedef				CUIFrameLineWnd inherited;
 public:
-						CUIListBoxItem();
-	virtual				~CUIListBoxItem();
+						CUIListBoxItem			(float height);
 
-    virtual void		SetSelected(bool b);
 	virtual void		Draw();
 	virtual bool		OnMouseDown(int mouse_btn);
 	virtual void		OnFocusReceive();
@@ -19,20 +20,23 @@ public:
 			void		SetData(void* data);
 			void*		GetData();
 
-		CUIStatic*		AddField(LPCSTR txt, float len, LPCSTR key = "");
-		LPCSTR			GetField(LPCSTR key);
+		CUITextWnd*		AddTextField			(LPCSTR txt, float width);
+		CUIStatic*		AddIconField			(float width);
 
-	CUIStatic			m_text;
+		CUITextWnd*		GetTextItem				(){return m_text;}
 
-	void				SetTextColor(u32 color, u32 color_s);
+		//TextControl
+		void			SetText					(LPCSTR txt);
+		LPCSTR			GetText					();
+		void			SetTextColor			(u32 color);
+		u32				GetTextColor			();
+		void			SetFont					(CGameFont* F);
+		CGameFont*		GetFont					();
 
 protected:
-
-			float		FieldsLength();
-		xr_vector<CUIStatic*>	fields;
-		u32				txt_color;
-		u32				txt_color_s;
+		CUITextWnd*		m_text;
 		u32				tag;
 		void*			pData;
+		float			FieldsLength			() const;
 };
 

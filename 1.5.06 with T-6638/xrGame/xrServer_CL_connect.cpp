@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "xrserver.h"
 #include "xrmessages.h"
-#include "hudmanager.h"
 #include "xrserver_objects.h"
 #include "xrServer_Objects_Alife_Monsters.h"
 #include "Level.h"
@@ -38,7 +37,8 @@ void xrServer::Perform_connect_spawn(CSE_Abstract* E, xrClientData* CL, NET_Pack
 		if (E->s_flags.is(M_SPAWN_OBJECT_ASPLAYER))
 		{
 			CL->owner		= E;
-			E->set_name_replace	(*CL->name);
+			VERIFY				(CL->ps);
+			E->set_name_replace	(CL->ps->getName());
 		}
 
 		// Associate
@@ -65,20 +65,25 @@ void xrServer::Perform_connect_spawn(CSE_Abstract* E, xrClientData* CL, NET_Pack
 	E->net_Processed	= TRUE;
 }
 
+void xrServer::SendConfigFinished(ClientID const & clientId)
+{
+	NET_Packet	P;
+	P.w_begin	(M_SV_CONFIG_FINISHED);
+	SendTo		(clientId, P, net_flags(TRUE,TRUE));
+}
+
 void xrServer::SendConnectionData(IClient* _CL)
 {
 	conn_spawned_ids.clear();
 	xrClientData*	CL				= (xrClientData*)_CL;
 	NET_Packet		P;
-	u32			mode				= net_flags(TRUE,TRUE);
 	// Replicate current entities on to this client
 	xrS_entities::iterator	I=entities.begin(),E=entities.end();
 	for (; I!=E; ++I)						I->second->net_Processed	= FALSE;
 	for (I=entities.begin(); I!=E; ++I)		Perform_connect_spawn		(I->second,CL,P);
 
-	// Send "finished" signal
-	P.w_begin						(M_SV_CONFIG_FINISHED);
-	SendTo							(CL->ID,P,mode);
+	// Start to send server logo and rules
+	SendServerInfoToClient			(CL->ID);
 
 /*
 	Msg("--- Our sended SPAWN IDs:");
@@ -106,18 +111,14 @@ void xrServer::OnCL_Connected		(IClient* _CL)
 	Perform_game_export();
 	SendConnectionData(CL);
 
-	//
-	NET_Packet P;
-	P.B.count = 0;
-	P.w_clientID(CL->ID);
 	VERIFY2(CL->ps, "Player state not created");
-	CL->ps->net_Export(P, true);
-	//--
-	P.r_pos = 0;
-	ClientID clientID;clientID.set	(0);
-	game->AddDelayedEvent			(P,GAME_EVENT_PLAYER_CONNECTED, 0, clientID);
-	//csPlayers.Leave					();
-	game->ProcessDelayedEvent		();
+	if (!CL->ps)
+	{
+		Msg("! ERROR: Player state not created - incorect message sequence!");
+		return;
+	}
+
+	game->OnPlayerConnect(CL->ID);	
 }
 
 void	xrServer::SendConnectResult(IClient* CL, u8 res, u8 res1, char* ResultStr)
@@ -127,6 +128,7 @@ void	xrServer::SendConnectResult(IClient* CL, u8 res, u8 res1, char* ResultStr)
 	P.w_u8		(res);
 	P.w_u8		(res1);
 	P.w_stringZ	(ResultStr);
+	P.w_clientID(CL->ID);
 
 	if (SV_Client && SV_Client == CL)
 		P.w_u8(1);
@@ -136,7 +138,7 @@ void	xrServer::SendConnectResult(IClient* CL, u8 res, u8 res1, char* ResultStr)
 	
 	SendTo		(CL->ID, P);
 
-	if (!res)
+	if (!res)			//need disconnect 
 	{
 #ifdef MP_LOGGING
 		Msg("* Server disconnecting client, reason: %s", ResultStr);
@@ -153,6 +155,24 @@ void	xrServer::SendConnectResult(IClient* CL, u8 res, u8 res1, char* ResultStr)
 	}
 	
 };
+
+void xrServer::SendProfileCreationError(IClient* CL, char const * reason)
+{
+	VERIFY					(CL);
+	
+	NET_Packet	P;
+	P.w_begin				(M_CLIENT_CONNECT_RESULT);
+	P.w_u8					(0);
+	P.w_u8					(ecr_profile_error);
+	P.w_stringZ				(reason);
+	P.w_clientID			(CL->ID);
+	SendTo					(CL->ID, P);
+	if (CL != GetServerClient())
+	{
+		Flush_Clients_Buffers	();
+		DisconnectClient		(CL, reason);
+	}
+}
 
 //this method response for client validation on connect state (CLevel::net_start_client2)
 //the first validation is CDKEY, then gamedata checksum (NeedToCheckClient_BuildVersion), then 
@@ -193,15 +213,15 @@ void xrServer::OnBuildVersionRespond				( IClient* CL, NET_Packet& P )
 	u64 _our		=	FS.auth_get();
 	u64 _him		=	P.r_u64();
 
-#ifdef DEBUG
+#ifdef USE_DEBUG_AUTH
 	Msg("_our = %d", _our);
 	Msg("_him = %d", _him);
 	_our = MP_DEBUG_AUTH;
-#endif // DEBUG
+#endif // USE_DEBUG_AUTH
 
 	if ( _our != _him )
 	{
-		SendConnectResult( CL, 0, 0, "Data verification failed. Cheater?" );
+		SendConnectResult( CL, 0, ecr_data_verification_failed, "Data verification failed. Cheater?" );
 	}
 	else
 	{				
@@ -220,12 +240,9 @@ void xrServer::OnBuildVersionRespond				( IClient* CL, NET_Packet& P )
 		}
 		else
 		{
-			Msg( res_check );
-			strcat_s( res_check, "Invalid login/password. Client \"" );
-			strcat_s( res_check, CL->name.c_str() );
-			strcat_s( res_check, "\" disconnected." );
-
-			SendConnectResult( CL, 0, 2, res_check );
+			Msg("* Client 0x%08x has an incorrect password", CL->ID.value());
+			xr_strcat( res_check, "Invalid password.");
+			SendConnectResult( CL, 0, ecr_password_verification_failed, res_check );
 		}
 	}
 };

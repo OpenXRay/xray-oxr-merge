@@ -133,7 +133,6 @@ game_cl_mp::~game_cl_mp()
 	//delete_data(m_pSndMessagesInPlay);
 	delete_data(m_pSndMessages);
 	
-	
 	deinit_compress_buffer();
 
 //	xr_delete(m_pSpeechMenu);
@@ -151,7 +150,7 @@ game_cl_mp::~game_cl_mp()
 	xr_delete(m_reward_generator);
 	xr_delete(m_reward_manager);
 	local_player = NULL;
-};
+}
 
 bool game_cl_mp::CanBeReady	()
 {
@@ -1873,6 +1872,7 @@ void game_cl_mp::draw_all_active_binder_states()
 			);
 		}
 	}
+
 	F->SetColor		(D3DCOLOR_XRGB(255,0,0));
 	for (cheaters_collection_t::iterator i = m_detected_cheaters.begin(),
 		ie = m_detected_cheaters.end(); i != ie; ++i)

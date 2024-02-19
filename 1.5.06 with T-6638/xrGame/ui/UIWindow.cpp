@@ -95,21 +95,18 @@ void CUIWindow::ResetPPMode()
 }
 
 CUIWindow::CUIWindow()
+:m_pParentWnd(NULL),
+m_pMouseCapturer(NULL),
+m_pMessageTarget(NULL),
+m_pKeyboardCapturer(NULL),
+m_bAutoDelete(false),
+m_bCursorOverWindow(false),
+m_bPP(false),
+m_dwFocusReceiveTime(0),
+m_bCustomDraw(false)
 {
-	m_pFont					= NULL;
-	m_pParentWnd			= NULL;
-	m_pMouseCapturer		= NULL;
-	m_pOrignMouseCapturer	= NULL;
-	m_pMessageTarget		= NULL;
-	m_pKeyboardCapturer		=  NULL;
-	m_bAutoDelete			= false;
     Show					(true);
 	Enable					(true);
-	m_bCursorOverWindow		= false;
-	m_bClickable			= false;
-	m_bPP					= false;
-	m_dwFocusReceiveTime	= 0;
-	m_bCustomDraw			= false;
 #ifdef LOG_ALL_WNDS
 	ListWndCount++;
 	m_dbg_id = ListWndCount;
@@ -205,6 +202,7 @@ void CUIWindow::Update()
 
 void CUIWindow::AttachChild(CUIWindow* pChild)
 {
+	R_ASSERT(pChild);
 	if(!pChild) return;
 	
 	R_ASSERT( !IsChild(pChild) );
@@ -214,13 +212,18 @@ void CUIWindow::AttachChild(CUIWindow* pChild)
 
 void CUIWindow::DetachChild(CUIWindow* pChild)
 {
+	R_ASSERT(pChild);
 	if(NULL==pChild)
 		return;
 	
 	if(m_pMouseCapturer == pChild)
 		SetCapture(pChild, false);
 
-	SafeRemoveChild(pChild);
+//.	SafeRemoveChild			(pChild);
+	WINDOW_LIST_it it		= std::find(m_ChildWndList.begin(),m_ChildWndList.end(),pChild); 
+	R_ASSERT				(it!=m_ChildWndList.end());
+	m_ChildWndList.erase	(it);
+
 	pChild->SetParent(NULL);
 
 	if(pChild->IsAutoDelete())
@@ -346,21 +349,6 @@ bool CUIWindow::OnMouseAction(float x, float y, EUIMessages mouse_action)
 	return false;
 }
 
-bool CUIWindow::HasChildMouseHandler(){
-	WINDOW_LIST::reverse_iterator it = m_ChildWndList.rbegin();
-
-	for( ; it!=m_ChildWndList.rend(); ++it)
-	{
-		if ((*it)->m_bClickable)
-		{
-			Frect wndRect = (*it)->GetWndRect();
-			if (wndRect.in(cursor_pos) )
-				return true;
-		}
-	}
-
-	return false;
-}
 
 void CUIWindow::OnMouseMove(){
 }
@@ -408,8 +396,7 @@ void CUIWindow::SetCapture(CUIWindow *pChildWindow, bool capture_status)
 {
 	if(GetParent())
 	{
-		if(m_pOrignMouseCapturer == NULL || m_pOrignMouseCapturer == pChildWindow)
-			GetParent()->SetCapture(this, capture_status);
+		GetParent()->SetCapture(this, capture_status);
 	}
 
 	if(capture_status)
@@ -539,42 +526,10 @@ CUIWindow* CUIWindow::GetChildMouseHandler(){
     return this;
 }
 
-//перемесчтить окно на вершину.
-//false если такого дочернего окна нет
-bool CUIWindow::BringToTop(CUIWindow* pChild)
-{
-	//найти окно в списке
-/*	WINDOW_LIST_it it = std::find(m_ChildWndList.begin(), 
-										m_ChildWndList.end(), 
-										pChild);
-*/
-	if( !IsChild(pChild) ) return false;
-
-	//удалить со старого места
-	SafeRemoveChild(pChild);
-//	m_ChildWndList.remove(pChild);
-	//поместить на вершину списка
-	m_ChildWndList.push_back(pChild);
-
-	return true;
-}
-
-//поднять на вершину списка всех родителей окна и его самого
-void CUIWindow::BringAllToTop()
-{
-	if(GetParent() == NULL)
-			return;
-	else
-	{
-		GetParent()->BringToTop(this);
-		GetParent()->BringAllToTop();
-	}
-}
-
 //для перевода окна и потомков в исходное состояние
 void CUIWindow::Reset()
 {
-	m_pOrignMouseCapturer = m_pMouseCapturer = NULL;
+	m_pMouseCapturer = NULL;
 }
 
 void CUIWindow::ResetAll()

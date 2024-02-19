@@ -50,11 +50,8 @@ bool				IsEmpty					() {return m_subLines.empty();}
 
 protected:
 	int				GetSize					();
-	bool			GetWord					(Word& w, const xr_string& text, int begin)					const;
 const CUILine*		Cut2Pos					(Position& pos, bool to_first = true);
 const CUILine*		GetEmptyLine			();
-	bool			InitPos(Position& pos)											const;
-	bool			IncPos(Position& pos)											const;
 
     xr_vector<CUISubLine> m_subLines;
 

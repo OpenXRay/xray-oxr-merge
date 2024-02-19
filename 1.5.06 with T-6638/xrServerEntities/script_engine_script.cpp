@@ -30,6 +30,10 @@ void LuaLog(LPCSTR caMessage)
 void ErrorLog(LPCSTR caMessage)
 {
 	ai().script_engine().error_log("%s",caMessage);
+#ifdef PRINT_CALL_STACK
+	ai().script_engine().print_stack();
+#endif // #ifdef PRINT_CALL_STACK
+	
 #ifdef USE_DEBUGGER
 #	ifndef USE_LUA_STUDIO
 		if( ai().script_engine().debugger() ){
@@ -37,6 +41,12 @@ void ErrorLog(LPCSTR caMessage)
 		}
 #	endif // #ifndef USE_LUA_STUDIO
 #endif // #ifdef USE_DEBUGGER
+
+#ifdef DEBUG
+		bool lua_studio_connected = !!ai().script_engine().debugger();
+		if (!lua_studio_connected)
+#endif //#ifdef DEBUG
+	R_ASSERT2(0, caMessage);
 }
 
 void FlushLogs()
@@ -187,6 +197,14 @@ ICF	u32	script_time_global	()	{ return 0; }
 ICF	u32	script_time_global_async	()	{ return 0; }
 #endif
 
+#ifdef XRGAME_EXPORTS
+static bool is_enough_address_space_available_impl()
+{
+	ENGINE_API bool is_enough_address_space_available();
+	return is_enough_address_space_available( );
+}
+#endif
+
 #pragma optimize("s",on)
 void CScriptEngine::script_register(lua_State *L)
 {
@@ -217,5 +235,6 @@ void CScriptEngine::script_register(lua_State *L)
 	function	(L, "time_global_async",				script_time_global_async);
 #ifdef XRGAME_EXPORTS
 	function	(L,	"device",						get_device);
+	function	(L,	"is_enough_address_space_available",is_enough_address_space_available_impl);
 #endif
 }

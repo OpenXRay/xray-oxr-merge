@@ -7,7 +7,6 @@
 #include "uieditbox.h"
 #include "UIFrameLineWnd.h"
 
-
 CUIEditBox::CUIEditBox()
 :m_frameLine(NULL)
 {

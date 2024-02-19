@@ -258,11 +258,11 @@ void CDbgLuaHelper::DrawStackTrace()
 		{
 			szDesc[0] = '\0';
 /*			if ( ar.name )
-				strcat(szDesc, ar.name);
-			strcat(szDesc, ",");
+				xr_strcat(szDesc, ar.name);
+			xr_strcat(szDesc, ",");
 			if ( ar.namewhat )
-				strcat(szDesc, ar.namewhat);
-			strcat(szDesc, ",");
+				xr_strcat(szDesc, ar.namewhat);
+			xr_strcat(szDesc, ",");
 			if ( ar.what )
 				xr_strcat(szDesc, ar.what);
 			xr_strcat(szDesc, ",");
@@ -316,7 +316,7 @@ void CDbgLuaHelper::DrawGlobalVariables()
 	while (lua_next(L, -2))
 	{
 //!!!!	TRACE2("%s - %s\n",	lua_typename(L, lua_type(L, -2)), lua_typename(L, lua_type(L, -1)));
-//		sprintf_s(var, "%s-%s",	lua_typename(L, lua_type(L, -2)), lua_typename(L, lua_type(L, -1)) );
+//		xr_sprintf(var, "%s-%s",	lua_typename(L, lua_type(L, -2)), lua_typename(L, lua_type(L, -1)) );
 //		CScriptDebugger::GetDebugger()->AddLocalVariable(var, "global", "_g_");
 		lua_pop(L, 1); // pop value, keep key for next iteration;
 	}

@@ -37,10 +37,10 @@ public:
 virtual bool		OnMouseAction							(float x, float y, EUIMessages mouse_action);
 virtual void		SendMessage						(CUIWindow* pWnd, s16 msg, void* pData = 0);
 
-			void			SetTextColor			(u32 color);
-			u32				GetTextColor			();
-			void			SetFont					(CGameFont* pFont);
-			CGameFont*		GetFont					();
+		void		SetTextColor			(u32 color);
+		u32			GetTextColor			();
+		void		SetFont					(CGameFont* pFont);
+		CGameFont*	GetFont					();
 
 protected:
 	CGameFont*		m_pFont;

@@ -497,14 +497,7 @@ void CModelPool::memory_stats		( u32& vb_mem_video, u32& vb_mem_system, u32& ib_
 
 		vb_mem_video += IB_desc.ByteWidth;
 		vb_mem_system += IB_desc.ByteWidth;
-
 #endif
-
-
-
-
-
-
 	}
 } 
 

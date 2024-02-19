@@ -334,7 +334,7 @@ public:
     void			    ResetData		();
     void			    CopyData		(CBone* bone);
     
-#ifdef _EDITOR
+#if defined _EDITOR || defined _MAYA_EXPORT
 	void			    ShapeScale		(const Fvector& amount);
 	void			    ShapeRotate		(const Fvector& amount);
 	void			    ShapeMove		(const Fvector& amount);
@@ -346,7 +346,7 @@ public:
 	bool 			    Pick			(float& dist, const Fvector& S, const Fvector& D, const Fmatrix& parent);
 
     void			    Select			(BOOL flag)	{ flags.set(flSelected,flag); }
-    bool			    Selected		(){return flags.is(flSelected);}
+    bool			    Selected		(){return !!flags.is(flSelected);}
 
     void			    ClampByLimits	();
 
@@ -368,7 +368,7 @@ protected:
 public:
 	shared_str			name;
 
-	vecBones			children;		// bones which are slaves to this
+
 	Fobb				obb;			
 
 	Fmatrix				bind_transform;
@@ -379,6 +379,8 @@ public:
 	SJointIKData		IK_data;
 	float				mass;
 	Fvector				center_of_mass;
+
+	vecBones			children;		// bones which are slaves to this
 
 	DEFINE_VECTOR		(u16,FacesVec,FacesVecIt);
 	DEFINE_VECTOR		(FacesVec,ChildFacesVec,ChildFacesVecIt);

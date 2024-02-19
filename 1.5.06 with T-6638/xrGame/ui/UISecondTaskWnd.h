@@ -18,24 +18,24 @@ class CUIFrameWindow;
 class CUIScrollView;
 class CUIStatic;
 class CUI3tButton;
-class CUI3tButtonEx;
 class CUICheckButton;
 class CUIFrameLineWnd;
 class CGameTask;
 class UIHint;
 
-class UISecondTaskWnd : public CUIWindow, public CUIWndCallback
+class UITaskListWnd : public CUIWindow, public CUIWndCallback
 {
 private:
 	typedef CUIWindow	inherited;
 
 public:
-					UISecondTaskWnd		();
-	virtual			~UISecondTaskWnd	();
+					UITaskListWnd		();
+	virtual			~UITaskListWnd		();
 
 			void	init_from_xml		( CUIXml& xml, LPCSTR path );
 
-	virtual bool	OnMouse				( float x, float y, EUIMessages mouse_action );
+	virtual bool	OnMouseAction		( float x, float y, EUIMessages mouse_action );
+	virtual void 	OnMouseScroll		(float iDirection);
 	virtual void	Show				( bool status );
 	virtual void 	OnFocusReceive		();
 	virtual void	OnFocusLost			();
@@ -58,32 +58,32 @@ private: // m_
 	
 	CUIStatic*			m_caption;
 //	CUIStatic*			m_counter;
-	CUI3tButtonEx*		m_bt_close;
+	CUI3tButton*		m_bt_close;
 
-	u32					m_activ_task_count;
+//	u32					m_activ_task_count;
 	float				m_orig_h;
 
-}; // class UISecondTaskWnd
+}; // class UITaskListWnd
 
 // -------------------------------------------------------------------------------------------------
 
-class UISecondTaskItem : public CUIWindow
+class UITaskListWndItem : public CUIWindow
 {
 private:
 	typedef CUIWindow	inherited;
 
 public:
-					UISecondTaskItem	();
-	virtual			~UISecondTaskItem	();
+					UITaskListWndItem	();
+	virtual			~UITaskListWndItem	();
 
-			bool	init_task			( CGameTask* task, UISecondTaskWnd* parent );
+			bool	init_task			( CGameTask* task, UITaskListWnd* parent );
 	IC		u32		get_priority_task	() const;
 
 	virtual void 	OnFocusReceive		();
 	virtual void	OnFocusLost			();
 	virtual void	Update				();
 	virtual void	SendMessage			( CUIWindow* pWnd, s16 msg, void* pData );
-	virtual bool	OnMouse				( float x, float y, EUIMessages mouse_action );
+	virtual bool	OnMouseAction		( float x, float y, EUIMessages mouse_action );
 
 private:
 			void	hide_hint			();
@@ -96,9 +96,10 @@ public:
 
 private: // m_
 	CGameTask*		m_task;
-	CUI3tButtonEx*	m_name;
+	CUI3tButton*	m_name;
 	CUICheckButton*	m_bt_view;
-	CUI3tButtonEx*	m_bt_focus;
+	CUIStatic*		m_st_story;
+	CUI3tButton*	m_bt_focus;
 
 	enum
 	{
@@ -109,6 +110,6 @@ private: // m_
 	};
 	u32				m_color_states[stt_count];
 
-}; // class UISecondTaskItem
+}; // class UITaskListWndItem
 
 #endif // UI_SECOND_TASK_WND_H_INCLUDED

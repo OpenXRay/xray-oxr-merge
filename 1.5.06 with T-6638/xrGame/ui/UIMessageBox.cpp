@@ -62,8 +62,10 @@ void CUIMessageBox::InitMessageBox(LPCSTR box_template)
 	string512 str;
 
 	strconcat								(sizeof(str),str,box_template,":picture");
-	m_UIStaticPicture						= xr_new<CUIStatic>();AttachChild(m_UIStaticPicture);
-	xml_init.InitStatic						(uiXml, str, 0, m_UIStaticPicture);
+	if (uiXml.NavigateToNode(str,0)){
+		m_UIStaticPicture						= xr_new<CUIStatic>();AttachChild(m_UIStaticPicture);
+		xml_init.InitStatic						(uiXml, str, 0, m_UIStaticPicture);
+	}
 
 	strconcat								(sizeof(str),str,box_template,":message_text");
 	if (uiXml.NavigateToNode(str,0)){

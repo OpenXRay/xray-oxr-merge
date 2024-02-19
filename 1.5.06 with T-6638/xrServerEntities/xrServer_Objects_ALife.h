@@ -23,7 +23,9 @@
 class CSE_ALifeItemWeapon;
 class CSE_ALifeDynamicObject;
 class CSE_ALifeObject;
+#ifdef XRGAME_EXPORTS
 class CALifeSmartTerrainTask;
+#endif //#ifdef XRGAME_EXPORTS
 class CALifeMonsterAbstract;
 
 struct SFillPropData
@@ -34,7 +36,7 @@ struct SFillPropData
 	RTokenVec 	spawn_story_names;
 	RStringVec	character_profiles;
     RStringVec	smart_covers;
-
+	xr_map<shared_str, u32>			location_colors;
     u32			counter;
 	SFillPropData					();
 	~SFillPropData					();
@@ -88,6 +90,10 @@ public:
 									CSE_ALifeGraphPoint	(LPCSTR caSection);
 	virtual							~CSE_ALifeGraphPoint();
 	virtual bool					match_configuration	() const { return false; }
+
+#ifndef XRGAME_EXPORTS
+	virtual void 		__stdcall	on_render				(CDUInterface* du, ISE_AbstractLEOwner* owner, bool bSelected, const Fmatrix& parent,int priority, bool strictB2F);
+#endif
 SERVER_ENTITY_DECLARE_END
 add_to_type_list(CSE_ALifeGraphPoint)
 #define script_type_list save_type_list(CSE_ALifeGraphPoint)

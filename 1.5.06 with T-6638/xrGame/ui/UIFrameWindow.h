@@ -8,7 +8,7 @@ class CUIStatic;
 
 
 class CUIFrameWindow: public CUIWindow,
-					  public CUIMultiTextureOwner
+					  public ITextureOwner
 {
 	typedef CUIWindow inherited;
 public:

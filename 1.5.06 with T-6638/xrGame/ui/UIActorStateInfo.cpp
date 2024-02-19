@@ -209,23 +209,6 @@ void ui_actor_state_item::init_from_xml( CUIXml& xml, LPCSTR path )
 	xml.SetLocalRoot( stored_root );
 }
 
-bool ui_actor_state_item::OnMouseAction( float x, float y, EUIMessages mouse_action )
-{
-	if( CUIWindow::OnMouseAction( x, y, mouse_action ) )
-	{
-		return true;
-	}
-
-	if ( ( mouse_action == WINDOW_LBUTTON_DOWN || mouse_action == WINDOW_LBUTTON_UP ||
-		mouse_action == WINDOW_RBUTTON_DOWN || mouse_action == WINDOW_RBUTTON_UP ) &&
-		HasChildMouseHandler() )
-	{
-		return false;
-	}
-
-	return false;
-}
-
 void ui_actor_state_item::set_text( float value )
 {
 	if ( !m_static )

@@ -18,19 +18,7 @@ CUI3tButton::CUI3tButton()
 	m_background		= NULL;
 	m_back_frameline	= NULL;
 	m_frameline_mode	= false;
-	
-	m_bEnableTextHighlighting = false;
 	m_bCheckMode		= false;
-	SetPushOffset		(Fvector2().set(0.0f,0.0f) );
-	m_hint				= NULL;
-}
-
-void CUI3tButton::CreateHint()
-{
-	m_hint				= xr_new<CUIStatic>();
-	m_hint->SetAutoDelete(true);
-	m_hint->SetCustomDraw(true);
-	AttachChild			(m_hint);
 }
 
 CUI3tButton::~CUI3tButton()
@@ -203,9 +191,6 @@ void CUI3tButton::SetTextureOffset(float x, float y)
 void  CUI3tButton::Draw()
 {
 	inherited::Draw();
-
-	if(m_hint)
-		m_hint->Draw		();
 }
 
 void CUI3tButton::DrawTexture()
@@ -252,107 +237,23 @@ void CUI3tButton::Update()
 	}
 
 	u32 textColor;
-	u32 hintColor = 0;
 
 	if (!m_bIsEnabled)
 	{
 		textColor = m_bUseTextColor[S_Disabled] ? m_dwTextColor[S_Disabled] : m_dwTextColor[S_Enabled];
-		if(m_hint)
-			hintColor = m_hint->m_bUseTextColor[S_Disabled] ? m_hint->m_dwTextColor[S_Disabled] : m_hint->m_dwTextColor[S_Enabled];
 	}
 	else if (CUIButton::BUTTON_PUSHED == GetButtonState())
 	{
 		textColor = m_bUseTextColor[S_Touched] ? m_dwTextColor[S_Touched] : m_dwTextColor[S_Enabled];
-		if(m_hint)
-			hintColor = m_hint->m_bUseTextColor[S_Touched] ? m_hint->m_dwTextColor[S_Touched] : m_hint->m_dwTextColor[S_Enabled];
 	}
 	else if (m_bCursorOverWindow)
 	{
 		textColor = m_bUseTextColor[S_Highlighted] ? m_dwTextColor[S_Highlighted] : m_dwTextColor[S_Enabled];
-		if(m_hint)
-			hintColor = m_hint->m_bUseTextColor[S_Highlighted] ? m_hint->m_dwTextColor[S_Highlighted] : m_hint->m_dwTextColor[S_Enabled];
 	}
 	else
 	{
 		textColor = m_dwTextColor[S_Enabled];
-		if(m_hint)
-			hintColor = m_hint->m_dwTextColor[S_Enabled];
 	}
 
 	SetTextColor		(textColor);
-	if(m_hint)
-		m_hint->SetTextColor	(hintColor);
-}
-
-// =================================================================================================
-CUI3tButtonEx::CUI3tButtonEx()
-{
-	m_hint_owner = NULL;
-}
-
-CUI3tButtonEx::~CUI3tButtonEx()
-{
-}
-
-void CUI3tButtonEx::init_from_xml( CUIXml& xml, LPCSTR path )
-{
-	CUIXmlInit::Init3tButton( xml, path, 0, this );
-	
-	XML_NODE* stored_root = xml.GetLocalRoot();
-	XML_NODE* new_root    = xml.NavigateToNode( path, 0 );
-	xml.SetLocalRoot( new_root );
-
-	if ( xml.NavigateToNode( "hint_text", 0 ) )
-	{
-		m_hint_owner = xr_new<UIHintWindow>();
-		m_hint_owner->SetAutoDelete( true );
-		AttachChild( m_hint_owner );
-		CUIXmlInit::InitHintWindow( xml, "hint_text", 0, m_hint_owner );
-		m_hint_owner->SetWndPos( Fvector2().set( 0.0f, 0.0f ) );
-		m_hint_owner->SetWndSize( GetWndSize() );
-	}
-	xml.SetLocalRoot( stored_root );
-}
-
-void CUI3tButtonEx::set_hint_wnd( UIHint* hint_wnd )
-{
-	VERIFY( m_hint_owner );
-	if ( m_hint_owner )
-	{
-		m_hint_owner->set_hint_wnd( hint_wnd );
-	}
-}
-
-void CUI3tButtonEx::OnFocusLost()
-{
-	inherited::OnFocusLost();
-	if ( m_hint_owner ) m_hint_owner->OnFocusLost();
-	if ( m_eButtonState == BUTTON_PUSHED )
-	{
-		m_eButtonState = BUTTON_NORMAL;
-	}
-}
-
-void CUI3tButtonEx::OnFocusReceive()
-{
-	inherited::OnFocusReceive();
-	if ( m_hint_owner ) m_hint_owner->OnFocusReceive();
-}
-
-void CUI3tButtonEx::Update()
-{
-	inherited::Update();
-	if ( m_hint_owner ) m_hint_owner->Update();
-}
-
-void CUI3tButtonEx::Show( bool status )
-{
-	inherited::Show( status );
-	if ( m_hint_owner ) m_hint_owner->Show( status );
-}
-
-bool CUI3tButtonEx::OnMouseDown( int mouse_btn )
-{
-	if ( m_hint_owner ) m_hint_owner->disable_hint();
-	return inherited::OnMouseDown( mouse_btn );
 }

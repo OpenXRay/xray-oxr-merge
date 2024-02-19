@@ -2,39 +2,48 @@
 #include "game_cl_mp.h"
 #include "xr_level_controller.h"
 #include "xrMessages.h"
-#include "GameObject.h"
 #include "Actor.h"
 #include "ExplosiveItem.h"
 #include "level.h"
-#include "hudmanager.h"
-#include "ui/UIChatWnd.h"
-#include "ui/UIGameLog.h"
 #include <dinput.h>
-#include "UIGameCustom.h"
-#include "ui/UIInventoryUtilities.h"
-#include "ui/UIMessagesWindow.h"
-#include "ui/UIMainIngameWnd.h"
-#include "ui/UIMessageBoxEx.h"
 #include "CustomZone.h"
 #include "game_base_kill_type.h"
 #include "game_base_menu_events.h"
-#include "UIGameDM.h"
+#include "UIGameCustom.h"
+#include "ui/UIInventoryUtilities.h"
+#include "ui/UIMessagesWindow.h"
+#include "ui/UIChatWnd.h"
+#include "ui/UIGameLog.h"
+#include "ui/UIMainIngameWnd.h"
+#include "ui/UIStatic.h"
 #include "ui/UITextureMaster.h"
 #include "ui/UIVotingCategory.h"
+#include "ui/UIMPAdminMenu.h"
 #include "ui/UIVote.h"
 #include "ui/UIMessageBoxEx.h"
+#include "ui/KillMessageStruct.h"
+#include "ui/UISpeechMenu.h"
+#include "UIGameMP.h"
+
 #include "string_table.h"
-#include "../xrEngine/IGame_Persistent.h"
-#include "../Include/xrRender/UIShader.h"
 #include "clsid_game.h"
 #include "mainmenu.h"
 #include "WeaponKnife.h"
 #include "RegistryFuncs.h"
 #include "../xrGameSpy/xrGameSpy_MainDefs.h"
-#include "file_transfer.h"
 #include "screenshot_server.h"
 #include "../xrCore/ppmd_compressor.h"
 #include "../xrCore/rt_compressor.h"
+#include "game_cl_mp_snd_messages.h"
+#include "../3rd party/crypto/crypto.h"
+
+#include "reward_event_generator.h"
+#include "game_cl_base_weapon_usage_statistic.h"
+#include "reward_manager.h"
+#include "login_manager.h"
+#include "stats_submitter.h"
+
+#include "xrServer_info.h" //for enum_server_info_type
 
 #define KILLEVENT_ICONS "ui\\ui_hud_mp_icon_death"
 #define RADIATION_ICONS "ui\\ui_mn_radiations_hard"
@@ -44,11 +53,8 @@
 #define KILLEVENT_GRID_WIDTH	64
 #define KILLEVENT_GRID_HEIGHT	64
 
-#include "game_cl_mp_snd_messages.h"
-#include "../3rd party/crypto/crypto.h"
-#include "player_name_modifyer.h"
 
-BOOL g_draw_downloads = TRUE;
+BOOL g_draw_downloads = FALSE;
 
 #pragma comment(lib, "crypto.lib")
 
@@ -91,7 +97,9 @@ game_cl_mp::game_cl_mp()
 		abs(m_iSpawn_Cost));
 	pBuySpawnMsgBox->SetText(BuySpawnText);
 */	//-----------------------------------------------------------
+	m_reward_generator			= NULL;
 	m_ready_to_open_buy_menu	= true;
+	m_reward_manager			= NULL;
 	crypto::xr_crypto_init();
 };
 
@@ -122,8 +130,8 @@ game_cl_mp::~game_cl_mp()
 		m_BloodLossIconsShader.destroy();
 		*/
 	
-	m_pSndMessagesInPlay.clear_and_free();
-	m_pSndMessages.clear_and_free();
+	delete_data(m_pSndMessagesInPlay);
+	delete_data(m_pSndMessages);
 	
 	deinit_compress_buffer();
 
@@ -136,16 +144,13 @@ game_cl_mp::~game_cl_mp()
 
 	xr_delete(m_pVoteRespondWindow);
 	xr_delete(m_pVoteStartWindow);
+	xr_delete(m_pAdminMenuWindow);
 	xr_delete(m_pMessageBox);
-};
 
-CUIGameCustom*		game_cl_mp::createGameUI			()
-{
-//	m_pSpeechMenu = xr_new<CUISpeechMenu>("test_speech_section");
-	CurrentGameUI()->m_pMessagesWnd->SetChatOwner(this);
-		
-	return NULL;
-};
+	xr_delete(m_reward_generator);
+	xr_delete(m_reward_manager);
+	local_player = NULL;
+}
 
 bool game_cl_mp::CanBeReady	()
 {
@@ -170,6 +175,8 @@ bool game_cl_mp::NeedToSendReady_Spectator(int key, game_PlayerState* ps)
 
 bool game_cl_mp::OnKeyboardPress(int key)
 {
+	if(inherited::OnKeyboardPress(key))	return true;
+
 	CStringTable st;
 	if ( kJUMP == key || kWPN_FIRE == key )
 	{
@@ -211,11 +218,13 @@ bool game_cl_mp::OnKeyboardPress(int key)
 			return false;
 		}
 	};
+
 	u16 game_phase = Phase();
 	if( (game_phase != GAME_PHASE_INPROGRESS) && 
 		(kQUIT != key) && 
 		(kCONSOLE != key) &&
 		(kCHAT != key) &&
+		(kSHOW_ADMIN_MENU!=key) &&
 		(kVOTE_BEGIN != key) &&
 		(kVOTE != key) &&
 		(kVOTEYES != key) &&
@@ -258,6 +267,16 @@ bool game_cl_mp::OnKeyboardPress(int key)
 					pChatWnd->UIEditBox.ClearText();
 				}
 				return false;
+			}break;
+		case kSHOW_ADMIN_MENU:
+			{
+				if(!m_pAdminMenuWindow)
+					m_pAdminMenuWindow = xr_new<CUIMpAdminMenu>();
+
+				if(local_player && local_player->testFlag(GAME_PLAYER_HAS_ADMIN_RIGHTS))
+					m_pAdminMenuWindow->ShowDialog(true);
+				else
+					m_pAdminMenuWindow->ShowMessageBox(CUIMessageBox::MESSAGEBOX_RA_LOGIN);
 			}break;
 		case kVOTE_BEGIN:
 			{
@@ -312,7 +331,7 @@ bool game_cl_mp::OnKeyboardPress(int key)
 				HideMessageMenus();
 				if ( m_cur_MenuID != MenuID )
 				{
-					StartStopMenu(pCurMenu->m_pSpeechMenu, FALSE);
+					pCurMenu->m_pSpeechMenu->ShowDialog(false);
 					m_cur_MenuID = MenuID;
 				}
 				else
@@ -325,7 +344,7 @@ bool game_cl_mp::OnKeyboardPress(int key)
 	}
 
 	m_cur_MenuID = u32(-1);
-	return inherited::OnKeyboardPress(key);
+	return false;
 }
 
 void	game_cl_mp::VotingBegin()
@@ -333,7 +352,7 @@ void	game_cl_mp::VotingBegin()
 	if(!m_pVoteStartWindow)
 		m_pVoteStartWindow		= xr_new<CUIVotingCategory>();
 
-	StartStopMenu(m_pVoteStartWindow, true);
+	m_pVoteStartWindow->ShowDialog(true);
 }
 
 void	game_cl_mp::Vote()
@@ -341,7 +360,7 @@ void	game_cl_mp::Vote()
 	if(!m_pVoteRespondWindow)
 		m_pVoteRespondWindow	= xr_new<CUIVote>();
 
-	StartStopMenu			(m_pVoteRespondWindow, true);
+	m_pVoteRespondWindow->ShowDialog(true);
 }
 
 void	game_cl_mp::OnCantVoteMsg(LPCSTR Text)
@@ -360,11 +379,6 @@ void game_cl_mp::GetActiveVoting()
 	u_EventGen		(P,	GE_GAME_EVENT, 0);
 	P.w_u16			(GAME_EVENT_GET_ACTIVE_VOTE);
 	u_EventSend		(P);
-}
-
-bool	game_cl_mp::OnKeyboardRelease		(int key)
-{
-	return inherited::OnKeyboardRelease(key);
 }
 
 char	Color_Weapon[]	= "%c[255,255,1,1]";
@@ -490,9 +504,18 @@ void game_cl_mp::TranslateGameMessage	(u32 msg, NET_Packet& P)
 				Msg("! File transfer error: from client [%u]: %s", tmp_client.value(), error_msg.c_str());
 			}
 		}break;
+	case GAME_EVENT_RECEIVE_SERVER_LOGO:
+		{
+			ClientID tmp_client(P.r_u32());
+			start_receive_server_info(tmp_client);
+		}break;
 	case GAME_EVENT_PLAYER_BUYMENU_CLOSE:
 		{
 			m_ready_to_open_buy_menu = true;
+		}break;
+	case GAME_EVENT_PLAYERS_INFO_REPLY:
+		{
+			ProcessPlayersInfoReply(P);
 		}break;
 	default:
 		inherited::TranslateGameMessage(msg,P);
@@ -502,30 +525,15 @@ void game_cl_mp::TranslateGameMessage	(u32 msg, NET_Packet& P)
 
 //////////////////////////////////////////////////////////////////////////
 
-void game_cl_mp::ChatSayAll(const shared_str &phrase)
+void game_cl_mp::ChatSay(LPCSTR	phrase, bool bAll)
 {
 	s16 team = ModifyTeam(local_player->team)+1;
 
 	NET_Packet	P;	
 	P.w_begin(M_CHAT_MESSAGE);
-	P.w_s16(-1); // -1 = all, 0 = green, 1 = blue
+	P.w_s16			((bAll)?-1:local_player->team); // -1 = all, 0 = green, 1 = blue
 	P.w_stringZ(local_player->getName());
-	P.w_stringZ(phrase.c_str());
-	P.w_s16(team);
-	u_EventSend(P);
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-void game_cl_mp::ChatSayTeam(const shared_str &phrase)
-{
-	s16 team = ModifyTeam(local_player->team)+1;
-
-	NET_Packet	P;
-	P.w_begin(M_CHAT_MESSAGE);
-	P.w_s16(local_player->team); // // -1 = all, 0 = green, 1 = blue
-	P.w_stringZ(local_player->getName());
-	P.w_stringZ(phrase.c_str());
+	P.w_stringZ		(phrase);
 	P.w_s16(team);
 	u_EventSend(P);
 }
@@ -598,6 +606,11 @@ void game_cl_mp::shedule_Update(u32 dt)
 
 	if(g_dedicated_server)	return;
 
+	if (m_reward_generator)
+		m_reward_generator->update();
+	if (m_reward_manager)
+		m_reward_manager->update_tasks();
+
 	switch (Phase())
 	{
 	case GAME_PHASE_PENDING:
@@ -621,13 +634,12 @@ void game_cl_mp::shedule_Update(u32 dt)
 			{
 				HideMessageMenus();
 			};
-			
 		}break;
 	default:
 		{
 			CUIChatWnd* pChatWnd = CurrentGameUI()->m_pMessagesWnd->GetChatWnd();
 			if (pChatWnd && pChatWnd->IsShown())
-				StartStopMenu(pChatWnd, false);
+				pChatWnd->HideDialog();
 		}break;
 	}
 	UpdateMapLocations();	
@@ -638,15 +650,15 @@ void game_cl_mp::shedule_Update(u32 dt)
 	{
 		if (m_pVoteStartWindow && m_pVoteStartWindow->IsShown())
 		{
-			m_pVoteStartWindow->GetHolder()->StartStopMenu(m_pVoteStartWindow, true);
+			m_pVoteStartWindow->HideDialog();
 		}
 		if (m_pMessageBox && m_pMessageBox->IsShown())
 		{
-			m_pMessageBox->GetHolder()->StartStopMenu(m_pMessageBox, true);
+			m_pMessageBox->HideDialog();
 		}
 		if (m_pVoteRespondWindow && m_pVoteRespondWindow->IsShown())// && IsVotingActive())
 		{
-			m_pVoteRespondWindow->GetHolder()->StartStopMenu(m_pVoteRespondWindow, true);
+			m_pVoteRespondWindow->HideDialog();
 		}
 	}
 }
@@ -688,7 +700,7 @@ void game_cl_mp::OnVoteStop				(NET_Packet& P)
 	SetVotingActive(false);
 	if(m_pVoteRespondWindow && m_pVoteRespondWindow->IsShown())
 	{
-		StartStopMenu			(m_pVoteRespondWindow, true);
+		m_pVoteRespondWindow->HideDialog();
 	}
 };
 
@@ -746,6 +758,9 @@ void game_cl_mp::OnSwitchPhase			(u32 old_phase, u32 new_phase)
 	{
 	case GAME_PHASE_INPROGRESS:
 		{
+			if (m_reward_generator)
+				m_reward_generator->OnRoundStart();
+
 			m_bSpectatorSelected = FALSE;
 
 			if (Level().pHUD && CurrentGameUI())
@@ -855,6 +870,8 @@ void game_cl_mp::OnPlayerKilled			(NET_Packet& P)
 	u16 KillerID = P.r_u16();
 	u16	WeaponID = P.r_u16();
 	SPECIAL_KILL_TYPE SpecialKill = SPECIAL_KILL_TYPE(P.r_u8());
+	if (m_reward_generator)
+		m_reward_generator->OnPlayerKilled(KillerID, KilledID, WeaponID, std::make_pair(KillType, SpecialKill));
 	//-----------------------------------------------------------
 	CObject* pOKiller = Level().Objects.net_Find(KillerID);
 	CObject* pWeapon = Level().Objects.net_Find(WeaponID);
@@ -1140,6 +1157,8 @@ void	game_cl_mp::OnRankChanged	(u8 OldRank)
 #ifdef DEBUG
 	Msg("- %s", RankStr);
 #endif
+	if (m_reward_generator)
+		m_reward_generator->OnPlayerRankdChanged();
 };
 
 void	game_cl_mp::net_import_update		(NET_Packet& P)
@@ -1296,7 +1315,7 @@ void	game_cl_mp::OnEventMoneyChanged			(NET_Packet& P)
 			BMS.m_initiator.m_rect.y2 = pBS->IconRects[RectID].y1 + pBS->IconRects[RectID].y2;		
 		};
 
-		m_game_ui_custom->DisplayMoneyBonus(BMS);
+		m_game_ui_custom->DisplayMoneyBonus(&BMS);
 	};
 };
 
@@ -1348,7 +1367,7 @@ void	game_cl_mp::OnGameRoundStarted				()
 	//-------------------------------
 	PlaySndMessage(ID_MATCH_STARTED);
 	
-	if (local_player)
+	if (local_player && IsLocalPlayerInitialized())
 	{
 		OnTeamChanged			();
 		OnMoneyChanged			();
@@ -1453,6 +1472,23 @@ void game_cl_mp::OnRadminMessage(u16 type, NET_Packet* P)
 {
 	switch(type)
 	{
+	case M_REMOTE_CONTROL_AUTH:
+		{
+				string4096		buff;
+				P->r_stringZ	(buff);
+				if (!g_dedicated_server)
+				{
+					if(!m_pAdminMenuWindow)
+						m_pAdminMenuWindow = xr_new<CUIMpAdminMenu>();
+
+					if(0==stricmp(buff,"Access permitted."))
+						m_pAdminMenuWindow->ShowDialog(true);
+					else
+						m_pAdminMenuWindow->ShowMessageBox(CUIMessageBox::MESSAGEBOX_OK, buff);
+				}
+
+				Msg				("# srv: %s",buff);
+		}break;
 	case M_REMOTE_CONTROL_CMD:
 		{
 				string4096		buff;
@@ -1465,10 +1501,7 @@ void game_cl_mp::OnRadminMessage(u16 type, NET_Packet* P)
 void game_cl_mp::OnConnected()
 {
 	SendPlayerStarted();
-	if (Level().IsDemoPlayStarted())
-	{
-		shedule_Update(0);	//to cast m_game_ui members :(
-	}
+	inherited::OnConnected();
 };
 
 void __stdcall game_cl_mp::sending_screenshot_callback(file_transfer::sending_status_t status, u32 bytes_sent, u32 data_size)
@@ -1579,6 +1612,29 @@ LPCSTR game_cl_mp::make_file_name(LPCSTR session_id, string_path & dest)
 		++start_pos;
 	}
 	return dest;
+}
+
+void game_cl_mp::start_receive_server_info	(ClientID const & svclient_id)
+{
+	fr_callback_binder* tmp_binder = get_receiver_cb_binder();
+	R_ASSERT2(tmp_binder, "not found free file receiver");
+	tmp_binder->m_file_name = "";
+	tmp_binder->m_owner = this;
+	tmp_binder->m_active = true;
+	tmp_binder->m_downloaded_size = 0;	//initial value for rendering
+	tmp_binder->m_max_size = 1;			//avoiding division by zero
+
+	file_transfer::receiving_state_callback_t receiving_cb_info =
+		fastdelegate::MakeDelegate(tmp_binder,
+			&game_cl_mp::fr_callback_binder::receiving_serverinfo_callback);
+
+	tmp_binder->m_frnode = Level().m_file_transfer->start_receive_file(
+		tmp_binder->m_writer,
+		svclient_id,
+		receiving_cb_info
+	);
+
+	R_ASSERT2(tmp_binder->m_frnode, "failed to initialise server logo receiving");
 }
 
 void game_cl_mp::PrepareToReceiveFile(ClientID const & from_client, shared_str const & client_session_id, clientdata_event_t response_event)
@@ -1696,6 +1752,51 @@ void __stdcall	game_cl_mp::fr_callback_binder::receiving_file_callback(
 		}break;
 	};
 }
+
+void __stdcall game_cl_mp::fr_callback_binder::receiving_serverinfo_callback(
+	file_transfer::receiving_status_t status,
+	u32 bytes_received,
+	u32 data_size)
+{
+	switch (status)
+	{
+	case file_transfer::receiving_data:
+		{
+#ifdef DEBUG
+			Msg("* serverinfo: %d of %d bytes received ...", bytes_received, data_size);
+#endif
+			m_downloaded_size = bytes_received;
+			m_max_size = data_size;
+		}break;
+	case file_transfer::receiving_aborted_by_peer:
+		{
+			m_owner->extract_server_info(NULL, 0);
+			Msg("* serverinfo: server logo transfer aborted ...");
+			m_active = false;
+		}break;
+	case file_transfer::receiving_aborted_by_user:
+		{
+			m_owner->extract_server_info(NULL, 0);
+			Msg("* serverinfo: receiving aborted by user...");
+			m_active = false;
+		}break;
+	case file_transfer::receiving_timeout:
+		{
+			m_owner->extract_server_info(NULL, 0);
+			Msg("* serverinfo: receiving timeout...");
+			m_active = false;
+		}break;
+	case file_transfer::receiving_complete:
+		{
+			Msg("* serverinfo: download complete successfully !");
+			R_ASSERT2(m_owner->m_game_ui_custom || g_dedicated_server, "game ui not initialized");
+			if (m_owner->m_game_ui_custom)
+				m_owner->extract_server_info(m_writer.pointer(), m_writer.size());
+			m_active = false;
+		}break;
+	};
+};
+
 
 void game_cl_mp::decompress_and_save_screenshot	(LPCSTR file_name, u8* data, u32 data_size, u32 file_size)
 {
@@ -1850,4 +1951,99 @@ void game_cl_mp::draw_all_active_binder_states()
 void game_cl_mp::draw_downloads(bool draw)
 {
 	ss_manager.set_draw_downloads(draw);
+}
+
+void game_cl_mp::extract_server_info(u8* data_ptr, u32 data_size)
+{
+	UIGameMP*	tmp_ui_mp_game		= smart_cast<UIGameMP*>(m_game_ui_custom);
+	if (!data_ptr)
+	{
+		tmp_ui_mp_game->SetServerLogo(NULL, 0);
+		return;
+	}
+	using namespace file_transfer;
+	buffer_vector<const_buffer_t>	tmp_vector(
+		_alloca(sizeof(const_buffer_t) * 2),
+		2
+	);
+	split_received_to_buffers		(data_ptr, data_size, tmp_vector);
+	if (tmp_vector.empty())
+	{
+		Msg("! ERROR: received corrupted server info");
+		return;
+	}
+	tmp_ui_mp_game->SetServerLogo	(tmp_vector[0].first, tmp_vector[0].second);
+	if (tmp_vector.size() > 1)
+	{
+		tmp_ui_mp_game->SetServerRules(tmp_vector[1].first, tmp_vector[1].second);
+	}
+}
+
+void game_cl_mp::AddRewardTask(u32 const award_id)
+{
+	CObject* tmp_view_entity = Level().CurrentViewEntity();
+	if ((tmp_view_entity && local_player) &&
+		(tmp_view_entity->ID() == local_player->GameID))
+	{
+		m_reward_manager->add_task(award_id);
+	}	
+}
+
+void game_cl_mp::ReInitRewardGenerator(game_PlayerState* local_ps)
+{
+	if (!m_reward_generator)
+	{
+		m_reward_generator	= xr_new<award_system::reward_event_generator>(u32(-1));
+		m_reward_manager	= xr_new<award_system::reward_manager>(this);
+	}
+	m_reward_generator->init_player(local_ps);
+}
+
+bool game_cl_mp::IsLocalPlayerInitialized() const
+{
+	game_cl_GameState::PLAYERS_MAP const & playersMap = Game().players;
+	game_cl_GameState::PLAYERS_MAP::const_iterator pi = playersMap.find(local_svdpnid);
+	return pi != playersMap.end();
+}
+
+bool game_cl_mp::RequestPlayersInfo	(player_info_reply_cb_t const pinfo_repl_cb)
+{
+	if (m_players_info_reply)
+		return false;
+
+	m_players_info_reply	= pinfo_repl_cb;
+	NET_Packet tmp_packet;
+	u_EventGen				(tmp_packet, GE_REQUEST_PLAYERS_INFO, 0);
+	Level().Send			(tmp_packet);
+	return true;
+}
+
+void game_cl_mp::ProcessPlayersInfoReply(NET_Packet & P)
+{
+	shared_str tmp_fake_str;
+	u32 info_count = 0;
+	while (!P.r_eof())
+	{
+		ClientID tmp_client;
+		P.r_clientID(tmp_client);
+		++info_count;
+		PLAYERS_MAP_IT tmp_iter = players.find(tmp_client);
+		if (tmp_iter == players.end())
+		{
+			VERIFY("client not found");
+			P.r_stringZ(tmp_fake_str);
+			P.r_stringZ(tmp_fake_str);
+			continue;
+		}
+		VERIFY(tmp_iter->second);
+		P.r_stringZ(tmp_iter->second->m_player_ip);
+		P.r_stringZ(tmp_iter->second->m_player_digest);
+	}
+	VERIFY2(m_players_info_reply, "info reply callback not binded");
+	if (m_players_info_reply)
+	{
+		player_info_reply_cb_t tmp_cb = m_players_info_reply;
+		m_players_info_reply.clear	();
+		tmp_cb(info_count);
+	}
 }

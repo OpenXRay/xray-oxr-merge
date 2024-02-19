@@ -2,7 +2,7 @@
 #include "xr_effgamma.h"
 //#include "device.h"
 
-#ifdef	USE_DX10
+#if defined(USE_DX10) || defined(USE_DX11)
 
 void CGammaControl::Update() 
 {

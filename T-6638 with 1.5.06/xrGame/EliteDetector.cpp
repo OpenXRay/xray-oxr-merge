@@ -104,7 +104,6 @@ void CUIArtefactDetectorElite::construct(CEliteDetector* p)
 	m_wrk_area							= xr_new<CUIWindow>();
 
 	xr_sprintf							(buff, "%s:wrk_area", p->ui_xml_tag());
-
 	xml_init.InitWindow					(uiXml, buff, 0, m_wrk_area);
 	m_wrk_area->SetAutoDelete			(true);
 	AttachChild							(m_wrk_area);

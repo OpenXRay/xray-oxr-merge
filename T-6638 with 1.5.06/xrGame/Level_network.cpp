@@ -36,7 +36,7 @@ void CLevel::remove_objects	()
 	int loop = 5;
 	while(loop)
 	{
-		if (OnServer()) 
+		if (OnServer())
 		{
 			R_ASSERT				(Server);
 			Server->SLS_Clear		();
@@ -145,8 +145,8 @@ void CLevel::net_Stop		()
 		SetControlEntity(NULL); //m_current_spectator == CurrentControlEntity()
 		m_current_spectator = NULL;
 		
-	}else 
-	if(IsDemoSave() && !IsDemoInfoSaved())
+	}
+	else if(IsDemoSave() && !IsDemoInfoSaved())
 		SaveDemoInfo();
 
 	remove_objects				();
@@ -157,7 +157,7 @@ void CLevel::net_Stop		()
 	IGame_Level::net_Stop		();
 	IPureClient::Disconnect		();
 
-	if (Server) 
+	if (Server)
 	{
 		Server->Disconnect		();
 		xr_delete				(Server);
@@ -326,7 +326,7 @@ void CLevel::net_Update	()
 
 struct _NetworkProcessor	: public pureFrame
 {
-	virtual void	_BCL OnFrame	( )
+	virtual void OnFrame	( )
 	{
 		if (g_pGameLevel && !Device.Paused() )	g_pGameLevel->net_Update();
 	}

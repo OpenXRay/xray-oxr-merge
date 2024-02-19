@@ -168,7 +168,6 @@ void CWeaponMagazined::Reload()
 	TryReload();
 }
 
-
 bool CWeaponMagazined::TryReload() 
 {
 	if(m_pInventory) 

@@ -40,7 +40,6 @@ net_updateInvData* CInventoryItem::NetSync()
 CInventoryItem::CInventoryItem() 
 {
 	m_net_updateData	= NULL;
-	m_slot				= NO_ACTIVE_SLOT;
 	m_flags.set			(Fbelt,FALSE);
 	m_flags.set			(Fruck,TRUE);
 	m_flags.set			(FRuckDefault,TRUE);
@@ -56,10 +55,14 @@ CInventoryItem::CInventoryItem()
 
 	m_name = m_nameShort = NULL;
 
-	m_eItemCurrPlace	= eItemPlaceUndefined;
+	m_ItemCurrPlace.value			= 0;
+	m_ItemCurrPlace.type			= eItemPlaceUndefined;
+	m_ItemCurrPlace.base_slot_id	= NO_ACTIVE_SLOT;
+	m_ItemCurrPlace.slot_id			= NO_ACTIVE_SLOT;
+
 	m_Description		= "";
 	m_section_id		= 0;
-	m_is_helper			= false;
+	m_flags.set						(FIsHelperItem,FALSE);
 }
 
 CInventoryItem::~CInventoryItem() 
@@ -100,7 +103,8 @@ void CInventoryItem::Load(LPCSTR section)
 	R_ASSERT			(m_weight>=0.f);
 
 	m_cost				= pSettings->r_u32(section, "cost");
-	m_slot				= pSettings->r_u32(section,"slot");
+	u32 sl  			= pSettings->r_u32(section,"slot");
+	m_ItemCurrPlace.base_slot_id = (sl==-1)?0:(sl+1);
 
 	m_Description = CStringTable().translate( pSettings->r_string(section, "description") );
 
@@ -188,13 +192,13 @@ void CInventoryItem::DeactivateItem()
 void CInventoryItem::OnH_B_Independent(bool just_before_destroy)
 {
 	UpdateXForm();
-	m_eItemCurrPlace = eItemPlaceUndefined ;
+	m_ItemCurrPlace.type = eItemPlaceUndefined ;
 }
 
 void CInventoryItem::OnH_A_Independent()
 {
 	m_dwItemIndependencyTime	= Level().timeServer();
-	m_eItemCurrPlace			= eItemPlaceUndefined;	
+	m_ItemCurrPlace.type		= eItemPlaceUndefined;	
 	inherited::OnH_A_Independent();
 }
 
@@ -377,7 +381,7 @@ void CInventoryItem::net_Destroy		()
 
 void CInventoryItem::save(NET_Packet &packet)
 {
-	packet.w_u8				((u8)m_eItemCurrPlace);
+	packet.w_u16			(m_ItemCurrPlace.value);
 	packet.w_float			(m_fCondition);
 //--	save_data				(m_upgrades, packet);
 
@@ -518,7 +522,7 @@ void CInventoryItem::net_Import_PH_Params(NET_Packet& P, net_update_IItem& N, ma
 	
 	//N.State.force.set			(0.f,0.f,0.f);
 	//N.State.torque.set			(0.f,0.f,0.f);
-	//HUD().Font().pFontStat->OutSet(100.0f,100.0f);
+	//UI().Font().pFontStat->OutSet(100.0f,100.0f);
 	P.r_vec3					(N.State.force);
 	//Msg("Import N.State.force.y:%4.6f",N.State.force.y);
 	P.r_vec3					(N.State.torque);
@@ -534,7 +538,7 @@ void CInventoryItem::net_Import_PH_Params(NET_Packet& P, net_update_IItem& N, ma
 
 
 	N.State.enabled				= num_items.mask & CSE_ALifeInventoryItem::inventory_item_state_enabled;
-	//HUD().Font().pFontStat->OutNext("Import N.State.enabled:%i",int(N.State.enabled));
+	//UI().Font().pFontStat->OutNext("Import N.State.enabled:%i",int(N.State.enabled));
 	if (!(num_items.mask & CSE_ALifeInventoryItem::inventory_item_angular_null)) {
 		N.State.angular_vel.x	= P.r_float();
 		N.State.angular_vel.y	= P.r_float();
@@ -558,11 +562,11 @@ void CInventoryItem::net_Import_PH_Params(NET_Packet& P, net_update_IItem& N, ma
 
 void CInventoryItem::net_Export_PH_Params(NET_Packet& P, SPHNetState& State, mask_inv_num_items&	num_items)
 {
-	//HUD().Font().pFontStat->OutSet(100.0f,100.0f);
+	//UI().Font().pFontStat->OutSet(100.0f,100.0f);
 	P.w_vec3				(State.force);
 	//Msg("Export State.force.y:%4.6f",State.force.y);
 	P.w_vec3				(State.torque);
-	//HUD().Font().pFontStat->OutNext("Export State.torque:%4.6f",State.torque.magnitude());
+	//UI().Font().pFontStat->OutNext("Export State.torque:%4.6f",State.torque.magnitude());
 	P.w_vec3				(State.position);
 	//Msg("Export State.position.y:%4.6f",State.position.y);
 	//Msg("Export State.enabled:%i",int(State.enabled));
@@ -760,7 +764,7 @@ void CInventoryItem::net_Export			(NET_Packet& P)
 
 void CInventoryItem::load(IReader &packet)
 {
-	m_eItemCurrPlace		= (EItemPlace)packet.r_u8();
+	m_ItemCurrPlace.value	= packet.r_u16();
 	m_fCondition			= packet.r_float();
 
 //--	load_data( m_upgrades, packet );
@@ -1203,7 +1207,7 @@ void CInventoryItem::reload		(LPCSTR section)
 void CInventoryItem::reinit		()
 {
 	m_pInventory	= NULL;
-	m_eItemCurrPlace = eItemPlaceUndefined;
+	m_ItemCurrPlace.type = eItemPlaceUndefined;
 }
 
 bool CInventoryItem::can_kill			() const
@@ -1425,7 +1429,7 @@ bool	CInventoryItem::CanTrade() const
 	bool res = true;
 #pragma todo("Dima to Andy : why CInventoryItem::CanTrade can be called for the item, which doesn't have owner?")
 	if(m_pInventory)
-		res = inventory_owner().AllowItemToTrade(this,m_eItemCurrPlace);
+		res = inventory_owner().AllowItemToTrade(this,m_ItemCurrPlace);
 
 	return (res && m_flags.test(FCanTrade) && !IsQuestItem());
 }
@@ -1450,6 +1454,18 @@ Irect CInventoryItem::GetInvGridRect() const
 	y = pSettings->r_u32(m_object->cNameSect(),"inv_grid_y");
 	w = pSettings->r_u32(m_object->cNameSect(),"inv_grid_width");
 	h = pSettings->r_u32(m_object->cNameSect(),"inv_grid_height");
+
+	return Irect().set(x,y,w,h);
+}
+
+Irect CInventoryItem::GetUpgrIconRect() const
+{
+	u32 x,y,w,h;
+
+	x = READ_IF_EXISTS(pSettings,r_u32,m_object->cNameSect(),"upgr_icon_x", 0);
+	y = READ_IF_EXISTS(pSettings,r_u32,m_object->cNameSect(),"upgr_icon_y", 0);
+	w = READ_IF_EXISTS(pSettings,r_u32,m_object->cNameSect(),"upgr_icon_width", 0);
+	h = READ_IF_EXISTS(pSettings,r_u32,m_object->cNameSect(),"upgr_icon_height", 0);
 
 	return Irect().set(x,y,w,h);
 }

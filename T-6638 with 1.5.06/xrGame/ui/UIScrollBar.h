@@ -14,6 +14,7 @@ protected:
 	CUI3tButton*	m_DecButton;
 	CUI3tButton*	m_IncButton;
 	CUIScrollBox*	m_ScrollBox;
+
 	CUIFrameLineWnd* m_FrameBackground;
 
 	float			m_hold_delay;

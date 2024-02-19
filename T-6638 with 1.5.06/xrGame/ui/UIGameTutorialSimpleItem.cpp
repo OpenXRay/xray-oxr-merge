@@ -64,6 +64,7 @@ void CUISequenceSimpleItem::Load(CUIXml* xml, int idx)
 	LPCSTR str				= xml->Read				("pause_state",		0,"ignore");
 	m_flags.set										(etiNeedPauseOn,	0==_stricmp(str, "on"));
 	m_flags.set										(etiNeedPauseOff,	0==_stricmp(str, "off"));
+
 	m_flags.set										(etiNeedPauseSound, 0==_stricmp(str, "on"));
 
 	str						= xml->Read				("guard_key",0,NULL		);
@@ -120,7 +121,7 @@ void CUISequenceSimpleItem::Load(CUIXml* xml, int idx)
 		_si->m_wnd					= smart_cast<CUIStatic*>(find_child_window(m_UIWindow, sname)); 
 		VERIFY						(_si->m_wnd);
 
-		_si->m_wnd->TextItemControl()->SetTextComplexMode(true);
+		_si->m_wnd->SetTextComplexMode(true);
 		_si->m_wnd->Show			(false);
 		_si->m_wnd->SetWidth		(_si->m_wnd->GetWidth()*UI().get_current_kx());
 		
@@ -192,8 +193,7 @@ void CUISequenceSimpleItem::Update()
 		
 		if (true==bPlaying&&(false==s.m_visible))			
 			s.Start	();
-		else 
-		if ((false==bPlaying)&&(true==s.m_visible))	
+		else if ((false==bPlaying)&&(true==s.m_visible))	
 			s.Stop	();
 	}
 	

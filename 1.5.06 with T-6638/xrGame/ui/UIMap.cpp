@@ -59,6 +59,13 @@ void CUICustomMap::Update()
 	CUIStatic::Update		();
 }
 
+void CUICustomMap::Draw()
+{
+	UI().PushScissor		(WorkingArea());
+	CUIStatic::Draw			();
+	UI().PopScissor			();
+}
+
 void CUICustomMap::Init_internal(const shared_str& name, CInifile& pLtx, const shared_str& sect_name, LPCSTR sh_name)
 {
 	m_name				= name;
@@ -68,7 +75,14 @@ void CUICustomMap::Init_internal(const shared_str& name, CInifile& pLtx, const s
 	m_shader_name		= sh_name;
 	tmp					= pLtx.r_fvector4(sect_name,"bound_rect");
 
+	if(!Heading())
+	{
+		tmp.x					*= UI().get_current_kx();
+		tmp.z					*= UI().get_current_kx();
+	}
+
 	m_BoundRect_.set		(tmp.x, tmp.y, tmp.z, tmp.w);
+
 	Fvector2 sz;
 	m_BoundRect_.getsize		(sz);
 	CUIStatic::SetWndSize	(sz);
@@ -76,50 +90,55 @@ void CUICustomMap::Init_internal(const shared_str& name, CInifile& pLtx, const s
 	CUIStatic::InitTextureEx(m_texture.c_str(), m_shader_name.c_str());
 	
 	SetStretchTexture		(true);
-	ClipperOn				();
 }
 
-void rotation_(float x, float y, const float angle, float& x_, float& y_)
+void rotation_(float x, float y, const float angle, float& x_, float& y_, float kx)
 {
 	float _sc = _cos(angle);
 	float _sn = _sin(angle);
 	x_= x*_sc+y*_sn;
 	y_= y*_sc-x*_sn;
+	x_				*= kx;
 }
 
-Fvector2 CUICustomMap::ConvertLocalToReal(const Fvector2& src)
+Fvector2 CUICustomMap::ConvertLocalToReal(const Fvector2& src, Frect const& bound_rect)
 {
 	Fvector2 res; 
-	res.x = m_BoundRect.lt.x + src.x/GetCurrentZoom();
-	res.y = m_BoundRect.height() + m_BoundRect.lt.y - src.y/GetCurrentZoom();
+	res.x = bound_rect.lt.x + src.x/GetCurrentZoom().x;
+	res.y = bound_rect.height() + bound_rect.lt.y - src.y/GetCurrentZoom().x;
 
 	return res;
 }
 
-Fvector2 CUICustomMap::ConvertRealToLocal  (const Fvector2& src)// meters->pixels (relatively own left-top pos)
+Fvector2 CUICustomMap::ConvertRealToLocal  (const Fvector2& src, bool for_drawing)// meters->pixels (relatively own left-top pos)
 {
 	Fvector2 res;
 	if( !Heading() )
 	{
-		return ConvertRealToLocalNoTransform(src);
+		Frect bound_rect	= BoundRect();
+		bound_rect.x1		/= UI().get_current_kx();
+		bound_rect.x2		/= UI().get_current_kx();
+		res					= ConvertRealToLocalNoTransform(src, bound_rect);
+		res.x				*= UI().get_current_kx();
 	}
 	else
 	{
 		Fvector2 heading_pivot = GetStaticItem()->GetHeadingPivot();
 	
-		res = ConvertRealToLocalNoTransform(src);
+		res						= ConvertRealToLocalNoTransform(src, BoundRect());
 		res.sub(heading_pivot);
-		rotation_(res.x, res.y, GetHeading(), res.x, res.y);
+		rotation_				(res.x, res.y, GetHeading(), res.x, res.y, for_drawing?UI().get_current_kx():1.0f);
+		
 		res.add(heading_pivot);
-		return res;
 	};
+	return res;
 }
 
-Fvector2 CUICustomMap::ConvertRealToLocalNoTransform  (const Fvector2& src)// meters->pixels (relatively own left-top pos)
+Fvector2 CUICustomMap::ConvertRealToLocalNoTransform  (const Fvector2& src, Frect const& bound_rect)// meters->pixels (relatively own left-top pos)
 {
 	Fvector2 res;
-	res.x = (src.x-m_BoundRect.lt.x) * GetCurrentZoom();
-	res.y = (m_BoundRect.height()-(src.y-m_BoundRect.lt.y)) * GetCurrentZoom();
+	res.x = (src.x-bound_rect.lt.x) * GetCurrentZoom().x;
+	res.y = (bound_rect.height()-(src.y-bound_rect.lt.y)) * GetCurrentZoom().x;
 
 	return res;
 }
@@ -301,8 +320,8 @@ void CUIGlobalMap::ClipByVisRect()
 Fvector2 CUIGlobalMap::ConvertRealToLocal(const Fvector2& src, bool for_drawing)// pixels->pixels (relatively own left-top pos)
 {
 	Fvector2 res;
-	res.x = (src.x-m_BoundRect.lt.x) * GetCurrentZoom();
-	res.y = (src.y-m_BoundRect.lt.y) * GetCurrentZoom();
+	res.x = (src.x-BoundRect().lt.x) * GetCurrentZoom().x;
+	res.y = (src.y-BoundRect().lt.y) * GetCurrentZoom().x;
 	return res;
 }
 
@@ -344,7 +363,7 @@ float CUIGlobalMap::CalcOpenRect(const Fvector2& center_point, Frect& map_desire
 	float dist					= 0.f;
 
 	Frect s_rect,t_rect;
-	s_rect.div					(GetWndRect(),GetCurrentZoom(),GetCurrentZoom());
+	s_rect.div					(GetWndRect(), GetCurrentZoom().x, GetCurrentZoom().x);
 	t_rect.div					(map_desired_rect,tgt_zoom,tgt_zoom);
 
 	Fvector2 cpS,cpT;
@@ -399,6 +418,9 @@ void CUILevelMap::Init_internal	(const shared_str& name, CInifile& pLtx, const s
 {
 	inherited::Init_internal(name, pLtx, sect_name, sh_name);
 	Fvector4 tmp			= pGameIni->r_fvector4(MapName(),"global_rect");
+
+	tmp.x					*= UI().get_current_kx();
+	tmp.z					*= UI().get_current_kx();
 	m_GlobalRect.set		(tmp.x, tmp.y, tmp.z, tmp.w);
 
 #ifdef DEBUG
@@ -444,8 +466,8 @@ Frect CUILevelMap::CalcWndRectOnGlobal	()
 	Frect res;
 	CUIGlobalMap* globalMap			= MapWnd()->GlobalMap();
 
-	res.lt							= globalMap->ConvertRealToLocal(GlobalRect().lt);
-	res.rb							= globalMap->ConvertRealToLocal(GlobalRect().rb);
+	res.lt							= globalMap->ConvertRealToLocal(GlobalRect().lt, false);
+	res.rb							= globalMap->ConvertRealToLocal(GlobalRect().rb, false);
 	res.add							(globalMap->GetWndPos().x, globalMap->GetWndPos().y);
 
 	return res;
@@ -462,9 +484,9 @@ void CUILevelMap::Update()
 	Frect			rect;
 	Fvector2		tmp;
 
-	tmp								= w->ConvertRealToLocal(GlobalRect().lt);
+	tmp								= w->ConvertRealToLocal(GlobalRect().lt, false);
 	rect.lt							= tmp;
-	tmp								= w->ConvertRealToLocal(GlobalRect().rb);
+	tmp								= w->ConvertRealToLocal(GlobalRect().rb, false);
 	rect.rb							= tmp;
 
 	SetWndRect						(rect);
@@ -476,7 +498,7 @@ void CUILevelMap::Update()
 		VERIFY(m_dwFocusReceiveTime>=0);
 		if( Device.dwTimeGlobal>(m_dwFocusReceiveTime+500) )
 		{
-			if(fsimilar(MapWnd()->GlobalMap()->GetCurrentZoom(), MapWnd()->GlobalMap()->GetMinZoom(),EPS_L ))
+			if(fsimilar(MapWnd()->GlobalMap()->GetCurrentZoom().x, MapWnd()->GlobalMap()->GetMinZoom(),EPS_L ))
 				MapWnd()->ShowHintStr(this, MapName().c_str());
 			else
 				MapWnd()->HideHint(this);
@@ -545,4 +567,107 @@ void CUIMiniMap::UpdateSpots()
 	Locations& ls =Level().MapManager().Locations();
 	for(Locations_it it=ls.begin(); it!=ls.end(); ++it)
 		(*it).location->UpdateMiniMap(this);
+}
+
+void  CUIMiniMap::Draw()
+{
+	u32	segments_count			= 20;
+
+	UIRender->SetShader			(*m_UIStaticItem.GetShader());
+	UIRender->StartPrimitive	(segments_count*3, IUIRender::ptTriList, UI().m_currentPointType);
+
+	u32 color					= m_UIStaticItem.GetTextureColor();
+	float angle					= GetHeading();
+
+
+
+	float kx =	UI().get_current_kx();
+
+	// clip poly
+	sPoly2D					S;
+	S.resize				(segments_count);
+	float segment_ang		= PI_MUL_2/segments_count;
+	float pt_radius			= WorkingArea().width()/2.0f;
+	Fvector2				center;
+	WorkingArea().getcenter	(center);
+
+	float tt_radius			= pt_radius/GetWidth();
+	float k_tt_height		= GetWidth()/GetHeight();
+							
+	Fvector2 tt_offset;
+	tt_offset.set			(m_UIStaticItem.vHeadingPivot);
+	tt_offset.x				/= GetWidth();
+	tt_offset.y				/= GetHeight();
+	
+	Fvector2				m_scale_;	
+	m_scale_.set			( float(Device.dwWidth)/UI_BASE_WIDTH, float(Device.dwHeight)/UI_BASE_HEIGHT );
+	
+	for(u32 idx=0; idx<segments_count;++idx)
+	{
+		float cosPT			= _cos(segment_ang*idx + angle);
+		float sinPT			= _sin(segment_ang*idx + angle);
+
+		float cosTX			= _cos(segment_ang*idx);
+		float sinTX			= _sin(segment_ang*idx);
+
+		S[idx].pt.set		(pt_radius*cosPT*kx,		-pt_radius*sinPT);
+		S[idx].uv.set		(tt_radius*cosTX,			-tt_radius*sinTX*k_tt_height);
+		S[idx].uv.add		(tt_offset);
+		S[idx].pt.add		(center);
+
+		S[idx].pt.x			*= m_scale_.x;
+		S[idx].pt.y			*= m_scale_.y;
+	}
+
+	for (u32 idx=0; idx<segments_count-2; ++idx)
+	{
+		UIRender->PushPoint(S[0+0].pt.x,	S[0+0].pt.y,	0, color, S[0+0].uv.x,		S[0+0].uv.y);
+		UIRender->PushPoint(S[idx+2].pt.x,	S[idx+2].pt.y,	0, color, S[idx+2].uv.x,	S[idx+2].uv.y);
+		UIRender->PushPoint(S[idx+1].pt.x,	S[idx+1].pt.y,	0, color, S[idx+1].uv.x,	S[idx+1].uv.y);
+	}
+
+	UIRender->FlushPrimitive	();
+
+
+//------------
+	CUIWindow::Draw(); //draw childs
+}
+
+bool CUIMiniMap::GetPointerTo(const Fvector2& src, float item_radius, Fvector2& pos, float& heading)
+{
+	Fvector2 clip_center = GetStaticItem()->GetHeadingPivot();
+	float map_radius	= WorkingArea().width()/2.0f;
+	Fvector2			direction;
+
+	direction.sub		(clip_center, src);
+	heading				= -direction.getH();
+
+	float kx			= UI().get_current_kx();
+	float cosPT			= _cos(heading);
+	float sinPT			= _sin(heading);
+	pos.set				(-map_radius*sinPT*kx,		-map_radius*cosPT);
+	pos.add				(clip_center);
+
+	return				true;
+}
+
+bool CUIMiniMap::NeedShowPointer(Frect r)
+{
+	Fvector2 clip_center = GetStaticItem()->GetHeadingPivot();
+
+	Fvector2			spot_pos;
+	r.getcenter			(spot_pos);
+	float dist			=clip_center.distance_to(spot_pos);
+	float spot_radius	= r.width() / 2.0f;
+	return				(dist+spot_radius > WorkingArea().width()/2.0f);
+}
+
+bool CUIMiniMap::IsRectVisible(Frect r)
+{
+	Fvector2 clip_center	= GetStaticItem()->GetHeadingPivot();
+	float vis_radius		= WorkingArea().width() / 2.0f;
+	Fvector2				rect_center;
+	r.getcenter				(rect_center);
+	float spot_radius		= r.width() / 2.0f;
+	return clip_center.distance_to(rect_center)+spot_radius < vis_radius; //assume that all minimap spots are circular
 }

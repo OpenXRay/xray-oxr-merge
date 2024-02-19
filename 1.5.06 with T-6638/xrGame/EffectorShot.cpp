@@ -96,6 +96,7 @@ void CWeaponShotEffector::Relax()
 		m_angle_vert -= m_cam_recoil.RelaxSpeed * dt;
 		if ( m_angle_vert < 0.0f )
 		{
+			m_angle_vert = 0.0f;
 			m_actived	= false;
 		}
 	}
@@ -104,6 +105,7 @@ void CWeaponShotEffector::Relax()
 		m_angle_vert += m_cam_recoil.RelaxSpeed * dt;
 		if ( m_angle_vert > 0.0f )
 		{
+			m_angle_vert = 0.0f;
 			m_actived    = false;
 		}
 	}

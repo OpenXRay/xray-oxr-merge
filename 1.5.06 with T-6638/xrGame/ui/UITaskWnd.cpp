@@ -13,12 +13,14 @@
 
 #include "../gametask.h"
 #include "../map_location.h"
+#include "../map_location_defs.h"
+#include "../map_manager.h"
 #include "UIInventoryUtilities.h"
 #include "../string_table.h"
 #include "../level.h"
 #include "../gametaskmanager.h"
 #include "../actor.h"
-
+#include "UICheckButton.h"
 
 CUITaskWnd::CUITaskWnd()
 {
@@ -38,8 +40,29 @@ void CUITaskWnd::Init()
 
 	CUIXmlInit::InitWindow			(xml, "main_wnd", 0, this);
 
+	m_background					= UIHelper::CreateFrameWindow( xml, "background", this );
 	m_background					= UIHelper::CreateFrameLine( xml, "background", this );
 	m_task_split					= UIHelper::CreateFrameLine( xml, "task_split", this );
+
+	m_cbTreasures					= UIHelper::CreateCheck( xml, "filter_treasures", this );
+	m_cbTreasures					->SetCheck(true);
+	AddCallback						(m_cbTreasures, BUTTON_CLICKED, CUIWndCallback::void_function(this,&CUITaskWnd::OnShowTreasures));
+	m_bTreasuresEnabled				= true;
+
+	m_cbPrimaryObjects				= UIHelper::CreateCheck( xml, "filter_primary_objects", this );
+	m_cbPrimaryObjects				->SetCheck(true);
+	AddCallback						(m_cbPrimaryObjects, BUTTON_CLICKED, CUIWndCallback::void_function(this,&CUITaskWnd::OnShowPrimaryObjects));
+	m_bPrimaryObjectsEnabled		= true;
+
+	m_cbSecondaryTasks				= UIHelper::CreateCheck( xml, "filter_secondary_tasks", this );
+	m_cbSecondaryTasks				->SetCheck(true);
+	AddCallback						(m_cbSecondaryTasks, BUTTON_CLICKED, CUIWndCallback::void_function(this,&CUITaskWnd::OnShowSecondaryTasks));
+	m_bSecondaryTasksEnabled		= true;
+
+	m_cbQuestNpcs					= UIHelper::CreateCheck( xml, "filter_quest_npcs", this );
+	m_cbQuestNpcs					->SetCheck(true);
+	AddCallback						(m_cbQuestNpcs, BUTTON_CLICKED, CUIWndCallback::void_function(this,&CUITaskWnd::OnShowQuestNpcs));
+	m_bQuestNpcsEnabled				= true;
 
 	m_pMapWnd						= xr_new<CUIMapWnd>(); 
 	m_pMapWnd->SetAutoDelete		(false);
@@ -48,47 +71,44 @@ void CUITaskWnd::Init()
 	AttachChild						(m_pMapWnd);
 
 	m_center_background				= UIHelper::CreateStatic( xml, "center_background", this );
-//	m_right_bottom_background		= UIHelper::CreateStatic( xml, "right_bottom_background", this );
+	m_devider						= UIHelper::CreateStatic( xml, "line_devider", this );
 
 	m_pStoryLineTaskItem			= xr_new<CUITaskItem>();
 	m_pStoryLineTaskItem->Init		(xml,"storyline_task_item");
 	AttachChild						(m_pStoryLineTaskItem);
 	m_pStoryLineTaskItem->SetAutoDelete(true);
-	AddCallback						(m_pStoryLineTaskItem->WindowName(), WINDOW_LBUTTON_DB_CLICK,   CUIWndCallback::void_function(this,&CUITaskWnd::OnTask1DbClicked));
+	AddCallback						(m_pStoryLineTaskItem, WINDOW_LBUTTON_DB_CLICK,   CUIWndCallback::void_function(this,&CUITaskWnd::OnTask1DbClicked));
 	
 	m_pSecondaryTaskItem			= xr_new<CUITaskItem>();
 	m_pSecondaryTaskItem->Init		(xml,"secondary_task_item");
 	AttachChild						(m_pSecondaryTaskItem);
 	m_pSecondaryTaskItem->SetAutoDelete(true);
-	AddCallback						(m_pSecondaryTaskItem->WindowName(), WINDOW_LBUTTON_DB_CLICK,   CUIWndCallback::void_function(this,&CUITaskWnd::OnTask2DbClicked));
-	
+	AddCallback						(m_pSecondaryTaskItem, WINDOW_LBUTTON_DB_CLICK,   CUIWndCallback::void_function(this,&CUITaskWnd::OnTask2DbClicked));
 
-	m_btn_focus		= UIHelper::Create3tButtonEx( xml, "btn_task_focus", this );
-	m_btn_focus2	= UIHelper::Create3tButtonEx( xml, "btn_task_focus2", this );
+
+	m_btn_focus		= UIHelper::Create3tButton( xml, "btn_task_focus", this );
+	m_btn_focus2	= UIHelper::Create3tButton( xml, "btn_task_focus2", this );
 	Register		(m_btn_focus);
 	Register		(m_btn_focus2);
-	AddCallback		(m_btn_focus->WindowName(),  BUTTON_DOWN, CUIWndCallback::void_function(this,&CUITaskWnd::OnTask1DbClicked));
-	AddCallback		(m_btn_focus2->WindowName(), BUTTON_DOWN, CUIWndCallback::void_function(this,&CUITaskWnd::OnTask2DbClicked));
+	AddCallback		(m_btn_focus,  BUTTON_DOWN, CUIWndCallback::void_function(this,&CUITaskWnd::OnTask1DbClicked));
+	AddCallback		(m_btn_focus2, BUTTON_DOWN, CUIWndCallback::void_function(this,&CUITaskWnd::OnTask2DbClicked));
 	m_btn_focus->set_hint_wnd(  hint_wnd );
 	m_btn_focus2->set_hint_wnd( hint_wnd );
 
-//	m_pBtnNextTask					= UIHelper::Create3tButton( xml, "btn_next_task", this );
-//	AddCallback						(m_pBtnNextTask->WindowName(),BUTTON_CLICKED,CUIWndCallback::void_function(this,&CUITaskWnd::OnNextTaskClicked));
-
-	m_BtnSecondaryTaskWnd	= UIHelper::Create3tButtonEx( xml, "btn_second_task", this );
-	AddCallback				(m_BtnSecondaryTaskWnd->WindowName(), BUTTON_CLICKED, CUIWndCallback::void_function(this, &CUITaskWnd::OnShowSecondTaskWnd));
+	m_BtnTaskListWnd	= UIHelper::Create3tButton( xml, "btn_second_task", this );
+	AddCallback				(m_BtnTaskListWnd, BUTTON_CLICKED, CUIWndCallback::void_function(this, &CUITaskWnd::OnShowTaskListWnd));
 	m_BtnSecondaryTaskWnd->set_hint_wnd( hint_wnd );
 
 	m_second_task_index		= UIHelper::CreateStatic( xml, "second_task_index", this );
 
-	m_second_task_wnd					= xr_new<UISecondTaskWnd>(); 
-	m_second_task_wnd->SetAutoDelete	(true);
-	m_second_task_wnd->hint_wnd			= hint_wnd;
-	m_second_task_wnd->init_from_xml	(xml, "second_task_wnd");
-	m_pMapWnd->AttachChild				(m_second_task_wnd);
-	m_second_task_wnd->SetMessageTarget	(this);
-	m_second_task_wnd->Show				(false);
-	m_second_task_wnd_show				= false;
+	m_task_wnd					= xr_new<UITaskListWnd>(); 
+	m_task_wnd->SetAutoDelete	(true);
+	m_task_wnd->hint_wnd			= hint_wnd;
+	m_task_wnd->init_from_xml	(xml, "second_task_wnd");
+	m_pMapWnd->AttachChild				(m_task_wnd);
+	m_task_wnd->SetMessageTarget	(this);
+	m_task_wnd->Show				(false);
+	m_task_wnd_show				= false;
 
 	m_map_legend_wnd					= xr_new<UIMapLegend>(); 
 	m_map_legend_wnd->SetAutoDelete		(true);
@@ -140,7 +160,7 @@ void CUITaskWnd::SendMessage(CUIWindow* pWnd, s16 msg, void* pData)
 		TaskSetTargetMap( task );
 		return;
 	}
-	if ( msg == PDA_TASK_SHOW_MAP_SPOT && pData )
+	if ( msg == PDA_TASK_SHOW_MAP_SPOT && pData && m_bSecondaryTasksEnabled)
 	{
 		CGameTask* task = static_cast<CGameTask*>( pData );
 		TaskShowMapSpot( task, true );
@@ -171,20 +191,44 @@ void CUITaskWnd::SendMessage(CUIWindow* pWnd, s16 msg, void* pData)
 
 void CUITaskWnd::ReloadTaskInfo()
 {
-	CGameTask* t					= Level().GameTaskManager().ActiveTask(eTaskTypeStoryline);
+	CGameTask* t					= Level().GameTaskManager().ActiveTask();
 	m_pStoryLineTaskItem->InitTask	(t);
 
-	t								= Level().GameTaskManager().ActiveTask(eTaskTypeAdditional);
-	m_pSecondaryTaskItem->InitTask	(t);
+	if(t && (t->m_map_object_id==u16(-1) || t->m_map_location.size()==0))
+		m_btn_focus->Show(false);
+	else
+		m_btn_focus->Show(true);
+
+	Locations map_locs			= Level().MapManager().Locations();
+	Locations_it b				= map_locs.begin(), 
+				 e				= map_locs.end();
+	for(;b!=e;b++)
+	{
+		shared_str spot = b->spot_type;
+		if(spot=="treasure")
+			m_bTreasuresEnabled?b->location->EnableSpot():b->location->DisableSpot();
+		else if(spot=="primary_object")
+			m_bPrimaryObjectsEnabled?b->location->EnableSpot():b->location->DisableSpot();
+		else if(spot=="secondary_task_location" || spot=="secondary_task_location_complex_timer")
+			(/*b->location->SpotEnabled() && */m_bSecondaryTasksEnabled)?b->location->EnableSpot():b->location->DisableSpot();
+		else if(spot=="ui_pda2_trader_location" || spot=="ui_pda2_mechanic_location" ||
+		   spot=="ui_pda2_scout_location" || spot=="ui_pda2_quest_npc_location" || 
+		   spot=="ui_pda2_medic_location" || spot=="ui_pda2_actor_box_location" ||
+		   spot=="ui_pda2_actor_sleep_location")
+			m_bQuestNpcsEnabled?b->location->EnableSpot():b->location->DisableSpot();
+	}
+
+	if(!t)
+		return;
+
 	m_actual_frame					= Level().GameTaskManager().ActualFrame();
 	
 	u32 task2_count					= Level().GameTaskManager().GetTaskCount( eTaskStateInProgress, eTaskTypeAdditional );
-	
 	if ( task2_count )
 	{
 		u32 task2_index				= Level().GameTaskManager().GetTaskIndex( t, eTaskStateInProgress, eTaskTypeAdditional );
 		string32 buf;
-		sprintf_s( buf, sizeof(buf), "%d / %d", task2_index, task2_count );
+		xr_sprintf( buf, sizeof(buf), "%d / %d", task2_index, task2_count );
 
 		m_second_task_index->SetVisible( true );
 		m_second_task_index->SetText( buf );
@@ -194,7 +238,8 @@ void CUITaskWnd::ReloadTaskInfo()
 		m_second_task_index->SetVisible( false );
 		m_second_task_index->SetText( "" );
 	}
-	m_second_task_wnd->UpdateList();
+	if(m_task_wnd->IsShown())
+		m_task_wnd->UpdateList();
 }
 
 void CUITaskWnd::Show(bool status)
@@ -203,16 +248,15 @@ void CUITaskWnd::Show(bool status)
 	m_pMapWnd->Show			(status);
 	m_pMapWnd->HideCurHint	();
 	m_map_legend_wnd->Show	(false);
-	ReloadTaskInfo();
-	
 	if ( status )
 	{
-		m_second_task_wnd->Show( m_second_task_wnd_show );
+		ReloadTaskInfo();
+		m_task_wnd->Show( m_task_wnd_show );
 	}
 	else
 	{
-		m_second_task_wnd_show = false;
-		m_second_task_wnd->Show(false);
+//		m_task_wnd_show = false;
+		m_task_wnd->Show(false);
 	}
 }
 
@@ -229,21 +273,21 @@ void CUITaskWnd::OnPrevTaskClicked()
 {
 }
 
-void CUITaskWnd::OnShowSecondTaskWnd( CUIWindow* w, void* d )
+void CUITaskWnd::OnShowTaskListWnd( CUIWindow* w, void* d )
 {
-	m_second_task_wnd_show = false;
-	m_second_task_wnd->Show( !m_second_task_wnd->IsShown() );
+	m_task_wnd_show = !m_task_wnd_show;
+	m_task_wnd->Show( !m_task_wnd->IsShown() );
 }
 
-void CUITaskWnd::Show_SecondTasksWnd(bool status)
+void CUITaskWnd::Show_TaskListWnd(bool status)
 {
-	m_second_task_wnd->Show( status );
-	m_second_task_wnd_show = status;
+	m_task_wnd->Show( status );
+	m_task_wnd_show = status;
 }
 
 void CUITaskWnd::TaskSetTargetMap( CGameTask* task )
 {
-	if ( !task )
+	if (!task || !m_bSecondaryTasksEnabled)
 	{
 		return;
 	}
@@ -259,7 +303,7 @@ void CUITaskWnd::TaskSetTargetMap( CGameTask* task )
 
 void CUITaskWnd::TaskShowMapSpot( CGameTask* task, bool show )
 {
-	if ( !task )
+	if (!task || !m_bSecondaryTasksEnabled)
 	{
 		return;
 	}

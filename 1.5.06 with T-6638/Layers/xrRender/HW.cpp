@@ -198,11 +198,11 @@ void	CHW::selectResolution	(u32 &dwWidth, u32 &dwHeight, BOOL bWindowed)
 		{
 #ifndef _EDITOR
 			string64					buff;
-			sprintf_s					(buff,sizeof(buff),"%dx%d",psCurrentVidMode[0],psCurrentVidMode[1]);
+			xr_sprintf					(buff,sizeof(buff),"%dx%d",psCurrentVidMode[0],psCurrentVidMode[1]);
 
 			if(_ParseItem(buff,vid_mode_token)==u32(-1)) //not found
 			{ //select safe
-				sprintf_s				(buff,sizeof(buff),"vid_mode %s",vid_mode_token[0].name);
+				xr_sprintf				(buff,sizeof(buff),"vid_mode %s",vid_mode_token[0].name);
 				Console->Execute		(buff);
 			}
 
@@ -313,7 +313,10 @@ void		CHW::CreateDevice		(HWND m_hWnd, bool move_window)
 	}
 
 	if ((D3DFMT_UNKNOWN==fTarget) || (D3DFMT_UNKNOWN==fTarget))	{
-		Msg					("Failed to initialize graphics hardware.\nPlease try to restart the game.");
+		Msg					("Failed to initialize graphics hardware.\n"
+							 "Please try to restart the game.\n"
+							 "Can not find matching format for back buffer."
+							 );
 		FlushLog			();
 		MessageBox			(NULL,"Failed to initialize graphics hardware.\nPlease try to restart the game.","Error!",MB_OK|MB_ICONERROR);
 		TerminateProcess	(GetCurrentProcess(),0);
@@ -371,7 +374,9 @@ void		CHW::CreateDevice		(HWND m_hWnd, bool move_window)
 	}
 	if (D3DERR_DEVICELOST==R)	{
 		// Fatal error! Cannot create rendering device AT STARTUP !!!
-		Msg					("Failed to initialize graphics hardware.\nPlease try to restart the game.");
+		Msg					("Failed to initialize graphics hardware.\n"
+							 "Please try to restart the game.\n"
+							 "CreateDevice returned 0x%08x(D3DERR_DEVICELOST)", R);
 		FlushLog			();
 		MessageBox			(NULL,"Failed to initialize graphics hardware.\nPlease try to restart the game.","Error!",MB_OK|MB_ICONERROR);
 		TerminateProcess	(GetCurrentProcess(),0);
@@ -427,7 +432,52 @@ u32	CHW::selectPresentInterval	()
 
 u32 CHW::selectGPU ()
 {
-	if (Caps.bForceGPU_SW) return D3DCREATE_SOFTWARE_VERTEXPROCESSING;
+#if RENDER == R_R1
+	BOOL isIntelGMA = FALSE;
+
+	if ( Caps.id_vendor == 0x8086 ) { // Intel
+
+		#define GMA_SL_SIZE 43
+
+		DWORD IntelGMA_SoftList[ GMA_SL_SIZE ] = { 
+			0x2782,0x2582,0x2792,0x2592,0x2772,0x2776,0x27A2,0x27A6,0x27AE,
+			0x2982,0x2983,0x2992,0x2993,0x29A2,0x29A3,0x2972,0x2973,0x2A02,
+			0x2A03,0x2A12,0x2A13,0x29C2,0x29C3,0x29B2,0x29B3,0x29D2,0x29D3,
+
+			0x2A42,0x2A43,0x2E02,0x2E03,0x2E12,0x2E13,0x2E22,0x2E23,0x2E32,
+			0x2E33,0x2E42,0x2E43,0x2E92,0x2E93,0x0042,0x0046
+		};
+
+		for ( int idx = 0 ; idx < GMA_SL_SIZE ; ++idx )
+			if ( IntelGMA_SoftList[ idx ] == Caps.id_device ) {
+				isIntelGMA = TRUE;
+				break;
+			}
+	}
+
+	if ( isIntelGMA )
+		switch ( ps_r1_SoftwareSkinning ) {
+			case 0 : 
+				Msg( "* Enabling software skinning" );
+				ps_r1_SoftwareSkinning = 1;
+				break;
+			case 1 : 
+				Msg( "* Using software skinning" );
+				break;
+			case 2 : 
+				Msg( "* WARNING: Using hardware skinning" );
+				Msg( "*   setting 'r1_software_skinning' to '1' may improve performance" );
+				break;
+	} else
+		if ( ps_r1_SoftwareSkinning == 1 ) {
+				Msg( "* WARNING: Using software skinning" );
+				Msg( "*   setting 'r1_software_skinning' to '0' should improve performance" );
+		}
+
+#endif // RENDER == R_R1
+
+	if ( Caps.bForceGPU_SW ) 
+		return D3DCREATE_SOFTWARE_VERTEXPROCESSING;
 
 	D3DCAPS9	caps;
 	pD3D->GetDeviceCaps(DevAdapter,DevT,&caps);
@@ -532,7 +582,7 @@ void	CHW::updateWindowProps	(HWND m_hWnd)
 			AdjustWindowRect		(	&m_rcWindowBounds, dwWindowStyle, FALSE );
 
 			SetWindowPos			(	m_hWnd, 
-										HWND_TOP,	
+										HWND_NOTOPMOST,	
 										m_rcWindowBounds.left, 
 										m_rcWindowBounds.top,
 										( m_rcWindowBounds.right - m_rcWindowBounds.left ),
@@ -543,6 +593,7 @@ void	CHW::updateWindowProps	(HWND m_hWnd)
 	else
 	{
 		SetWindowLong			( m_hWnd, GWL_STYLE, dwWindowStyle=(WS_POPUP|WS_VISIBLE) );
+		SetWindowLong			( m_hWnd, GWL_EXSTYLE, WS_EX_TOPMOST);
 	}
 
 #ifndef _EDITOR
@@ -662,7 +713,7 @@ void fill_vid_mode_list(CHW* _hw)
 		_hw->pD3D->EnumAdapterModes(_hw->DevAdapter, _hw->Caps.fTarget, i, &Mode);
 		if(Mode.Width < 800)		continue;
 
-		sprintf_s						(str,sizeof(str),"%dx%d", Mode.Width, Mode.Height);
+		xr_sprintf					(str,sizeof(str),"%dx%d", Mode.Width, Mode.Height);
 	
 		if(_tmp.end() != std::find_if(_tmp.begin(), _tmp.end(), _uniq_mode(str)))
 			continue;

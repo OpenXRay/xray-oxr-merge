@@ -21,13 +21,14 @@ private:
 //-	typedef ALife::EInfluenceType	EIndicatorType;
 
 	CUIStatic*			m_back;
-//	CUIStatic*			m_back_v;
-//	CUIStatic*			m_back_over_arrow;
-//	CUIStatic*			m_static_armor;
+	CUIStatic*			m_back_v;
+	CUIStatic*			m_back_over_arrow;
+	CUIStatic*			m_static_armor;
 
 //	CUIStatic*			m_resist_back[it_max];
 	CUIStatic*			m_indik[it_max];
 
+	CUIStatic*			m_ui_weapon_sign_ammo;
 	CUIStatic*			m_ui_weapon_cur_ammo;
 	CUIStatic*			m_ui_weapon_fmj_ammo;
 	CUIStatic*			m_ui_weapon_ap_ammo;
@@ -39,13 +40,15 @@ private:
 	Frect				m_ui_weapon_icon_rect;
 
 	CUIProgressBar*		m_ui_health_bar;
-//	CUIProgressBar*		m_ui_armor_bar;
+	CUIProgressBar*		m_ui_armor_bar;
 	CUIProgressBar*		m_ui_stamina_bar;
 
-//	CUIProgressShape*	m_progress_self;
+	CUIProgressShape*	m_progress_self;
 	CUIStatic*			m_radia_damage;
-//	UI_Arrow*			m_arrow;
-//	UI_Arrow*			m_arrow_shadow;
+	UI_Arrow*			m_arrow;
+	UI_Arrow*			m_arrow_shadow;
+
+	CUIStatic*			m_bleeding;
 /*	
 	CUIStatic*			m_bleeding_lev1;
 	CUIStatic*			m_bleeding_lev2;
@@ -104,6 +107,6 @@ protected:
 
 			void	Load_section_type	( ALife::EInfluenceType type, LPCSTR section );
 			void	UpdateIndicatorType	( CActor* actor, ALife::EInfluenceType type );
-//			void	SwitchLA			( bool state, ALife::EInfluenceType type );
+			void	SwitchLA			( bool state, ALife::EInfluenceType type );
 
 }; // class CUIHudStatesWnd

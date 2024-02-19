@@ -13,7 +13,7 @@ static void ApplyTexgen( const Fmatrix &mVP )
 {
 	Fmatrix mTexgen;
 
-#ifdef	USE_DX10
+#if defined(USE_DX10) || defined(USE_DX11)
 	Fmatrix			mTexelAdjust		= 
 	{
 		0.5f,				0.0f,				0.0f,			0.0f,
@@ -22,8 +22,8 @@ static void ApplyTexgen( const Fmatrix &mVP )
 		0.5f,				0.5f,				0.0f,			1.0f
 	};
 #else	//	USE_DX10
-	float	_w						= float(Device.dwWidth);
-	float	_h						= float(Device.dwHeight);
+	float	_w						= float(RDEVICE.dwWidth);
+	float	_h						= float(RDEVICE.dwHeight);
 	float	o_w						= (.5f / _w);
 	float	o_h						= (.5f / _h);
 	Fmatrix			mTexelAdjust		= 
@@ -257,7 +257,7 @@ IC void FillSprite	(FVF::LIT*& pv, const Fvector& pos, const Fvector& dir, const
 	float sa	= _sin(angle);  
 	float ca	= _cos(angle);  
 	const Fvector& T 	= dir;
-	Fvector R; 	R.crossproduct(T,Device.vCameraDirection).normalize_safe();
+	Fvector R; 	R.crossproduct(T,RDEVICE.vCameraDirection).normalize_safe();
 	Fvector Vr, Vt;
 	Vr.x 		= T.x*r1*sa+R.x*r1*ca;
 	Vr.y 		= T.y*r1*sa+R.y*r1*ca;
@@ -349,9 +349,9 @@ void CParticleEffect::Render(float )
 					if (m_RT_Flags.is(flRT_XFORM)){
 						Fvector p;
 						m_XFORM.transform_tiny	(p,m.pos);
-						FillSprite	(pv,Device.vCameraTop,Device.vCameraRight,p,lt,rb,r_x,r_y,m.color,m.rot.x);
+						FillSprite	(pv,RDEVICE.vCameraTop,RDEVICE.vCameraRight,p,lt,rb,r_x,r_y,m.color,m.rot.x);
 					}else{
-						FillSprite	(pv,Device.vCameraTop,Device.vCameraRight,m.pos,lt,rb,r_x,r_y,m.color,m.rot.x);
+						FillSprite	(pv,RDEVICE.vCameraTop,RDEVICE.vCameraRight,m.pos,lt,rb,r_x,r_y,m.color,m.rot.x);
 					}
 				}
 			}
@@ -364,7 +364,7 @@ void CParticleEffect::Render(float )
 				Fmatrix FTold						= Device.mFullTransform;
 				if(GetHudMode())
 				{
-					Device.mProject.build_projection(	deg2rad(psHUD_FOV*Device.fFOV), 
+					RDEVICE.mProject.build_projection(	deg2rad(psHUD_FOV*Device.fFOV), 
 														Device.fASPECT, 
 														VIEWPORT_NEAR, 
 														g_pGamePersistent->Environment().CurrentEnv->far_plane);

@@ -115,7 +115,7 @@ void SIniFileStream::r_string(LPSTR dest, u32 dest_size)
     shared_str S;
 	S = ini->r_string_wb(sect.c_str(),gen_name());
     R_ASSERT(dest_size>=S.size());
-    strcpy_s(dest, dest_size, S.c_str());
+    xr_strcpy(dest, dest_size, S.c_str());
 //.    Msg("[%s] [%s]=[%s]",sect.c_str(),tmp_buff,dest);
 }
 

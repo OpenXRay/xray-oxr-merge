@@ -90,19 +90,27 @@ LPCSTR CUIMessageBoxEx::GetPassword()
 	return m_pMessageBox->GetPassword();
 }
 
-bool CUIMessageBoxEx::IR_OnKeyboardPress( int dik )
+bool CUIMessageBoxEx::OnKeyboardAction(int dik, EUIMessages keyboard_action)
 {
-	if ( dik == DIK_NUMPADENTER || dik == DIK_RETURN || dik == DIK_SPACE)
+	if(keyboard_action==WINDOW_KEY_PRESSED)
 	{
-		m_pMessageBox->OnYesOk();
-		return true;
-	}else
-	if ( dik == DIK_ESCAPE)
-	{
-		GetHolder()->StartStopMenu(this, true);
-		return true;
-	}else
-		return CUIDialogWnd::IR_OnKeyboardPress(dik);
+		if ( dik == DIK_NUMPADENTER || dik == DIK_RETURN || dik == DIK_SPACE)
+		{
+			m_pMessageBox->OnYesOk();
+			return true;
+/*
+		}else
+			if ( dik == DIK_ESCAPE )
+		{
+			CUIMessageBox::E_MESSAGEBOX_STYLE style = m_pMessageBox->GetBoxStyle();
+			if(style != CUIMessageBox::MESSAGEBOX_INFO)
+				HideDialog();
+			return true;
+*/
+		}else
+			return CUIDialogWnd::OnKeyboardAction(dik, keyboard_action);
+	}
+	return CUIDialogWnd::OnKeyboardAction(dik, keyboard_action);
 }
 
 void  CUIMessageBoxEx::SetTextEditURL( LPCSTR text )

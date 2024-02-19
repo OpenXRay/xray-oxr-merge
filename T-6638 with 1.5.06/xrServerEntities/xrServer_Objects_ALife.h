@@ -32,7 +32,6 @@ class CALifeSmartTerrainTask;
 #endif //#ifdef XRGAME_EXPORTS
 class CALifeMonsterAbstract;
 
-
 struct  SFillPropData
 {
 	RTokenVec 						locations[4];

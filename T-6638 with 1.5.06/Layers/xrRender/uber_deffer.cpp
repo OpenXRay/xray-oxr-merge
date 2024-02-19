@@ -42,7 +42,7 @@ void	uber_deffer	(CBlender_Compile& C, bool hq, LPCSTR _vspec, LPCSTR _pspec, BO
 			bHasDetailBump = true;
 			xr_strcpy		( texDetailBump, sizeof(texDetailBump), detail_bump_texture);
 			xr_strcpy		( texDetailBumpX, sizeof(texDetailBumpX), detail_bump_texture);
-			xr_strcat			( texDetailBumpX, "#");
+			xr_strcat		( texDetailBumpX, "#");
 		}
 	}
 
@@ -64,24 +64,24 @@ void	uber_deffer	(CBlender_Compile& C, bool hq, LPCSTR _vspec, LPCSTR _pspec, BO
 	} 
 	else 
 	{
-		xr_strcpy			(fnameA,_t.bump_get().c_str());
+		xr_strcpy		(fnameA,_t.bump_get().c_str());
 		strconcat		(sizeof(fnameB),fnameB,fnameA,"#");
-		xr_strcat			(vs,"_bump");
+		xr_strcat		(vs,"_bump");
 		if (hq && C.bUseSteepParallax)
 		{
-			xr_strcat			(ps,"_steep");
+			xr_strcat	(ps,"_steep");
 		}
 		else
 		{
-			xr_strcat			(ps,"_bump");
+			xr_strcat	(ps,"_bump");
 		}
 		if (hq && (C.bDetail_Diffuse || C.bDetail_Bump) )
 		{
 			xr_strcat		(vs,"_d"	);
 			if (bHasDetailBump)
-				xr_strcat		(ps,"_db"	);	//	bump & detail & hq
+				xr_strcat	(ps,"_db"	);	//	bump & detail & hq
 			else
-				xr_strcat		(ps,"_d"	);
+				xr_strcat	(ps,"_d"	);
 		}
 	}
 

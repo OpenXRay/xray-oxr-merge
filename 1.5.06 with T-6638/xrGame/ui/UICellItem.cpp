@@ -1,13 +1,18 @@
 #include "stdafx.h"
 #include "UICellItem.h"
+#include "uicursor.h"
 #include "../inventory_item.h"
 #include "UIDragDropListEx.h"
 #include "../xr_level_controller.h"
 #include "../../xrEngine/xr_input.h"
-#include "../HUDManager.h"
 #include "../level.h"
 #include "object_broker.h"
 #include "UIXmlInit.h"
+#include "UIProgressBar.h"
+
+#include "Weapon.h"
+#include "CustomOutfit.h"
+#include "ActorHelmet.h"
 
 CUICellItem* CUICellItem::m_mouse_selected_item = NULL;
 
@@ -23,6 +28,7 @@ CUICellItem::CUICellItem()
 	SetAccelerator		(0);
 	m_b_destroy_childs	= true;
 	m_selected			= false;
+	m_select_armament	= false;
 	m_cur_mark			= false;
 	m_has_upgrade		= false;
 	
@@ -167,7 +173,7 @@ CUIDragItem* CUICellItem::CreateDragItem()
 	{
 		float t1,t2;
 		t1				= r.width();
-		t2				= r.height();
+		t2				= r.height()*UI().get_current_kx();
 
 		Fvector2 cp = GetUICursor().GetCursorPosition();
 
@@ -248,7 +254,7 @@ void CUICellItem::Mark( bool status )
 	m_cur_mark = status;
 }
 
-void CUICellItem::SetCustomDraw			(ICustomDrawCell* c)
+void CUICellItem::SetCustomDraw(ICustomDrawCellItem* c)
 {
 	if (m_custom_draw)
 		xr_delete(m_custom_draw);
@@ -313,18 +319,18 @@ void CUIDragItem::Draw()
 	tmp.sub					(m_pos_offset);
 	tmp.mul					(-1.0f);
 	MoveWndDelta			(tmp);
-	UI()->PushScissor		(UI()->ScreenRect(),true);
-
 	inherited::Draw();
-
-	UI()->PopScissor();
 }
 
 void CUIDragItem::SetBackList(CUIDragDropListEx*l)
 {
-	if(m_back_list!=l){
-		m_back_list=l;
-	}
+	if(m_back_list)
+		m_back_list->OnDragEvent(this, false);
+
+	m_back_list					= l;
+
+	if(m_back_list)
+		l->OnDragEvent			(this, true);
 }
 
 Fvector2 CUIDragItem::GetPosition()

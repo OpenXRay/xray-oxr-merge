@@ -3,14 +3,15 @@
 #include "UIGameLog.h"
 #include "UIEditBox.h"
 #include "UIXmlInit.h"
+#include "UIHelper.h"
+#include "xrUIXmlParser.h"
+#include "UIDialogHolder.h"
 #include "../game_cl_base.h"
 #include "../xr_level_controller.h"
 #include "../Level.h"
-#include "../../xrEngine/xr_object.h"
 
 CUIChatWnd::CUIChatWnd()
-	:	sendNextMessageToTeam	(false),
-		pOwner					(NULL)
+	:	sendNextMessageToAll	(true)
 {}
 
 void CUIChatWnd::PendingMode(bool const is_pending_mode)
@@ -80,6 +81,7 @@ void CUIChatWnd::SetEditBoxPrefix(LPCSTR prefix)
 	_pos.x						= UIPrefix.GetWndPos().x + UIPrefix.GetWidth() + 5.0f;
 	_pos.y						= UIEditBox.GetWndPos().y;
 	UIEditBox.SetWndPos			(_pos);
+	UIEditBox.ClearText		();
 }
 
 void CUIChatWnd::Show(bool status)
@@ -88,20 +90,18 @@ void CUIChatWnd::Show(bool status)
 	inherited::Show(status);
 }
 
-void CUIChatWnd::SetKeyboardCapture(CUIWindow* pChildWindow, bool capture_status)
+void CUIChatWnd::SendMessage(CUIWindow* pWnd, s16 msg, void* pData)
 {
-	if (&UIEditBox == pChildWindow && false == capture_status)
-	{
-			shared_str phrase = UIEditBox.GetText();
-			if (pOwner)
-			{
-				if (sendNextMessageToTeam)
-					pOwner->OnKeyboardPress(kCHAT_TEAM);
-				else
-					pOwner->OnKeyboardPress(kCHAT);
-			}
-			UIEditBox.ClearText();
+	CUIWndCallback::OnEvent		(pWnd, msg, pData);
 	}
 
-	inherited::SetKeyboardCapture(pChildWindow, capture_status);
+void CUIChatWnd::OnChatCommit(CUIWindow* w, void* d)
+{
+	Game().ChatSay				(UIEditBox->GetText(), sendNextMessageToAll);
+	HideDialog					();
+}
+
+void CUIChatWnd::OnChatCancel(CUIWindow* w, void* d)
+{
+	HideDialog();
 }

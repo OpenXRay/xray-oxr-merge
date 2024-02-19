@@ -148,7 +148,7 @@ void CInventory::Take(CGameObject *pObj, bool bNotActivate, bool strict_placemen
 
 		break;
 	case eItemPlaceSlot:
-		result							= Slot(pIItem, bNotActivate, strict_placement); 
+		result							= Slot(pIItem->m_ItemCurrPlace.slot_id, pIItem, bNotActivate, strict_placement); 
 		if(!result)
 			pIItem->m_ItemCurrPlace.type = eItemPlaceUndefined;
 #ifdef DEBUG
@@ -158,13 +158,13 @@ void CInventory::Take(CGameObject *pObj, bool bNotActivate, bool strict_placemen
 		break;
 	}
 
-	if(pIItem->m_eItemCurrPlace==eItemPlaceUndefined)
+	if(pIItem->CurrPlace()==eItemPlaceUndefined)
 	{
 		if( !pIItem->RuckDefault() )
 		{
-			if( CanPutInSlot(pIItem) )
+			if( CanPutInSlot(pIItem, pIItem->BaseSlot()) )
 			{
-				result						= Slot(pIItem, bNotActivate,strict_placement); VERIFY(result);
+				result						= Slot(pIItem->BaseSlot(), pIItem, bNotActivate,strict_placement); VERIFY(result);
 			}else
 				if (CanPutInBelt(pIItem))
 				{
@@ -185,7 +185,7 @@ void CInventory::Take(CGameObject *pObj, bool bNotActivate, bool strict_placemen
 	InvalidateState						();
 
 	pIItem->object().processing_deactivate();
-	VERIFY								(pIItem->m_eItemCurrPlace != eItemPlaceUndefined);
+	VERIFY								(pIItem->CurrPlace() != eItemPlaceUndefined);
 
 
 	if( CurrentGameUI() )
@@ -195,6 +195,11 @@ void CInventory::Take(CGameObject *pObj, bool bNotActivate, bool strict_placemen
 		if (Level().CurrentViewEntity() == pActor_owner)
 		{
 			CurrentGameUI()->OnInventoryAction(pIItem, GE_OWNERSHIP_TAKE);
+		}
+		else if(CurrentGameUI()->ActorMenu().GetMenuMode()==mmDeadBodySearch)
+		{
+			if(m_pOwner==CurrentGameUI()->ActorMenu().GetPartner())
+				CurrentGameUI()->OnInventoryAction(pIItem, GE_OWNERSHIP_TAKE);
 		}
 	};
 }
@@ -209,7 +214,7 @@ bool CInventory::DropItem(CGameObject *pObj, bool just_before_destroy, bool dont
 	
 	pIItem->object().processing_activate(); 
 	
-	switch(pIItem->m_eItemCurrPlace)
+	switch(pIItem->CurrPlace())
 	{
 	case eItemPlaceBelt:{
 			VERIFY(InBelt(pIItem));
@@ -236,7 +241,7 @@ bool CInventory::DropItem(CGameObject *pObj, bool just_before_destroy, bool dont
 		}break;
 	case eItemPlaceSlot:{
 			VERIFY			(InSlot(pIItem));
-			if(m_iActiveSlot == pIItem->GetSlot())
+			if(m_iActiveSlot == pIItem->CurrSlot())
 			{
 				CActor* pActor	= smart_cast<CActor*>(m_pOwner);
 				if (!pActor || pActor->g_Alive())
@@ -256,7 +261,7 @@ bool CInventory::DropItem(CGameObject *pObj, bool just_before_destroy, bool dont
 					}
 				}
 			}
-			m_slots[pIItem->GetSlot()].m_pIItem = NULL;							
+			m_slots[pIItem->CurrSlot()].m_pIItem = NULL;							
 			pIItem->object().processing_deactivate();
 		}break;
 	default:
@@ -436,7 +441,9 @@ bool CInventory::Ruck(PIItem pIItem, bool strict_placement)
 	//גושü בûכא ג סכמעו
 	if(in_slot) 
 	{
-		if(m_iActiveSlot == pIItem->GetSlot()) Activate(NO_ACTIVE_SLOT);
+		if(m_iActiveSlot == pIItem->GetSlot())
+			Activate(NO_ACTIVE_SLOT);
+
 		m_slots[pIItem->GetSlot()].m_pIItem = NULL;
 	}
 	else
@@ -727,11 +734,10 @@ bool CInventory::Action(u16 cmd, u32 flags)
 	}
 
 
-	if (m_iActiveSlot < m_slots.size() && 
-			m_slots[m_iActiveSlot].m_pIItem && 
-			!m_slots[m_iActiveSlot].m_pIItem->object().getDestroy() &&
-			m_slots[m_iActiveSlot].m_pIItem->Action(cmd, flags)) 
-											return true;
+	if (	ActiveItem() && 
+			ActiveItem()->Action(cmd, flags)) 
+		return true;
+
 	bool b_send_event = false;
 	switch(cmd) 
 	{
@@ -756,8 +762,8 @@ bool CInventory::Action(u16 cmd, u32 flags)
 		    b_send_event = true;
 			if(flags&CMD_START)
 			{
-                if((int)m_iActiveSlot == ARTEFACT_SLOT &&
-					m_slots[m_iActiveSlot].m_pIItem /*&& IsGameTypeSingle()*/)
+                if(GetActiveSlot() == ARTEFACT_SLOT &&
+					ActiveItem() /*&& IsGameTypeSingle()*/)
 				{
 					Activate(NO_ACTIVE_SLOT);
 				}else {
@@ -828,8 +834,9 @@ void CInventory::Update()
 				CHudItem* hi = ActiveItem()->cast_hud_item();
 				if(!hi->IsHidden())
 				{
-//.					PIItem itm = m_slots[m_iActiveSlot].m_pIItem;
-//.					Msg("waiting for [%s] state=%d",itm->object().cName().c_str(), itm->cast_hud_item()->GetState() );
+					if(hi->GetState()==CHUDState::eIdle && hi->GetNextState()==CHUDState::eIdle)
+						hi->SendDeactivateItem();
+
 					UpdateDropTasks	();
 					return;
 				}
@@ -930,7 +937,7 @@ PIItem CInventory::SameSlot(const u16 slot, PIItem pIItem, bool bSearchRuck) con
 	for(TIItemContainer::const_iterator it = list.begin(); list.end() != it; ++it) 
 	{
 		PIItem _pIItem = *it;
-		if(_pIItem != pIItem && _pIItem->GetSlot() == slot) return _pIItem;
+		if(_pIItem != pIItem && _pIItem->BaseSlot() == slot) return _pIItem;
 	}
 
 	return NULL;
@@ -1142,8 +1149,9 @@ bool CInventory::CanPutInSlot(PIItem pIItem, u16 slot_id) const
 		if(pOutfit && !pOutfit->bIsHelmetAvaliable)
 			return false;
 	}
-	if(pIItem->GetSlot() < m_slots.size() && 
-		m_slots[pIItem->GetSlot()].m_pIItem == NULL )
+
+	if(slot_id!=NO_ACTIVE_SLOT && 
+		NULL==ItemFromSlot(slot_id) )
 		return true;
 	
 	return false;

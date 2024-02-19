@@ -520,7 +520,6 @@ void CUIMainIngameWnd::ReceiveNews(GAME_NEWS_DATA* news)
 {
 	VERIFY(news->texture_name.size());
 
-//	CurrentGameUI()->m_pMessagesWnd->AddIconedPdaMessage(news->texture_name.c_str(), news->tex_rect, news->SingleLineText(), news->show_time);
 	CurrentGameUI()->m_pMessagesWnd->AddIconedPdaMessage(news);
 	CurrentGameUI()->UpdatePda();
 }

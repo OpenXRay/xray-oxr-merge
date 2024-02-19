@@ -3,9 +3,8 @@
 #include "UIScrollBar.h"
 #include "object_broker.h"
 #include "UICellItem.h"
+#include "UICursor.h"
 
-#include "../Include/xrRender/UIRender.h"
-#include "../Include/xrRender/UIShader.h"
 
 CUIDragItem* CUIDragDropListEx::m_drag_item = NULL;
 
@@ -23,6 +22,7 @@ CUIDragDropListEx::CUIDragDropListEx()
 	m_vScrollBar				= xr_new<CUIScrollBar>();
 	m_vScrollBar->SetAutoDelete	(true);
 	m_selected_item				= NULL;
+	m_bConditionProgBarVisible	= false;
 
 	SetCellSize					(Ivector2().set(50,50));
 	SetCellsCapacity			(Ivector2().set(0,0));
@@ -847,8 +847,8 @@ Ivector2 CUICellContainer::PickCell(const Fvector2& abs_pos)
 	GetAbsolutePos							(ap);
 	ap.sub									(abs_pos);
 	ap.mul									(-1);
-	res.x									= iFloor(ap.x/(m_cellSize.x+m_cellSpacing.x) );
-	res.y									= iFloor(ap.y/(m_cellSize.y+m_cellSpacing.y) );
+	res.x			= iFloor(ap.x/(m_cellSize.x+m_cellSpacing.x*(m_cellsCapacity.x-1)/m_cellsCapacity.x));
+	res.y			= iFloor(ap.y/(m_cellSize.y+m_cellSpacing.y*(m_cellsCapacity.y-1)/m_cellsCapacity.y));
 	if(!ValidCell(res))
 		res.set(-1, -1);
 	return res;
@@ -913,13 +913,20 @@ void CUICellContainer::Draw()
 			CUICell& ui_cell = GetCellAt( cpos );
 			
 			u8 select_mode = 0;
-			if ( !ui_cell.Empty() && ui_cell.m_item->m_cur_mark )
+			if ( !ui_cell.Empty() )
 			{
-				select_mode = 2;
-			}
-			else if ( !ui_cell.Empty() && ui_cell.m_item->m_selected )
-			{
-				select_mode = 1;
+				if ( ui_cell.m_item->m_cur_mark )
+				{
+					select_mode = 2;
+				}
+				else if ( ui_cell.m_item->m_selected )
+				{
+					select_mode = 1;
+				}
+				else if ( ui_cell.m_item->m_select_armament )
+				{
+					select_mode = 3;
+				}
 			}
 
 			Fvector2			tp;
@@ -952,9 +959,10 @@ void CUICellContainer::Draw()
 		UI_CELLS_VEC_IT it = m_cells_to_draw.begin();
 		for ( ; it != m_cells_to_draw.end(); ++it ) // all cells
 		{
-			if ( !(*it).Empty() && ((*it).m_item->m_drawn_frame != Device.dwFrame) )
+			CUICell& cell = (*it);
+			if ( !cell.Empty() && (cell.m_item->m_drawn_frame != Device.dwFrame) )
 			{
-				(*it).m_item->Draw();
+				cell.m_item->Draw();
 			}
 		}
 	}

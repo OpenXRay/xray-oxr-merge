@@ -1,7 +1,7 @@
 #ifndef _RENDER_H_
 #define _RENDER_H_
 
-#include "frustum.h"
+#include "../xrCDB/frustum.h"
 #include "vis_common.h"
 //#include "IRenderDetailModel.h"
 
@@ -26,6 +26,7 @@ struct ENGINE_API	FSlideWindowItem;
 //	Igor
 class IRenderVisual;
 class IKinematics;
+class CGameFont;
 //class IRenderDetailModel;
 
 #ifndef _EDITOR
@@ -108,6 +109,7 @@ public:
 	virtual	void						force_mode			(u32 mode)							= 0;
 	virtual float						get_luminocity		()									= 0;
 	virtual float						get_luminocity_hemi	()									= 0;
+	virtual float*						get_luminocity_hemi_cube		()									= 0;
 
 	virtual ~IRender_ObjectSpecific()	{};
 };
@@ -143,6 +145,9 @@ public:
 	virtual void					set_color_add		(const Fvector	&f)					= 0;
 	virtual u32						get_width			()									= 0;
 	virtual u32						get_height			()									= 0;
+	virtual void					set_cm_imfluence	(float	f)							= 0;
+	virtual void					set_cm_interpolate	(float	f)							= 0;
+	virtual void					set_cm_textures		(const shared_str &tex0, const shared_str &tex1)= 0;
 	virtual ~IRender_Target()		{};
 };
 
@@ -173,6 +178,8 @@ public:
 	s32								m_skinning;
 	s32								m_MSAASample;
 
+	BENCH_SEC_SCRAMBLEMEMBER1
+
 	// data
 	CFrustum						ViewBase;
 	CFrustum*						View;
@@ -189,6 +196,9 @@ public:
 	virtual	void					reset_begin				()											= 0;
 	virtual	void					reset_end				()											= 0;
 
+	BENCH_SEC_SCRAMBLEVTBL1
+	BENCH_SEC_SCRAMBLEVTBL3
+
 	virtual	void					level_Load				(IReader*)									= 0;
 	virtual void					level_Unload			()											= 0;
 
@@ -196,16 +206,13 @@ public:
 			void					shader_option_skinning	(s32 mode)									{ m_skinning=mode;	}
 	virtual HRESULT					shader_compile			(
 		LPCSTR							name,
-		LPCSTR                          pSrcData,
+		DWORD const*                    pSrcData,
 		UINT                            SrcDataLen,
-		void*							pDefines,
-		void*							pInclude,
 		LPCSTR                          pFunctionName,
 		LPCSTR                          pTarget,
 		DWORD                           Flags,
-		void*							ppShader,
-		void*							ppErrorMsgs,
-		void*							ppConstantTable)												= 0;
+		void*&							result
+	)																									= 0;
 
 	// Information
 	virtual	void					Statistics				(CGameFont* F	)							{};

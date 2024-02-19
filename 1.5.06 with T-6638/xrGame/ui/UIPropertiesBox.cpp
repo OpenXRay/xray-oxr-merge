@@ -22,6 +22,8 @@ CUIPropertiesBox::CUIPropertiesBox(CUIPropertiesBox* sub_property_box)
 
 CUIPropertiesBox::~CUIPropertiesBox()
 {
+	R_ASSERT2(!m_sub_property_box || (!m_sub_property_box->IsShown()),
+		"child sub menu is in shown mode - he'll tries to hide this menu");
 }
 
 
@@ -157,7 +159,6 @@ void CUIPropertiesBox::Show(const Frect& parent_rect, const Fvector2& point)
 	ResetAll						();
 
 	GetParent()->SetCapture			(this, true);
-	m_pOrignMouseCapturer			= this;
 	m_UIListWnd.Reset();
 }
 
@@ -195,18 +196,19 @@ bool CUIPropertiesBox::OnMouseAction(float x, float y, EUIMessages mouse_action)
 	{
 		Hide();
 	}
+	if ( mouse_action == WINDOW_MOUSE_WHEEL_DOWN || mouse_action == WINDOW_MOUSE_WHEEL_UP )
+		return true;
 
 	return inherited::OnMouseAction(x, y, mouse_action);
 }
 
 void CUIPropertiesBox::AutoUpdateSize()
 {
-	SetHeight(m_UIListWnd.GetItemHeight()*m_UIListWnd.GetSize()+ m_UIListWnd.GetVertIndent());
-	m_UIListWnd.SetHeight(GetHeight());
-	float f = float(m_UIListWnd.GetLongestLength()+m_UIListWnd.GetHorizIndent()) + 2; 
-	SetWidth(_max(20.0f,f));
-//		f = float(m_UIListWnd.GetLongestLength());
-	m_UIListWnd.SetWidth(_max(20.0f,f));
+	Fvector2 sz				= GetWndSize();
+	sz.y					= m_UIListWnd.GetItemHeight()*m_UIListWnd.GetSize()+ m_UIListWnd.GetVertIndent();
+	sz.x					= float(m_UIListWnd.GetLongestLength()+m_UIListWnd.GetHorizIndent()) + 2;
+	SetWndSize				(sz);
+	m_UIListWnd.SetWndSize	(GetWndSize());
 	m_UIListWnd.UpdateChildrenLenght();
 }
 
@@ -225,6 +227,5 @@ void CUIPropertiesBox::Draw()
 
 bool CUIPropertiesBox::OnKeyboardAction(int dik, EUIMessages keyboard_action)
 {
-	Hide();
 	return true;
 }

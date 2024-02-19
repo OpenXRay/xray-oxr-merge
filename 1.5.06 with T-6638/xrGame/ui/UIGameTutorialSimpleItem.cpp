@@ -1,26 +1,22 @@
 #include "pch_script.h"
 #include "UIGameTutorial.h"
-#include "UIWindow.h"
 #include "UIStatic.h"
+#include "uicursor.h"
 #include "UIXmlInit.h"
 #include "object_broker.h"
 #include "../../xrEngine/xr_input.h"
 #include "../xr_level_controller.h"
 #include "../UIGameSp.h"
-#include "../HUDManager.h"
 #include "../level.h"
 #include "UIPdaWnd.h"
 #include "UIActorMenu.h"
 #include "UITalkWnd.h"
-#include "UICarBodyWnd.h"
+#include "../MainMenu.h"
 #include "../../xrServerEntities/script_engine.h"
 #include "../ai_space.h"
 
 extern ENGINE_API BOOL bShowPauseString;
 
-//-----------------------------------------------------------------------------
-// Tutorial Item
-//-----------------------------------------------------------------------------
 CUISequenceSimpleItem::~CUISequenceSimpleItem()
 {
 	SubItemVecIt _I			= m_subitems.begin	();
@@ -33,6 +29,9 @@ CUISequenceSimpleItem::~CUISequenceSimpleItem()
 
 bool CUISequenceSimpleItem::IsPlaying()
 {
+	if(m_time_start<0.0f)
+		return true;
+
 	return (m_time_start+m_time_length)>(Device.dwTimeContinual/1000.0f);
 }
 
@@ -60,7 +59,7 @@ void CUISequenceSimpleItem::Load(CUIXml* xml, int idx)
 	m_time_length			= xml->ReadFlt			("length_sec",0,0		);
 	m_desired_cursor_pos.x	= xml->ReadAttribFlt	("cursor_pos",0,"x",0);
 	m_desired_cursor_pos.y	= xml->ReadAttribFlt	("cursor_pos",0,"y",0	);
-	strcpy_s					(m_pda_section, xml->Read("pda_section",0,"")	);
+	xr_strcpy					(m_pda_section, xml->Read("pda_section",0,"")	);
 
 	LPCSTR str				= xml->Read				("pause_state",0,"ignore");
 	m_flags.set										(etiNeedPauseOn, 0==_stricmp(str, "on"));
@@ -81,7 +80,9 @@ void CUISequenceSimpleItem::Load(CUIXml* xml, int idx)
 	}
 
 	m_flags.set						(etiCanBeStopped,	(m_continue_dik_guard==-1));
-	m_flags.set						(etiGrabInput,		1==xml->ReadInt("grab_input",0,1));
+
+	LPCSTR str_grab_input			= xml->Read("grab_input",0,"on");
+	m_flags.set						(etiGrabInput, (0==_stricmp(str_grab_input, "on")||0==_stricmp(str_grab_input, "1")) );
 	
 	int actions_count				= xml->GetNodesNum	(0,0,"action");
 	m_actions.resize				(actions_count);
@@ -100,28 +101,34 @@ void CUISequenceSimpleItem::Load(CUIXml* xml, int idx)
 	XML_NODE* _lsr					= xml->GetLocalRoot();
 	CUIXmlInit xml_init;
 	xml_init.InitWindow				(*xml, "main_wnd", 0,	m_UIWindow);
-//.	xml_init.InitAutoStaticGroup	(*xml, "main_wnd",		m_UIWindow);
 	xml->SetLocalRoot				(_lsr);
 
 	// initialize auto_static
 	int cnt							= xml->GetNodesNum	("main_wnd",0,"auto_static");
 	m_subitems.resize				(cnt);
 	string64						sname;
-	for(int i=0;i<cnt;++i){
+	for(int i=0;i<cnt;++i)
+	{
 		XML_NODE* _sr				= xml->GetLocalRoot();
 		xml->SetLocalRoot			(xml->NavigateToNode("main_wnd",0));
 
-		sprintf_s						(sname,"auto_static_%d", i);
+		xr_sprintf						(sname,"auto_static_%d", i);
 
 		SSubItem* _si				= &m_subitems[i];
 		_si->m_start				= xml->ReadAttribFlt("auto_static",i,"start_time",0);
 		_si->m_length				= xml->ReadAttribFlt("auto_static",i,"length_sec",0);
+
 		_si->m_visible				= false;
-		_si->m_wnd					= smart_cast<CUIStatic*>(find_child_window(m_UIWindow, sname)); VERIFY(_si->m_wnd);
+		_si->m_wnd					= smart_cast<CUIStatic*>(find_child_window(m_UIWindow, sname));
+		VERIFY						(_si->m_wnd);
+
 		_si->m_wnd->SetTextComplexMode(true);
 		_si->m_wnd->Show			(false);
-		if(UI()->is_16_9_mode())
+
+		if(UI().is_widescreen())
+		{
 			_si->m_wnd->SetWidth(_si->m_wnd->GetWidth()/1.2f);
+		}
 
 		xml->SetLocalRoot			(_sr);
 	}
@@ -131,7 +138,7 @@ void CUISequenceSimpleItem::Load(CUIXml* xml, int idx)
 void CUISequenceSimpleItem::SSubItem::Start	()
 {
 	m_wnd->Show						(true);
-	m_wnd->ResetClrAnimation			();
+	m_wnd->ResetColorAnimation		();
 	m_visible						= true;
 }
 
@@ -141,30 +148,53 @@ void CUISequenceSimpleItem::SSubItem::Stop	()
 	m_visible						= false;
 }
 
+void CUISequenceSimpleItem::OnRender()
+{
+	if(m_time_start < -2.0f)
+		m_time_start = -1.0f;
+	else
+	if(m_time_start < 0.0f)
+		m_time_start				= float(Device.dwTimeContinual)/1000.0f;
+}
+
+float CUISequenceSimpleItem::current_factor()
+{
+	if(m_time_start < 0.0f || fis_zero(m_time_length))
+		return 0.0f;
+	else
+		return ((Device.dwTimeContinual/1000.0f)-m_time_start) / m_time_length;
+}
+
 void CUISequenceSimpleItem::Update			()
 {
+	inherited::Update();
+	float _start					= (m_time_start<0.0f)? (float(Device.dwTimeContinual)/1000.0f) : m_time_start;
+
 	float gt						= float(Device.dwTimeContinual)/1000.0f;
 	SubItemVecIt _I					= m_subitems.begin();
 	SubItemVecIt _E					= m_subitems.end();
 	for(;_I!=_E;++_I)
 	{
 		SSubItem& s					= *_I;
-		bool bPlaying				= (gt>(m_time_start+s.m_start-EPS))&&(gt<(m_time_start+s.m_start+s.m_length+EPS));
-		if (true==bPlaying&&(false==s.m_visible))			s.Start	();
-		else if ((false==bPlaying)&&(true==s.m_visible))	s.Stop	();
+		bool bPlaying				= (gt>(_start+s.m_start-EPS))&&(gt<(_start+s.m_start+s.m_length+EPS));
+
+		if (true==bPlaying&&(false==s.m_visible))
+					s.Start	();
+		else if ((false==bPlaying)&&(true==s.m_visible))
+			s.Stop	();
 	}
 	
-	if (g_pGameLevel)
+	if(g_pGameLevel && (!m_pda_section || 0 == xr_strlen(m_pda_section)) )
 	{
 		CUIGameSP* ui_game_sp	= smart_cast<CUIGameSP*>(CurrentGameUI());
 
-	if(ui_game_sp)
-	{
-		if(!m_pda_section || 0 == xr_strlen(m_pda_section) )
+		if(ui_game_sp)
+		{
 			if ( ui_game_sp->PdaMenu().IsShown()		||
 				ui_game_sp->ActorMenu().IsShown()		||
 				ui_game_sp->TalkMenu->IsShown()			||
-				ui_game_sp->UIChangeLevelWnd->IsShown()
+				ui_game_sp->UIChangeLevelWnd->IsShown() ||
+				(MainMenu()->IsActive() && !m_owner->m_flags.test(CUISequencer::etsOverMainMenu) )
 				)
 				m_UIWindow->Show						(false);
 			else
@@ -177,6 +207,7 @@ void CUISequenceSimpleItem::Update			()
 
 void CUISequenceSimpleItem::Start()
 {
+	m_time_start					= -3.0f;
 	inherited::Start				();
 	m_flags.set						(etiStoredPauseState, Device.Paused());
 	
@@ -193,9 +224,8 @@ void CUISequenceSimpleItem::Start()
 		Device.Pause			(TRUE, FALSE, TRUE, "simpleitem_start");
 
 	if(m_desired_cursor_pos.x && m_desired_cursor_pos.y)
-		GetUICursor()->SetUICursorPosition(m_desired_cursor_pos);
+		GetUICursor().SetUICursorPosition(m_desired_cursor_pos);
 
-	m_time_start				= float(Device.dwTimeContinual)/1000.0f;
 	m_owner->MainWnd()->AttachChild	(m_UIWindow);
 
 	if (m_sound._handle())		m_sound.play(NULL, sm_2D);
@@ -230,7 +260,8 @@ bool CUISequenceSimpleItem::Stop			(bool bForce)
 	if(!m_flags.test(etiCanBeStopped)&&!bForce) 
 		return false;
 
-	m_owner->MainWnd()->DetachChild	(m_UIWindow);
+	if(m_UIWindow->GetParent()==m_owner->MainWnd()) //started??
+		m_owner->MainWnd()->DetachChild	(m_UIWindow);
 
 	m_sound.stop				();
 

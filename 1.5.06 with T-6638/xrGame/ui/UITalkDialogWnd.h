@@ -49,8 +49,8 @@ public:
 	CUIStatic			UIDialogFrameBottom;
 	
 	Fvector2			m_btn_pos[3];
-	CUI3tButtonEx		UIToTradeButton;
-	CUI3tButtonEx		UIToExitButton;
+	CUI3tButton			UIToTradeButton;
+	CUI3tButton			UIToExitButton;
 
 	//информация о персонажах 
 	CUIStatic			UIOurIcon;
@@ -58,7 +58,7 @@ public:
 	CUICharacterInfo	UICharacterInfoLeft;
 	CUICharacterInfo	UICharacterInfoRight;
 
-	void				AddQuestion			(LPCSTR str, LPCSTR value);
+	void				AddQuestion			(LPCSTR str, LPCSTR value, int number, bool b_finalizer);
 	void				AddAnswer			(LPCSTR SpeakerName, const char* str, bool bActor);
 	void				AddIconedAnswer		(LPCSTR caption, LPCSTR text, LPCSTR texture_name, LPCSTR templ_name);
 	void				ClearAll			();
@@ -90,6 +90,7 @@ class CUIQuestionItem :public CUIWindow, public CUIWndCallback
 	typedef CUIWindow inherited;
 	float			m_min_height;
 public:
+	CUIStatic*		m_num_text;
 	CUI3tButton*	m_text;
 	shared_str		m_s_value;
 					CUIQuestionItem			(CUIXml* xml_doc, LPCSTR path);

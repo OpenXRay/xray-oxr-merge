@@ -3,8 +3,9 @@
 #include "UITextureMaster.h"
 #include "UIScrollBar.h"
 #include "uilistboxitem.h"
+#include "../string_table.h"
 
-#define CB_HEIGHT 23.0f
+#define CB_HEIGHT 20.0f
 
 CUIComboBox::CUIComboBox()
 {
@@ -42,29 +43,30 @@ void CUIComboBox::InitComboBox(Fvector2 pos, float width)
 
 	m_frameLine.InitIB					(Fvector2().set(0,0), Fvector2().set(width, CB_HEIGHT));
 
-	m_frameLine.InitEnabledState		("ui_cb_linetext_e"); // horizontal by default
-	m_frameLine.InitHighlightedState	("ui_cb_linetext_h");
+	m_frameLine.InitState				(S_Enabled, "ui_inGame2_combobox_linetext"); // horizontal by default
+	m_frameLine.InitState				(S_Highlighted, "ui_inGame2_combobox_linetext");
 
 	// Edit Box on left side of frame line
 	m_text.SetWndPos					(Fvector2().set(lb_text_offset,0.0f));
-	m_text.SetWndSize					(Fvector2().set(width, CB_HEIGHT)); 
+	m_text.SetWndSize					(Fvector2().set(width-lb_text_offset, CB_HEIGHT)); 
 
 	m_text.SetVTextAlignment			(valCenter);
 	m_text.SetTextColor					(m_textColor[0]);
 	m_text.Enable						(false);
 
 	// height of list equal to height of ONE element
-	float item_height					= CUITextureMaster::GetTextureHeight("ui_cb_listline_b");
+	float item_height					= CUITextureMaster::GetTextureHeight("ui_inGame2_combobox_line_b");
 
 	m_list_box.SetWndPos				(Fvector2().set(lb_text_offset,0.0f));
-	m_list_box.SetWndSize				(Fvector2().set(width, item_height*m_iListHeight));
+	m_list_box.SetWndSize				(Fvector2().set(width-lb_text_offset, item_height*m_iListHeight));
 	m_list_box.InitScrollView			();
 	m_list_box.SetTextColor				(m_textColor[0]);
-	m_list_box.SetSelectionTexture		("ui_cb_listline");
-	m_list_box.SetItemHeight			(CUITextureMaster::GetTextureHeight("ui_cb_listline_b"));
+	m_list_box.SetSelectionTexture		("ui_inGame2_combobox_line");
+	m_list_box.SetItemHeight			(CUITextureMaster::GetTextureHeight("ui_inGame2_combobox_line_b"));
 	// frame(texture) for list
-	m_list_frame.InitFrameWindow		(Fvector2().set(0.0f, CB_HEIGHT), Fvector2().set(width, m_list_box.GetItemHeight()*m_iListHeight) );
-	m_list_frame.InitTexture			("ui_cb_listbox");
+	m_list_frame.InitTexture			("ui_inGame2_combobox");
+	m_list_frame.SetWndSize				(Fvector2().set(width, m_list_box.GetItemHeight()*m_iListHeight) );
+	m_list_frame.SetWndPos				(Fvector2().set(0.0f, CB_HEIGHT));
 
 	m_list_box.Show						(true);
 	m_list_frame.Show					(false);
@@ -91,10 +93,15 @@ void CUIComboBox::OnListItemSelect()
 	ShowList				(false);
 
 	if(bk_itoken_id!=m_itoken_id)
-	{
-		SaveValue		();
 		GetMessageTarget()->SendMessage(this, LIST_ITEM_SELECT, NULL);
-	}
+}
+
+void CUIComboBox::SetText(LPCSTR text)
+{
+	if (!text)
+		return;
+
+	m_text.SetText(text);
 }
 
 void CUIComboBox::disable_id(int id)
@@ -140,22 +147,27 @@ void CUIComboBox::SetCurrentOptValue()
 
 void CUIComboBox::SaveBackUpOptValue()
 {
+	CUIOptionsItem::SaveBackUpOptValue	();
 	m_opt_backup_value = m_itoken_id;
 }
 
 void CUIComboBox::UndoOptValue()
 {
-	SetItem				(m_backup_itoken_id);
-	SaveValue			();
-	SetCurrentValue		();
+	m_itoken_id			= m_opt_backup_value;
+	OnChangedOptValue	();
+	SetItemToken		(m_itoken_id);
+	CUIOptionsItem::UndoOptValue	();
 }
 
 void CUIComboBox::SaveOptValue()
 {
 	CUIOptionsItem::SaveOptValue	();
 	xr_token* tok				= GetOptToken();
-	LPCSTR	cur_val				= get_token_name(tok, m_itoken_id);
-	SaveOptTokenValue			(cur_val);
+	if(tok)
+	{
+		LPCSTR	cur_val				= get_token_name(tok, m_itoken_id);
+		SaveOptStringValue			(cur_val);
+	}
 }
 
 bool CUIComboBox::IsChangedOptValue() const

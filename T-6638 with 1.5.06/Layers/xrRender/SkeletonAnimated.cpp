@@ -692,7 +692,7 @@ void CKinematicsAnimated::Load(const char* N, IReader *data, u32 dwFlags)
         for (u32 k=0; k<set_cnt; ++k)
         {
         	_GetItem	(items_nm,k,nm);
-            xr_strcat		(nm,".omf");
+            xr_strcat	(nm,".omf");
             string_path	fn;
             if (!FS.exist(fn, "$level$", nm))
             {
@@ -731,7 +731,7 @@ void CKinematicsAnimated::Load(const char* N, IReader *data, u32 dwFlags)
         for (u32 k=0; k<set_cnt; ++k)
         {
 			data->r_stringZ	(nm,sizeof(nm));
-            xr_strcat			(nm,".omf");
+            xr_strcat		(nm,".omf");
             string_path	fn;
             if (!FS.exist(fn, "$level$", nm))
             {
@@ -861,7 +861,6 @@ void	CKinematicsAnimated::LL_BoneMatrixBuild	( CBoneInstance &bi, const Fmatrix 
 		Fbox dbg_box;
 		float box_size = 100000.f;
 		dbg_box.set( -box_size, -box_size, -box_size, box_size, box_size, box_size );
-		//VERIFY(dbg_box.contains(bi.mTransform.c));
 		VERIFY2( dbg_box.contains(bi.mTransform.c), ( make_string( "model: %s has strange bone position, matrix : ", getDebugName().c_str() ) + get_string( bi.mTransform ) ).c_str() );
 
 		//if(!is_similar(PrevTransform,RES,0.3f))

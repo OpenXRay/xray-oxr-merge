@@ -11,14 +11,10 @@ CUIMoneyIndicator::CUIMoneyIndicator()
 	AttachChild(&m_money_change);
 	m_pBonusMoney = xr_new<CUIGameLog>();
 	AttachChild(m_pBonusMoney);
-	m_pAnimChange = xr_new<CUIColorAnimatorWrapper>("ui_mp_chat");
-	m_pAnimChange->Cyclic(false);
-	m_pAnimChange->SetDone(true);
 }
 
 CUIMoneyIndicator::~CUIMoneyIndicator()
 {
-	xr_delete(m_pAnimChange);
 	xr_delete(m_pBonusMoney);
 }
 
@@ -34,6 +30,8 @@ void CUIMoneyIndicator::InitFromXML(CUIXml& xml_doc)
 	CUIXmlInit::InitFont(xml_doc, "money_wnd:money_bonus_list:font", 0, color, pF);
 	m_pBonusMoney->SetTextAtrib(pF, color);
 	m_money_change.SetVisible(false);
+
+	m_money_change.SetColorAnimation("ui_mp_chat", LA_ONLYALPHA|LA_TEXTCOLOR);
 }
 
 void CUIMoneyIndicator::SetMoneyAmount(LPCSTR money)
@@ -44,8 +42,7 @@ void CUIMoneyIndicator::SetMoneyAmount(LPCSTR money)
 void CUIMoneyIndicator::SetMoneyChange(LPCSTR money)
 {
 	m_money_change.SetText(money);
-	m_money_change.SetVisible(true);
-	m_pAnimChange->Reset();
+	m_money_change.ResetColorAnimation	();
 }
 
 void CUIMoneyIndicator::AddBonusMoney(KillMessageStruct& msg)
@@ -55,15 +52,6 @@ void CUIMoneyIndicator::AddBonusMoney(KillMessageStruct& msg)
 
 void CUIMoneyIndicator::Update()
 {
-	if (m_money_change.GetVisible())
-        if (!m_pAnimChange->Done())
-		{
-			m_pAnimChange->Update();
-			m_money_change.SetTextColor(subst_alpha(m_money_change.GetTextColor(), m_pAnimChange->GetColor()));
-		}
-		else
-			m_money_change.SetVisible(false);
-
 	CUIWindow::Update();
 }
 

@@ -117,8 +117,10 @@ void CUIItemInfo::InitItemInfo(LPCSTR xml_name)
 	{
 		UIConditionWnd					= xr_new<CUIConditionParams>();
 		UIConditionWnd->InitFromXml		(uiXml);
+
 		UIWpnParams						= xr_new<CUIWpnParams>();
 		UIWpnParams->InitFromXml		(uiXml);
+
 		UIArtefactParams				= xr_new<CUIArtefactParams>();
 		UIArtefactParams->InitFromXml	(uiXml);
 
@@ -149,7 +151,6 @@ void CUIItemInfo::InitItemInfo(LPCSTR xml_name)
 		UIItemImage->TextureOn		();
 
 		UIItemImage->TextureOff			();
-		UIItemImage->ClipperOn			();
 		UIItemImageSize.set				(UIItemImage->GetWidth(),UIItemImage->GetHeight());
 	}
 
@@ -226,16 +227,15 @@ void CUIItemInfo::InitItem(CInventoryItem* pInvItem, CInventoryItem* pCompareIte
 //		IBuyWnd* buy_menu = gs_mp->pCurBuyMenu->GetItemPrice();
 //		GetItemPrice();
 //	}
-	
+
 	if ( UIDesc )
 	{
 		pos.y = UIDesc->GetWndPos().y;
 		if ( UIWeight && m_complex_desc )
-		{
 			pos.y = UIWeight->GetWndPos().y + UIWeight->GetHeight() + 4.0f;
-		}
 
 		pos.x					= UIDesc->GetWndPos().x;
+
 		UIDesc->SetWndPos		(pos);
 		UIDesc->Clear			();
 		VERIFY					(0==UIDesc->GetSize());

@@ -737,18 +737,20 @@ void CUIActorMenu::ActivatePropertiesBox()
 	m_UIPropertiesBox->RemoveAll();
 	bool b_show = false;
 
-	if ( m_currMenuMode == mmInventory )
+	if ( m_currMenuMode == mmInventory || m_currMenuMode == mmDeadBodySearch)
 	{
 		PropertiesBoxForSlots( item, b_show );
 		PropertiesBoxForWeapon( cell_item, item, b_show );
 		PropertiesBoxForAddon( item, b_show );
 		PropertiesBoxForUsing( item, b_show );
-		PropertiesBoxForDrop( cell_item, item, b_show );
+		PropertiesBoxForPlaying(item, b_show);
+		if ( m_currMenuMode == mmInventory )
+			PropertiesBoxForDrop( cell_item, item, b_show );
 	}
-	else if ( m_currMenuMode == mmDeadBodySearch )
-	{
-		PropertiesBoxForUsing( item, b_show );
-	}
+	//else if ( m_currMenuMode == mmDeadBodySearch )
+	//{
+	//	PropertiesBoxForUsing( item, b_show );
+	//}
 	else if ( m_currMenuMode == mmUpgrade )
 	{
 		PropertiesBoxForRepair( item, b_show );
@@ -757,7 +759,6 @@ void CUIActorMenu::ActivatePropertiesBox()
 	if ( b_show )
 	{
 		m_UIPropertiesBox->AutoUpdateSize();
-		m_UIPropertiesBox->BringAllToTop();
 
 		Fvector2 cursor_pos;
 		Frect    vis_rect;
@@ -966,6 +967,17 @@ void CUIActorMenu::PropertiesBoxForUsing( PIItem item, bool& b_show )
 	}
 }
 
+void CUIActorMenu::PropertiesBoxForPlaying(PIItem item, bool& b_show)
+{
+	CPda* pPda = smart_cast<CPda*>(item);
+	if(!pPda || !pPda->CanPlayScriptFunction())
+		return;
+
+	LPCSTR act_str = "st_play";
+	m_UIPropertiesBox->AddItem(act_str,  NULL, INVENTORY_PLAY_ACTION);
+	b_show = true;
+}
+
 void CUIActorMenu::PropertiesBoxForDrop( CUICellItem* cell_item, PIItem item, bool& b_show )
 {
 	if ( !item->IsQuestItem() )
@@ -1023,24 +1035,60 @@ void CUIActorMenu::ProcessPropertiesBoxClicked( CUIWindow* w, void* d )
 			break;
 		}
 	case INVENTORY_ATTACH_ADDON:
-		AttachAddon( (PIItem)(m_UIPropertiesBox->GetClickedItem()->GetData()) );
-		break;
+		{
+			PIItem item = CurrentIItem(); // temporary storing because of AttachAddon is setting curiitem to NULL
+			AttachAddon((PIItem)(m_UIPropertiesBox->GetClickedItem()->GetData()));
+			if(m_currMenuMode==mmDeadBodySearch)
+				RemoveItemFromList(m_pDeadBodyBagList, item);
+			
+			break;
+		}
 	case INVENTORY_DETACH_SCOPE_ADDON:
 		if ( weapon )
 		{
 			DetachAddon( weapon->GetScopeName().c_str() );
+			for ( u32 i = 0; i < cell_item->ChildsCount(); ++i )
+			{
+				CUICellItem*	child_itm	= cell_item->Child(i);
+				PIItem			child_iitm	= (PIItem)(child_itm->m_pData);
+				CWeapon* wpn = smart_cast<CWeapon*>( child_iitm );
+				if ( child_iitm && wpn )
+				{
+					DetachAddon(wpn->GetScopeName().c_str(), child_iitm);
+				}
+			}
 		}
 		break;
 	case INVENTORY_DETACH_SILENCER_ADDON:
 		if ( weapon )
 		{
 			DetachAddon( weapon->GetSilencerName().c_str() );
+			for ( u32 i = 0; i < cell_item->ChildsCount(); ++i )
+			{
+				CUICellItem*	child_itm	= cell_item->Child(i);
+				PIItem			child_iitm	= (PIItem)(child_itm->m_pData);
+				CWeapon* wpn = smart_cast<CWeapon*>( child_iitm );
+				if ( child_iitm && wpn )
+				{
+					DetachAddon(wpn->GetSilencerName().c_str(), child_iitm);
+				}
+			}
 		}
 		break;
 	case INVENTORY_DETACH_GRENADE_LAUNCHER_ADDON:
 		if ( weapon )
 		{
 			DetachAddon( weapon->GetGrenadeLauncherName().c_str() );
+			for ( u32 i = 0; i < cell_item->ChildsCount(); ++i )
+			{
+				CUICellItem*	child_itm	= cell_item->Child(i);
+				PIItem			child_iitm	= (PIItem)(child_itm->m_pData);
+				CWeapon* wpn = smart_cast<CWeapon*>( child_iitm );
+				if ( child_iitm && wpn )
+				{
+					DetachAddon(wpn->GetGrenadeLauncherName().c_str(), child_iitm);
+				}
+			}
 		}
 		break;
 	case INVENTORY_RELOAD_MAGAZINE:
@@ -1100,9 +1148,13 @@ void CUIActorMenu::UpdateOutfit()
 	VERIFY( 0 <= af_count && af_count <= 5 );
 
 	VERIFY( m_pInventoryBeltList );
-	PIItem         ii_outfit = m_pActorInvOwner->inventory().m_slots[OUTFIT_SLOT].m_pIItem;
-	CCustomOutfit* outfit    = smart_cast<CCustomOutfit*>( ii_outfit );
-	if ( !ii_outfit || !outfit )
+	CCustomOutfit* outfit    = m_pActorInvOwner->GetOutfit();
+	if(outfit && !outfit->bIsHelmetAvaliable)
+		m_HelmetOver->Show(true);
+	else
+		m_HelmetOver->Show(false);
+
+	if ( !outfit )
 	{
 		MoveArtefactsToBag();
 		return;

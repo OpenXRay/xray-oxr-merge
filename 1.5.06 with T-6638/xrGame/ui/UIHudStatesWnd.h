@@ -28,9 +28,13 @@ private:
 	CUIStatic*			m_indik[it_max];
 
 	CUIStatic*			m_ui_weapon_sign_ammo;
+	CUIStatic*			m_ui_weapon_cur_ammo;
+	CUIStatic*			m_ui_weapon_fmj_ammo;
+	CUIStatic*			m_ui_weapon_ap_ammo;
+	CUIStatic*			m_fire_mode;
+	CUIStatic*			m_ui_grenade;
 	CUIStatic*			m_ui_weapon_icon;
 	Frect				m_ui_weapon_icon_rect;
-	CUIStatic*			m_fire_mode;
 
 	CUIProgressBar*		m_ui_health_bar;
 	CUIProgressBar*		m_ui_armor_bar;
@@ -42,6 +46,15 @@ private:
 	UI_Arrow*			m_arrow_shadow;
 	
 	CUIStatic*			m_bleeding;
+/*	
+	CUIStatic*			m_bleeding_lev1;
+	CUIStatic*			m_bleeding_lev2;
+	CUIStatic*			m_bleeding_lev3;
+	
+	CUIStatic*			m_radiation_lev1;
+	CUIStatic*			m_radiation_lev2;
+	CUIStatic*			m_radiation_lev3;
+*/
 	
 	float				m_radia_self;
 //	float				m_actor_radia_factor;

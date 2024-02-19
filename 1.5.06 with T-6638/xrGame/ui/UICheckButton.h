@@ -25,12 +25,8 @@ public:
 	virtual void 	OnFocusReceive		();
 	virtual void	OnFocusLost			();
 	virtual void	Show				( bool status );
-	virtual bool	OnMouseDown			( int mouse_btn );
 
 			void InitCheckButton		(Fvector2 pos, Fvector2 size, LPCSTR texture_name);
-			void init_hint_wnd_xml		( CUIXml& xml, LPCSTR path );
-
-			void	set_hint_wnd		(UIHint* hint_wnd);
 
 	//состояние кнопки
 	IC	bool	GetCheck				() const {return GetButtonState() == BUTTON_PUSHED;}
@@ -45,7 +41,4 @@ private:
 	bool							m_opt_backup_value;
 	void InitTexture2				(LPCSTR texture_name);
 	CUIWindow* m_pDependControl;
-
-protected:
-	UIHintWindow*	m_hint_owner;
 };

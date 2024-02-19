@@ -18,16 +18,11 @@ public:
 	//прорисовка окна
 	virtual void	DrawTexture				();
 	virtual void	DrawText				();
-	virtual void	DrawHighlightedText		();
 
 	virtual void	Update					();
 	virtual void	Enable					(bool status);
 	virtual bool	OnKeyboardAction		(int dik, EUIMessages keyboard_action);
 	virtual void	OnFocusLost				();
-
-	//подсвечен ли текст на кнопке
-	// принудительная подсветка
-	virtual void	HighlightItem			(bool bHighlight)			{m_bCursorOverWindow = bHighlight; }
 
 	//состояния в которых находится кнопка
 	typedef enum{BUTTON_NORMAL, //кнопка никак не затрагивается
@@ -49,22 +44,16 @@ public:
 	// Работа с акселератором
 	// Код акселератора берется из файла dinput.h, из DirectX SDK.
 	// Например: кнопка A - код 0x1E(DIK_A)
-	void				SetAccelerator			(int iAccel, int idx)	{VERIFY(idx==0||idx==1); m_uAccelerator[idx] = iAccel; }
-	const int			GetAccelerator			(int idx) const			{VERIFY(idx==0||idx==1); return m_uAccelerator[idx]; }
-	IC bool				IsAccelerator			(int iAccel) const		{return (m_uAccelerator[0]==iAccel)||(m_uAccelerator[1]==iAccel) ;}
+	void				SetAccelerator			(int iAccel, int idx);
+	const int			GetAccelerator			(int idx) const;
+	bool				IsAccelerator			(int iAccel) const;
 
-	void				SetPushOffset			(const Fvector2& offset)	{m_PushOffset = offset;}
-	Fvector2			GetPushOffset			()							{return m_PushOffset;}
-	void				SetShadowOffset			(const Fvector2& offset) { m_ShadowOffset = offset; }
 	shared_str			m_hint_text;
 protected:
 	
 	E_BUTTON_STATE		m_eButtonState;
+	s16					m_uAccelerator[4];
 	bool				m_bIsSwitch;
-	bool				m_bButtonClicked;
-	Fvector2			m_PushOffset;
-	int					m_uAccelerator[2];
-	Fvector2			m_ShadowOffset;
 
 	DECLARE_SCRIPT_REGISTER_FUNCTION
 };

@@ -75,11 +75,11 @@ void CUIMessagesWindow::Init(float x, float y, float width, float height)
 		u32									color;
 		CGameFont*							pFont;
 
-		m_pChatLog							= xr_new<CUIGameLog>(); 
+		m_pChatLog							= xr_new<CUIGameLog>();
 		m_pChatLog->SetAutoDelete			(true);
 		m_pChatLog->Show					(true);
 		AttachChild							(m_pChatLog);
-		m_pChatWnd							= xr_new<CUIChatWnd>(); 
+		m_pChatWnd							= xr_new<CUIChatWnd>();
 		m_pChatWnd->SetAutoDelete			(true);
 		AttachChild							(m_pChatWnd);
 

@@ -5,25 +5,34 @@
 #include "stdafx.h"
 #include <dinput.h>
 #include "uieditbox.h"
-#include "../HUDManager.h"
-#include "UIColorAnimatorWrapper.h"
-
+#include "UIFrameLineWnd.h"
 
 CUIEditBox::CUIEditBox()
+:m_frameLine(NULL)
 {
-	AttachChild(&m_frameLine);
 }
 
 void CUIEditBox::InitCustomEdit(Fvector2 pos, Fvector2 size)
 {
-	m_frameLine.SetWndPos			(Fvector2().set(0,0));
-	m_frameLine.SetWndSize			(size);
+	if(m_frameLine)
+	{
+		m_frameLine->SetWndPos			(Fvector2().set(0,0));
+		m_frameLine->SetWndSize			(size);
+	}
 	CUICustomEdit::InitCustomEdit	(pos, size);
 }
 
 void CUIEditBox::InitTextureEx(LPCSTR texture, LPCSTR  shader)
 {
-	m_frameLine.InitTexture(texture, shader);
+	if(!m_frameLine)
+	{
+		m_frameLine = xr_new<CUIFrameLineWnd>();
+		AttachChild(m_frameLine);
+		m_frameLine->SetAutoDelete(true);
+	}
+	m_frameLine->InitTexture(texture, shader);
+	m_frameLine->SetWndPos			(Fvector2().set(0,0));
+	m_frameLine->SetWndSize			(GetWndSize());
 }
 
 void CUIEditBox::InitTexture(LPCSTR texture)

@@ -173,7 +173,7 @@ u32				xrGameSpyServer::OnMessage(NET_Packet& P, ClientID sender)			// Non-Zero 
 			{
 				return 0;
 			}
-			strcpy_s(ResponseStr, "");
+			xr_strcpy(ResponseStr, "");
 			P.r_stringZ(ResponseStr);
 			if (xr_strlen(ResponseStr) == 0)
 			{

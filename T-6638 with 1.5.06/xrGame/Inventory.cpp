@@ -654,7 +654,8 @@ bool CInventory::Action(u16 cmd, u32 flags)
 
 	if (	ActiveItem() && 
 			ActiveItem()->Action(cmd, flags)) 
-											return true;
+		return true;
+
 	bool b_send_event = false;
 	switch(cmd) 
 	{

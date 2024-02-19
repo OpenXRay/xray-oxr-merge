@@ -28,9 +28,9 @@ public:
 	//если на персонаже надет костюм
 	float					GetPowerLoss		();
 
-
 	virtual void			OnMoveToSlot		(const SInvItemPlace& prev);
 	virtual void			OnMoveToRuck		(const SInvItemPlace& previous_place);
+	virtual void			OnH_A_Chield		();
 
 protected:
 	HitImmunity::HitTypeSVec		m_HitTypeProtection;
@@ -55,6 +55,8 @@ public:
 
 	shared_str				m_NightVisionSect;
 	shared_str				m_BonesProtectionSect;
+
+	bool					bIsHelmetAvaliable;
 
 	virtual u32				ef_equipment_type		() const;
 	virtual	BOOL			BonePassBullet			(int boneID);

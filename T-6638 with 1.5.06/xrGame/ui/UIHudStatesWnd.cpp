@@ -98,24 +98,26 @@ void CUIHudStatesWnd::InitFromXml( CUIXml& xml, LPCSTR path )
 
 	m_back            = UIHelper::CreateStatic( xml, "back", this );
 	m_ui_health_bar   = UIHelper::CreateProgressBar( xml, "progress_bar_health", this );
+	m_ui_armor_bar    = UIHelper::CreateProgressBar( xml, "progress_bar_armor", this );
 	m_ui_stamina_bar  = UIHelper::CreateProgressBar( xml, "progress_bar_stamina", this );
-//	m_back_v          = UIHelper::CreateStatic( xml, "back_v", this );
-//	m_static_armor    = UIHelper::CreateStatic( xml, "static_armor", this );
+	m_back_v          = UIHelper::CreateStatic( xml, "back_v", this );
+	m_static_armor    = UIHelper::CreateStatic( xml, "static_armor", this );
 	
-/*
+
 	m_resist_back[ALife::infl_rad]  = UIHelper::CreateStatic( xml, "resist_back_rad", this );
 	m_resist_back[ALife::infl_fire] = UIHelper::CreateStatic( xml, "resist_back_fire", this );
 	m_resist_back[ALife::infl_acid] = UIHelper::CreateStatic( xml, "resist_back_acid", this );
 	m_resist_back[ALife::infl_psi]  = UIHelper::CreateStatic( xml, "resist_back_psi", this );
 	// electra = no has CStatic!!
-*/
+
 	m_indik[ALife::infl_rad]  = UIHelper::CreateStatic( xml, "indik_rad", this );
 	m_indik[ALife::infl_fire] = UIHelper::CreateStatic( xml, "indik_fire", this );
 	m_indik[ALife::infl_acid] = UIHelper::CreateStatic( xml, "indik_acid", this );
 	m_indik[ALife::infl_psi]  = UIHelper::CreateStatic( xml, "indik_psi", this );
 
-//	m_lanim_name				= xml.ReadAttrib( "indik_rad", 0, "light_anim", "" );
+	m_lanim_name				= xml.ReadAttrib( "indik_rad", 0, "light_anim", "" );
 
+	m_ui_weapon_sign_ammo = UIHelper::CreateStatic( xml, "static_ammo", this );
 	m_ui_weapon_cur_ammo		= UIHelper::CreateStatic( xml, "static_cur_ammo", this );
 	m_ui_weapon_fmj_ammo		= UIHelper::CreateStatic( xml, "static_fmj_ammo", this );
 	m_ui_weapon_ap_ammo			= UIHelper::CreateStatic( xml, "static_ap_ammo", this );
@@ -127,21 +129,22 @@ void CUIHudStatesWnd::InitFromXml( CUIXml& xml, LPCSTR path )
 //	m_ui_weapon_icon->Enable	( false );
 	m_ui_weapon_icon_rect		= m_ui_weapon_icon->GetWndRect();
 
-//	m_ui_armor_bar    = UIHelper::CreateProgressBar( xml, "progress_bar_armor", this );
 
-//	m_progress_self = xr_new<CUIProgressShape>();
-//	m_progress_self->SetAutoDelete(true);
-//	AttachChild( m_progress_self );
-//	CUIXmlInit::InitProgressShape( xml, "progress", 0, m_progress_self );
+	m_progress_self = xr_new<CUIProgressShape>();
+	m_progress_self->SetAutoDelete(true);
+	AttachChild( m_progress_self );
+	CUIXmlInit::InitProgressShape( xml, "progress", 0, m_progress_self );
 
-//	m_arrow				= xr_new<UI_Arrow>();
-//	m_arrow_shadow		= xr_new<UI_Arrow>();
+	m_arrow				= xr_new<UI_Arrow>();
+	m_arrow_shadow		= xr_new<UI_Arrow>();
 
-//	m_arrow->init_from_xml( xml, "arrow", this );
-//	m_arrow_shadow->init_from_xml( xml, "arrow_shadow", this );
+	m_arrow->init_from_xml( xml, "arrow", this );
+	m_arrow_shadow->init_from_xml( xml, "arrow_shadow", this );
 
-//	m_back_over_arrow = UIHelper::CreateStatic( xml, "back_over_arrow", this );
+	m_back_over_arrow = UIHelper::CreateStatic( xml, "back_over_arrow", this );
 
+	m_bleeding = UIHelper::CreateStatic( xml, "bleeding", this );
+	m_bleeding->Show( false );
 /*
 	m_bleeding_lev1 = UIHelper::CreateStatic( xml, "bleeding_level_1", this );
 	m_bleeding_lev1->Show( false );
@@ -160,13 +163,13 @@ void CUIHudStatesWnd::InitFromXml( CUIXml& xml, LPCSTR path )
 
 	m_radiation_lev3 = UIHelper::CreateStatic( xml, "radiation_level_3", this );
 	m_radiation_lev3->Show( false );
-
+*/
 	for ( int i = 0; i < it_max; ++i )
 	{
 		m_cur_state_LA[i] = true;
 		SwitchLA( false, (ALife::EInfluenceType)i );
 	}
-*/	
+
 	xml.SetLocalRoot( stored_root );
 }
 
@@ -628,7 +631,7 @@ void CUIHudStatesWnd::UpdateIndicatorType( CActor* actor, ALife::EInfluenceType 
 	VERIFY(actor->conditions().GetZoneMaxPower(hit_type));
 	actor->conditions().SetZoneDanger((hit_power-protect)/actor->conditions().GetZoneMaxPower(hit_type), type);
 }
-/*
+
 void CUIHudStatesWnd::SwitchLA( bool state, ALife::EInfluenceType type )
 {
 	if ( state == m_cur_state_LA[type] )
@@ -647,7 +650,7 @@ void CUIHudStatesWnd::SwitchLA( bool state, ALife::EInfluenceType type )
 		m_cur_state_LA[type] = false;
 	}
 }
-*/
+
 float CUIHudStatesWnd::get_zone_cur_power( ALife::EHitType hit_type )
 {
 	ALife::EInfluenceType iz_type = get_indik_type( hit_type );

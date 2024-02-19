@@ -80,9 +80,9 @@ void CUISequenceVideoItem::Load(CUIXml* xml, int idx)
 	{
 		m_wnd->SetWndPos								(Fvector2().set(512.0f,384.0f));
 		m_wnd->SetAlignment								(waCenter);
-		Frect texture_coords							= m_wnd->GetUIStaticItem().GetOriginalRect();
+		Frect texture_coords							= m_wnd->GetUIStaticItem().GetTextureRect();
 
-		bool is_16_9									= UI()->is_16_9_mode();
+		bool is_16_9									= UI().is_widescreen();
 		float kw_image									= UI_BASE_WIDTH / texture_coords.width();
 
 		Fvector2										wnd_size;
@@ -106,13 +106,15 @@ void CUISequenceVideoItem::Load(CUIXml* xml, int idx)
 
 void CUISequenceVideoItem::Update()
 {
-	if(GetUICursor()->IsVisible())
+	inherited::Update();
+	if(GetUICursor().IsVisible())
 	{
 		m_flags.set			(etiStoredCursorState, TRUE);
-		GetUICursor()->Hide	();
+		GetUICursor().Hide	();
 	}
 	// deferred start
-	if (Device.dwTimeContinual>=m_time_start){
+	if (Device.dwTimeContinual>=m_time_start)
+	{
 		if (m_flags.test(etiDelayed))
 		{
 			if(m_wnd_bg)
@@ -129,20 +131,24 @@ void CUISequenceVideoItem::Update()
 	u32 sync_tm				= (0==m_sound._handle())?Device.dwTimeContinual:(m_sound._feedback()?m_sound._feedback()->play_time():m_sync_time);
 	m_sync_time				= sync_tm;
 	// processing A&V
-	//if (m_texture){
-	if (m_texture->HasTexture()){
-		//BOOL is_playing		= m_sound[0]._handle()?!!m_sound[0]._feedback():m_texture->video_IsPlaying();
+
+	if (m_texture->HasTexture())
+	{
 		BOOL is_playing		= m_sound._handle()?!!m_sound._feedback():m_texture->video_IsPlaying();
-		if (is_playing){
+		if (is_playing)
+		{
 			m_texture->video_Sync(m_sync_time);
-		}else{
+		}else
+		{
 			// sync start
-			if (m_flags.test(etiNeedStart)){
+			if (m_flags.test(etiNeedStart))
+			{
 				m_sound.play_at_pos		(NULL, Fvector().set(0.0f,0.f,0.0f), sm_2D);
 				m_texture->video_Play	(FALSE,m_sync_time);
 				m_flags.set				(etiNeedStart,FALSE);
 				CUIWindow* w			= m_owner->MainWnd()->FindChild("back");
-				if (w)					w->Show(!!m_flags.test(etiBackVisible));
+				if (w)
+					w->Show(!!m_flags.test(etiBackVisible));
 			}else{
 				m_flags.set				(etiPlaying,FALSE);
 			}
@@ -152,7 +158,8 @@ void CUISequenceVideoItem::Update()
 
 void CUISequenceVideoItem::OnRender()
 {
-	if (!m_texture->HasTexture() && m_wnd->GetShader() && m_wnd->GetShader()->inited()){
+	if (!m_texture->HasTexture() && m_wnd->GetShader() && m_wnd->GetShader()->inited())
+	{
 		UIRender->SetShader(*m_wnd->GetShader());
 		m_texture->CaptureTexture();
 		m_texture->video_Stop();
@@ -164,7 +171,8 @@ void CUISequenceVideoItem::Start()
 	inherited::Start			();
 	m_flags.set					(etiStoredPauseState, Device.Paused());
 
-	if(m_flags.test(etiNeedPauseOn) && !m_flags.test(etiStoredPauseState)){
+	if(m_flags.test(etiNeedPauseOn) && !m_flags.test(etiStoredPauseState))
+	{
 		Device.Pause			(TRUE, TRUE, TRUE, "videoitem_start");
 		bShowPauseString		= FALSE;
 	}
@@ -191,7 +199,7 @@ void CUISequenceVideoItem::Start()
 bool CUISequenceVideoItem::Stop	(bool bForce)
 {
 	if(m_flags.test(etiStoredCursorState) )
-		GetUICursor()->Show			();
+		GetUICursor().Show			();
 
 	if(!m_flags.test(etiCanBeStopped) && !bForce && IsPlaying()) 
 		return false;
@@ -199,10 +207,10 @@ bool CUISequenceVideoItem::Stop	(bool bForce)
 	m_flags.set					(etiPlaying,FALSE);
 
 	m_wnd->Show					(false);
-	m_owner->MainWnd()->DetachChild(m_wnd);
+	if(Device.dwTimeContinual>=m_time_start && m_wnd->GetParent()==m_owner->MainWnd())
+		m_owner->MainWnd()->DetachChild(m_wnd);
 
 	m_sound.stop				();
-	//m_texture					= 0;
 	m_texture->ResetTexture();
 
 	if(m_flags.test(etiNeedPauseOn) && !m_flags.test(etiStoredPauseState))

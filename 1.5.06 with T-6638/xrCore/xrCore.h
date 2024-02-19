@@ -6,6 +6,26 @@
 #	define MASTER_GOLD
 #endif // DEBUG
 
+//#define BENCHMARK_BUILD
+
+#ifdef	BENCHMARK_BUILD
+#	define	BENCH_SEC_CALLCONV			__stdcall
+#	define	BENCH_SEC_SCRAMBLEVTBL1		virtual int GetFlags()	{ return 1;}
+#	define	BENCH_SEC_SCRAMBLEVTBL2		virtual void* GetData()	{ return 0;}
+#	define	BENCH_SEC_SCRAMBLEVTBL3		virtual void* GetCache(){ return 0;}
+#	define	BENCH_SEC_SIGN				, void *pBenchScrampleVoid = 0
+#	define	BENCH_SEC_SCRAMBLEMEMBER1	float	m_fSrambleMember1;
+#	define	BENCH_SEC_SCRAMBLEMEMBER2	float	m_fSrambleMember2;
+#else	//	BENCHMARK_BUILD
+#	define	BENCH_SEC_CALLCONV
+#	define	BENCH_SEC_SCRAMBLEVTBL1
+#	define	BENCH_SEC_SCRAMBLEVTBL2
+#	define	BENCH_SEC_SCRAMBLEVTBL3
+#	define	BENCH_SEC_SIGN
+#	define	BENCH_SEC_SCRAMBLEMEMBER1
+#	define	BENCH_SEC_SCRAMBLEMEMBER2
+#endif	//	BENCHMARK_BUILD
+
 #pragma warning(disable:4996)
 
 #if (defined(_DEBUG) || defined(MIXED) || defined(DEBUG)) && !defined(FORCE_NO_EXCEPTIONS)
@@ -17,7 +37,7 @@
 	#define XRAY_EXCEPTIONS		1	// XRAY
 #else
 	// "release"
-	#if defined(_CPPUNWIND)
+	#if defined(_CPPUNWIND) && !defined __BORLANDC__
 		#error Please disable exceptions...
 	#endif
 	#define _HAS_EXCEPTIONS		1	// STL
@@ -280,11 +300,21 @@ public:
 	string64	UserName;
 	string64	CompName;
 	string512	Params;
+	DWORD		dwFrame;
 
 public:
 	void		_initialize	(LPCSTR ApplicationName, LogCallback cb=0, BOOL init_fs=TRUE, LPCSTR fs_fname=0);
 	void		_destroy	();
 };
+
+//Borland class dll interface
+#define	_BCL			__stdcall	
+
+//Borland global function dll interface
+#define	_BGCL			__stdcall	
+
+
 extern XRCORE_API xrCore Core;
 
 #endif
+

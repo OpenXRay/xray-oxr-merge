@@ -86,7 +86,7 @@ void UIPlayerItem::InitIconParams(CUIXml& uiXml)
 			break;
 		LPCSTR param_name = uiXml.ReadAttrib(icon_param_node, "name", 
 			"param_name_not_set_in_name_attribute");
-		CUIStatic* temp_static = xr_new<CUIStatsIcon>();
+		CUIStatsIcon* temp_static = xr_new<CUIStatsIcon>();
 		VERIFY(temp_static);
 		this->AttachChild(temp_static);
 		temp_static->SetAutoDelete(true);
@@ -118,7 +118,7 @@ void UIPlayerItem::UpdateIconParams(game_PlayerState const * ps)
 	{
 		VERIFY(i->second);
 		GetIconParamValue(ps, i->first, value_store);
-		i->second->SetText(value_store.begin());
+ 		i->second->SetValue(value_store.begin());
 		std::fill(value_store.begin(), value_store.end(), char(0));
 	}
 }

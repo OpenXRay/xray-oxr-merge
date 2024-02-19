@@ -23,8 +23,8 @@ CBurer::CBurer()
 	TScanner::init_external(this);
 
 	m_fast_gravi		= xr_new<CBurerFastGravi>();
-	control().add		(m_fast_gravi,  ControlCom::eComCustom1);
 
+	control().add		(m_fast_gravi,  ControlCom::eComCustom1);
 }
 
 CBurer::~CBurer()
@@ -170,22 +170,27 @@ void CBurer::CheckSpecParams(u32 spec_params)
 
 void CBurer::UpdateGraviObject()
 {
-	if (!m_gravi_object.active) return;
+	if (!m_gravi_object.active)
+	{
+	return;
+	}
 	
-	if (!m_gravi_object.enemy || (m_gravi_object.enemy && m_gravi_object.enemy->getDestroy())) {
+	if (!m_gravi_object.enemy || (m_gravi_object.enemy && m_gravi_object.enemy->getDestroy()))
+	{
 		m_gravi_object.deactivate();
 		return;
 	}
 
-	if (m_gravi_object.from_pos.distance_to(m_gravi_object.cur_pos) > (m_gravi_object.from_pos.distance_to(m_gravi_object.target_pos))) {
+	if (m_gravi_object.from_pos.distance_to(m_gravi_object.cur_pos) > (m_gravi_object.from_pos.distance_to(m_gravi_object.target_pos)))
+	{
 		m_gravi_object.deactivate();
 		return;
 	}
 
 	float dt = float(Device.dwTimeGlobal - m_gravi_object.time_last_update);
-	float dist = dt * float(m_gravi_speed)/1000.f;
+	float dist = dt * float(m_gravi.speed)/1000.f;
 		
-	if (dist < m_gravi_step) return;
+	if (dist < m_gravi.step) return;
 	
 	Fvector new_pos;
 	Fvector dir;
@@ -200,7 +205,7 @@ void CBurer::UpdateGraviObject()
 	dir.sub(enemy_center, new_pos);
 	dir.normalize();
 
-	float trace_dist = float(m_gravi_step);
+	float trace_dist = float(m_gravi.step);
 
 	collide::rq_result	l_rq;
 	if (Level().ObjectSpace.RayPick(new_pos, dir, trace_dist, collide::rqtBoth, l_rq, NULL)) {
@@ -226,7 +231,7 @@ void CBurer::UpdateGraviObject()
 				impulse_dir.set(0.0f,0.0f,1.0f);
 				impulse_dir.normalize();
 
-				HitEntity(m_gravi_object.enemy, m_gravi_hit_power, m_gravi_impulse_to_enemy, impulse_dir);
+				HitEntity(m_gravi_object.enemy, m_gravi.hit_power, m_gravi.impulse_to_enemy, impulse_dir, ALife::eHitTypeStrike, false);
 				m_gravi_object.deactivate();
 				return;
 			}
@@ -253,7 +258,7 @@ void CBurer::UpdateGraviObject()
 	
 	// hit objects
 	m_nearest.clear_not_free		();
-	Level().ObjectSpace.GetNearest	(m_nearest,m_gravi_object.cur_pos, m_gravi_radius, NULL); 
+	Level().ObjectSpace.GetNearest	(m_nearest,m_gravi_object.cur_pos, m_gravi.radius, NULL); 
 	//xr_vector<CObject*> &m_nearest = Level().ObjectSpace.q_nearest;
 
 	for (u32 i=0;i<m_nearest.size();i++) {
@@ -263,7 +268,7 @@ void CBurer::UpdateGraviObject()
 		Fvector dir;
 		dir.sub(obj->Position(), m_gravi_object.cur_pos);
 		dir.normalize();
-		obj->m_pPhysicsShell->applyImpulse(dir,m_gravi_impulse_to_objects * obj->m_pPhysicsShell->getMass());
+		obj->m_pPhysicsShell->applyImpulse(dir,m_gravi.impulse_to_objects * obj->m_pPhysicsShell->getMass());
 	}
 
 	// играть звук
@@ -280,11 +285,8 @@ void CBurer::UpdateCL()
 	TScanner::frame_update(Device.dwTimeDelta);
 
 	UpdateGraviObject();
-
-	
 	//if (m_fast_gravi->check_start_conditions()) 
 	//	control().activate(ControlCom::eComCustom1);
-
 }
 
 void CBurer::StartGraviPrepare() 
@@ -295,13 +297,14 @@ void CBurer::StartGraviPrepare()
 	CActor *pA = const_cast<CActor *>(smart_cast<const CActor*>(enemy));
 	if (!pA) return;
 
-	pA->CParticlesPlayer::StartParticles(particle_gravi_prepare,Fvector().set(0.0f,0.1f,0.0f),pA->ID());
+	pA->CParticlesPlayer::StartParticles(particle_gravi_prepare,
+	Fvector().set(0.0f,0.1f,0.0f),
+	pA->ID());
 }
 void CBurer::StopGraviPrepare() 
 {
-	CActor *pA = smart_cast<CActor*>(Level().CurrentEntity());
+	CActor *pA = Actor();
 	if (!pA) return;
-
 	pA->CParticlesPlayer::StopParticles(particle_gravi_prepare, BI_NONE, true);
 }
 
@@ -309,7 +312,9 @@ void CBurer::StartTeleObjectParticle(CGameObject *pO)
 {
 	CParticlesPlayer* PP = smart_cast<CParticlesPlayer*>(pO);
 	if(!PP) return;
-	PP->StartParticles(particle_tele_object,Fvector().set(0.0f,0.1f,0.0f),pO->ID());
+	PP->StartParticles(particle_tele_object,
+	Fvector().set(0.0f,0.1f,0.0f),
+	pO->ID());
 }
 void CBurer::StopTeleObjectParticle(CGameObject *pO) 
 {
@@ -318,11 +323,12 @@ void CBurer::StopTeleObjectParticle(CGameObject *pO)
 	PP->StopParticles(particle_tele_object, BI_NONE, true);
 }
 
-//void CBurer::Hit(float P,Fvector &dir,CObject*who,s16 element,Fvector p_in_object_space,float impulse, ALife::EHitType hit_type)
 void	CBurer::Hit								(SHit* pHDS)
 {
-	if (m_shield_active && (pHDS->hit_type == ALife::eHitTypeFireWound) && (Device.dwFrame != last_hit_frame)) {
-
+	if (m_shield_active &&
+	pHDS->hit_type == ALife::eHitTypeFireWound &&
+	Device.dwFrame != last_hit_frame)
+	{
 		// вычислить позицию и направленность партикла
 		Fmatrix pos; 
 		//CParticlesPlayer::MakeXFORM(this,element,Fvector().set(0.f,0.f,1.f),p_in_object_space,pos);
@@ -334,20 +340,25 @@ void	CBurer::Hit								(SHit* pHDS)
 		ps->UpdateParent(pos,Fvector().set(0.f,0.f,0.f));
 		GamePersistent().ps_needtoplay.push_back(ps);
 
-	} else if (!m_shield_active)
-//				inherited::Hit(P,dir,who,element,p_in_object_space,impulse,hit_type);
-				inherited::Hit(pHDS);
+	}
+	else if (!m_shield_active)
+	{
+		inherited::Hit								(pHDS);
+	}
 
 	last_hit_frame = Device.dwFrame;
 }
-
 
 void CBurer::Die(CObject* who)
 {
 	inherited::Die(who);
 	TScanner::on_destroy();
 
-	if (com_man().ta_is_active()) com_man().ta_deactivate();
+	if (com_man().ta_is_active())
+	{
+	com_man().ta_deactivate();
+	}
+
 	CTelekinesis::Deactivate();
 }
 
@@ -371,7 +382,6 @@ void CBurer::net_Relcase(CObject *O)
 	TTelekinesis::remove_links	(O);
 }
 
-
 #ifdef DEBUG
 CBaseMonster::SDebugInfo CBurer::show_debug_info()
 {
@@ -379,7 +389,6 @@ CBaseMonster::SDebugInfo CBurer::show_debug_info()
 	if (!info.active) return CBaseMonster::SDebugInfo();
 
 	string128 text;
-	sprintf_s(text, "Scan Value = [%f]", TScanner::get_scan_value());
 	DBG().text(this).add_item(text, info.x, info.y+=info.delta_y, info.color);
 	DBG().text(this).add_item("---------------------------------------", info.x, info.y+=info.delta_y, info.delimiter_color);
 

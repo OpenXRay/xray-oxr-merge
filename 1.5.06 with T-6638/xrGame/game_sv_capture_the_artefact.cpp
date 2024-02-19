@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "game_sv_capture_the_artefact.h"
-#include "HUDmanager.h"
 #include "xrserver_objects_alife_monsters.h"
 #include "level.h"
 #include "xrserver.h"
@@ -32,6 +31,7 @@ u32			g_sv_cta_activatedArtefactRet	=	0;
 //s32			g_sv_cta_ScoreLimit				=		3;
 u32			g_sv_cta_PlayerScoresDelayTime	=		3;	//3 seconds
 float		g_sv_cta_artefactsBaseRadius	=		1.0f;
+u32			g_sv_cta_rankUpToArtsCountDiv	=		1;
 //-------------------------------------------------------------
 extern	BOOL		g_sv_dm_bAnomaliesEnabled;
 extern	u32			g_sv_dm_dwAnomalySetLengthTime;
@@ -181,14 +181,14 @@ void game_sv_CaptureTheArtefact::SM_CheckViewSwitching()
 	if (!m_pSM_CurViewEntity || !smart_cast<CActor*>(m_pSM_CurViewEntity) || m_dwSM_LastSwitchTime<Level().timeServer())
 		SM_SwitchOnNextActivePlayer();
 	
-	CUIGameCTA* gameCTA = smart_cast<CUIGameCTA*>(HUD().GetUI()->UIGame());
+	CUIGameCTA* gameCTA = smart_cast<CUIGameCTA*>(CurrentGameUI());
 	if (gameCTA)
 	{
 		CObject* pObject				= Level().CurrentViewEntity();
 		if (pObject && smart_cast<CActor*>(pObject))
 		{
 			string1024						Text;
-			sprintf_s						(Text, "Following %s", pObject->cName().c_str());
+			xr_sprintf						(Text, "Following %s", pObject->cName().c_str());
 
 			gameCTA->SetSpectrModeMsgCaption	(Text);
 		}else
@@ -353,6 +353,9 @@ BOOL game_sv_CaptureTheArtefact::CheckForAllPlayersReady()
 		{
 			xrClientData *l_pC = static_cast<xrClientData*>(client);
 			game_PlayerState* ps	= l_pC->ps;
+			if (!ps)
+				return;
+
 			if (!l_pC->net_Ready)
 			{
 				if (l_pC->ID == serverID)
@@ -412,21 +415,26 @@ void game_sv_CaptureTheArtefact::OnPlayerConnectFinished(ClientID id_who)
 	inherited::OnPlayerConnectFinished(id_who);
 
 	xrClientData* xrCData = m_server->ID_to_client(id_who);
+	VERIFY(xrCData && xrCData->ps);
+
+	NET_Packet P;
+	GenerateGameMessage(P);
+	P.w_u32(GAME_EVENT_PLAYER_CONNECTED);
+	P.w_clientID(xrCData->ID);
+	xrCData->ps->team = etSpectatorsTeam;
+	xrCData->ps->setFlag(GAME_PLAYER_FLAG_SPECTATOR);
+	xrCData->ps->m_iTeamKills = 0;
+	xrCData->ps->net_Export(P, TRUE);
+	u_EventSend(P);
+
 	SetPlayersDefItems	(xrCData->ps);
-	Money_SetStart		(xrCData->ps);
-	SpawnPlayer(id_who, "spectator");
-	// Send Message About Client Connected
-	if (xrCData)
+	if (!xrCData->flags.bReconnect)
 	{
-		NET_Packet P;
-		GenerateGameMessage(P);
-		P.w_u32(GAME_EVENT_PLAYER_CONNECTED);
-		P.w_clientID(xrCData->ID);
-		xrCData->ps->net_Export(P, true);
-		P.w_stringZ( xrCData->name.c_str() );
-		u_EventSend(P);
-	};
-	//Send_Anomaly_States				(id_who);
+		Money_SetStart(xrCData->ps);
+	}
+	SpawnPlayer(id_who, "spectator");
+
+	xrCData->net_Ready = TRUE;
 }
 
 void game_sv_CaptureTheArtefact::OnPlayerDisconnect(ClientID id_who, LPSTR Name, u16 GameID)
@@ -499,9 +507,9 @@ void game_sv_CaptureTheArtefact::OnPlayerReady(ClientID id_who)
 		
 		
 #ifndef MASTER_GOLD
-		Msg("---Respawning player %s - he's ready", xrCData->name.c_str());
+		VERIFY(xrCData->ps);
+		Msg("---Respawning player %s - he's ready", xrCData->ps->getName());
 #endif // #ifndef MASTER_GOLD
-		
 		RespawnPlayer(id_who, false);
 		pOwner = xrCData->owner;
 		CSE_ALifeCreatureActor	*pA	=	smart_cast<CSE_ALifeCreatureActor*>(pOwner);
@@ -609,6 +617,8 @@ void game_sv_CaptureTheArtefact::OnRoundStart()
 
 			if (!l_pC || !l_pC->net_Ready || !l_pC->ps) return;
 			game_PlayerState* ps	= l_pC->ps;
+			if (!ps)
+				return;
 
 			ps->clear				();
 			ps->pItemList.clear		();
@@ -688,6 +698,8 @@ void game_sv_CaptureTheArtefact::BalanceTeams()
 		{
 			xrClientData *l_pC = static_cast<xrClientData*>(client);
 			game_PlayerState* ps	= l_pC->ps;
+			if (!ps)
+				return;
 			if (!l_pC->net_Ready)
 				return;
 			if (ps->IsSkip())
@@ -738,6 +750,7 @@ void game_sv_CaptureTheArtefact::BalanceTeams()
 			{
 				xrClientData *l_pC = static_cast<xrClientData*>(client);
 				game_PlayerState* ps	= l_pC->ps;
+				if (!ps)					return;
 				if (!l_pC->net_Ready) return;
 				if (ps->IsSkip()) return;
 				if (ps->team != MaxTeam) return;
@@ -997,10 +1010,11 @@ bool game_sv_CaptureTheArtefact::LoadAnomaliesItems(
 	if (!items_count)
 		return	false;
 
-	u32			str_size = xr_strlen(anomaly_string);
-	PSTR		temp_str = static_cast<PSTR>(_alloca((str_size + 1)*sizeof(char)));
+	u32	const str_size = xr_strlen(anomaly_string);
+	u32 const buffer_size	= (str_size + 1)*sizeof(char);
+	PSTR		temp_str = static_cast<PSTR>(_alloca(buffer_size));
 	for (u32 i = 0; i < items_count; ++i) {
-		_GetItem				(anomaly_string, i, temp_str);
+		_GetItem				(anomaly_string, i, temp_str, buffer_size);
 		u16 anomaly_id			= GetMinUsedAnomalyID(temp_str);
 		if (anomaly_id)
 			destination.push_back	(std::make_pair(temp_str, anomaly_id));
@@ -1023,7 +1037,7 @@ void game_sv_CaptureTheArtefact::LoadAnomalySet()
 	string16	set_id_str;
 	for (u32 i = 0; i < MAX_ANOMALIES_COUNT; ++i)
 	{
-		sprintf_s	(set_id_str, "set%d", i);
+		xr_sprintf	(set_id_str, "set%d", i);
 		if (!level_ini_file->line_exist(CTA_ANOMALY_SET_BASE_NAME, set_id_str))
 			continue;
 		
@@ -1210,18 +1224,18 @@ void game_sv_CaptureTheArtefact::LoadSkinsForTeam(const shared_str& caSection, T
 	string256			SkinSingleName;
 	string4096			Skins;
 
-	// Поле strSectionName должно содержать имя секции
+	// РџРѕР»Рµ strSectionName РґРѕР»Р¶РЅРѕ СЃРѕРґРµСЂР¶Р°С‚СЊ РёРјСЏ СЃРµРєС†РёРё
 	VERIFY(xr_strcmp(caSection,""));
 
 	pTeamSkins->clear();
 
-	// Имя поля
+	// РРјСЏ РїРѕР»СЏ
 	if (!pSettings->line_exist(caSection, "skins")) return;
 
-	// Читаем данные этого поля
-	strcpy_s(Skins, pSettings->r_string(caSection, "skins"));
+	// Р§РёС‚Р°РµРј РґР°РЅРЅС‹Рµ СЌС‚РѕРіРѕ РїРѕР»СЏ
+	xr_strcpy(Skins, pSettings->r_string(caSection, "skins"));
 	u32 count	= _GetItemCount(Skins);
-	// теперь для каждое имя оружия, разделенные запятыми, заносим в массив
+	// С‚РµРїРµСЂСЊ РґР»СЏ РєР°Р¶РґРѕРµ РёРјСЏ РѕСЂСѓР¶РёСЏ, СЂР°Р·РґРµР»РµРЅРЅС‹Рµ Р·Р°РїСЏС‚С‹РјРё, Р·Р°РЅРѕСЃРёРј РІ РјР°СЃСЃРёРІ
 	for (u32 i = 0; i < count; ++i)
 	{
 		_GetItem(Skins, i, SkinSingleName);
@@ -1234,18 +1248,18 @@ void game_sv_CaptureTheArtefact::LoadDefItemsForTeam(const shared_str& caSection
 	string256			ItemName;
 	string4096			DefItems;
 
-	// Поле strSectionName должно содержать имя секции
+	// РџРѕР»Рµ strSectionName РґРѕР»Р¶РЅРѕ СЃРѕРґРµСЂР¶Р°С‚СЊ РёРјСЏ СЃРµРєС†РёРё
 	VERIFY(xr_strcmp(caSection,""));
 
 	pDefItems->clear();
 
-	// Имя поля
+	// РРјСЏ РїРѕР»СЏ
 	if (!pSettings->line_exist(caSection, "default_items")) return;
 
-	// Читаем данные этого поля
-	strcpy_s(DefItems, pSettings->r_string(caSection, "default_items"));
+	// Р§РёС‚Р°РµРј РґР°РЅРЅС‹Рµ СЌС‚РѕРіРѕ РїРѕР»СЏ
+	xr_strcpy(DefItems, pSettings->r_string(caSection, "default_items"));
 	u32 count	= _GetItemCount(DefItems);
-	// теперь для каждое имя оружия, разделенные запятыми, заносим в массив
+	// С‚РµРїРµСЂСЊ РґР»СЏ РєР°Р¶РґРѕРµ РёРјСЏ РѕСЂСѓР¶РёСЏ, СЂР°Р·РґРµР»РµРЅРЅС‹Рµ Р·Р°РїСЏС‚С‹РјРё, Р·Р°РЅРѕСЃРёРј РІ РјР°СЃСЃРёРІ
 	for (u32 i = 0; i < count; ++i)
 	{
 		_GetItem(DefItems, i, ItemName);
@@ -1442,7 +1456,7 @@ void game_sv_CaptureTheArtefact::OnGiveBonus(KILL_RES KillResult, game_PlayerSta
 			if (pKiller->m_iKillsInRowCurr)
 			{
 				string64 tmpStr;
-				sprintf_s(tmpStr, "%d_kill_in_row", pKiller->m_iKillsInRowCurr);
+				xr_sprintf(tmpStr, "%d_kill_in_row", pKiller->m_iKillsInRowCurr);
 				Player_AddBonusMoney(pKiller, READ_IF_EXISTS(pSettings, r_s32, "mp_bonus_money", tmpStr,0), SKT_KIR, u8(pKiller->m_iKillsInRowCurr & 0xff));
 			};			
 		}break;
@@ -1545,6 +1559,10 @@ void game_sv_CaptureTheArtefact::ProcessPlayerDeath(game_PlayerState *playerStat
 	playerState->resetFlag(GAME_PLAYER_FLAG_READY);
 	playerState->m_iDeaths++;
 	playerState->m_iKillsInRowCurr = 0;
+	
+	TeamStruct * pTeam = GetTeamData(u8(playerState->team));
+	VERIFY(pTeam);
+	Player_AddMoney(playerState, pTeam->m_iM_ClearRunBonus);
 	//here we will set the flag that player not bought items yet...
 	
 	xrClientData*	l_pC = (xrClientData*)get_client(playerState->GameID);
@@ -1837,7 +1855,9 @@ void game_sv_CaptureTheArtefact::FillDeathActorRejectItems(CSE_ActorMP *actor, x
 	CActor*		pActor = smart_cast<CActor*>(Level().Objects.net_Find(actor->ID));
 	R_ASSERT	(pActor);
 
-	u32			active_slot = pActor->inventory().GetActiveSlot();
+	u16			active_slot = pActor->inventory().GetActiveSlot();
+	if ( active_slot == KNIFE_SLOT )
+		active_slot = NO_ACTIVE_SLOT;
 
 	if (active_slot != NO_ACTIVE_SLOT)
 	{
@@ -1898,7 +1918,8 @@ void game_sv_CaptureTheArtefact::OnDetachItem(CSE_ActorMP *actor, CSE_Abstract *
 			if (std::find(to_reject.begin(), to_reject.end(), e_item) != to_reject.end())
 				continue;
 
-			if (e_item->m_tClassID == CLSID_OBJECT_W_KNIFE)
+			if ((e_item->m_tClassID == CLSID_OBJECT_W_KNIFE) ||
+				(e_item->m_tClassID == CLSID_DEVICE_TORCH))
 			{
 				to_destroy.push_back	(e_item);
 			} else if (m_strWeaponsData->GetItemIdx(e_item->s_name) != u32(-1))
@@ -1984,6 +2005,9 @@ void game_sv_CaptureTheArtefact::MoveLifeActors()
 		void operator()(IClient* client)
 		{
 			xrClientData *l_pC = static_cast<xrClientData*>(client);
+			if (!l_pC->ps)
+				return;
+
 			if (!l_pC->net_Ready || l_pC->ps->IsSkip())
 				return;
 			
@@ -2013,7 +2037,8 @@ void game_sv_CaptureTheArtefact::RespawnClient(xrClientData const * pclient)
 	if (pclient->ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD))
 	{
 #ifndef MASTER_GOLD
-		Msg("---Respawning dead player [%s]", pclient->name.c_str());
+		VERIFY(pclient->ps);
+		Msg("---Respawning dead player [%s]", pclient->ps->getName());
 #endif // #ifndef MASTER_GOLD
 		RespawnPlayer(pclient->ID, true);
 		VERIFY(pclient->ps);
@@ -2029,9 +2054,6 @@ void game_sv_CaptureTheArtefact::RespawnClient(xrClientData const * pclient)
 			SetPlayersDefItems(pclient->ps);
 		}
 		SpawnWeaponsForActor(pclient->owner, pclient->ps);
-		TeamStruct * pTeam = GetTeamData(u8(pclient->ps->team));
-		VERIFY(pTeam);
-		Player_AddMoney(pclient->ps, pTeam->m_iM_ClearRunBonus);
 		pclient->ps->setFlag(GAME_PLAYER_FLAG_READY);
 		signal_Syncronize();
 	}
@@ -2125,6 +2147,9 @@ void game_sv_CaptureTheArtefact::ActorDeliverArtefactOnBase(CSE_ActorMP *actor, 
 		make_string("deliver artefact team (%d) not found in TeamList", actorTeam).c_str());
 
 	Player_AddMoney(ps, teamIter->m_iM_TargetSucceed);
+	ps->af_count++;
+	teams[actorTeam].score++;
+
 	Set_RankUp_Allowed(true);
 	Player_AddExperience(ps, READ_IF_EXISTS(pSettings, r_float, "mp_bonus_exp","target_succeed",0));
 
@@ -2146,6 +2171,9 @@ void game_sv_CaptureTheArtefact::ActorDeliverArtefactOnBase(CSE_ActorMP *actor, 
 			{
 				m_owner->Player_AddMoney(pstate, m_iM_TargetSucceedAll);				
 				m_owner->Player_AddExperience(pstate, READ_IF_EXISTS(pSettings, r_float, "mp_bonus_exp", "target_succeed_all",0));
+			} else
+			{
+				m_owner->Player_AddExperience(pstate, 0.f);
 			}
 		}
 	};
@@ -2156,9 +2184,6 @@ void game_sv_CaptureTheArtefact::ActorDeliverArtefactOnBase(CSE_ActorMP *actor, 
 	m_server->ForEachClientDo(tmp_functor);
 
 	Set_RankUp_Allowed(false);
-	
-	ps->af_count++;
-	teams[actorTeam].score++;
 	
 	signal_Syncronize();
 	Game().m_WeaponUsageStatistic->OnPlayerBringArtefact(ps);
@@ -2534,6 +2559,9 @@ void game_sv_CaptureTheArtefact::ClearReadyFlagFromAll()
 		void operator()(IClient* client)
 		{
 			xrClientData* tmp_client = static_cast<xrClientData*>(client);
+			if (!tmp_client->ps)
+				return;
+			
 			tmp_client->ps->resetFlag(GAME_PLAYER_FLAG_READY+GAME_PLAYER_FLAG_VERY_VERY_DEAD);
 		}
 	};
@@ -2549,4 +2577,25 @@ void game_sv_CaptureTheArtefact::WriteGameState(CInifile& ini, LPCSTR sect, bool
 	ini.w_s32(sect,"timelimit_mins", GetTimeLimit());
 	ini.w_u32(sect,"artefacts_limit", Get_ScoreLimit());
 	ini.w_string(sect,"anomalies", isAnomaliesEnabled()?"true":"false");
+}
+
+bool game_sv_CaptureTheArtefact::Player_Check_Rank(game_PlayerState* ps)
+{
+	if (ps->rank==m_aRanks.size()-1)
+		return false;
+
+	int NextExp = m_aRanks[ps->rank+1].m_iTerms[0];
+	if ((ps->experience_Real+ps->experience_New) < NextExp)
+		return false;
+
+	u32 const next_rank	= ps->rank + 1;
+	u32 max_art_count	= std::max(teams[etGreenTeam].score, teams[etBlueTeam].score);
+
+	if (next_rank > (max_art_count * g_sv_cta_rankUpToArtsCountDiv))
+	{
+		ps->experience_New = NextExp - ps->experience_Real;
+		return false;
+	}
+
+	return true;
 }

@@ -1,6 +1,5 @@
 #include "pch_script.h"
 #include "UIEditBox.h"
-#include "UIEditBoxEx.h"
 
 using namespace luabind;
 
@@ -17,10 +16,6 @@ void CUIEditBox::script_register(lua_State *L)
 	
 		class_<CUIEditBox, CUICustomEdit>("CUIEditBox")
 		.def(						constructor<>())
-		.def("InitTexture",			&CUIEditBox::InitTexture),
-
-		class_<CUIEditBoxEx, CUICustomEdit>("CUIEditBoxEx")
-		.def(						constructor<>())
-		.def("InitTexture",			&CUIEditBoxEx::InitTexture)
+		.def("InitTexture",			&CUIEditBox::InitTexture)
 	];
 }

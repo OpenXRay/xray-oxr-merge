@@ -11,6 +11,7 @@ public:
 	virtual			~CEliteDetector				();
 	virtual void	render_item_3d_ui			();
 	virtual bool	render_item_3d_ui_query		();
+	virtual LPCSTR	ui_xml_tag					() const {return "elite";}
 protected:
 	virtual void 	UpdateAf					();
 	virtual void 	CreateUI					();

@@ -213,7 +213,7 @@ void game_cl_GameState::TranslateGameMessage	(u32 msg, NET_Packet& P)
 				players.insert(mk_pair(newClientId, PS));
 				OnNewPlayerConnected(newClientId);
 			}
-			sprintf_s(Text, "%s%s %s%s",Color_Teams[0],PlayerName,Color_Main,*st.translate("mp_connected"));
+			xr_sprintf(Text, "%s%s %s%s",Color_Teams[0],PlayerName,Color_Main,*st.translate("mp_connected"));
 			CommonMessageOut(Text);
 			//---------------------------------------
 			Msg("%s connected", PlayerName);
@@ -223,7 +223,7 @@ void game_cl_GameState::TranslateGameMessage	(u32 msg, NET_Packet& P)
 			string64 PlayerName;
 			P.r_stringZ(PlayerName);
 
-			sprintf_s(Text, "%s%s %s%s",Color_Teams[0],PlayerName,Color_Main,*st.translate("mp_disconnected"));
+			xr_sprintf(Text, "%s%s %s%s",Color_Teams[0],PlayerName,Color_Main,*st.translate("mp_disconnected"));
 			CommonMessageOut(Text);
 			//---------------------------------------
 			Msg("%s disconnected", PlayerName);
@@ -233,7 +233,7 @@ void game_cl_GameState::TranslateGameMessage	(u32 msg, NET_Packet& P)
 			string64 PlayerName;
 			P.r_stringZ(PlayerName);
 
-			sprintf_s(Text, "%s%s %s%s",Color_Teams[0],PlayerName,Color_Main,*st.translate("mp_entered_game"));
+			xr_sprintf(Text, "%s%s %s%s",Color_Teams[0],PlayerName,Color_Main,*st.translate("mp_entered_game"));
 			CommonMessageOut(Text);
 		}break;
 	default:
@@ -309,9 +309,10 @@ void game_cl_GameState::shedule_Update		(u32 dt)
 {
 	ISheduled::shedule_Update	(dt);
 
-	if(!m_game_ui_custom){
-		if( HUD().GetUI() )
-			m_game_ui_custom = HUD().GetUI()->UIGame();
+	if(!m_game_ui_custom)
+	{
+		if( CurrentGameUI() )
+			m_game_ui_custom = CurrentGameUI();
 	} 
 	//---------------------------------------
 	switch (Phase())
@@ -329,7 +330,7 @@ void game_cl_GameState::shedule_Update		(u32 dt)
 
 void game_cl_GameState::StartStopMenu(CUIDialogWnd* pDialog, bool bDoHideIndicators)
 {
-	HUD().GetUI()->StartStopMenu(pDialog, bDoHideIndicators);
+	CurrentGameUI()->StartStopMenu(pDialog, bDoHideIndicators);
 }
 
 void game_cl_GameState::sv_GameEventGen(NET_Packet& P)
@@ -345,29 +346,20 @@ void	game_cl_GameState::sv_EventSend(NET_Packet& P)
 	Level().Send(P,net_flags(TRUE,TRUE));
 }
 
-bool game_cl_GameState::IR_OnKeyboardPress		(int dik)
+bool game_cl_GameState::OnKeyboardPress		(int dik)
 {
-	if(local_player && !local_player->IsSkip())
-		return OnKeyboardPress( get_binded_action(dik) );
+	if(!local_player || local_player->IsSkip())
+		return true;
 	else
 		return false;
 }
 
-bool game_cl_GameState::IR_OnKeyboardRelease	(int dik)
+bool game_cl_GameState::OnKeyboardRelease	(int dik)
 {
-	if(local_player && !local_player->IsSkip())
-		return OnKeyboardRelease( get_binded_action(dik) );
+	if(!local_player || local_player->IsSkip())
+		return true;
 	else
 		return false;
-}
-
-bool game_cl_GameState::IR_OnMouseMove			(int dx, int dy)
-{
-	return false;	
-}
-bool game_cl_GameState::IR_OnMouseWheel			(int direction)
-{
-	return false;
 }
 
 void game_cl_GameState::u_EventGen(NET_Packet& P, u16 type, u16 dest)
@@ -422,7 +414,7 @@ void game_cl_GameState::set_type_name(LPCSTR s)
 	m_game_type_name		= GameTypeToString		(gid, false); 
 	if(OnClient())
 	{
-		strcpy_s					(g_pGamePersistent->m_game_params.m_game_type, m_game_type_name.c_str());
+		xr_strcpy					(g_pGamePersistent->m_game_params.m_game_type, m_game_type_name.c_str());
 		g_pGamePersistent->OnGameStart();
 	}
 };

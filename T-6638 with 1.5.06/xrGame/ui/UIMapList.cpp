@@ -190,7 +190,6 @@ EGameIDs CUIMapList::GetCurGameType()
 	else
 		NODEFAULT;
 
-
 #ifdef DEBUG
 	return EGameIDs(u32(-1));
 #endif
@@ -293,9 +292,11 @@ void	CUIMapList::SaveMapList()
 void CUIMapList::SetWeatherSelector(CUIComboBox* ws){
 	m_pWeatherSelector = ws;
 }
+
 void CUIMapList::SetModeSelector(CUIWindow* ms){
 	m_pModeSelector = ms;
 }
+
 void CUIMapList::SetMapPic(CUIStatic* map_pic){
 	m_pMapPic = map_pic;
 }

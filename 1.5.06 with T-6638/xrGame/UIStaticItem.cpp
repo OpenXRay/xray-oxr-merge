@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "uistaticitem.h"
-#include "hudmanager.h"
 
 #include "../Include/xrRender/UIRender.h"
 #include "../Include/xrRender/UIShader.h"

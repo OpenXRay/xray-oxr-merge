@@ -64,7 +64,7 @@ void  dxRenderDeviceRender::Reset( HWND hWnd, u32 &dwWidth, u32 &dwHeight, float
 	Memory.mem_compact		();
 	HW.Reset				(hWnd);
 
-#ifdef	USE_DX10
+#if defined(USE_DX10) || defined(USE_DX11)
 	dwWidth					= HW.m_ChainDesc.BufferDesc.Width;
 	dwHeight				= HW.m_ChainDesc.BufferDesc.Height;
 #else	//	USE_DX10
@@ -85,7 +85,7 @@ void dxRenderDeviceRender::SetupStates()
 {
 	HW.Caps.Update			();
 
-#ifdef	USE_DX10
+#if defined(USE_DX10) || defined(USE_DX11)
 	//	TODO: DX10: Implement Resetting of render states into default mode
 	//VERIFY(!"dxRenderDeviceRender::SetupStates not implemented.");
 #else	//	USE_DX10
@@ -152,7 +152,7 @@ void dxRenderDeviceRender::OnDeviceCreate(LPCSTR shName)
 void dxRenderDeviceRender::Create( HWND hWnd, u32 &dwWidth, u32 &dwHeight, float &fWidth_2, float &fHeight_2, bool move_window)
 {
 	HW.CreateDevice		(hWnd, move_window);
-#ifdef	USE_DX10
+#if defined(USE_DX10) || defined(USE_DX11)
 	dwWidth					= HW.m_ChainDesc.BufferDesc.Width;
 	dwHeight				= HW.m_ChainDesc.BufferDesc.Height;
 #else	//	USE_DX10
@@ -173,7 +173,7 @@ void dxRenderDeviceRender::SetupGPU( BOOL bForceGPU_SW, BOOL bForceGPU_NonPure, 
 
 void dxRenderDeviceRender::overdrawBegin()
 {
-#ifdef	USE_DX10
+#if defined(USE_DX10) || defined(USE_DX11)
 	//	TODO: DX10: Implement overdrawBegin
 	VERIFY(!"dxRenderDeviceRender::overdrawBegin not implemented.");
 #else	//	USE_DX10
@@ -197,7 +197,7 @@ void dxRenderDeviceRender::overdrawBegin()
 
 void dxRenderDeviceRender::overdrawEnd()
 {
-#ifdef	USE_DX10
+#if defined(USE_DX10) || defined(USE_DX11)
 	//	TODO: DX10: Implement overdrawEnd
 	VERIFY(!"dxRenderDeviceRender::overdrawBegin not implemented.");
 #else	//	USE_DX10
@@ -263,7 +263,7 @@ void dxRenderDeviceRender::ResourcesDumpMemoryUsage()
 dxRenderDeviceRender::DeviceState dxRenderDeviceRender::GetDeviceState()
 {
 	HW.Validate		();
-#ifdef	USE_DX10
+#if defined(USE_DX10) || defined(USE_DX11)
 	//	TODO: DX10: Implement GetDeviceState
 	//	TODO: DX10: Implement DXGI_PRESENT_TEST testing
 	//VERIFY(!"dxRenderDeviceRender::overdrawBegin not implemented.");
@@ -296,7 +296,7 @@ u32 dxRenderDeviceRender::GetCacheStatPolys()
 
 void dxRenderDeviceRender::Begin()
 {
-#ifndef	USE_DX10
+#if !defined(USE_DX10) && !defined(USE_DX11)
 	CHK_DX					(HW.pDevice->BeginScene());
 #endif	//	USE_DX10
 	RCache.OnFrameBegin		();
@@ -307,14 +307,14 @@ void dxRenderDeviceRender::Begin()
 
 void dxRenderDeviceRender::Clear()
 {
-#ifdef	USE_DX10
-	HW.pDevice->ClearDepthStencilView(RCache.get_ZB(), 
-		D3D10_CLEAR_DEPTH|D3D10_CLEAR_STENCIL, 1.0f, 0);
+#if defined(USE_DX10) || defined(USE_DX11)
+	HW.pContext->ClearDepthStencilView(RCache.get_ZB(), 
+		D3D_CLEAR_DEPTH|D3D_CLEAR_STENCIL, 1.0f, 0);
 
 	if (psDeviceFlags.test(rsClearBB))
 	{
 		FLOAT ColorRGBA[4] = {0.0f,0.0f,0.0f,0.0f};
-		HW.pDevice->ClearRenderTargetView(RCache.get_RT(), ColorRGBA);
+		HW.pContext->ClearRenderTargetView(RCache.get_RT(), ColorRGBA);
 	}
 #else	//	USE_DX10
 	CHK_DX(HW.pDevice->Clear(0,0,
@@ -339,7 +339,7 @@ void dxRenderDeviceRender::End()
 
 	DoAsyncScreenshot();
 
-#ifdef	USE_DX10
+#if defined(USE_DX10) || defined(USE_DX11)
 	HW.m_pSwapChain->Present( 0, 0 );
 #else	//	USE_DX10
 	CHK_DX				(HW.pDevice->EndScene());
@@ -357,9 +357,9 @@ void dxRenderDeviceRender::ResourcesDestroyNecessaryTextures()
 
 void dxRenderDeviceRender::ClearTarget()
 {
-#ifdef	USE_DX10
+#if defined(USE_DX10) || defined(USE_DX11)
 	FLOAT ColorRGBA[4] = {0.0f,0.0f,0.0f,0.0f};
-	HW.pDevice->ClearRenderTargetView(RCache.get_RT(), ColorRGBA);
+	HW.pContext->ClearRenderTargetView(RCache.get_RT(), ColorRGBA);
 #else	//	USE_DX10
 	CHK_DX(HW.pDevice->Clear(0,0,D3DCLEAR_TARGET,D3DCOLOR_XRGB(0,0,0),1,0));
 #endif	//	USE_DX10

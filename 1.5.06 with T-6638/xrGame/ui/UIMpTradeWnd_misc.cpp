@@ -509,8 +509,8 @@ void CUIMpTradeWnd::SetRank(u32 rank)
 	string64			tex_name;
 	string64			team;
 
-	strcpy_s				(team, _team_names[m_store_hierarchy->TeamIdx()]);
-	sprintf_s				(tex_name, "ui_hud_status_%s_0%d", team, 1+rank );
+	xr_strcpy				(team, _team_names[m_store_hierarchy->TeamIdx()]);
+	xr_sprintf				(tex_name, "ui_hud_status_%s_0%d", team, 1+rank );
 			
 	m_static_player_rank->InitTexture(tex_name);
 	m_static_player_rank->TextureOn();

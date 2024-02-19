@@ -11,7 +11,9 @@
 #include "UIXmlInit.h"
 #include "UIProgressBar.h"
 #include "UIFrameLineWnd.h"
+#include "UIFrameWindow.h"
 #include "UIScrollBar.h"
+#include "UIFixedScrollBar.h"
 #include "UIScrollView.h"
 #include "UICheckButton.h"
 #include "UIHelper.h"
@@ -53,13 +55,11 @@ void CUILogsWnd::Show( bool status )
 	m_ctrl_press = false;
 	if ( status )
 	{
-		ALife::_TIME_ID	current_period = m_selected_period;
+		//ALife::_TIME_ID	current_period = m_selected_period;
 		m_actor_ch_info->InitCharacter( Actor()->object_id() );
 		m_selected_period = GetShiftPeriod( Level().GetGameTime(), 0 );
-		
-		if(current_period != m_selected_period)
-			m_need_reload = true;
-		
+//		if(current_period != m_selected_period)
+		m_need_reload = true;
 		Update();
 	}
 	//InventoryUtilities::SendInfoToActor("ui_pda_news_hide");
@@ -85,6 +85,16 @@ void CUILogsWnd::Update()
 	if ( m_need_reload )
 		ReLoadNews();
 
+
+	if(!m_items_ready.empty())
+	{
+		WINDOW_LIST::reverse_iterator it	= m_items_ready.rbegin();
+		WINDOW_LIST::reverse_iterator it_e	= m_items_ready.rend();
+		for(; it!=it_e; ++it)
+			m_list->AddWindow			(*it, true);
+		
+		m_items_ready.clear();
+	}
 }
 
 void CUILogsWnd::SendMessage(CUIWindow* pWnd, s16 msg, void* pData)
@@ -99,14 +109,16 @@ void CUILogsWnd::Init()
 
 	CUIXmlInit::InitWindow( m_uiXml, "main_wnd", 0, this );
 
-	m_background		= UIHelper::CreateFrameLine( m_uiXml, "background", this );
+//	m_background		= UIHelper::CreateFrameLine( m_uiXml, "background", this );
+	m_background				= UIHelper::CreateFrameWindow(m_uiXml, "background", this);
+	m_center_background			= UIHelper::CreateFrameWindow(m_uiXml, "center_background", this);
 	
 	m_actor_ch_info = xr_new<CUICharacterInfo>();
 	m_actor_ch_info->SetAutoDelete( true );
 	AttachChild( m_actor_ch_info );
 	m_actor_ch_info->InitCharacterInfo( &m_uiXml, "actor_ch_info" );
 
-	m_center_background	= UIHelper::CreateStatic( m_uiXml, "center_background", this );
+//	m_center_background	= UIHelper::CreateStatic( m_uiXml, "center_background", this );
 	m_center_caption	= UIHelper::CreateStatic( m_uiXml, "center_caption", this );
 
 	string256 buf;
@@ -176,7 +188,7 @@ void CUILogsWnd::ReLoadNews()
 	VERIFY( m_filter_news && m_filter_talk );
 	GAME_NEWS_VECTOR& news_vector = Actor()->game_news_registry->registry().objects();
 
-	u32 currentNews = 0;
+//	u32 currentNews = 0;
 
 	bool filter_news = m_filter_news->GetCheck();
 	bool filter_talk = m_filter_talk->GetCheck();
@@ -203,7 +215,7 @@ void CUILogsWnd::ReLoadNews()
 		if ( add )
 		{
 			m_news_in_queue.push_back(idx);
-			++currentNews;
+//			++currentNews;
 		}
 	}
 	m_need_reload = false;
@@ -230,7 +242,7 @@ void CUILogsWnd::PerformWork()
 			m_news_in_queue.pop_back	();
 			GAME_NEWS_DATA& gn			= news_vector[idx];
 			
-			AddNewsItem					( gn, NULL );
+			AddNewsItem					( gn );
 		}
 	}
 }
@@ -243,12 +255,12 @@ CUIWindow*	CUILogsWnd::CreateItem()
 	return itm_res;
 }
 
-void CUILogsWnd::ItemToCache(CUIWindow* w)
-{
-	CUINewsItemWnd* itm = smart_cast<CUINewsItemWnd*>(w);
-	VERIFY				(w);
-	m_items_cache.push_back(itm);
-}
+//void CUILogsWnd::ItemToCache(CUIWindow* w)
+//{
+//	CUINewsItemWnd* itm = smart_cast<CUINewsItemWnd*>(w);
+//	VERIFY				(w);
+//	m_items_cache.push_back(itm);
+//}
 
 CUIWindow* CUILogsWnd::ItemFromCache()
 {
@@ -264,14 +276,13 @@ CUIWindow* CUILogsWnd::ItemFromCache()
 	return			itm_res;
 }
 
-void CUILogsWnd::AddNewsItem( GAME_NEWS_DATA& news_data, CUIWindow* exist_item )
+void CUILogsWnd::AddNewsItem( GAME_NEWS_DATA& news_data)
 {
-	CUIWindow*	news_itm_w		= (exist_item)?exist_item:ItemFromCache();
+	CUIWindow*	news_itm_w		= ItemFromCache();
 	CUINewsItemWnd*	news_itm	= smart_cast<CUINewsItemWnd*>(news_itm_w);
 	news_itm->Setup				( news_data );
 	
-	if(exist_item==NULL)
-		m_list->AddWindow		( news_itm, true );
+	m_items_ready.push_back		(news_itm);
 }
 
 void CUILogsWnd::UpdateChecks( CUIWindow* w, void* d )

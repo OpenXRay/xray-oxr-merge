@@ -249,6 +249,7 @@ void xrServer::Update	()
 	//-----------------------------------------------------
 	
 	PerformCheckClientsForMaxPing	();
+
 	Flush_Clients_Buffers			();
 	
 	if( 0==(Device.dwFrame%100) )//once per 100 frames
@@ -262,9 +263,7 @@ void _stdcall xrServer::SendGameUpdateTo(IClient* client)
 	xrClientData*	xr_client = static_cast<xrClientData*>(client);
 	VERIFY			(xr_client);
 	if (!xr_client->net_Ready)
-	{
 		return;
-	}
 
 	if (!HasBandwidth(client)
 #ifdef DEBUG 
@@ -344,7 +343,6 @@ void xrServer::SendUpdatesToAll()
 		return;
 	
 	KickCheaters();
-
 
 	//sending game_update 
 	fastdelegate::FastDelegate1<IClient*,void> sendtofd;

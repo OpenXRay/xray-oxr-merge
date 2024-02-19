@@ -5,7 +5,7 @@
 #include "xrmessages.h"
 #include "game_cl_base.h"
 #include "net_queue.h"
-#include "Physics.h"
+//#include "Physics.h"
 #include "xrServer.h"
 #include "Actor.h"
 #include "Artefact.h"
@@ -15,6 +15,7 @@
 #include "level_graph.h"
 #include "file_transfer.h"
 #include "message_filter.h"
+#include "../xrphysics/iphworld.h"
 
 extern LPCSTR map_ver_string;
 LPSTR remove_version_option(LPCSTR opt_str, LPSTR new_opt_str, u32 new_opt_str_size)
@@ -22,7 +23,7 @@ LPSTR remove_version_option(LPCSTR opt_str, LPSTR new_opt_str, u32 new_opt_str_s
 	LPCSTR temp_substr = strstr(opt_str, map_ver_string);
 	if (!temp_substr)
 	{
-		strcpy_s(new_opt_str, new_opt_str_size, opt_str);
+		xr_strcpy(new_opt_str, new_opt_str_size, opt_str);
 		return new_opt_str;
 	}
 	strncpy_s(new_opt_str, new_opt_str_size, opt_str, static_cast<size_t>(temp_substr - opt_str - 1));
@@ -30,13 +31,28 @@ LPSTR remove_version_option(LPCSTR opt_str, LPSTR new_opt_str, u32 new_opt_str_s
 	if (!temp_substr)
 		return new_opt_str;
 
-	strcat_s(new_opt_str, new_opt_str_size, temp_substr);
+	xr_strcat(new_opt_str, new_opt_str_size, temp_substr);
 	return new_opt_str;
 }
 
-#pragma todo("remove next deadlock checking after testing...")
 #ifdef DEBUG
-bool csMessagesAndNetQueueDeadLockDetect = false;
+s32 lag_simmulator_min_ping	= 0;
+s32 lag_simmulator_max_ping	= 0;
+static bool SimmulateNetworkLag()
+{
+	static u32 max_lag_time	= 0;
+
+	if (!lag_simmulator_max_ping && !lag_simmulator_min_ping)
+		return false;
+	
+	if (!max_lag_time || (max_lag_time <= Device.dwTimeGlobal))
+	{
+		CRandom				tmp_random(Device.dwTimeGlobal);
+		max_lag_time		= Device.dwTimeGlobal + tmp_random.randI(lag_simmulator_min_ping, lag_simmulator_max_ping);
+		return false;
+	}
+	return true;
+}
 #endif
 
 void CLevel::ClientReceive()
@@ -48,10 +64,11 @@ void CLevel::ClientReceive()
 	{
 		SimulateServerUpdate();
 	}
-	StartProcessQueue();
 #ifdef DEBUG
-	csMessagesAndNetQueueDeadLockDetect = true;
+	if (SimmulateNetworkLag())
+		return;
 #endif
+	StartProcessQueue();
 	for (NET_Packet* P = net_msg_Retreive(); P; P=net_msg_Retreive())
 	{
 		if (IsDemoSaveStarted())
@@ -116,11 +133,6 @@ void CLevel::ClientReceive()
 			}break;
 		case M_UPDATE:
 			{
-				/*if (!game_configured)
-				{
-					Msg("! WARNING: ignoring game event [%d] - game not configured...", m_type);
-					break;
-				}*/
 				game->net_import_update	(*P);
 				//-------------------------------------------
 				if (OnServer()) break;
@@ -129,11 +141,6 @@ void CLevel::ClientReceive()
 				// они досылаются через M_UPDATE_OBJECTS
 		case M_UPDATE_OBJECTS:
 			{
-				/*if (!game_configured)
-				{
-					Msg("! WARNING: ignoring game event [%d] - game not configured...", m_type);
-					break;
-				}*/
 				Objects.net_Import		(P);
 
 				if (OnClient()) UpdateDeltaUpd(timeServer());
@@ -251,18 +258,13 @@ void CLevel::ClientReceive()
 	#ifdef DEBUG
 				Msg("- Game configuring : Finished ");
 	#endif // #ifdef DEBUG
-				if (IsDemoPlayStarted())
+				if (IsDemoPlayStarted() && !m_current_spectator)
 				{
 					SpawnDemoSpectator();
 				}
 			}break;
 		case M_MIGRATE_DEACTIVATE:	// TO:   Changing server, just deactivate
 			{
-				/*if (!game_configured)
-				{
-					Msg("! WARNING: ignoring game event [%d] - game not configured...", m_type);
-					break;
-				}*/
 				P->r_u16		(ID);
 				CObject*	O	= Objects.net_Find		(ID);
 				if (0 == O)		break;
@@ -272,11 +274,6 @@ void CLevel::ClientReceive()
 			break;
 		case M_MIGRATE_ACTIVATE:	// TO:   Changing server, full state
 			{
-				/*if (!game_configured)
-				{
-					Msg("! WARNING: ignoring game event [%d] - game not configured...", m_type);
-					break;
-				}*/
 				P->r_u16		(ID);
 				CObject*	O	= Objects.net_Find		(ID);
 				if (0 == O)		break;
@@ -337,29 +334,12 @@ void CLevel::ClientReceive()
 			}break;
 		case M_GAMESPY_CDKEY_VALIDATION_CHALLENGE:
 			{
-				#pragma todo("remove next deadlock checking after testing...")
-				#ifdef DEBUG
-				csMessagesAndNetQueueDeadLockDetect = false;
-				#endif
-				
 				OnGameSpyChallenge(P);
-
-				#ifdef DEBUG
-				csMessagesAndNetQueueDeadLockDetect = true;
-				#endif
 			}break;
 		case M_AUTH_CHALLENGE:
 			{
-				#pragma todo("remove next deadlock checking after testing...")
-				#ifdef DEBUG
-				csMessagesAndNetQueueDeadLockDetect = false;
-				#endif
-
+				ClientSendProfileData		();
 				OnBuildVersionChallenge();
-
-				#ifdef DEBUG
-				csMessagesAndNetQueueDeadLockDetect = true;
-				#endif
 			}break;
 		case M_CLIENT_CONNECT_RESULT:
 			{
@@ -504,9 +484,6 @@ void CLevel::ClientReceive()
 
 		net_msg_Release();
 	}	
-#ifdef DEBUG
-	csMessagesAndNetQueueDeadLockDetect = false;
-#endif
 	EndProcessQueue();
 
 	if (g_bDebugEvents) ProcessGameSpawns();

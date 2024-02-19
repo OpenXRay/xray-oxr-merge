@@ -1,7 +1,7 @@
 #include "stdafx.h"
 
 #include "customoutfit.h"
-#include "PhysicsShell.h"
+#include "../xrphysics/PhysicsShell.h"
 #include "inventory_space.h"
 #include "Inventory.h"
 #include "Actor.h"
@@ -10,6 +10,7 @@
 #include "BoneProtections.h"
 #include "../Include/xrRender/Kinematics.h"
 #include "player_hud.h"
+#include "ActorHelmet.h"
 
 
 CCustomOutfit::CCustomOutfit()
@@ -32,6 +33,9 @@ CCustomOutfit::~CCustomOutfit()
 
 BOOL CCustomOutfit::net_Spawn(CSE_Abstract* DC)
 {
+	if(IsGameTypeSingle())
+		ReloadBonesProtection();
+
 	BOOL res = inherited::net_Spawn(DC);
 	return					(res);
 }
@@ -50,6 +54,14 @@ void CCustomOutfit::net_Import(NET_Packet& P)
 	SetCondition			(_cond);
 }
 
+void CCustomOutfit::OnH_A_Chield()
+{
+	inherited::OnH_A_Chield();
+	if (!IsGameTypeSingle())
+		ReloadBonesProtection();
+}
+
+
 void CCustomOutfit::Load(LPCSTR section) 
 {
 	inherited::Load(section);
@@ -66,6 +78,11 @@ void CCustomOutfit::Load(LPCSTR section)
 	m_HitTypeProtection[ALife::eHitTypePhysicStrike]= READ_IF_EXISTS(pSettings, r_float, section, "physic_strike_protection", 0.0f);
 
 	m_boneProtection->m_fHitFracActor = pSettings->r_float(section, "hit_fraction_actor");
+
+	if (pSettings->line_exist(section, "nightvision_sect"))
+		m_NightVisionSect = pSettings->r_string(section, "nightvision_sect");
+	else
+		m_NightVisionSect = NULL;
 
 	if (pSettings->line_exist(section, "actor_visual"))
 		m_ActorVisual = pSettings->r_string(section, "actor_visual");
@@ -92,10 +109,6 @@ void CCustomOutfit::Load(LPCSTR section)
 	m_fPowerRestoreSpeed		= READ_IF_EXISTS(pSettings, r_float, section, "power_restore_speed",     0.0f );
 	m_fBleedingRestoreSpeed		= READ_IF_EXISTS(pSettings, r_float, section, "bleeding_restore_speed",  0.0f );
 
-	if (pSettings->line_exist(section, "nightvision_sect"))
-		m_NightVisionSect = pSettings->r_string(section, "nightvision_sect");
-	else
-		m_NightVisionSect = NULL;
 
 	m_full_icon_name	= pSettings->r_string( section, "full_icon_name" );
 	m_artefact_count 	= READ_IF_EXISTS( pSettings, r_u32, section, "artefact_count", 0 );
@@ -172,7 +185,7 @@ float CCustomOutfit::HitThroughArmor( float hit_power, s16 element, float ap, bo
 		NewHitPower *= m_boneProtection->m_fHitFracActor;
 		add_wound = false; 	//раны нет
 		Hit( NewHitPower, ALife::eHitTypeFireWound );
-	}// if >=
+	}
 
 	return NewHitPower;
 }
@@ -211,9 +224,9 @@ void CCustomOutfit::ApplySkinModel(CActor* pActor, bool bDress, bool bHUDOnly)
 					NewVisual = pSettings->r_string(TeamSection, *cNameSect());
 					string256 SkinName;
 
-					strcpy_s(SkinName, pSettings->r_string("mp_skins_path", "skin_path"));
-					strcat_s(SkinName, *NewVisual);
-					strcat_s(SkinName, ".ogf");
+					xr_strcpy(SkinName, pSettings->r_string("mp_skins_path", "skin_path"));
+					xr_strcat(SkinName, *NewVisual);
+					xr_strcat(SkinName, ".ogf");
 					NewVisual._set(SkinName);
 				}
 			}

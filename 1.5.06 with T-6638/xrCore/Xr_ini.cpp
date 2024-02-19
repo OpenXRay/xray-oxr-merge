@@ -4,6 +4,7 @@
 #include "fs_internal.h"
 
 XRCORE_API CInifile const * pSettings	= NULL;
+XRCORE_API CInifile const * pSettingsAuth	= NULL;
 
 CInifile* CInifile::Create(const char* szFileName, BOOL ReadOnly)
 {	return xr_new<CInifile>(szFileName,ReadOnly); }
@@ -89,18 +90,38 @@ BOOL	CInifile::Sect::line_exist( LPCSTR L, LPCSTR* val )
 }
 //------------------------------------------------------------------------------
 
-CInifile::CInifile(IReader* F ,LPCSTR path)
+CInifile::CInifile(IReader* F ,LPCSTR path
+                                #ifndef _EDITOR
+								   ,allow_include_func_t allow_include_func
+                                #endif
+                                    )
 {
 	m_file_name[0]	= 0;
 	m_flags.zero	();
 	m_flags.set		(eSaveAtEnd,		FALSE);
 	m_flags.set		(eReadOnly,			TRUE);
 	m_flags.set		(eOverrideNames,	FALSE);
-	Load			(F,path);
+	Load			(F,path
+    #ifndef _EDITOR
+    , allow_include_func
+    #endif
+    );
 }
 
-CInifile::CInifile(LPCSTR szFileName, BOOL ReadOnly, BOOL bLoad, BOOL SaveAtEnd)
+CInifile::CInifile(LPCSTR szFileName,
+				   BOOL ReadOnly,
+				   BOOL bLoad,
+				   BOOL SaveAtEnd,
+				   u32 sect_count
+                   #ifndef _EDITOR
+                       ,allow_include_func_t allow_include_func
+                    #endif
+                    )
+
 {
+	if(szFileName && strstr(szFileName,"system"))
+		Msg("-----loading %s",szFileName);
+
 	m_file_name[0]	= 0;
 	m_flags.zero	();
 	if(szFileName)
@@ -113,10 +134,16 @@ CInifile::CInifile(LPCSTR szFileName, BOOL ReadOnly, BOOL bLoad, BOOL SaveAtEnd)
 	{	
     	string_path	path,folder; 
 		_splitpath	(m_file_name, path, folder, 0, 0 );
-        xr_strcat		(path,folder);
+        xr_strcat		(path,sizeof(path),folder);
 		IReader* R 	= FS.r_open(szFileName);
         if (R){
-			Load		(R,path);
+			if(sect_count)
+				DATA.reserve(sect_count);
+			Load		(R, path
+    #ifndef _EDITOR
+            , allow_include_func
+    #endif
+            );
 			FS.r_close	(R);
         }
 	}
@@ -142,9 +169,9 @@ static void	insert_item(CInifile::Sect *tgt, const CInifile::Item& I)
 	if (sect_it!=tgt->Data.end() && sect_it->first.equal(I.first))
 	{ 
 		sect_it->second	= I.second;
-#ifdef DEBUG
-		sect_it->comment= I.comment;
-#endif
+//#ifdef DEBUG
+//		sect_it->comment= I.comment;
+//#endif
 	}else{
 		tgt->Data.insert	(sect_it,I);
 	}
@@ -160,7 +187,11 @@ IC BOOL	is_empty_line_now(IReader* F)
 	return (*a0==13) && ( *a1==10) && (*a2==13) && ( *a3==10); 
 };
 
-void	CInifile::Load(IReader* F, LPCSTR path)
+void	CInifile::Load(IReader* F, LPCSTR path
+                                #ifndef _EDITOR
+								   ,allow_include_func_t allow_include_func
+                                #endif
+                                    )
 {
 	R_ASSERT(F);
 	Sect		*Current = 0;
@@ -218,9 +249,18 @@ void	CInifile::Load(IReader* F, LPCSTR path)
                 strconcat	(sizeof(fn),fn,path,inc_name);
 				_splitpath	(fn,inc_path,folder, 0, 0 );
 				xr_strcat		(inc_path, sizeof(inc_path), folder);
-            	IReader* I 	= FS.r_open(fn); R_ASSERT3(I,"Can't find include file:", inc_name);
-            	Load		(I,inc_path);
-                FS.r_close	(I);
+#ifndef _EDITOR
+				if (!allow_include_func || allow_include_func(fn))
+#endif                
+				{
+					IReader* I 	= FS.r_open(fn); R_ASSERT3(I,"Can't find include file:", inc_name);
+            		Load		(I,inc_path
+                    #ifndef _EDITOR
+                    , allow_include_func
+                    #endif
+                    );
+					FS.r_close	(I);
+				}
             }
         } 
 		else if (str[0] && (str[0]=='[')) //new section ?
@@ -243,13 +283,24 @@ void	CInifile::Load(IReader* F, LPCSTR path)
 			{
 				VERIFY2				(m_flags.test(eReadOnly),"Allow for readonly mode only.");
 				inherited_names		+= 2;
-				int cnt				= _GetItemCount(inherited_names);
-				
-				for (int k=0; k<cnt; ++k)
+				u32 cnt				= _GetItemCount(inherited_names);
+				u32 total_count		= 0;
+                u32 k               = 0;
+				for (k=0; k<cnt; ++k)
 				{
-					xr_string	tmp;
+					string512	tmp;
 					_GetItem	(inherited_names,k,tmp);
-					Sect& inherited_section = r_section(tmp.c_str());
+					Sect& inherited_section = r_section(tmp);
+					total_count		+= inherited_section.Data.size();
+				}
+
+				Current->Data.reserve( Current->Data.size() + total_count );
+
+				for (k=0; k<cnt; ++k)
+				{
+					string512	tmp;
+					_GetItem	(inherited_names,k,tmp);
+					Sect& inherited_section = r_section(tmp);
 					for (SectIt_ it =inherited_section.Data.begin(); it!=inherited_section.Data.end(); it++)
 						insert_item	(Current,*it);
 				}
@@ -304,9 +355,9 @@ void	CInifile::Load(IReader* F, LPCSTR path)
 				Item		I;
 				I.first		= (name[0]?name:NULL);
 				I.second	= (str2[0]?str2:NULL);
-#ifdef DEBUG
-				I.comment	= m_flags.test(eReadOnly)?0:comment;
-#endif
+//#ifdef DEBUG
+//				I.comment	= m_flags.test(eReadOnly)?0:comment;
+//#endif
 
 				if (m_flags.test(eReadOnly)) 
 				{
@@ -316,9 +367,9 @@ void	CInifile::Load(IReader* F, LPCSTR path)
 					if	(
 							*I.first
 							|| *I.second 
-#ifdef DEBUG
-							|| *I.comment
-#endif
+//#ifdef DEBUG
+//							|| *I.comment
+//#endif
 						)
 						insert_item	(Current,I);
 				}
@@ -346,7 +397,8 @@ void CInifile::save_as	(IWriter& writer) const
             const Item&	I = *s_it;
             if (*I.first) 
 			{
-                if (*I.second) {
+                if (*I.second)
+                {
                     _decorate	(val,*I.second);
 #ifdef DEBUG
                     if (*I.comment) {
@@ -408,13 +460,13 @@ bool CInifile::save_as	(LPCSTR new_fname)
     return				(true);
 }
 
-BOOL	CInifile::section_exist( LPCSTR S )
+BOOL	CInifile::section_exist( LPCSTR S ) const
 {
-	RootIt I = std::lower_bound(DATA.begin(), DATA.end(), S, sect_pred);
+	RootCIt I = std::lower_bound(DATA.begin(), DATA.end(), S, sect_pred);
 	return (I!=DATA.end() && xr_strcmp(*(*I)->Name,S)==0);
 }
 
-BOOL	CInifile::line_exist( LPCSTR S, LPCSTR L )
+BOOL	CInifile::line_exist( LPCSTR S, LPCSTR L ) const
 {
 	if (!section_exist(S)) return FALSE;
 	Sect&	I = r_section(S);
@@ -422,7 +474,7 @@ BOOL	CInifile::line_exist( LPCSTR S, LPCSTR L )
 	return (A!=I.Data.end() && xr_strcmp(*A->first,L)==0);
 }
 
-u32		CInifile::line_count(LPCSTR Sname)
+u32		CInifile::line_count(LPCSTR Sname) const
 {
 	Sect&	S = r_section(Sname);
 	SectCIt	I = S.Data.begin();
@@ -431,28 +483,48 @@ u32		CInifile::line_count(LPCSTR Sname)
 	return  C;
 }
 
+u32	CInifile::section_count	( )const
+{
+	return DATA.size();
+}
+
 
 //--------------------------------------------------------------------------------------
-CInifile::Sect&	CInifile::r_section		( const shared_str& S	)					{ return	r_section(*S);		}
-BOOL			CInifile::line_exist	( const shared_str& S, const shared_str& L )	{ return	line_exist(*S,*L);	}
-u32				CInifile::line_count	( const shared_str& S	)					{ return	line_count(*S);		}
-BOOL			CInifile::section_exist	( const shared_str& S	)					{ return	section_exist(*S);	}
+CInifile::Sect&	CInifile::r_section		( const shared_str& S	) const					{ return	r_section(*S);		}
+BOOL			CInifile::line_exist	( const shared_str& S, const shared_str& L ) const	{ return	line_exist(*S,*L);	}
+u32				CInifile::line_count	( const shared_str& S	) const					{ return	line_count(*S);		}
+BOOL			CInifile::section_exist	( const shared_str& S	) const					{ return	section_exist(*S);	}
 
 //--------------------------------------------------------------------------------------
 // Read functions
 //--------------------------------------------------------------------------------------
-CInifile::Sect& CInifile::r_section( LPCSTR S )
+CInifile::Sect& CInifile::r_section( LPCSTR S ) const
 {
 	char	section[256]; xr_strcpy(section,sizeof(section),S); strlwr(section);
-	RootIt I = std::lower_bound(DATA.begin(),DATA.end(),section,sect_pred);
+	RootCIt I = std::lower_bound(DATA.begin(),DATA.end(),section,sect_pred);
 	if (!(I!=DATA.end() && xr_strcmp(*(*I)->Name,section)==0))
-		Debug.fatal(DEBUG_INFO,"Can't open section '%s'",S);
+	{
+
+		//g_pStringContainer->verify();
+
+		//string_path			ini_dump_fn, path;
+		//strconcat			(sizeof(ini_dump_fn), ini_dump_fn, Core.ApplicationName, "_", Core.UserName, ".ini_log");
+		//
+		//FS.update_path		(path, "$logs$", ini_dump_fn);
+		//IWriter* F			= FS.w_open_ex(path);
+		//save_as				(*F);
+		//F->w_string			("shared strings:");
+		//g_pStringContainer->dump(F);
+		//FS.w_close			(F);
+
+		Debug.fatal			(DEBUG_INFO,"Can't open section '%s'. Please attach [*.ini_log] file to your bug report",S);
+	}
 	return	**I;
 }
 
-LPCSTR	CInifile::r_string(LPCSTR S, LPCSTR L)
+LPCSTR	CInifile::r_string(LPCSTR S, LPCSTR L) const
 {
-	Sect&	I = r_section(S);
+	Sect const&	I = r_section(S);
 	SectCIt	A = std::lower_bound(I.Data.begin(),I.Data.end(),L,item_pred);
 	if (A!=I.Data.end() && xr_strcmp(*A->first,L)==0)	return *A->second;
 	else
@@ -682,9 +754,9 @@ void CInifile::w_string( LPCSTR S, LPCSTR L, LPCSTR V, LPCSTR comment)
 	I.first			= (line[0]?line:0);
 	I.second		= (value[0]?value:0);
 
-#ifdef DEBUG
-	I.comment		= (comment?comment:0);
-#endif
+//#ifdef DEBUG
+//	I.comment		= (comment?comment:0);
+//#endif
 	SectIt_	it		= std::lower_bound(data.Data.begin(),data.Data.end(),*I.first,item_pred);
 
     if (it != data.Data.end()) 

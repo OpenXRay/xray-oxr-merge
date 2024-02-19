@@ -94,8 +94,6 @@ CPHMovementControl::CPHMovementControl(CObject* parent)
 	block_damage_step_end = u64(-1);
 }
 
-
-
 CPHMovementControl::~CPHMovementControl(void)
 {
 	if(m_character)
@@ -216,6 +214,7 @@ void CPHMovementControl::Calculate(Fvector& vAccel,const Fvector& camDir,float /
 	bSleep=false;
 	m_character->Reinit();
 }
+
 void CPHMovementControl::UpdateCollisionDamage( )
 {
 //reset old

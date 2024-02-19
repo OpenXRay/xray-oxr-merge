@@ -86,10 +86,15 @@ void CUIHudStatesWnd::InitFromXml( CUIXml& xml, LPCSTR path )
 	XML_NODE* new_root = xml.NavigateToNode( path, 0 );
 	xml.SetLocalRoot( new_root );
 
+
 	m_back            = UIHelper::CreateStatic( xml, "back", this );
+	m_ui_health_bar   = UIHelper::CreateProgressBar( xml, "progress_bar_health", this );
+	m_ui_armor_bar    = UIHelper::CreateProgressBar( xml, "progress_bar_armor", this );
+	m_ui_stamina_bar  = UIHelper::CreateProgressBar( xml, "progress_bar_stamina", this );
 	m_back_v          = UIHelper::CreateStatic( xml, "back_v", this );
 	m_static_armor    = UIHelper::CreateStatic( xml, "static_armor", this );
 	
+
 	m_resist_back[ALife::infl_rad]  = UIHelper::CreateStatic( xml, "resist_back_rad", this );
 	m_resist_back[ALife::infl_fire] = UIHelper::CreateStatic( xml, "resist_back_fire", this );
 	m_resist_back[ALife::infl_acid] = UIHelper::CreateStatic( xml, "resist_back_acid", this );
@@ -101,20 +106,20 @@ void CUIHudStatesWnd::InitFromXml( CUIXml& xml, LPCSTR path )
 	m_indik[ALife::infl_acid] = UIHelper::CreateStatic( xml, "indik_acid", this );
 	m_indik[ALife::infl_psi]  = UIHelper::CreateStatic( xml, "indik_psi", this );
 
-	m_lanim_name._set( xml.ReadAttrib( "indik_rad", 0, "light_anim", "" ) );
+	m_lanim_name				= xml.ReadAttrib( "indik_rad", 0, "light_anim", "" );
 
 	m_ui_weapon_sign_ammo = UIHelper::CreateStatic( xml, "static_ammo", this );
-	//m_ui_weapon_sign_ammo->SetEllipsis( CUIStatic::eepEnd, 2 );
+	m_ui_weapon_cur_ammo		= UIHelper::CreateStatic( xml, "static_cur_ammo", this );
+	m_ui_weapon_fmj_ammo		= UIHelper::CreateStatic( xml, "static_fmj_ammo", this );
+	m_ui_weapon_ap_ammo			= UIHelper::CreateStatic( xml, "static_ap_ammo", this );
+	m_fire_mode = UIHelper::CreateStatic( xml, "static_fire_mode", this );
+	m_ui_grenade				= UIHelper::CreateStatic( xml, "static_grenade", this );
 	
 	m_ui_weapon_icon = UIHelper::CreateStatic( xml, "static_wpn_icon", this );
 	m_ui_weapon_icon->SetShader( InventoryUtilities::GetEquipmentIconsShader() );
-	m_ui_weapon_icon->Enable( false );
+//	m_ui_weapon_icon->Enable	( false );
 	m_ui_weapon_icon_rect = m_ui_weapon_icon->GetWndRect();
 
-	m_fire_mode = UIHelper::CreateStatic( xml, "static_fire_mode", this );
-	
-	m_ui_health_bar   = UIHelper::CreateProgressBar( xml, "progress_bar_health", this );
-	m_ui_armor_bar    = UIHelper::CreateProgressBar( xml, "progress_bar_armor", this );
 
 	m_progress_self = xr_new<CUIProgressShape>();
 	m_progress_self->SetAutoDelete(true);
@@ -129,11 +134,27 @@ void CUIHudStatesWnd::InitFromXml( CUIXml& xml, LPCSTR path )
 
 	m_back_over_arrow = UIHelper::CreateStatic( xml, "back_over_arrow", this );
 
-	m_ui_stamina_bar  = UIHelper::CreateProgressBar( xml, "progress_bar_stamina", this );
-
 	m_bleeding = UIHelper::CreateStatic( xml, "bleeding", this );
 	m_bleeding->Show( false );
+/*
+	m_bleeding_lev1 = UIHelper::CreateStatic( xml, "bleeding_level_1", this );
+	m_bleeding_lev1->Show( false );
 
+	m_bleeding_lev2 = UIHelper::CreateStatic( xml, "bleeding_level_2", this );
+	m_bleeding_lev2->Show( false );
+
+	m_bleeding_lev3 = UIHelper::CreateStatic( xml, "bleeding_level_3", this );
+	m_bleeding_lev3->Show( false );
+
+	m_radiation_lev1 = UIHelper::CreateStatic( xml, "radiation_level_1", this );
+	m_radiation_lev1->Show( false );
+
+	m_radiation_lev2 = UIHelper::CreateStatic( xml, "radiation_level_2", this );
+	m_radiation_lev2->Show( false );
+
+	m_radiation_lev3 = UIHelper::CreateStatic( xml, "radiation_level_3", this );
+	m_radiation_lev3->Show( false );
+*/
 	for ( int i = 0; i < it_max; ++i )
 	{
 		m_cur_state_LA[i] = true;
@@ -241,7 +262,7 @@ void CUIHudStatesWnd::UpdateActiveItemInfo( CActor* actor )
 		xr_string	icon_sect_name;
 		xr_string	str_count;
 		string16	str_fire_mode;
-		strcpy_s					( str_fire_mode, sizeof(str_fire_mode), "" );
+		xr_strcpy					( str_fire_mode, sizeof(str_fire_mode), "" );
 		item->GetBriefInfo			( str_name, icon_sect_name, str_count, str_fire_mode );
 
 		m_ui_weapon_sign_ammo->Show	( true );

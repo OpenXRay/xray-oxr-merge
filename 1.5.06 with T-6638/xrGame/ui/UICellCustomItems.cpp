@@ -3,6 +3,7 @@
 #include "UIInventoryUtilities.h"
 #include "../Weapon.h"
 #include "UIDragDropListEx.h"
+#include "UIProgressBar.h"
 
 #define INV_GRID_WIDTHF			50.0f
 #define INV_GRID_HEIGHTF		50.0f
@@ -377,6 +378,7 @@ void CUIWeaponCellItem::InitAddon(CUIStatic* s, LPCSTR section, Fvector2 addon_o
 			new_offset.x		= addon_offset.y*base_scale.x;
 			new_offset.y		= GetHeight() - addon_offset.x*base_scale.x - cell_size.x;
 			addon_offset		= new_offset;
+			addon_offset.x		*= UI().get_current_kx();
 		}else
 		{
 			s->SetWndSize		(cell_size);
@@ -443,6 +445,13 @@ bool CUIWeaponCellItem::EqualTo(CUICellItem* itm)
 	if ( object()->GetAddonsState() != ci->object()->GetAddonsState() )
 	{
 		return false;
+	}
+	if(this->is_scope() && ci->is_scope())
+	{
+		if ( object()->GetScopeName() != ci->object()->GetScopeName() )
+		{
+			return false;
+		}
 	}
 //	bool b_place					= ( (object()->m_eItemCurrPlace == ci->object()->m_eItemCurrPlace) );
 

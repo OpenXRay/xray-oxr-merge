@@ -63,6 +63,7 @@ struct	 ECORE_API		SGeometry		: public xr_resource_flagged									{
 	u32									vb_stride;
 						~SGeometry		();
 };
+
 struct 	ECORE_API	resptrcode_geom	: public resptr_base<SGeometry>
 {
 	void 				create			(D3DVERTEXELEMENT9* decl, ID3DVertexBuffer* vb, ID3DIndexBuffer* ib);
@@ -70,6 +71,7 @@ struct 	ECORE_API	resptrcode_geom	: public resptr_base<SGeometry>
 	void				destroy			()			{ _set(NULL);		}
 	u32					stride			()	const	{ return _get()->vb_stride;	}
 };
+
 typedef	resptr_core<SGeometry,resptrcode_geom>												ref_geom;
 
 //////////////////////////////////////////////////////////////////////////
@@ -77,8 +79,13 @@ struct	  ECORE_API		SPass			: public xr_resource_flagged									{
 	ref_state							state;		// Generic state, like Z-Buffering, samplers, etc
 	ref_ps								ps;			// may be NULL = FFP, in that case "state" must contain TSS setup
 	ref_vs								vs;			// may be NULL = FFP, in that case "state" must contain RS setup, *and* FVF-compatible declaration must be used
-#ifdef	USE_DX10
+#if defined(USE_DX10) || defined(USE_DX11)
 	ref_gs								gs;			// may be NULL = don't use geometry shader at all
+#	ifdef USE_DX11
+	ref_hs								hs;			// may be NULL = don't use hull shader at all
+	ref_ds								ds;			// may be NULL = don't use domain shader at all
+	ref_cs								cs;			// may be NULL = don't use compute shader at all
+#	endif
 #endif	//	USE_DX10
 	ref_ctable							constants;	// may be NULL
 
@@ -89,11 +96,8 @@ struct	  ECORE_API		SPass			: public xr_resource_flagged									{
 #endif
 
 						~SPass			();
-#ifdef	USE_DX10
-	BOOL				equal			(ref_state& _state, ref_ps& _ps, ref_vs& _vs, ref_gs& _gs, ref_ctable& _ctable, ref_texture_list& _T, ref_matrix_list& _M, ref_constant_list& _C);
-#else	//	USE_DX10
-	BOOL				equal			(ref_state& _state, ref_ps& _ps, ref_vs& _vs, ref_ctable& _ctable, ref_texture_list& _T, ref_matrix_list& _M, ref_constant_list& _C);
-#endif	USE_DX10
+
+	BOOL equal(const SPass& other);
 };
 typedef	resptr_core<SPass,resptr_base<SPass> >												ref_pass;
 

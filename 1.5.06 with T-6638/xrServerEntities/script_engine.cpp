@@ -17,8 +17,8 @@
 #		include "script_debugger.h"
 #	else // #ifndef USE_LUA_STUDIO
 #		include "lua_studio.h"
-		typedef cs::lua_debugger::create_world_function_type			create_world_function_type;
-		typedef cs::lua_debugger::destroy_world_function_type			destroy_world_function_type;
+		typedef cs::lua_studio::create_world_function_type			create_world_function_type;
+		typedef cs::lua_studio::destroy_world_function_type			destroy_world_function_type;
 
 		static create_world_function_type	s_create_world				= 0;
 		static destroy_world_function_type	s_destroy_world				= 0;
@@ -48,16 +48,16 @@ static void log_callback			(LPCSTR message)
 	ai().script_engine().debugger()->add_log_line	(message);
 }
 
-static void initialize_lua_studio	( lua_State* state, cs::lua_debugger::world*& world, lua_studio_engine*& engine)
+static void initialize_lua_studio	( lua_State* state, cs::lua_studio::world*& world, lua_studio_engine*& engine)
 {
 	engine							= 0;
 	world							= 0;
 
 	u32 const old_error_mode		= SetErrorMode(SEM_FAILCRITICALERRORS);
-	s_script_debugger_handle		= LoadLibrary(CS_LUA_DEBUGGER_FILE_NAME);
+	s_script_debugger_handle		= LoadLibrary(CS_LUA_STUDIO_BACKEND_FILE_NAME);
 	SetErrorMode					(old_error_mode);
 	if (!s_script_debugger_handle) {
-		Msg							("! cannot load %s dynamic library", CS_LUA_DEBUGGER_FILE_NAME);
+		Msg							("! cannot load %s dynamic library", CS_LUA_STUDIO_BACKEND_FILE_NAME);
 		return;
 	}
 
@@ -66,19 +66,19 @@ static void initialize_lua_studio	( lua_State* state, cs::lua_debugger::world*& 
 	s_create_world					= (create_world_function_type)
 		GetProcAddress(
 			s_script_debugger_handle,
-			"_cs_script_debugger_create_world@4"
+			"_cs_lua_studio_backend_create_world@12"
 		);
-	R_ASSERT2						(s_create_world, "can't find function \"create_world\"");
+	R_ASSERT2						(s_create_world, "can't find function \"cs_lua_studio_backend_create_world\"");
 
 	s_destroy_world					= (destroy_world_function_type)
 		GetProcAddress(
 			s_script_debugger_handle,
-			"_cs_script_debugger_destroy_world@4"
+			"_cs_lua_studio_backend_destroy_world@4"
 		);
-	R_ASSERT2						(s_destroy_world, "can't find function \"destroy_world\" in the library");
+	R_ASSERT2						(s_destroy_world, "can't find function \"cs_lua_studio_backend_destroy_world\" in the library");
 
 	engine							= xr_new<lua_studio_engine>();
-	world							= s_create_world(*engine);
+	world							= s_create_world( *engine, false, false );
 	VERIFY							(world);
 
 	s_old_log_callback				= SetLogCB(&log_callback);
@@ -89,7 +89,7 @@ static void initialize_lua_studio	( lua_State* state, cs::lua_debugger::world*& 
 	world->add						(state);
 }
 
-static void finalize_lua_studio		( lua_State* state, cs::lua_debugger::world*& world, lua_studio_engine*& engine)
+static void finalize_lua_studio		( lua_State* state, cs::lua_studio::world*& world, lua_studio_engine*& engine)
 {
 	world->remove					(state);
 
@@ -358,7 +358,7 @@ void CScriptEngine::load_common_scripts()
 			process_file(_GetItem(caScriptString,i,I));
 			xr_strcat	(I,"_initialize");
 			if (object("_G",I,LUA_TFUNCTION)) {
-//				lua_dostring			(lua(),strcat(I,"()"));
+//				lua_dostring			(lua(),xr_strcat(I,"()"));
 				luabind::functor<void>	f;
 				R_ASSERT				(functor(I,f));
 				f						();

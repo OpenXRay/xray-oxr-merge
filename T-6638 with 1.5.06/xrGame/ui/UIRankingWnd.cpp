@@ -8,7 +8,6 @@
 #include "pch_script.h"
 #include "UIRankingWnd.h"
 
-#include "UIFixedScrollBar.h"
 #include "UIXmlInit.h"
 #include "UIProgressBar.h"
 #include "UIFrameLineWnd.h"
@@ -89,6 +88,11 @@ void CUIRankingWnd::Init()
 	AttachChild( m_actor_ch_info );
 	m_actor_ch_info->InitCharacterInfo( &xml, "actor_ch_info" );
 
+	m_actor_ch_info->UICommunityCaption().AdjustWidthToText();
+	pos = m_actor_ch_info->UICommunity().GetWndPos();
+	pos.x = m_actor_ch_info->UICommunityCaption().GetWndPos().x + m_actor_ch_info->UICommunityCaption().GetWndSize().x + 10.0f;
+	m_actor_ch_info->UICommunity().SetWndPos( pos );
+
 	m_icon_overlay = UIHelper::CreateFrameWindow( xml, "actor_icon_over", this );
 	m_money_caption		= UIHelper::CreateStatic( xml, "money_caption", this );
 	m_money_value		= UIHelper::CreateStatic( xml, "money_value", this );
@@ -133,7 +137,6 @@ void CUIRankingWnd::Init()
 	xr_strcpy( buf, sizeof(buf), m_center_caption->GetText() );
 	xr_strcat( buf, sizeof(buf), CStringTable().translate("ui_ranking_center_caption").c_str() );
 	m_center_caption->SetText( buf );
-
 
 	m_monster_icon_back		= UIHelper::CreateStatic(xml, "monster_icon_back", this);
 	m_monster_icon			= UIHelper::CreateStatic(xml, "monster_icon", this);

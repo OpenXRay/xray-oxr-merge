@@ -3,7 +3,6 @@
 #include "object_broker.h"
 #include "../callback_info.h"
 
-
 CUIDialogWndEx::CUIDialogWndEx()
 {}
 

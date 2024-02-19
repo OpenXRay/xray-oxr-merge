@@ -143,7 +143,6 @@ void CUIFrameRect::Draw()
 void CUIFrameRect::Update()
 {}
 
-
 void CUIFrameRect::SetWndSize(const Fvector2& size)
 {
 	CUISimpleWindow::SetWndSize(size);
@@ -183,7 +182,7 @@ void CUIFrameRect::Draw(float x, float y)
 	float dx = p.x - x;
 	float dy = p.y - y;
 	if ( !fis_zero(dx) || !fis_zero(dy))
-		SetWndPos(Fvector2().set(x,y) );
+		SetWndPos(Fvector2().set(x,y));
 	
 	Draw();
 }

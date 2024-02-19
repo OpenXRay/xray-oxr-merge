@@ -162,8 +162,14 @@ public:
     CInifile*					LL_UserData			(){return pUserData;}
 	accel*						LL_Bones			(){return bone_map_N;}
 	ICF CBoneInstance&			LL_GetBoneInstance	(u16 bone_id)		{	VERIFY(bone_id<LL_BoneCount()); VERIFY(bone_instances); return bone_instances[bone_id];	}
-	CBoneData&					LL_GetData			(u16 bone_id)		{	VERIFY(bone_id<LL_BoneCount()); VERIFY(bones);			return *((*bones)[bone_id]);	}
-	u16							LL_BoneCount		()					{	return u16(bones->size());										}
+	ICF const	CBoneInstance&			LL_GetBoneInstance	(u16 bone_id) const		{	VERIFY(bone_id<LL_BoneCount()); VERIFY(bone_instances); return bone_instances[bone_id];	}
+	CBoneData&					LL_GetData			(u16 bone_id)
+	{
+		VERIFY(bone_id<LL_BoneCount());
+		VERIFY(bones);
+		return *((*bones)[bone_id]);
+	}
+	u16							LL_BoneCount		()const				{	return u16(bones->size());										}
 	u16							LL_VisibleBoneCount	()					{	u64 F=visimask.flags&((u64(1)<<u64(LL_BoneCount()))-1); return (u16)btwCount1(F); }
 	ICF Fmatrix&				LL_GetTransform		(u16 bone_id)		{	return LL_GetBoneInstance(bone_id).mTransform;					}
 	ICF Fmatrix&				LL_GetTransform_R	(u16 bone_id)		{	return LL_GetBoneInstance(bone_id).mRenderTransform;			}	// rendering only
@@ -194,6 +200,9 @@ public:
 	// debug
 #ifdef DEBUG
 	void						DebugRender			(Fmatrix& XFORM);
+protected:
+	virtual shared_str				getDebugName()	{ return dbg_name; }
+public:
 #endif
 
 	// General "Visual" stuff

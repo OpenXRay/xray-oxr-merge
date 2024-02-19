@@ -18,7 +18,8 @@ private:
 	CUIStatic*					m_clock_wnd;
 	CUIStatic					m_center;
 	CUIStatic					m_compass;
-	CUIWindow					m_clipFrame;
+	CUIStatic					m_clipFrame;
+	CUIStatic					m_pointerDistanceText;
 	CUIStatic					m_Counter;
 	CUIStatic					m_Counter_text;
 	u8							m_current_map_idx;

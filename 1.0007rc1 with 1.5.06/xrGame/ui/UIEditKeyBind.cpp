@@ -3,17 +3,17 @@
 #include "UIEditKeyBind.h"
 #include "UIColorAnimatorWrapper.h"
 #include "../xr_level_controller.h"
-#include "../object_broker.h"
+#include "object_broker.h"
 
 CUIEditKeyBind::CUIEditKeyBind(bool bPrim)
 {
 	m_bPrimary					= bPrim;
-    m_bEditMode					= false;
+    m_bIsEditMode				= false;
 
 	m_pAnimation				= xr_new<CUIColorAnimatorWrapper>("ui_map_area_anim");
 	m_pAnimation->Cyclic		(true);
 	m_bChanged					= false;
-	m_lines.SetTextComplexMode	(false);
+	SetTextComplexMode			(false);
 	m_keyboard					= NULL;
 	m_action					= NULL;
 }
@@ -35,7 +35,7 @@ u32 cut_string_by_length(CGameFont* pFont, LPCSTR src, LPSTR dst, u32 dst_size, 
 		float	text_len					= pFont->SizeOf_(src);
 		UI()->ClientToScreenScaledWidth		(text_len);
 		VERIFY								(xr_strlen(src)<=dst_size);
-		strcpy								(dst,src);
+		strcpy_s								(dst, dst_size, src);
 
 		while(text_len > length)
 		{
@@ -82,7 +82,7 @@ void CUIEditKeyBind::OnFocusLost()
 
 bool CUIEditKeyBind::OnMouseDown(int mouse_btn)
 {
-	if (m_bEditMode)
+	if (m_bIsEditMode)
 	{		
 		string64 message;
 		
@@ -92,7 +92,7 @@ bool CUIEditKeyBind::OnMouseDown(int mouse_btn)
 		OnFocusLost				();
 		m_bChanged				= true;
 
-		strcpy				(message, m_action->action_name);
+		strcpy_s				(message, m_action->action_name);
 		strcat				(message, "=");
 		strcat				(message, m_keyboard->key_name);		
 		SendMessage2Group	("key_binding",message);
@@ -101,7 +101,7 @@ bool CUIEditKeyBind::OnMouseDown(int mouse_btn)
 	}
 
 	if (mouse_btn==MOUSE_1)
-		m_bEditMode = m_bCursorOverWindow;
+		SetEditMode(m_bCursorOverWindow);
 
 	return CUILabel::OnMouseDown(mouse_btn);
 }
@@ -113,12 +113,12 @@ bool CUIEditKeyBind::OnKeyboard(int dik, EUIMessages keyboard_action){
 		return true;
 
 	string64 message;
-	if (m_bEditMode)
+	if (m_bIsEditMode)
 	{		
 		m_keyboard			= dik_to_ptr(dik, true);
 		if(!m_keyboard)			return true;
 
-		strcpy				(message, m_action->action_name);
+		strcpy_s			(message, m_action->action_name);
 		strcat				(message, "=");
 		strcat				(message, m_keyboard->key_name);		
 		SetText				(m_keyboard->key_local_name.c_str());
@@ -135,12 +135,21 @@ void CUIEditKeyBind::Update()
 	CUILabel::Update();
 
 	m_bTextureAvailable = m_bCursorOverWindow;
-	if (m_bEditMode)
+	if (m_bIsEditMode)
 	{
 		m_pAnimation->Update();
-		m_lines.SetTextColor((subst_alpha(m_lines.GetTextColor(), color_get_A(m_pAnimation->GetColor()))));
+		SetTextColor((subst_alpha(GetTextColor(), color_get_A(m_pAnimation->GetColor()))));
 	}
-	
+}
+
+void CUIEditKeyBind::SetEditMode(bool b)
+{
+	m_bIsEditMode = b;
+
+	if(b)
+		TextureOn();
+	else
+		TextureOff();
 }
 
 void CUIEditKeyBind::Register(const char* entry, const char* group)
@@ -174,7 +183,7 @@ void CUIEditKeyBind::SaveValue()
 	m_bChanged			= false;
 }
 
-#include "../../xr_ioconsole.h"
+#include "../../xrEngine/xr_ioconsole.h"
 void CUIEditKeyBind::BindAction2Key()
 {
 	xr_string comm_unbind	= (m_bPrimary)?"unbind ":"unbind_sec ";
@@ -195,7 +204,8 @@ bool CUIEditKeyBind::IsChanged(){
 	return m_bChanged;
 }
 
-void CUIEditKeyBind::OnMessage(const char* message){
+void CUIEditKeyBind::OnMessage(LPCSTR message)
+{
 	// message = "command=key"
 	int eq	= (int)strcspn(message,"=");
 	
@@ -206,7 +216,7 @@ void CUIEditKeyBind::OnMessage(const char* message){
 		return;
 
 	string64			command;
-	strcpy				(command, message);
+	strcpy_s			(command, message);
 	command[eq]			= 0;
 
     if (0 == xr_strcmp(m_action->action_name, command))

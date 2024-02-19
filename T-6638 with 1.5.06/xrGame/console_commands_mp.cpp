@@ -1824,9 +1824,7 @@ public:
 	virtual void Execute(LPCSTR arguments)
 	{
 		if ( IsGameTypeSingle() || xr_strlen(arguments) >= 512 )
-		{
 			return;
-		}
 
 		if(strstr(arguments,"login")==arguments)
 		{

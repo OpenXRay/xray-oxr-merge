@@ -53,7 +53,6 @@ public:
 	//инициализации начального диалога собеседника
 	void				InitOthersStartDialog	();
 
-	virtual bool		IR_OnKeyboardPress		(int dik);
 	virtual bool		OnKeyboardAction		(int dik, EUIMessages keyboard_action);
 	void				SwitchToTrade			();
 	void				SwitchToUpgrade			();

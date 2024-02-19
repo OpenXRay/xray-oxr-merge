@@ -21,8 +21,5 @@ protected:
 	CUIStatic	m_back;
 	CUIStatic	m_money_amount;
 	CUIStatic	m_money_change;
-
-	CUIColorAnimatorWrapper* m_pAnimChange;
-
 	CUIGameLog*			m_pBonusMoney;
 };

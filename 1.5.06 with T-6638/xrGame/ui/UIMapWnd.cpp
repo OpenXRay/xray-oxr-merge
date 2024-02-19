@@ -18,6 +18,7 @@
 #include "UIMapWndActionsSpace.h"
 #include "UIHint.h"
 #include "map_hint.h"
+#include "uicursor.h"
 
 #include "../../xrEngine/xr_input.h"		//remove me !!!
 
@@ -243,8 +244,7 @@ void CUIMapWnd::AddMapToRender			(CUICustomMap* m)
 	Register							( m );
 	m_UILevelFrame->AttachChild			( m );
 	m->Show								( true );
-	m_UILevelFrame->BringToTop			( m );
-	m->SetClipRect						( ActiveMapRect() );
+	m->WorkingArea().set				( ActiveMapRect() );
 }
 
 void CUIMapWnd::RemoveMapToRender		(CUICustomMap* m)
@@ -504,8 +504,8 @@ void CUIMapWnd::UpdateScroll()
 	if ( m_scroll_mode )
 	{
 		Fvector2 w_pos					= GlobalMap()->GetWndPos();
-		m_UIMainScrollV->SetRange		(0,iFloor(GlobalMap()->GetHeight()));
-		m_UIMainScrollH->SetRange		(0,iFloor(GlobalMap()->GetWidth()));
+		m_UIMainScrollV->SetRange(m_UIMainScrollV->GetMinRange(),iFloor(GlobalMap()->GetHeight()));
+		m_UIMainScrollH->SetRange(m_UIMainScrollV->GetMinRange(),iFloor(GlobalMap()->GetWidth()));
 
 		m_UIMainScrollV->SetScrollPos	(iFloor(-w_pos.y));
 		m_UIMainScrollH->SetScrollPos	(iFloor(-w_pos.x));
@@ -657,7 +657,7 @@ void CUIMapWnd::ShowHint( bool extra )
 		vis_rect = ActiveMapRect();
 	}
 
-	bool is_visible = m_map_location_hint->AlignHintWndPos( vis_rect );
+	bool is_visible = fit_in_rect(m_map_location_hint, vis_rect );
 	if ( !is_visible )
 	{
 		HideCurHint();
@@ -703,7 +703,7 @@ void CUIMapWnd::SpotSelected(CUIWindow* w)
 		return;
 	
 	CGameTask* t		= Level().GameTaskManager().HasGameTask(sp->MapLocation(), true);
-	if(t && t->GetTaskType()==eTaskTypeAdditional)
+	if ( t )
 	{
 		Level().GameTaskManager().SetActiveTask(t);
 	}

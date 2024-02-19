@@ -32,7 +32,8 @@ public:
 	virtual void	Draw			();
 	virtual void	Show			(bool status);
 
-	IC		void	CaptureFocus	(bool bCapture) { m_bInputFocus = bCapture; }
+			void	CaptureFocus	(bool bCapture);
+			void	SetNextFocusCapturer(CUICustomEdit* next_capturer) { m_next_focus_capturer = next_capturer; };
 	
 			void	ClearText		();
 	virtual	void	SetText			(LPCSTR str);
@@ -56,6 +57,7 @@ protected:
 	enum								{ EDIT_BUF_SIZE = 256 };
 	text_editor::line_edit_control*		m_editor_control;
 	text_editor::line_edit_control&		ec();
+	text_editor::line_edit_control const &	ec() const;
 	
 	u32		m_last_key_state_time;
 	char	m_out_str[EDIT_BUF_SIZE];
@@ -64,4 +66,6 @@ protected:
 	bool	m_bInputFocus;
 	bool	m_force_update;
 	bool	m_read_mode;
+
+	CUICustomEdit*	m_next_focus_capturer;
 };

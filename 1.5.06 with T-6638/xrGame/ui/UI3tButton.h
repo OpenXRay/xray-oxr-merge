@@ -15,7 +15,7 @@ class CUI3tButton : public CUIButton
 {
 	typedef CUIButton	inherited;
 	friend class CUIXmlInit;
-	using CUIButton::SetTextColor;
+//.	using CUIButton::SetTextColor;
 public:
 					CUI3tButton					();
 	virtual			~CUI3tButton				();
@@ -25,10 +25,7 @@ public:
 	virtual void 	InitTexture					(LPCSTR tex_name);
 	virtual void 	InitTexture					(LPCSTR tex_enabled, LPCSTR tex_disabled, LPCSTR tex_touched, LPCSTR tex_highlighted);
 
-			void 	SetTextColor				(u32 color);
-			void 	SetTextColorH				(u32 color);
-			void 	SetTextColorD				(u32 color);
-			void 	SetTextColorT				(u32 color);
+//.			void 	SetTextColor				(u32 color);
 	virtual void 	SetTextureOffset			(float x, float y);	
 	virtual void 	SetWidth					(float width);
 	virtual void 	SetHeight					(float height);
@@ -47,13 +44,15 @@ public:
 	virtual bool 	OnMouseDown					(int mouse_btn);
 			void 	SetCheckMode				(bool mode) {m_bCheckMode = mode;}
 
+	void			SetStateTextColor				(u32 color, IBState state){m_dwTextColor[state] = color; m_bUseTextColor[state] = true;}
+	u32				m_dwTextColor[4];
+	bool			m_bUseTextColor[4]; // note: 0 index will be ignored
 
-	CUIStatic*				m_hint;
+
 	bool					m_frameline_mode;
 	bool					vertical;
 	CUI_IB_Static*			m_background;
 	CUI_IB_FrameLineWnd*	m_back_frameline;
-	void					CreateHint				();
 
 protected:
 	bool				m_bCheckMode;
@@ -66,29 +65,3 @@ private:
 	ref_sound			m_sound_t;	
 
 }; // class CUI3tButton
-
-// ---------------------------------------------------------------------
-class UIHintWindow;
-class UIHint;
-
-class CUI3tButtonEx : public CUI3tButton
-{
-	typedef CUI3tButton inherited;
-public:
-					CUI3tButtonEx		();
-	virtual			~CUI3tButtonEx		();
-
-			void	init_from_xml		(CUIXml& xml, LPCSTR path);
-			void	set_hint_wnd		(UIHint* hint_wnd);
-
-	virtual void 	OnFocusReceive		();
-	virtual void	OnFocusLost			();
-
-	virtual void	Update				();
-	virtual void	Show				( bool status );
-	virtual bool	OnMouseDown			( int mouse_btn );
-
-protected:
-	UIHintWindow*	m_hint_owner;
-
-}; // class CUI3tButtonEx

@@ -188,6 +188,8 @@ public:
 		VERIFY					(bone_part_id < MAX_PARTS);
 		return					(blend_cycles[bone_part_id]);
 	}
+
+	virtual float				get_animation_length (MotionID motion_ID);
 };
 //IC CKinematicsAnimated* PKinematicsAnimated(IRender_Visual* V) { return V?V->dcast_PKinematicsAnimated():0; }
 IC CKinematicsAnimated* PKinematicsAnimated(IRenderVisual* V) { return V?(CKinematicsAnimated*)V->dcast_PKinematicsAnimated():0; }

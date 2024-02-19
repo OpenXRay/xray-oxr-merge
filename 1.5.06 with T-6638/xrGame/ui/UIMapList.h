@@ -26,7 +26,7 @@ public:
 			void	InitFromXml(CUIXml& xml_doc, const char* path);	
 
 			void	SetWeatherSelector(CUIComboBox* ws);
-			void	SetModeSelector(CUISpinText* ms);
+			void	SetModeSelector(CUIWindow* ms);
 			void	SetMapPic(CUIStatic* map_pic);
 			void	SetMapInfo(CUIMapInfo* map_info);
 			void	SetServerParams(LPCSTR params);
@@ -65,7 +65,8 @@ private:
 	CUI3tButton*		m_pBtnDown;
 
 	CUIComboBox*		m_pWeatherSelector;
-	CUISpinText*		m_pModeSelector;
+	CUIWindow*			m_pModeSelector;
+//	CUISpinText*		m_pModeSelector;
 	CUIStatic*			m_pMapPic;
 	CUIMapInfo*			m_pMapInfo;
 

@@ -20,7 +20,7 @@ void CUIMapWnd::init_xml_nav( CUIXml& xml )
 
 		m_btn_nav[i] = UIHelper::Create3tButton( xml, buf, m_btn_nav_parent );
 		Register( m_btn_nav[i] );
-		m_btn_nav[i]->set_hint_wnd( hint_wnd );
+//.		m_btn_nav[i]->set_hint_wnd( hint_wnd );
 	}
 
 	AddCallback( m_btn_nav[btn_legend],						BUTTON_DOWN, CUIWndCallback::void_function( this, &CUIMapWnd::OnBtnLegend_Push	) );

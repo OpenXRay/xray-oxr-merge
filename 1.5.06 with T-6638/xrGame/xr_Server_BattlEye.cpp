@@ -57,7 +57,7 @@ BattlEyeServer::BattlEyeServer( xrServer* Server )
 	}
 
 	string64 game_version;
-	strcpy_s( game_version, GAME_VERSION );
+	xr_strcpy( game_version, GAME_VERSION );
 
 	m_succefull = Init(
 		game_version,
@@ -131,7 +131,7 @@ void BattlEyeServer::PrintMessage( char* message )
 	//if( g_be_message_out )
 	{
 		string512 text;
-		sprintf_s( text, sizeof(text), "BattlEye Server: %s", message );
+		xr_sprintf( text, sizeof(text), "BattlEye Server: %s", message );
 		Msg( "%s", text );
 
 		if( g_be_message_out )//==2

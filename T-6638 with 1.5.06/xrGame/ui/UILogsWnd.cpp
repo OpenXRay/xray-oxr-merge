@@ -38,7 +38,7 @@ u64 const day2ms			= u64( 24 * 60 * 60 * 1000 );
 
 CUILogsWnd::CUILogsWnd()
 {
-//	m_actor_ch_info			= NULL;
+	m_actor_ch_info			= NULL;
 	m_previous_time			= Device.dwTimeGlobal;
 	m_selected_period		= 0;
 }
@@ -56,7 +56,7 @@ void CUILogsWnd::Show( bool status )
 	if ( status )
 	{
 		//ALife::_TIME_ID	current_period = m_selected_period;
-//		m_actor_ch_info->InitCharacter( Actor()->object_id() );
+		m_actor_ch_info->InitCharacter( Actor()->object_id() );
 		m_selected_period = GetShiftPeriod( Level().GetGameTime(), 0 );
 //		if(current_period != m_selected_period)
 		m_need_reload = true;
@@ -69,6 +69,19 @@ void CUILogsWnd::Show( bool status )
 void CUILogsWnd::Update()
 {
 	inherited::Update();
+	if ( IsShown() )
+	{
+		if ( Device.dwTimeGlobal - m_previous_time > 1000 )
+		{
+			m_previous_time = Device.dwTimeGlobal;
+			m_date->SetText( InventoryUtilities::Get_GameTimeAndDate_AsString().c_str() );
+
+			m_date_caption->AdjustWidthToText();
+			Fvector2 pos = m_date_caption->GetWndPos();
+			pos.x = m_date->GetWndPos().x - m_date_caption->GetWidth() - 5.0f;
+			m_date_caption->SetWndPos( pos );
+		}
+	}
 	if( m_need_reload )
 		ReLoadNews();
 
@@ -100,10 +113,10 @@ void CUILogsWnd::Init()
 	m_background				= UIHelper::CreateFrameWindow(m_uiXml, "background", this);
 	m_center_background			= UIHelper::CreateFrameWindow(m_uiXml, "center_background", this);
 	
-	//m_actor_ch_info = xr_new<CUICharacterInfo>();
-	//m_actor_ch_info->SetAutoDelete( true );
-	//AttachChild( m_actor_ch_info );
-	//m_actor_ch_info->InitCharacterInfo( &m_uiXml, "actor_ch_info" );
+	m_actor_ch_info = xr_new<CUICharacterInfo>();
+	m_actor_ch_info->SetAutoDelete( true );
+	AttachChild( m_actor_ch_info );
+	m_actor_ch_info->InitCharacterInfo( &m_uiXml, "actor_ch_info" );
 
 //	m_center_background	= UIHelper::CreateStatic( m_uiXml, "center_background", this );
 	m_center_caption	= UIHelper::CreateStatic( m_uiXml, "center_caption", this );
@@ -126,8 +139,8 @@ void CUILogsWnd::Init()
 	m_filter_news->SetCheck( true );
 	m_filter_talk->SetCheck( true );
 
-//	m_date_caption = UIHelper::CreateStatic( m_uiXml, "date_caption", this );
-//	m_date         = UIHelper::CreateStatic( m_uiXml, "date", this );
+	m_date_caption = UIHelper::CreateStatic( m_uiXml, "date_caption", this );
+	m_date         = UIHelper::CreateStatic( m_uiXml, "date", this );
 
 	m_period_caption = UIHelper::CreateStatic( m_uiXml, "period_caption", this );
 	m_period         = UIHelper::CreateStatic( m_uiXml, "period", this );

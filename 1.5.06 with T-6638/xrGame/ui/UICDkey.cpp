@@ -10,6 +10,11 @@
 #include "../../xrGameSpy/xrGameSpy_MainDefs.h"
 #include "player_name_modifyer.h"
 
+#include "gamespy/GameSpy_GP.h"
+
+#include <dinput.h>
+#include "../xrCore/os_clipboard.h"
+
 extern string64	gsCDKey;
 LPCSTR AddHyphens( LPCSTR c );
 LPCSTR DelHyphens( LPCSTR c );
@@ -18,7 +23,40 @@ CUICDkey::CUICDkey()
 {
 	m_view_access = false;
 	CreateCDKeyEntry();
-	SetCurrentValue();
+	assign_callbacks	();
+}
+
+void CUICDkey::assign_callbacks	()
+{
+	m_editor_control->assign_callback( DIK_V,		text_editor::ks_Ctrl,	Callback( this, &CUICDkey::paste_from_clipboard ) );
+	m_editor_control->assign_callback( DIK_INSERT,	text_editor::ks_Shift,	Callback( this, &CUICDkey::paste_from_clipboard ) );
+}
+
+struct inappropriate_characters {
+	inline bool operator()	( char const character ) const
+	{
+		if ( (character >= 'a') && (character <= 'z') )
+			return		false;
+
+		if ( (character >= 'A') && (character <= 'Z') )
+			return		false;
+
+		if ( (character >= '0') && (character <= '9') )
+			return		false;
+
+		return			true;
+	}
+}; // struct inappropriate_characters
+
+void CUICDkey::paste_from_clipboard	( )
+{
+	string32			temp;
+	os_clipboard::paste_from_clipboard( &temp[0], sizeof(temp) );
+	LPSTR const new_end	= std::remove_if( &temp[0], &temp[0] + xr_strlen(temp), inappropriate_characters() );
+	*new_end			= 0;
+	temp[16]			= 0;
+
+	m_editor_control->set_edit( temp );
 }
 
 void CUICDkey::Show( bool status )
@@ -49,13 +87,15 @@ void CUICDkey::Draw()
 	}
 	
 	//inherited::Draw();
+	CUIStatic::Draw();
 	Frect						rect;
 	GetAbsoluteRect				(rect);
 	Fvector2					out;
 
 	out.y						= (m_wndSize.y - TextItemControl()->m_pFont->CurrentHeight_())/2.0f;
-	out.x						= 0.0f;
+	out.x						= TextItemControl()->m_TextOffset.x + TextItemControl()->GetIndentByAlign();
 	TextItemControl()->m_pFont->SetColor	(TextItemControl()->GetTextColor());
+	TextItemControl()->m_pFont->SetAligment	(TextItemControl()->GetTextAlignment());
 
 	Fvector2					pos;
 	pos.set						(rect.left+out.x, rect.top+out.y);
@@ -166,9 +206,7 @@ void CUIMPPlayerName::OnFocusLost()
 	}
 	string64 name;
 	xr_strcpy( name, GetText() );
-	string256 new_name;
-	modify_player_name(name, new_name);
-	WritePlayerName_ToRegistry( new_name );
+	WritePlayerName_ToRegistry( name );
 }
 
 // -------------------------------------------------------------------------------------------------

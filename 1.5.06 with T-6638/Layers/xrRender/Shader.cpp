@@ -43,24 +43,25 @@ void	resptrcode_geom::create			(D3DVERTEXELEMENT9* decl, ID3DVertexBuffer* vb, I
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
-#ifdef	USE_DX10
-BOOL	SPass::equal	(ref_state& _state, ref_ps& _ps, ref_vs& _vs, ref_gs& _gs, ref_ctable& _ctable, ref_texture_list& _T, ref_matrix_list& _M, ref_constant_list& _C)
-#else	//	USE_DX10
-BOOL	SPass::equal	(ref_state& _state, ref_ps& _ps, ref_vs& _vs, ref_ctable& _ctable, ref_texture_list& _T, ref_matrix_list& _M, ref_constant_list& _C)
-#endif	//	USE_DX10
+BOOL SPass::equal(const SPass& other)
 {
-	if (state		!= _state)		return FALSE;
-	if (ps			!= _ps)			return FALSE;
-	if (vs			!= _vs)			return FALSE;
-#ifdef	USE_DX10
-	if (gs			!= _gs)			return FALSE;
+	if (state		!= other.state)		return FALSE;
+	if (ps			!= other.ps)			return FALSE;
+	if (vs			!= other.vs)			return FALSE;
+#if defined(USE_DX10) || defined(USE_DX11)
+	if (gs			!= other.gs)			return FALSE;
+#	ifdef USE_DX11
+	if (hs			!= other.hs)			return FALSE;
+	if (ds			!= other.ds)			return FALSE;
+	if (cs			!= other.cs)			return FALSE;
+#	endif
 #endif	//	USE_DX10
-	if (constants	!= _ctable)		return FALSE;	// is this nessesary??? (ps+vs already combines)
+	if (constants	!= other.constants)		return FALSE;	// is this nessesary??? (ps+vs already combines)
 
-	if (T != _T)					return FALSE;
-	if (C != _C)					return FALSE;
+	if (T != other.T)					return FALSE;
+	if (C != other.C)					return FALSE;
 #ifdef _EDITOR
-	if (M != _M)					return FALSE;
+	if (M != other.M)					return FALSE;
 #endif
 	return TRUE;
 }

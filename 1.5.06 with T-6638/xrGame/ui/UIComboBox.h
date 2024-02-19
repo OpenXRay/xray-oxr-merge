@@ -36,7 +36,8 @@ public:
 			void		SetVertScroll			(bool bVScroll = true){m_list_box.SetFixedScrollBar(bVScroll);};
 	CUIListBoxItem*		AddItem_				(LPCSTR str, int _data);
 			void		InitComboBox			(Fvector2 pos, float width);
-			void		SetItem					(int i);
+			void		SetItemIDX				(int idx);
+			void		SetItemToken			(int tok);
 
 	virtual void		SendMessage				(CUIWindow *pWnd, s16 msg, void* pData = 0);
 	virtual void		OnFocusLost				();
@@ -45,7 +46,6 @@ public:
 			void		disable_id				(int id);
 			void		enable_id				(int id);
 protected:
-	virtual void		SetState				(UIState state);	
 	virtual bool		OnMouseAction			(float x, float y, EUIMessages mouse_action);
 	virtual void		OnBtnClicked			();
 			void		ShowList				(bool bShow);

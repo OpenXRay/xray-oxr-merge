@@ -77,14 +77,9 @@ public:
 	virtual		void				net_import_GameTime		(NET_Packet& P);						// update GameTime only for remote clients
 	virtual		void				net_signal				(NET_Packet& P);
 
-				bool				IR_OnKeyboardPress		(int dik);
-				bool				IR_OnKeyboardRelease	(int dik);
-				bool				IR_OnMouseMove			(int dx, int dy);
-				bool				IR_OnMouseWheel			(int direction);
+	virtual		bool				OnKeyboardPress			(int key);
+	virtual		bool				OnKeyboardRelease		(int key);
 
-
-	virtual		bool				OnKeyboardPress			(int key){return false;};
-	virtual		bool				OnKeyboardRelease		(int key){return false;};
 				void				OnGameMessage			(NET_Packet& P);
 
 	virtual		char*				getTeamSection			(int Team){return NULL;};

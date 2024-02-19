@@ -57,7 +57,7 @@ class CUIArtefactDetectorElite :public CUIArtefactDetectorBase, public CUIWindow
 	typedef CUIArtefactDetectorBase	inherited;
 
 	CUIWindow*			m_wrk_area;
-	
+
 	xr_map<shared_str,CUIStatic*>	m_palette;
 
 	struct SDrawOneItem{

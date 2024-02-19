@@ -231,6 +231,7 @@ void CServerList::FillUpDetailedServerInfo()
 				{
 					STRCONCAT(_buff, CStringTable().translate("ui_st_team").c_str(),
 						"\"", CTeamInfo::GetTeam1_name().c_str(), "\"");
+						
 					pItemAdv					= xr_new<CUIListItemAdv>();
 					pItemAdv->SetTextColor		(m_list[LST_PLAYERS].GetTextColor());
 					pItemAdv->SetFont			(m_list[LST_PLAYERS].GetFont());
@@ -509,7 +510,7 @@ void CServerList::ConnectToSelected()
 	{
 		m_message_box->m_pMessageBox->SetUserPasswordMode	(item->GetInfo()->info.icons.user_pass);
 		m_message_box->m_pMessageBox->SetPasswordMode		(item->GetInfo()->info.icons.pass);
-		MainMenu()->StartStopMenu							(m_message_box,true);
+		m_message_box->ShowDialog(true);
 	}
 	else
 	{
@@ -710,8 +711,8 @@ void CServerList::SrvInfo2LstSrvInfo(const ServerInfo* pServerInfo)
 	m_itemInfo.info.address			= address.c_str();
 	m_itemInfo.info.map				= pServerInfo->m_SessionName;
 	m_itemInfo.info.game			= GameTypeToString( (EGameIDs)pServerInfo->m_GameType, true);
-	m_itemInfo.info.players.sprintf("%d/%d", pServerInfo->m_ServerNumPlayers, pServerInfo->m_ServerMaxPlayers);
-	m_itemInfo.info.ping.sprintf	("%d", pServerInfo->m_Ping);
+	m_itemInfo.info.players.printf	("%d/%d", pServerInfo->m_ServerNumPlayers, pServerInfo->m_ServerMaxPlayers);
+	m_itemInfo.info.ping.printf		("%d", pServerInfo->m_Ping);
 	m_itemInfo.info.version			= pServerInfo->m_ServerVersion;
 	m_itemInfo.info.icons.pass		= pServerInfo->m_bPassword;
 	m_itemInfo.info.icons.dedicated	= pServerInfo->m_bDedicated;
@@ -795,7 +796,8 @@ bool CServerList::sort_by_Version(int p1, int p2)
 void CServerList::SaveCurItem()
 {
 	int SvId = m_list[LST_SERVER].GetSelectedItem();
-	if (-1 == SvId){
+	if (-1 == SvId)
+	{
 		m_cur_item = -1;
 		return;
 	}

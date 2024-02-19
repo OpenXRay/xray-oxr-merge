@@ -18,7 +18,7 @@ class UIPlayerItem : public CUIWindow
 {
 private:
 	typedef CUIWindow									inherited;
-	typedef associative_vector<shared_str, CUITextWnd*>		TMapStrToUIText;
+	typedef associative_vector<shared_str, CUIStatic*>		TMapStrToUIText;
 	typedef associative_vector<shared_str, CUIStatsIcon*>	TMapStrToUIStatic;
 	// this is for the case when user disconnects.
 	// we just call method RemovePlayer

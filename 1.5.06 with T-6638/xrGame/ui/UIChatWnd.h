@@ -1,34 +1,32 @@
 #pragma once
 #include "UIDialogWnd.h"
-#include "UIEditBox.h"
-#include "xrUIXmlParser.h"
+#include "UIWndCallback.h"
 
+class CUIXml;
 class CUIGameLog;
-class game_cl_GameState;
+class CUIEditBox;
 
-class CUIChatWnd: public CUIDialogWnd
+class CUIChatWnd: public CUIDialogWnd, public CUIWndCallback
 {
 	typedef CUIDialogWnd inherited;
 
 public:
-						CUIChatWnd			(CUIGameLog *pList);
+						CUIChatWnd			();
 	virtual void		Show				(bool status);
-	virtual void		SetKeyboardCapture	(CUIWindow* pChildWindow, bool capture_status);
 	virtual bool		NeedCursor			() {return false;}
 	void				Init				(CUIXml& uiXml);
 	void				SetEditBoxPrefix	(LPCSTR prefix);
-	void				TeamChat			() { sendNextMessageToTeam = true; }
-	void				AllChat				() { sendNextMessageToTeam = false; }
+	void				ChatToAll			(bool b) { sendNextMessageToAll = b; }
 	void				PendingMode			(bool const is_pending_mode);
-	void				SetOwner			(game_cl_GameState *pO) { pOwner = pO; }
 	virtual bool		NeedCursor			()const {return false;}
+	virtual void		SendMessage			(CUIWindow* pWnd, s16 msg, void* pData = NULL);
 
 
 protected:
 	CUIEditBox			UIEditBox;
 	CUIStatic			UIPrefix;
 
-	bool				sendNextMessageToTeam;
+	bool				sendNextMessageToAll;
 	bool				pendingGameMode;
 	
 	Frect				pending_prefix_rect;
@@ -37,5 +35,6 @@ protected:
 	Frect				inprogress_prefix_rect;
 	Frect				inprogress_edit_rect;
 
-	game_cl_GameState	*pOwner;
+	void xr_stdcall		OnChatCommit		(CUIWindow* w, void* d);
+	void xr_stdcall		OnChatCancel		(CUIWindow* w, void* d);
 };

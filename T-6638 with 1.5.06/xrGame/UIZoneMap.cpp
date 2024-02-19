@@ -35,7 +35,12 @@ void CUIZoneMap::Init()
 
 	CUIXmlInit						xml_init;
 	xml_init.InitStatic				(uiXml, "minimap:background",	0, &m_background);
-	xml_init.InitWindow				(uiXml, "minimap:level_frame",	0, &m_clipFrame);
+	if(IsGameTypeSingle())
+	{
+		xml_init.InitStatic			(uiXml, "minimap:background:dist_text", 0, &m_pointerDistanceText);
+		m_background.AttachChild	(&m_pointerDistanceText);
+	}
+	xml_init.InitStatic(uiXml, "minimap:level_frame", 0, &m_clipFrame);
 	xml_init.InitStatic				(uiXml, "minimap:center",		0, &m_center);
 	
 	m_clock_wnd						= UIHelper::CreateStatic(uiXml, "minimap:clock_wnd", &m_background);
@@ -138,7 +143,7 @@ void CUIZoneMap::Update()
 	Device.vCameraDirection.getHP( h, p );
 	SetHeading( -h );
 
-	m_clock_wnd->TextItemControl()->SetText( InventoryUtilities::GetGameTimeAsString( InventoryUtilities::etpTimeToMinutes ).c_str() );
+	m_clock_wnd->SetText( InventoryUtilities::GetGameTimeAsString( InventoryUtilities::etpTimeToMinutes ).c_str() );
 }
 
 void CUIZoneMap::SetHeading		(float angle)
@@ -152,6 +157,16 @@ void CUIZoneMap::UpdateRadar		(Fvector pos)
 	m_clipFrame.Update();
 	m_background.Update();
 	m_activeMap->SetActivePoint( pos );
+	
+	if(IsGameTypeSingle()){
+		if(m_activeMap->GetPointerDistance()>0.5f){
+			string64	str;
+			xr_sprintf		(str,"%.0f m",m_activeMap->GetPointerDistance());
+			m_pointerDistanceText.SetText(str);
+		}else{
+			m_pointerDistanceText.SetText("");
+		}
+	}
 }
 
 bool CUIZoneMap::ZoomIn()

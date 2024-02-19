@@ -20,7 +20,6 @@
 #   include <xmmintrin.h>
 #endif
 
-
 const float dbgOffset			= 0.f;
 const int	dbgItems			= 128;
 

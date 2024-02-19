@@ -128,7 +128,7 @@ void		CResourceManager::_DeletePass			(const SPass* P)
 SVS*	CResourceManager::_CreateVS		(LPCSTR _name)
 {
 	string_path			name;
-	strcpy_s				(name,_name);
+	xr_strcpy				(name,_name);
 	if (0 == ::Render->m_skinning)	strcat(name,"_0");
 	if (1 == ::Render->m_skinning)	strcat(name,"_1");
 	if (2 == ::Render->m_skinning)	strcat(name,"_2");
@@ -275,7 +275,7 @@ void	CResourceManager::_DeleteVS			(const SVS* vs)
 SPS*	CResourceManager::_CreatePS			(LPCSTR _name)
 {
 	string_path			name;
-	strcpy_s				(name,_name);
+	xr_strcpy				(name,_name);
 	if (0 == ::Render->m_MSAASample)	strcat(name,"_0");
 	if (1 == ::Render->m_MSAASample)	strcat(name,"_1");
 	if (2 == ::Render->m_MSAASample)	strcat(name,"_2");
@@ -695,7 +695,7 @@ CTexture* CResourceManager::_CreateTexture	(LPCSTR _Name)
 	if (0==xr_strcmp(_Name,"null"))	return 0;
 	R_ASSERT		(_Name && _Name[0]);
 	string_path		Name;
-	strcpy_s			(Name,_Name); //. andy if (strext(Name)) *strext(Name)=0;
+	xr_strcpy			(Name,_Name); //. andy if (strext(Name)) *strext(Name)=0;
 	fix_texture_name (Name);
 	// ***** first pass - search already loaded texture
 	LPSTR N			= LPSTR(Name);

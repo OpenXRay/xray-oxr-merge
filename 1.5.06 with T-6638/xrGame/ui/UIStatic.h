@@ -4,11 +4,11 @@
 #include "uiwindow.h"
 #include "../uistaticitem.h"
 #include "../../xrServerEntities/script_export_space.h"
+#include "uilines.h"
 
 class CUIFrameWindow;
 class CLAItem;
 class CUIXml;
-class CUILines;
 
 struct lanim_cont{
 	CLAItem*				m_lanim;
@@ -29,7 +29,6 @@ class CUIStatic : public CUIWindow, public ITextureOwner, public CUILightAnimCol
 	friend class CUI3tButton;
 private:
 	typedef CUIWindow inherited;
-	lanim_cont				m_lanim_clr;
 	lanim_cont_xf			m_lanim_xform;
 	void					EnableHeading_int		(bool b)				{m_bHeading = b;}
 public:

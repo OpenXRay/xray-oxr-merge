@@ -123,7 +123,7 @@ enum ESMFlags{
     esmSyncPart	= 1<<3
 };
 
-#ifdef _EDITOR
+#if defined(_EDITOR) || defined(_MAX_EXPORT) || defined(_MAYA_EXPORT)
 	#include "SkeletonMotions.h"
 
 class ENGINE_API CSMotion: public CCustomMotion{
@@ -151,6 +151,7 @@ public:
     st_BoneMotion*	FindBoneMotion	(shared_str name);
     BoneMotionVec&	BoneMotions		()				{return bone_mots;}
 	Flags8			GetMotionFlags	(int bone_idx)	{return bone_mots[bone_idx].m_Flags;}
+	void			add_empty_motion(shared_str const &bone_id);
 
 	virtual void	Save			(IWriter& F);
 	virtual bool	Load			(IReader& F);

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "uiwindow.h"
+#include "../UIDialogHolder.h"
+
 class CDialogHolder;
 
 class CUIDialogWnd : public CUIWindow  
@@ -9,7 +11,6 @@ private:
 	typedef CUIWindow inherited;
 	CDialogHolder*					m_pParentHolder;
 protected:
-	bool			IR_process					();
 public:
 	bool										m_bWorkInPause;
 	CUIDialogWnd								();
@@ -17,11 +18,6 @@ public:
 
 	virtual void Show							(bool status);
 
-	virtual bool IR_OnKeyboardPress				(int dik);
-	virtual bool IR_OnKeyboardRelease			(int dik);
-	virtual bool IR_OnMouseMove					(int dx, int dy);
-	virtual bool IR_OnMouseWheel				(int direction);
-	virtual bool IR_OnKeyboardHold				(int dik);
 	virtual bool OnKeyboardAction				(int dik, EUIMessages keyboard_action);
 	virtual bool OnKeyboardHold					(int dik);
 
@@ -34,4 +30,6 @@ public:
 	virtual bool Dispatch						(int cmd, int param)				{return true;}
 			void ShowDialog						(bool bDoHideIndicators);
 			void HideDialog						();
+
+	virtual bool IR_process						();
 };
