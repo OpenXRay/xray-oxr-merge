@@ -35,13 +35,11 @@ void CUIInventoryUpgradeWnd::LoadCellsBacks( CUIXml& uiXml )
 		uiXml.SetLocalRoot( node );
 	}
 	uiXml.SetLocalRoot( stored_root );
-//	VERIFY2( VerirfyCells(), "Not all UI upgrade states are filled up !" );
 }
 
 void CUIInventoryUpgradeWnd::LoadCellStates( LPCSTR state_str, LPCSTR texture_name, LPCSTR texture_name2, u32 color )
 {
 	VERIFY( state_str    && xr_strcmp( state_str, "" ) );
-//	VERIFY( texture_name && xr_strcmp( texture_name, "" ) );
 	if ( texture_name && !xr_strcmp( texture_name, "" ) )
 	{
 		texture_name = NULL;

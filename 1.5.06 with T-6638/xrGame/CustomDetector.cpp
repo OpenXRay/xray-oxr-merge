@@ -29,8 +29,8 @@ bool  CCustomDetector::CheckCompatibilityInt(CHudItem* itm)
 		return true;
 
 	CInventoryItem iitm				= itm->item();
-	u32 slot						= iitm.GetSlot();
-	bool bres = (slot==PISTOL_SLOT || slot==KNIFE_SLOT || slot==BOLT_SLOT);
+	u32 slot						= iitm.BaseSlot();
+	bool bres = (slot==INV_SLOT_2 || slot==KNIFE_SLOT || slot==BOLT_SLOT);
 
 	if(itm->GetState()!=CHUDState::eShowing)
 		bres = bres && !itm->IsPending();
@@ -39,7 +39,9 @@ bool  CCustomDetector::CheckCompatibilityInt(CHudItem* itm)
 	{
 		CWeapon* W = smart_cast<CWeapon*>(itm);
 		if(W)
-			bres = bres && (W->GetState()!=CHUDState::eBore) && !W->IsZoomed();
+			bres = bres &&
+			(W->GetState()!=CHUDState::eBore) &&
+			!W->IsZoomed();
 	}
 	return bres;
 }
@@ -49,7 +51,7 @@ bool  CCustomDetector::CheckCompatibility(CHudItem* itm)
 	if(!inherited::CheckCompatibility(itm) )	
 		return false;
 
-	if(!CheckCompatibilityInt(itm))
+	if(!CheckCompatibilityInt(itm, NULL))
 	{
 		HideDetector	(true);
 		return			false;
@@ -207,8 +209,6 @@ void CCustomDetector::UpfateWork()
 
 void CCustomDetector::UpdateVisibility()
 {
-
-
 	//check visibility
 	attachable_hud_item* i0		= g_player_hud->attached_item(0);
 	if(i0 && HudItemData())
@@ -268,20 +268,21 @@ void CCustomDetector::OnH_B_Independent(bool just_before_destroy)
 }
 
 
-void CCustomDetector::OnMoveToRuck(EItemPlace prev)
+void CCustomDetector::OnMoveToRuck(const SInvItemPlace& prev)
 {
 	inherited::OnMoveToRuck	(prev);
-	if(GetState()==eIdle)
+	if(prev.type==eItemPlaceSlot)
 	{
 		SwitchState					(eHidden);
 		g_player_hud->detach_item	(this);
 	}
 	TurnDetectorInternal	(false);
+	StopCurrentAnimWithoutCallback	();
 }
 
-void CCustomDetector::OnMoveToSlot()
+void CCustomDetector::OnMoveToSlot(const SInvItemPlace& prev)
 {
-	inherited::OnMoveToSlot	();
+	inherited::OnMoveToSlot	(prev);
 }
 
 void CCustomDetector::TurnDetectorInternal(bool b)

@@ -1,13 +1,12 @@
 #include "stdafx.h"
+
 #include "UIGameDM.h"
 
-//.#include "UIDMPlayerList.h"
-//.#include "UIDMFragList.h"
 #include "UIDMStatisticWnd.h"
 #include "ui/UISkinSelector.h"
 #include "ui/UIPdaWnd.h"
 #include "ui/UIMapDesc.h"
-#include "HUDManager.h"
+#include "ui/KillMessageStruct.h"
 #include "level.h"
 #include "game_cl_base.h"
 #include "Spectator.h"
@@ -22,10 +21,9 @@
 #include "ui/UIRankIndicator.h"
 #include "ui/UIVoteStatusWnd.h"
 #include "ui/UIActorMenu.h"
-
-#include "object_broker.h"
-
+#include "ui/UIHelper.h"
 #include "UITeamPanels.h"
+#include "object_broker.h"
 
 #define MSGS_OFFS 510
 
@@ -95,6 +93,7 @@ CUIGameDM::CUIGameDM()
 	m_pMapDesc			= NULL;//xr_new<CUIMapDesc>		();
 
 }
+
 //--------------------------------------------------------------------
 void CUIGameDM::SetClGame (game_cl_GameState* g)
 {
@@ -289,41 +288,6 @@ void CUIGameDM::SetVoteTimeResultMsg			(LPCSTR str)
 		m_voteStatusWnd->SetVoteTimeResultMsg(str);
 }
 
-bool		CUIGameDM::IR_OnKeyboardPress		(int dik)
-{
-	if(inherited::IR_OnKeyboardPress(dik)) return true;
-
-	EGameActions cmd  = get_binded_action(dik);
-	switch ( cmd )
-	{
-	case kINVENTORY: 
-	case kBUY:
-	case kSKIN:
-	case kTEAM:
-	case kMAP:
-	
-	case kSPEECH_MENU_0:
-	case kSPEECH_MENU_1:
-	case kSPEECH_MENU_2:
-	case kSPEECH_MENU_3:
-	case kSPEECH_MENU_4:
-	case kSPEECH_MENU_5:
-	case kSPEECH_MENU_6:
-	case kSPEECH_MENU_7:
-	case kSPEECH_MENU_8:
-	case kSPEECH_MENU_9:
-		{
-			return Game().OnKeyboardPress( cmd );
-		}break;
-	}
-	return false;
-}
-
-bool CUIGameDM::IR_OnKeyboardRelease	(int dik)
-{
-	return false;
-};
-
 void CUIGameDM::OnFrame()
 {
 	inherited::OnFrame				();
@@ -351,8 +315,8 @@ void CUIGameDM::DisplayMoneyChange(LPCSTR deltaMoney)
 	m_pMoneyIndicator->SetMoneyChange(deltaMoney);
 }
 
-void CUIGameDM::DisplayMoneyBonus(KillMessageStruct bonus){
-	m_pMoneyIndicator->AddBonusMoney(bonus);
+void CUIGameDM::DisplayMoneyBonus(KillMessageStruct* bonus){
+	m_pMoneyIndicator->AddBonusMoney(*bonus);
 }
 
 void CUIGameDM::ChangeTotalMoneyIndicator(LPCSTR newMoneyString)
@@ -374,11 +338,6 @@ void CUIGameDM::SetFraglimit(int local_frags, int fraglimit)
 		xr_sprintf(str,"%d", local_frags);
 
 	m_pFragLimitIndicator->SetText(str);
-}
-
-void CUIGameDM::reset_ui()
-{
-	inherited::reset_ui();
 }
 
 void CUIGameDM::UpdateTeamPanels()

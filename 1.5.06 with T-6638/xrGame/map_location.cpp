@@ -372,13 +372,14 @@ void CMapLocation::UpdateSpot(CUICustomMap* map, CMapSpot* sp )
 					m_complex_spot->show_static_border( border_show );
 					//if ( !ml_task->m_read ){m_complex_spot->mark_focused();}
 				}
-			}// eTaskTypeAdditional
+			}
 		}
 
 		//update spot position
 		Fvector2 position	= GetPosition();
 
-		m_position_on_map	= map->ConvertRealToLocal(position);
+		m_position_on_map	= map->ConvertRealToLocal(position, (map->Heading())?false:true); //for visibility calculating
+
 		sp->SetWndPos		(m_position_on_map);
 
 		Frect wnd_rect		= sp->GetWndRect();
@@ -393,9 +394,6 @@ void CMapLocation::UpdateSpot(CUICustomMap* map, CMapSpot* sp )
 				float h_ = map->GetHeading()+h;
 				sp->SetHeading( h_ );
 			}
-
-			Frect clip_rect		= map->GetClipperRect();
-			sp->SetClipRect		(clip_rect);
 			map->AttachChild	(sp);
 		}
 

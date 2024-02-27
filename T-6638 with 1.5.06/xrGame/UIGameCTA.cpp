@@ -397,7 +397,6 @@ void TryToDefuseGrenadeLauncher(CWeaponMagazinedWGrenade const * weapon,
 	VERIFY(pSettings->line_exist(ammo_section.c_str(), "box_size"));
 
 	u16 ammo_box_size	= pSettings->r_u16(ammo_section.c_str(), "box_size");
-	
 
 	R_ASSERT2(ammo_elapsed <= 1, make_string(
 		"weapon [%s] can't have more than one grenade in grenade launcher",

@@ -29,7 +29,6 @@ private:
 	xr_set<shared_str>			m_sections;
 };//class priority_group
 
-
 typedef xr_vector<CInventorySlot> TISlotArr;
 
 

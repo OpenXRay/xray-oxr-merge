@@ -20,7 +20,8 @@ class CUIXml;
 class CUIActorMenu;
 class CUIPdaWnd;			
 
-struct SDrawStaticStruct :public IPureDestroyableObject{
+struct SDrawStaticStruct :public IPureDestroyableObject
+{
 	SDrawStaticStruct	();
 	virtual	void	destroy			();
 	CUIStatic*		m_static;
@@ -36,8 +37,6 @@ struct SDrawStaticStruct :public IPureDestroyableObject{
 };
 
 
-typedef xr_vector<SDrawStaticStruct>	st_vec;
-//#include "game_base_space.h"
 struct SGameTypeMaps
 {
 	shared_str				m_game_type_name;
@@ -77,9 +76,8 @@ public:
 
 extern CMapListHelper	gMapListHelper;
 
-class CUIGameCustom :public DLL_Pure, public ISheduled
+class CUIGameCustom :public DLL_Pure, public CDialogHolder
 {
-	typedef ISheduled inherited;
 protected:
 	u32					uFlags;
 
@@ -89,6 +87,8 @@ protected:
 	CUICaption*			GameCaptions			() {return m_pgameCaptions;}
 	CUICaption*			m_pgameCaptions;
 	CUIXml*				m_msgs_xml;
+	typedef xr_vector<SDrawStaticStruct>	st_vec;
+	typedef st_vec::iterator				st_vec_it;
 	st_vec				m_custom_statics;
 
 	CUIActorMenu*		m_ActorMenu;
@@ -98,9 +98,7 @@ public:
 	virtual void		SetClGame				(game_cl_GameState* g){};
 	virtual void		OnInventoryAction		(PIItem item, u16 action_type);
 
-	virtual				float					shedule_Scale		();
-	virtual				void					shedule_Update		(u32 dt);
-	
+
 						CUIGameCustom			();
 	virtual				~CUIGameCustom			();
 
@@ -116,34 +114,26 @@ public:
 			void		HideActorMenu			();
 			bool		ShowPdaMenu				();
 			void		HidePdaMenu				();
+			void		ShowMessagesWindow		();
+			void		HideMessagesWindow		();
 
-	virtual bool		IR_OnKeyboardPress		(int dik);
-	virtual bool		IR_OnKeyboardRelease	(int dik);
-	virtual bool		IR_OnMouseMove			(int dx, int dy);
-	virtual bool		IR_OnMouseWheel			(int direction);
+	void				ShowGameIndicators		(bool b)			{m_bShowGameIndicators	= b;};
+	bool				GameIndicatorsShown		()					{return m_bShowGameIndicators;};
+	void				ShowCrosshair			(bool b)			{psHUD_Flags.set			(HUD_CROSSHAIR_RT, b);}
+	bool				CrosshairShown			()					{return !!psHUD_Flags.test	(HUD_CROSSHAIR_RT);}
 
 
-	void				AddDialogToRender		(CUIWindow* pDialog);
-	void				RemoveDialogToRender	(CUIWindow* pDialog);
-	
-	CUIDialogWnd*		MainInputReceiver		();
 	virtual void		HideShownDialogs		(){};
-
-			void		AddCustomMessage		(LPCSTR id, float x, float y, float font_size, CGameFont *pFont, u16 alignment, u32 color);
-			void		AddCustomMessage		(LPCSTR id, float x, float y, float font_size, CGameFont *pFont, u16 alignment, u32 color/*, LPCSTR def_text*/, float flicker );
-			void		CustomMessageOut		(LPCSTR id, LPCSTR msg, u32 color);
-			void		RemoveCustomMessage		(LPCSTR id);
 
 			SDrawStaticStruct*	AddCustomStatic		(LPCSTR id, bool bSingleInstance);
 			SDrawStaticStruct*	GetCustomStatic		(LPCSTR id);
 			void				RemoveCustomStatic	(LPCSTR id);
 
-	virtual	shared_str	shedule_Name				() const		{ return shared_str("CUIGameCustom"); };
-	virtual bool		shedule_Needed				()				{return true;};
+	void				CommonMessageOut		(LPCSTR text);
 
 	virtual void		ChangeTotalMoneyIndicator	(LPCSTR newMoneyString) {};
 	virtual void		DisplayMoneyChange			(LPCSTR deltaMoney) {};
-	virtual void		DisplayMoneyBonus			(KillMessageStruct bonus) {};
+	virtual void		DisplayMoneyBonus			(KillMessageStruct* bonus) {};
 
 	DECLARE_SCRIPT_REGISTER_FUNCTION
 }; // class CUIGameCustom

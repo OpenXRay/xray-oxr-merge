@@ -36,12 +36,12 @@ XRGAMESPY_API int xrGS_GetQueryVersion ()
 }
 
 //XRGAMESPY_API ServerBrowser xrGS_ServerBrowserNew(const gsi_char *queryForGamename, const gsi_char *queryFromGamename, const gsi_char *queryFromKey, int queryFromVersion, int maxConcUpdates, int queryVersion, SBBool bLAN_Only, ServerBrowserCallback callback, void *instance)
-XRGAMESPY_API ServerBrowser xrGS_ServerBrowserNew(SBBool bLAN_Only, ServerBrowserCallback callback, void *instance)
+XRGAMESPY_API ServerBrowser xrGS_ServerBrowserNewA(SBBool bLAN_Only, ServerBrowserCallback callback, void *instance)
 {
 //	return ServerBrowserNew(queryForGamename, queryFromGamename, queryFromKey, queryFromVersion, maxConcUpdates, queryVersion, bLAN_Only, callback, instance);
 	char SecretKey[16];
 	FillSecretKey(SecretKey);
-	return ServerBrowserNew(GAMESPY_GAMENAME, GAMESPY_GAMENAME, SecretKey, 0, GAMESPY_BROWSER_MAX_UPDATES, xrGS_GetQueryVersion(), bLAN_Only, callback, instance);
+	return ServerBrowserNewA(GAMESPY_GAMENAME, GAMESPY_GAMENAME, SecretKey, 0, GAMESPY_BROWSER_MAX_UPDATES, xrGS_GetQueryVersion(), bLAN_Only, callback, instance);
 }
 
 XRGAMESPY_API void xrGS_ServerBrowserFree (ServerBrowser sb)
@@ -70,16 +70,16 @@ XRGAMESPY_API void xrGS_ServerBrowserHalt(ServerBrowser sb)
 };
 
 //XRGAMESPY_API SBError xrGS_ServerBrowserUpdate (ServerBrowser sb, SBBool async, SBBool disconnectOnComplete, const unsigned char *basicFields, int numBasicFields, const gsi_char *serverFilter)
-XRGAMESPY_API SBError xrGS_ServerBrowserUpdate (ServerBrowser sb, SBBool async, SBBool disconnectOnComplete, const gsi_char *serverFilter)
+XRGAMESPY_API SBError xrGS_ServerBrowserUpdateA(ServerBrowser sb, SBBool async, SBBool disconnectOnComplete, const gsi_char *serverFilter)
 {
 	
 	int numBasicFields = sizeof(Fields_Of_Interest)/sizeof(Fields_Of_Interest[0]);
-	return ServerBrowserUpdate(sb, async, disconnectOnComplete, Fields_Of_Interest, numBasicFields, serverFilter);
+	return ServerBrowserUpdateA(sb, async, disconnectOnComplete, Fields_Of_Interest, numBasicFields, serverFilter);
 };
 
-XRGAMESPY_API void xrGS_ServerBrowserSort(ServerBrowser sb, SBBool ascending, const char *sortkey, SBCompareMode comparemode)
+XRGAMESPY_API void xrGS_ServerBrowserSortA(ServerBrowser sb, SBBool ascending, const char *sortkey, SBCompareMode comparemode)
 {
-	ServerBrowserSort(sb, ascending, sortkey, comparemode);
+	ServerBrowserSortA(sb, ascending, sortkey, comparemode);
 };
 
 //XRGAMESPY_API SBError xrGS_ServerBrowserLANUpdate(ServerBrowser sb, SBBool async, unsigned short startSearchPort, unsigned short endSearchPort)
@@ -97,9 +97,9 @@ XRGAMESPY_API SBServer xrGS_ServerBrowserGetServer (ServerBrowser sb, int index)
 {
 	return ServerBrowserGetServer(sb, index);
 }
-XRGAMESPY_API SBServer xrGS_ServerBrowserGetServerByIP(ServerBrowser sb, const gsi_char* ip, unsigned short port)
+XRGAMESPY_API SBServer xrGS_ServerBrowserGetServerByIPA(ServerBrowser sb, const gsi_char* ip, unsigned short port)
 {
-	return ServerBrowserGetServerByIP(sb, ip, port);
+	return ServerBrowserGetServerByIPA(sb, ip, port);
 };
 
 XRGAMESPY_API char * xrGS_SBServerGetPublicAddress(SBServer server)
@@ -110,21 +110,21 @@ XRGAMESPY_API unsigned short xrGS_SBServerGetPublicQueryPort(SBServer server)
 {
 	return SBServerGetPublicQueryPort(server);
 };
-XRGAMESPY_API const gsi_char * xrGS_SBServerGetStringValue(SBServer server, const gsi_char *keyname, const gsi_char *def)
+XRGAMESPY_API const gsi_char * xrGS_SBServerGetStringValueA(SBServer server, const gsi_char *keyname, const gsi_char *def)
 {
-	return SBServerGetStringValue(server, keyname, def);
+	return SBServerGetStringValueA(server, keyname, def);
 };
-XRGAMESPY_API int xrGS_SBServerGetIntValue(SBServer server, const gsi_char *key, int idefault)
+XRGAMESPY_API int xrGS_SBServerGetIntValueA(SBServer server, const gsi_char *key, int idefault)
 {
-	return SBServerGetIntValue(server, key, idefault);
+	return SBServerGetIntValueA(server, key, idefault);
 };
-XRGAMESPY_API double xrGS_SBServerGetFloatValue(SBServer server, const gsi_char *key, double fdefault)
+XRGAMESPY_API double xrGS_SBServerGetFloatValueA(SBServer server, const gsi_char *key, double fdefault)
 {
-	return SBServerGetFloatValue(server, key, fdefault);
+	return SBServerGetFloatValueA(server, key, fdefault);
 };
-XRGAMESPY_API SBBool xrGS_SBServerGetBoolValue(SBServer server, const gsi_char *key, SBBool bdefault)
+XRGAMESPY_API SBBool xrGS_SBServerGetBoolValueA(SBServer server, const gsi_char *key, SBBool bdefault)
 {
-	return SBServerGetBoolValue(server, key, bdefault);
+	return SBServerGetBoolValueA(server, key, bdefault);
 };
 XRGAMESPY_API int xrGS_SBServerGetPing(SBServer server)
 {
@@ -136,40 +136,40 @@ XRGAMESPY_API SBError xrGS_ServerBrowserAuxUpdateServer(ServerBrowser sb, SBServ
 	return ServerBrowserAuxUpdateServer(sb, server, async, fullUpdate);
 }
 
-XRGAMESPY_API SBError xrGS_ServerBrowserAuxUpdateIP(ServerBrowser sb, const gsi_char *ip, unsigned short port, SBBool viaMaster, SBBool async, SBBool fullUpdate)
+XRGAMESPY_API SBError xrGS_ServerBrowserAuxUpdateIPA(ServerBrowser sb, const gsi_char *ip, unsigned short port, SBBool viaMaster, SBBool async, SBBool fullUpdate)
 {
-	return ServerBrowserAuxUpdateIP(sb, ip, port, viaMaster, async, fullUpdate);
+	return ServerBrowserAuxUpdateIPA(sb, ip, port, viaMaster, async, fullUpdate);
 }
 
-XRGAMESPY_API const gsi_char * xrGS_SBServerGetPlayerStringValue(SBServer server, int playernum, const gsi_char *key, const gsi_char *sdefault)
+XRGAMESPY_API const gsi_char * xrGS_SBServerGetPlayerStringValueA(SBServer server, int playernum, const gsi_char *key, const gsi_char *sdefault)
 {
-	return SBServerGetPlayerStringValue(server, playernum, key, sdefault);
+	return SBServerGetPlayerStringValueA(server, playernum, key, sdefault);
 }
-XRGAMESPY_API int xrGS_SBServerGetPlayerIntValue(SBServer server, int playernum, const gsi_char *key, int idefault)
+XRGAMESPY_API int xrGS_SBServerGetPlayerIntValueA(SBServer server, int playernum, const gsi_char *key, int idefault)
 {
-	return SBServerGetPlayerIntValue(server, playernum, key, idefault);
+	return SBServerGetPlayerIntValueA(server, playernum, key, idefault);
 }
-XRGAMESPY_API double xrGS_SBServerGetPlayerFloatValue(SBServer server, int playernum, const gsi_char *key, double fdefault)
+XRGAMESPY_API double xrGS_SBServerGetPlayerFloatValueA(SBServer server, int playernum, const gsi_char *key, double fdefault)
 {
-	return SBServerGetPlayerFloatValue(server, playernum, key, fdefault);
-}
-
-XRGAMESPY_API const gsi_char *xrGS_SBServerGetTeamStringValue(SBServer server, int teamnum, const gsi_char *key, const gsi_char *sdefault)
-{
-	return SBServerGetTeamStringValue(server, teamnum, key, sdefault);
-}
-XRGAMESPY_API int xrGS_SBServerGetTeamIntValue(SBServer server, int teamnum, const gsi_char *key, int idefault)
-{
-	return SBServerGetTeamIntValue(server, teamnum, key, idefault);
-}
-XRGAMESPY_API double xrGS_SBServerGetTeamFloatValue(SBServer server, int teamnum, const gsi_char *key, double fdefault)
-{
-	return SBServerGetTeamFloatValue(server, teamnum, key, fdefault);
+	return SBServerGetPlayerFloatValueA(server, playernum, key, fdefault);
 }
 
-XRGAMESPY_API void xrGS_ServerBrowserRemoveIP(ServerBrowser sb, const gsi_char *ip, unsigned short port)
+XRGAMESPY_API const gsi_char *xrGS_SBServerGetTeamStringValueA(SBServer server, int teamnum, const gsi_char *key, const gsi_char *sdefault)
 {
-	ServerBrowserRemoveIP(sb, ip, port);
+	return SBServerGetTeamStringValueA(server, teamnum, key, sdefault);
+}
+XRGAMESPY_API int xrGS_SBServerGetTeamIntValueA(SBServer server, int teamnum, const gsi_char *key, int idefault)
+{
+	return SBServerGetTeamIntValueA(server, teamnum, key, idefault);
+}
+XRGAMESPY_API double xrGS_SBServerGetTeamFloatValueA(SBServer server, int teamnum, const gsi_char *key, double fdefault)
+{
+	return SBServerGetTeamFloatValueA(server, teamnum, key, fdefault);
+}
+
+XRGAMESPY_API void xrGS_ServerBrowserRemoveIPA(ServerBrowser sb, const gsi_char *ip, unsigned short port)
+{
+	ServerBrowserRemoveIPA(sb, ip, port);
 }
 XRGAMESPY_API void xrGS_ServerBrowserRemoveServer(ServerBrowser sb, SBServer server)
 {
@@ -191,7 +191,7 @@ XRGAMESPY_API SBBool xrGS_SBServerHasFullKeys (SBServer server)
 	return SBServerHasFullKeys(server);
 }
 
-XRGAMESPY_API const gsi_char* xrGS_ServerBrowserErrorDesc(ServerBrowser sb, SBError error)
+XRGAMESPY_API const gsi_char* xrGS_ServerBrowserErrorDescA(ServerBrowser sb, SBError error)
 {
-	return ServerBrowserErrorDesc(sb, error);
+	return ServerBrowserErrorDescA(sb, error);
 }

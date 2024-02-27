@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include <dinput.h>
-#include "HUDmanager.h"
 #include "../xrEngine/xr_ioconsole.h"
 #include "entity_alive.h"
 #include "game_sv_single.h"
@@ -18,6 +17,7 @@
 
 #include "actor.h"
 #include "huditem.h"
+#include "UIGameCustom.h"
 #include "ui/UIDialogWnd.h"
 #include "../xrEngine/xr_input.h"
 #include "saved_game_wrapper.h"
@@ -45,17 +45,17 @@ void CLevel::IR_OnMouseWheel( int direction )
 {
 	if(	g_bDisableAllInput	) return;
 
-	if (HUD().GetUI()->IR_OnMouseWheel(direction)) return;
+	if (CurrentGameUI()->IR_UIOnMouseWheel(direction)) return;
 	if( Device.Paused()		) return;
 
 	if (game && Game().IR_OnMouseWheel(direction) ) return;
 
 	if( HUD().GetUI()->MainInputReceiver() )return;
-	if (CURRENT_ENTITY())		{
-			IInputReceiver*		IR	= smart_cast<IInputReceiver*>	(smart_cast<CGameObject*>(CURRENT_ENTITY()));
-			if (IR)				IR->IR_OnMouseWheel(direction);
-		}
-
+	if (CURRENT_ENTITY())
+	{
+		IInputReceiver*		IR	= smart_cast<IInputReceiver*>	(smart_cast<CGameObject*>(CURRENT_ENTITY()));
+		if (IR)				IR->IR_OnMouseWheel(direction);
+	}
 }
 
 static int mouse_button_2_key []	=	{MOUSE_1,MOUSE_2,MOUSE_3};
@@ -70,29 +70,14 @@ void CLevel::IR_OnMouseHold(int btn)
 void CLevel::IR_OnMouseMove( int dx, int dy )
 {
 	if(g_bDisableAllInput)							return;
-	if (pHUD->GetUI()->IR_OnMouseMove(dx,dy))		return;
+	if (CurrentGameUI()->IR_UIOnMouseMove(dx,dy))		return;
 	if (Device.Paused() && !IsDemoPlay() )	return;
-	if (CURRENT_ENTITY())		{
+	if (CURRENT_ENTITY())
+	{
 		IInputReceiver*		IR	= smart_cast<IInputReceiver*>	(smart_cast<CGameObject*>(CURRENT_ENTITY()));
 		if (IR)				IR->IR_OnMouseMove					(dx,dy);
 	}
 }
-
-class		vtune_		{
-	BOOL	enabled_	;
-public:
-			vtune_	()		{
-		enabled_	= FALSE;
-	}
-	void	enable	()	{ if (!enabled_)	{ 
-		Engine.External.tune_resume	();	enabled_=TRUE;	
-		Msg	("vtune : enabled");
-	}}
-	void	disable	()	{ if (enabled_)		{ 
-		Engine.External.tune_pause	();	enabled_=FALSE; 
-		Msg	("vtune : disabled");
-	}}
-}	vtune	;
 
 // Обработка нажатия клавиш
 extern bool g_block_pause;
@@ -115,7 +100,7 @@ void CLevel::IR_OnKeyboardPress	(int key)
 		return;
 #endif // #ifdef INGAME_EDITOR
 
-	bool b_ui_exist = (pHUD && pHUD->GetUI());
+	bool b_ui_exist = (!!CurrentGameUI());
 
 	EGameActions _curr = get_binded_action(key);
 
@@ -164,7 +149,7 @@ void CLevel::IR_OnKeyboardPress	(int key)
 
 	if ( !bReady || !b_ui_exist )			return;
 
-	if ( b_ui_exist && pHUD->GetUI()->IR_OnKeyboardPress(key)) return;
+	if ( b_ui_exist && CurrentGameUI()->IR_UIOnKeyboardPress(key)) return;
 
 	if ( Device.Paused() && !IsDemoPlay() )	return;
 
@@ -183,7 +168,7 @@ void CLevel::IR_OnKeyboardPress	(int key)
 		FS.rescan_pathes			();
 #endif // DEBUG
 		string_path					saved_game,command;
-		strconcat					(sizeof(saved_game),saved_game,Core.UserName,"_","quicksave");
+		strconcat					(sizeof(saved_game),saved_game,Core.UserName," - ","quicksave");
 		if (!CSavedGameWrapper::valid_saved_game(saved_game))
 			return;
 
@@ -209,7 +194,14 @@ void CLevel::IR_OnKeyboardPress	(int key)
 			break;
 
 		SetGameTimeFactor			(g_fTimeFactor);
+
+#ifdef DEBUG
+		if(!m_bEnvPaused)
 		SetEnvironmentGameTimeFactor(GetEnvironmentGameTime(), g_fTimeFactor);
+#else //DEBUG
+		SetEnvironmentGameTimeFactor(GetEnvironmentGameTime(), g_fTimeFactor);
+#endif //DEBUG
+		
 		break;	
 	}
 	case DIK_MULTIPLY: {
@@ -217,9 +209,28 @@ void CLevel::IR_OnKeyboardPress	(int key)
 			break;
 
 		SetGameTimeFactor			(1000.f);
+#ifdef DEBUG
+		if(!m_bEnvPaused)
 		SetEnvironmentGameTimeFactor(GetEnvironmentGameTime(), 1000.f);
+#else //DEBUG
+		SetEnvironmentGameTimeFactor(GetEnvironmentGameTime(), 1000.f);
+#endif //DEBUG
+		
 		break;
 	}
+#ifdef DEBUG
+	case DIK_SUBTRACT:{
+		if (!Server)
+			break;
+		if(m_bEnvPaused)
+			SetEnvironmentGameTimeFactor(GetEnvironmentGameTime(), g_fTimeFactor);
+		else
+			SetEnvironmentGameTimeFactor(GetEnvironmentGameTime(), 0.00001f);
+
+		m_bEnvPaused = !m_bEnvPaused;
+		break;
+	}
+#endif //DEBUG
 	case DIK_NUMPAD5: 
 		{
 			if (GameID()!=eGameIDSingle) 
@@ -409,8 +420,8 @@ void CLevel::IR_OnKeyboardPress	(int key)
 	if (bindConsoleCmds.execute(key))
 		return;
 
-	if( b_ui_exist && HUD().GetUI()->MainInputReceiver() )return;
-	if (CURRENT_ENTITY())		{
+	if (CURRENT_ENTITY())
+	{
 			IInputReceiver*		IR	= smart_cast<IInputReceiver*>	(smart_cast<CGameObject*>(CURRENT_ENTITY()));
 			if (IR)				IR->IR_OnKeyboardPress(get_binded_action(key));
 		}
@@ -428,15 +439,13 @@ void CLevel::IR_OnKeyboardPress	(int key)
 
 void CLevel::IR_OnKeyboardRelease(int key)
 {
-	bool b_ui_exist = (pHUD && pHUD->GetUI());
-
 	if (!bReady || g_bDisableAllInput	) return;
-	if ( b_ui_exist && pHUD->GetUI()->IR_OnKeyboardRelease(key)) return;
+	if ( CurrentGameUI() && CurrentGameUI()->IR_UIOnKeyboardRelease(key)) return;
 	if (Device.Paused()		) return;
 	if (game && Game().OnKeyboardRelease(get_binded_action(key)) ) return;
 
-	if( b_ui_exist && HUD().GetUI()->MainInputReceiver() )return;
-	if (CURRENT_ENTITY())		{
+	if (CURRENT_ENTITY())
+	{
 		IInputReceiver*		IR	= smart_cast<IInputReceiver*>	(smart_cast<CGameObject*>(CURRENT_ENTITY()));
 		if (IR)				IR->IR_OnKeyboardRelease			(get_binded_action(key));
 	}
@@ -450,7 +459,7 @@ void CLevel::IR_OnKeyboardHold(int key)
 	// Lain: added
 	if ( key == DIK_UP )
 	{
-		static uint time = Device.dwTimeGlobal;
+		static u32 time = Device.dwTimeGlobal;
 		if ( Device.dwTimeGlobal - time > 20 )
 		{
 			if ( CBaseMonster* pBM = smart_cast<CBaseMonster*>(CurrentEntity()) )
@@ -462,7 +471,7 @@ void CLevel::IR_OnKeyboardHold(int key)
 	}
 	else if ( key == DIK_DOWN )
 	{
-		static uint time = Device.dwTimeGlobal;
+		static u32 time = Device.dwTimeGlobal;
 		if ( Device.dwTimeGlobal - time > 20 )
 		{
 			if ( CBaseMonster* pBM = smart_cast<CBaseMonster*>(CurrentEntity()) )

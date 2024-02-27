@@ -2,6 +2,11 @@
 #include "uigamesp.h"
 #include "actor.h"
 #include "level.h"
+#include "../xrEngine/xr_input.h"
+
+#ifdef DEBUG
+#include "attachable_item.h"
+#endif
 
 #include "game_cl_Single.h"
 #include "xr_level_controller.h"
@@ -12,16 +17,14 @@
 #include "GameTask.h"
 
 #include "ui/UIActorMenu.h"
-#include "ui/UITradeWnd.h"
 #include "ui/UIPdaWnd.h"
 #include "ui/UITalkWnd.h"
 #include "ui/UIMessageBox.h"
-#include "UIDialogHolder.h"
+
 
 CUIGameSP::CUIGameSP()
+:m_game(NULL),m_game_objective(NULL)
 {
-	m_game			= NULL;
-	
 	TalkMenu		= xr_new<CUITalkWnd>		();
 	UIChangeLevelWnd= xr_new<CChangeLevelWnd>	();
 }
@@ -32,26 +35,15 @@ CUIGameSP::~CUIGameSP()
 	delete_data(UIChangeLevelWnd);
 }
 
-void CUIGameSP::shedule_Update(u32 dt)
-{
-	inherited::shedule_Update			(dt);
-	CActor *pActor = smart_cast<CActor*>(Level().CurrentEntity());
-	if(!pActor)							return;
-	if(pActor->g_Alive())				return;
-
-	HideShownDialogs						();
-}
-
 void CUIGameSP::HideShownDialogs()
 {
-	CUIDialogWnd* mir = MainInputReceiver();
-	if ( mir && mir == TalkMenu )
-	{
-		mir->GetHolder()->StartStopMenu( mir, true );
-	}
-
 	HideActorMenu();
 	HidePdaMenu();
+	CUIDialogWnd* mir = TopInputReceiver();
+	if ( mir && mir == TalkMenu )
+	{
+		mir->HideDialog();
+	}
 }
 
 void CUIGameSP::SetClGame (game_cl_GameState* g)
@@ -62,9 +54,9 @@ void CUIGameSP::SetClGame (game_cl_GameState* g)
 }
 
 
-bool CUIGameSP::IR_OnKeyboardPress(int dik) 
+bool CUIGameSP::IR_UIOnKeyboardPress(int dik) 
 {
-	if(inherited::IR_OnKeyboardPress(dik)) return true;
+	if(inherited::IR_UIOnKeyboardPress(dik)) return true;
 
 	if( Device.Paused()		) return false;
 
@@ -115,7 +107,7 @@ bool CUIGameSP::IR_OnKeyboardPress(int dik)
 	return false;
 }
 
-bool CUIGameSP::IR_OnKeyboardRelease(int dik) 
+bool CUIGameSP::IR_UIOnKeyboardRelease(int dik) 
 {
 	if(inherited::IR_OnKeyboardRelease(dik)) return true;
 
@@ -130,54 +122,54 @@ bool CUIGameSP::IR_OnKeyboardRelease(int dik)
 
 void  CUIGameSP::StartTrade(CInventoryOwner* pActorInv, CInventoryOwner* pOtherOwner)
 {
-	if( MainInputReceiver() )	return;
+//.	if( MainInputReceiver() )	return;
 
 	m_ActorMenu->SetActor		(pActorInv);
 	m_ActorMenu->SetPartner		(pOtherOwner);
 
 	m_ActorMenu->SetMenuMode	(mmTrade);
-	m_game->StartStopMenu		(m_ActorMenu,true);
+	m_ActorMenu->ShowDialog		(true);
 }
 
 void  CUIGameSP::StartUpgrade(CInventoryOwner* pActorInv, CInventoryOwner* pMech)
 {
-	if( MainInputReceiver() )	return;
+//.	if( MainInputReceiver() )	return;
 
 	m_ActorMenu->SetActor		(pActorInv);
 	m_ActorMenu->SetPartner		(pMech);
 
 	m_ActorMenu->SetMenuMode	(mmUpgrade);
-	m_game->StartStopMenu		(m_ActorMenu,true);
+	m_ActorMenu->ShowDialog		(true);
 }
 
 void CUIGameSP::StartTalk(bool disable_break)
 {
 	TalkMenu->b_disable_break = disable_break;
-	m_game->StartStopMenu(TalkMenu, true);
+	TalkMenu->ShowDialog		(true);
 }
 
 
 void CUIGameSP::StartCarBody(CInventoryOwner* pActorInv, CInventoryOwner* pOtherOwner) //Deadbody search
 {
-	if( MainInputReceiver() )		return;
+	if( TopInputReceiver() )		return;
 
 	m_ActorMenu->SetActor		(pActorInv);
 	m_ActorMenu->SetPartner		(pOtherOwner);
 
 	m_ActorMenu->SetMenuMode	(mmDeadBodySearch);
-	m_game->StartStopMenu		(m_ActorMenu,true);
+	m_ActorMenu->ShowDialog		(true);
 }
 
 void CUIGameSP::StartCarBody(CInventoryOwner* pActorInv, CInventoryBox* pBox) //Deadbody search
 {
-	if( MainInputReceiver() )		return;
+	if( TopInputReceiver() )		return;
 	
 	m_ActorMenu->SetActor		(pActorInv);
 	m_ActorMenu->SetInvBox		(pBox);
 	VERIFY( pBox );
 
 	m_ActorMenu->SetMenuMode	(mmDeadBodySearch);
-	m_game->StartStopMenu		(m_ActorMenu,true);
+	m_ActorMenu->ShowDialog		(true);
 }
 
 
@@ -192,7 +184,7 @@ void CUIGameSP::ChangeLevel(	GameGraph::_GRAPH_ID game_vert_id,
 								const shared_str& message_str,
 								bool b_allow_change_level)
 {
-	if( !MainInputReceiver() || MainInputReceiver()!=UIChangeLevelWnd)
+	if(TopInputReceiver()!=UIChangeLevelWnd)
 	{
 		UIChangeLevelWnd->m_game_vertex_id		= game_vert_id;
 		UIChangeLevelWnd->m_level_vertex_id		= level_vert_id;
@@ -204,15 +196,8 @@ void CUIGameSP::ChangeLevel(	GameGraph::_GRAPH_ID game_vert_id,
 		UIChangeLevelWnd->m_b_allow_change_level=b_allow_change_level;
 		UIChangeLevelWnd->m_message_str			= message_str;
 
-		m_game->StartStopMenu					(UIChangeLevelWnd,true);
+		UIChangeLevelWnd->ShowDialog		(true);
 	}
-}
-
-void CUIGameSP::reset_ui()
-{
-	inherited::reset_ui				();
-	TalkMenu->Reset					();
-	UIChangeLevelWnd->Reset			();
 }
 
 CChangeLevelWnd::CChangeLevelWnd		()
@@ -238,7 +223,7 @@ void CChangeLevelWnd::SendMessage(CUIWindow *pWnd, s16 msg, void *pData)
 
 void CChangeLevelWnd::OnOk()
 {
-	Game().StartStopMenu					(this, true);
+	HideDialog								();
 	NET_Packet								p;
 	p.w_begin								(M_CHANGE_LEVEL);
 	p.w										(&m_game_vertex_id,sizeof(m_game_vertex_id));
@@ -251,13 +236,12 @@ void CChangeLevelWnd::OnOk()
 
 void CChangeLevelWnd::OnCancel()
 {
-	Game().StartStopMenu					(this, true);
-	if(m_b_position_cancel){
+	HideDialog();
+	if(m_b_position_cancel)
 		Actor()->MoveActor(m_position_cancel, m_angles_cancel);
-	}
 }
 
-bool CChangeLevelWnd::OnKeyboard(int dik, EUIMessages keyboard_action)
+bool CChangeLevelWnd::OnKeyboardAction(int dik, EUIMessages keyboard_action)
 {
 	if(keyboard_action==WINDOW_KEY_PRESSED)
 	{
@@ -265,7 +249,7 @@ bool CChangeLevelWnd::OnKeyboard(int dik, EUIMessages keyboard_action)
 			OnCancel		();
 		return true;
 	}
-	return inherited::OnKeyboard(dik, keyboard_action);
+	return inherited::OnKeyboardAction(dik, keyboard_action);
 }
 
 bool g_block_pause	= false;

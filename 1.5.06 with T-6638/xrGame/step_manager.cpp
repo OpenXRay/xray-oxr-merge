@@ -12,6 +12,9 @@
 BOOL debug_step_info = FALSE;
 BOOL debug_step_info_load = FALSE;
 #endif
+
+extern float psHUDStepSoundVolume;
+
 CStepManager::CStepManager()
 {
 }
@@ -145,15 +148,12 @@ void CStepManager::on_animation_start(MotionID motion_id, CBlend *blend)
 }
 
 
-void CStepManager::update()
+void CStepManager::update(bool b_hud_view)
 {
 	START_PROFILE("Step Manager")
 
 	if (m_step_info.disable)	return;
 	if (!m_blend)				return;
-
-	SGameMtlPair* mtl_pair		= m_object->material().get_current_pair();
-	if (!mtl_pair)				return;
 
 	// получить параметры шага
 	SStepParam	&step		= m_step_info.params;
@@ -163,6 +163,9 @@ void CStepManager::update()
 	float cycle_anim_time	= get_blend_time() / step.cycles;
 
 	// пройти по всем ногам и проверить время
+	SGameMtlPair* mtl_pair = 0;
+	bool	material_picked = false;
+
 	for (u32 i=0; i<m_legs_count; i++)
 	{
 
@@ -174,19 +177,22 @@ void CStepManager::update()
 		u32 offset_time = m_time_anim_started + u32(1000 * (cycle_anim_time * (m_step_info.cur_cycle-1) + cycle_anim_time * step.step[i].time));
 		if (offset_time <= cur_time)
 		{
-			// Играть звук
+			if( !material_picked )
+			{
+				mtl_pair		= m_object->material().get_current_pair();
 
-			//if (!mtl_pair->StepSounds.empty() && is_on_ground() ) 
-			//{
-			//	Fvector sound_pos = m_object->Position();
-			//	sound_pos.y += 0.5;
-			//	GET_RANDOM(mtl_pair->StepSounds).play_no_feedback(m_object,0,0,&sound_pos,&m_step_info.params.step[i].power);
-			//}
-			if( is_on_ground() )
-				m_step_sound.play_next( mtl_pair, m_object, m_step_info.params.step[i].power );
+				material_picked = true;
+			}
+
+			if ( !mtl_pair )
+							break;
+
+			// Играть звук
+			if(is_on_ground())
+				m_step_sound.play_next(mtl_pair, m_object, m_step_info.params.step[i].power, b_hud_view);
 
 			// Играть партиклы
-			if (!mtl_pair->CollideParticles.empty())
+			if(!mtl_pair->CollideParticles.empty())	
 				{
 				LPCSTR ps_name = *mtl_pair->CollideParticles[::Random.randI(0,mtl_pair->CollideParticles.size())];
 
@@ -291,7 +297,7 @@ float CStepManager::get_blend_time()
 	return 	(m_blend->timeTotal / m_blend->speed);
 }
 
-void CStepManager::material_sound::play_next(SGameMtlPair* mtl_pair, CEntityAlive* object, float volume)
+void CStepManager::material_sound::play_next(SGameMtlPair* mtl_pair, CEntityAlive* object, float volume, bool b_hud_mode)
 {
 	if (mtl_pair->StepSounds.empty() ) 
 		return;
@@ -312,5 +318,13 @@ void CStepManager::material_sound::play_next(SGameMtlPair* mtl_pair, CEntityAliv
 		m_last_step_sound_played = new_played;
 	}
 
-	mtl_pair->StepSounds[m_last_step_sound_played].play_no_feedback(object,0,0,&sound_pos, &volume );
+	float vol = (b_hud_mode)? volume*psHUDStepSoundVolume : volume;
+	if(b_hud_mode)
+		sound_pos.set(0,0,0);
+
+	mtl_pair->StepSounds[m_last_step_sound_played].play_no_feedback(object, 
+																	b_hud_mode? sm_2D:0, 
+																	0, 
+																	&sound_pos, 
+																	&vol );
 }

@@ -1,7 +1,3 @@
-// Level.h: interface for the CLevel class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #if !defined(AFX_LEVEL_H__38F63863_DB0C_494B_AFAB_C495876EC671__INCLUDED_)
 #define AFX_LEVEL_H__38F63863_DB0C_494B_AFAB_C495876EC671__INCLUDED_
 #pragma once
@@ -15,12 +11,13 @@
 #include "alife_space.h"
 #include "../xrcore/xrDebug.h"
 #include "xrServer.h"
-#include "battleye_system.h"
 #include "GlobalFeelTouch.hpp"
 #include "customdetector.h"
 
 #include "Level_network_map_sync.h"
 #include "secure_messaging.h"
+#include "traffic_optimization.h"
+
 
 class	CHUDManager;
 class	CParticlesObject;
@@ -39,6 +36,8 @@ class	CLevelSoundManager;
 class	CGameTaskManager;
 class	CZoneList;
 class	message_filter;
+class	demoplay_control;
+class	demo_info;
 
 #ifdef DEBUG
 	class	CDebugRenderer;
@@ -66,6 +65,7 @@ class CLevel					: public IGame_Level, public IPureClient
 private:
 #ifdef DEBUG
 	bool						m_bSynchronization;
+	bool						m_bEnvPaused;
 #endif
 protected:
 	typedef IGame_Level			inherited;
@@ -87,7 +87,7 @@ protected:
 
 	CPHCommander				*m_ph_commander;
 	CPHCommander				*m_ph_commander_scripts;
-	
+	CPHCommander				*m_ph_commander_physics_worldstep;
 	// Local events
 	EVENT						eChangeRP;
 	EVENT						eDemoPlay;
@@ -167,7 +167,6 @@ private:
 	shared_str					m_client_digest;	//for screenshots
 public:
 	shared_str const			get_cdkey_digest() const { return m_client_digest; };
-
 private:
 	bool						m_bConnectResultReceived;
 	bool						m_bConnectResult;
@@ -264,10 +263,15 @@ public:
 	virtual void				OnEvent					( EVENT E, u64 P1, u64 P2 );
 	virtual void				OnFrame					( void );
 	virtual void				OnRender				( );
+
+	virtual	shared_str			OpenDemoFile			(LPCSTR demo_file_name);
+	virtual void				net_StartPlayDemo		();
+
 	void						cl_Process_Event		(u16 dest, u16 type, NET_Packet& P);
 	void						cl_Process_Spawn		(NET_Packet& P);
 	void						ProcessGameEvents		( );
 	void						ProcessGameSpawns		( );
+	void						ProcessCompressedUpdate	(NET_Packet& P, u8 const compression_type);
 
 	// Input
 	virtual	void				IR_OnKeyboardPress		( int btn );
@@ -288,6 +292,7 @@ public:
 	void						InitializeClientGame	(NET_Packet& P);
 	void						ClientReceive			();
 	void						ClientSend				();
+	void						ClientSendProfileData	();
 	void						ClientSave				();
 			u32					Objects_net_Save		(NET_Packet* _Packet, u32 start, u32 count);
 	virtual	void				Send					(NET_Packet& P, u32 dwFlags=DPNSEND_GUARANTEED, u32 dwTimeout=0);
@@ -310,6 +315,7 @@ public:
 
 	IC CPHCommander					&ph_commander				();
 	IC CPHCommander					&ph_commander_scripts		();
+	IC CPHCommander					&ph_commander_physics_worldstep();
 
 	// C/D
 	CLevel();
@@ -335,7 +341,6 @@ public:
 	void				SetGameTimeFactor		(const float fTimeFactor);
 	void				SetGameTimeFactor		(ALife::_TIME_ID GameTime, const float fTimeFactor);
 	virtual void		SetEnvironmentGameTimeFactor(u64 const& GameTime, float const& fTimeFactor);
-//	void				SetGameTime				(ALife::_TIME_ID GameTime);
 
 	// gets current daytime [0..23]
 	u8					GetDayTime				();
@@ -377,6 +382,16 @@ public:
 			virtual void	OnSessionTerminate		(LPCSTR reason);
 			
 			file_transfer::client_site*					m_file_transfer;
+
+	compression::ppmd_trained_stream*			m_trained_stream;
+	compression::lzo_dictionary_buffer			m_lzo_dictionary;
+	//alligned to 16 bytes m_lzo_working_buffer
+	u8*											m_lzo_working_memory;
+	u8*											m_lzo_working_buffer;
+	
+	void			init_compression			();
+	void			deinit_compression			();
+			
 
 	DECLARE_SCRIPT_REGISTER_FUNCTION
 };
@@ -438,13 +453,18 @@ IC CPHCommander & CLevel::ph_commander_scripts()
 	VERIFY(m_ph_commander_scripts);
 	return *m_ph_commander_scripts;
 }
+IC CPHCommander & CLevel::ph_commander_physics_worldstep()
+{
+	VERIFY(m_ph_commander_scripts);
+	return *m_ph_commander_physics_worldstep;
+}
 //by Mad Max 
 IC bool		OnServer()			{ return Level().IsServer();}
 IC bool		OnClient()			{ return Level().IsClient();}
 IC bool		IsGameTypeSingle()	{ return (g_pGamePersistent->GameType() == eGameIDSingle);};
 
-class  CPHWorld;
-extern CPHWorld*				ph_world;
+//class  CPHWorld;
+//extern CPHWorld*				ph_world;
 extern BOOL						g_bDebugEvents;
 
 // -------------------------------------------------------------------------------------------------

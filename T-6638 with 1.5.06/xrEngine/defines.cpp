@@ -2,7 +2,6 @@
 
 #ifdef DEBUG
 	ECORE_API BOOL bDebug	= FALSE;
-	
 #endif
 
 // Video

@@ -1,5 +1,4 @@
 #include "pch_script.h"
-#include "hudmanager.h"
 #include "game_cl_base.h"
 #include "level.h"
 #include "GamePersistent.h"
@@ -9,6 +8,7 @@
 #include "ui/UIMainIngameWnd.h"
 #include "UI/UIGameTutorial.h"
 #include "UI/UIMessagesWindow.h"
+#include "UI/UIDialogWnd.h"
 #include "string_table.h"
 #include "game_cl_base_weapon_usage_statistic.h"
 #include "game_sv_mp_vote_flags.h"
@@ -18,9 +18,8 @@ LPCSTR GameTypeToString			(EGameIDs gt, bool bShort);
 
 game_cl_GameState::game_cl_GameState()
 {
-	m_WeaponUsageStatistic		= xr_new<WeaponUsageStatistic>();
+	local_player				= createPlayerState(NULL);	//initializing account info
 
-	local_player				= 0;
 	m_game_type_name			= 0;
 
 	shedule.t_min				= 5;
@@ -30,6 +29,8 @@ game_cl_GameState::game_cl_GameState()
 
 	m_u16VotingEnabled			= 0;
 	m_bServerControlHits		= true;
+
+	m_WeaponUsageStatistic		= xr_new<WeaponUsageStatistic>();
 }
 
 game_cl_GameState::~game_cl_GameState()
@@ -40,8 +41,8 @@ game_cl_GameState::~game_cl_GameState()
 	players.clear();
 
 	shedule_unregister();
-
 	xr_delete					(m_WeaponUsageStatistic);
+	xr_delete(local_player);
 }
 
 void	game_cl_GameState::net_import_GameTime		(NET_Packet& P)
@@ -63,6 +64,40 @@ void	game_cl_GameState::net_import_GameTime		(NET_Packet& P)
 	if (OldTime > GameEnvironmentTime)
 		GamePersistent().Environment().Invalidate();
 }
+
+struct not_exsiting_clients_deleter
+{
+	typedef buffer_vector<ClientID>	existing_clients_vector_t;
+	existing_clients_vector_t*	exist_clients;
+	game_PlayerState**			local_player;
+	ClientID*					client_id;
+	not_exsiting_clients_deleter(existing_clients_vector_t* exist, game_PlayerState** local_player, ClientID* client_id) :
+		exist_clients(exist), local_player(local_player), client_id(client_id)
+	{
+	}
+	//default copy constructor is right
+	bool operator()(game_cl_GameState::PLAYERS_MAP::value_type & value)
+	{
+		VERIFY(exist_clients);
+		existing_clients_vector_t::iterator tmp_iter = std::find(
+			exist_clients->begin(),
+			exist_clients->end(),
+			value.first	//key
+		);
+		
+		if (tmp_iter != exist_clients->end())
+			return false;
+
+		if ( *local_player == value.second )
+			return false;
+// 			*local_player	=	NULL;
+// 			*client_id		=	0;
+// 		}
+
+		xr_delete(value.second);
+		return true;
+	}
+}; //not_present_clients_deleter
 
 void	game_cl_GameState::net_import_state	(NET_Packet& P)
 {
@@ -88,17 +123,13 @@ void	game_cl_GameState::net_import_state	(NET_Packet& P)
 	
 	PLAYERS_MAP players_new;
 
-/*
-	players.clear	();
-*/
-	PLAYERS_MAP_IT I;
 	for (u16 p_it=0; p_it<p_count; ++p_it)
 	{
 		ClientID			ID;
 		P.r_clientID		(ID);
 		
 		game_PlayerState*   IP;
-		I = players.find(ID);
+		PLAYERS_MAP_IT I = players.find(ID);
 		if( I!=players.end() )
 		{
 			IP = I->second;
@@ -224,7 +255,7 @@ void game_cl_GameState::TranslateGameMessage	(u32 msg, NET_Packet& P)
 			P.r_stringZ(PlayerName);
 
 			xr_sprintf(Text, "%s%s %s%s",Color_Teams[0],PlayerName,Color_Main,*st.translate("mp_disconnected"));
-			CommonMessageOut(Text);
+			if(CurrentGameUI()) CurrentGameUI()->CommonMessageOut(Text);
 			//---------------------------------------
 			Msg("%s disconnected", PlayerName);
 		}break;
@@ -234,7 +265,7 @@ void game_cl_GameState::TranslateGameMessage	(u32 msg, NET_Packet& P)
 			P.r_stringZ(PlayerName);
 
 			xr_sprintf(Text, "%s%s %s%s",Color_Teams[0],PlayerName,Color_Main,*st.translate("mp_entered_game"));
-			CommonMessageOut(Text);
+			if(CurrentGameUI()) CurrentGameUI()->CommonMessageOut(Text);
 		}break;
 	default:
 		{
@@ -291,20 +322,6 @@ ClientID game_cl_GameState::GetClientIDByOrderID	(u32 idx)
 	return I->first;
 }
 
-
-
-void game_cl_GameState::CommonMessageOut (LPCSTR msg)
-{
-	if (!HUD().GetUI()) return;
-	HUD().GetUI()->m_pMessagesWnd->AddLogMessage(msg);
-}
-
-float game_cl_GameState::shedule_Scale		()
-{
-	return 1.0f;
-}
-
-
 void game_cl_GameState::shedule_Update		(u32 dt)
 {
 	ISheduled::shedule_Update	(dt);
@@ -327,11 +344,6 @@ void game_cl_GameState::shedule_Update		(u32 dt)
 		}break;
 	};
 };
-
-void game_cl_GameState::StartStopMenu(CUIDialogWnd* pDialog, bool bDoHideIndicators)
-{
-	CurrentGameUI()->StartStopMenu(pDialog, bDoHideIndicators);
-}
 
 void game_cl_GameState::sv_GameEventGen(NET_Packet& P)
 {
@@ -403,7 +415,6 @@ void				game_cl_GameState::SendPickUpEvent		(u16 ID_who, u16 ID_what)
 {
 	NET_Packet P;
 	u_EventGen(P,GE_OWNERSHIP_TAKE, ID_who);
-	//u_EventGen(P,GE_OWNERSHIP_TAKE_MP_FORCED, ID_who);
 	P.w_u16(ID_what);
 	u_EventSend(P);
 };
@@ -418,18 +429,8 @@ void game_cl_GameState::set_type_name(LPCSTR s)
 		g_pGamePersistent->OnGameStart();
 	}
 };
-void game_cl_GameState::reset_ui()
+
+void game_cl_GameState::OnConnected()
 {
-	if (g_dedicated_server)	return;
-	if (!HUD().GetUI())		return;
-
-	if(!m_game_ui_custom)
-		m_game_ui_custom = HUD().GetUI()->UIGame();
-
-	m_game_ui_custom->reset_ui					();
-
-	HUD().GetUI()->UIMainIngameWnd->reset_ui	();
-
-	if (HUD().GetUI()->MainInputReceiver())
-		HUD().GetUI()->StartStopMenu			(HUD().GetUI()->MainInputReceiver(),true);
+	m_game_ui_custom	= CurrentGameUI();
 }

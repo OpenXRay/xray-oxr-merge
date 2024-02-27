@@ -140,8 +140,8 @@ public:
 
 			bool 	IsWorking			();
 
-	virtual void 	OnMoveToSlot		();
-	virtual void 	OnMoveToRuck		(EItemPlace prev);
+	virtual void 	OnMoveToSlot		(const SInvItemPlace& prev);
+	virtual void 	OnMoveToRuck		(const SInvItemPlace& prev);
 
 	virtual void	OnActiveItem		();
 	virtual void	OnHiddenItem		();
@@ -157,7 +157,7 @@ public:
 
 	virtual u32		ef_detector_type	() const	{return 1;};
 protected:
-			bool	CheckCompatibilityInt		(CHudItem*);
+			bool	CheckCompatibilityInt		(CHudItem* itm, u16* slot_to_activate);
 			void 	TurnDetectorInternal		(bool b);
 	void 			UpdateNightVisionMode		(bool b_off);
 	void			UpdateVisibility			();

@@ -19,7 +19,6 @@ LPCSTR GameTypeToString			(EGameIDs gt, bool bShort);
 game_cl_GameState::game_cl_GameState()
 {
 	local_player				= createPlayerState(NULL);	//initializing account info
-	m_WeaponUsageStatistic		= NULL;
 
 	m_game_type_name			= 0;
 

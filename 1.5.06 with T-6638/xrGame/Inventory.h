@@ -20,12 +20,6 @@ public:
 	bool					m_bAct;
 	int						m_blockCounter;
 };
-/*
-enum EActivationReason{
-	eGeneral,
-	eKeyAction,
-	eImportUpdate,
-};*/
 
 typedef xr_vector<CInventorySlot> TISlotArr;
 
@@ -73,14 +67,14 @@ public:
 	// »щет на по€се аналогичный IItem
 	PIItem					Same				(const PIItem pIItem, bool bSearchRuck) const;
 	// »щет на по€се IItem дл€ указанного слота
-	PIItem					SameSlot			(const u32 slot, PIItem pIItem, bool bSearchRuck) const;
+	PIItem					SameSlot			(const u16 slot, PIItem pIItem, bool bSearchRuck) const;
 	// »щет на по€се или в рюкзаке IItem с указанным именем (cName())
-	PIItem					Get					(const char *name, bool bSearchRuck) const;
+	PIItem					Get					(LPCSTR name, bool bSearchRuck) const;
 	// »щет на по€се или в рюкзаке IItem с указанным именем (id)
 	PIItem					Get					(const u16  id,	 bool bSearchRuck) const;
 	// »щет на по€се или в рюкзаке IItem с указанным CLS_ID
 	PIItem					Get					(CLASS_ID cls_id,  bool bSearchRuck) const;
-	PIItem					GetAny				(const char *name) const;//search both (ruck and belt)
+	PIItem					GetAny				(LPCSTR name) const;//search both (ruck and belt)
 	PIItem					item				(CLASS_ID cls_id) const;
 	
 	// get all the items with the same section name

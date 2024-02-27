@@ -217,7 +217,6 @@ BOOL CPoltergeist::net_Spawn (CSE_Abstract* DC)
 	setVisible		(false);
 	ability()->on_hide();
 	
-
 	return			(TRUE);
 }
 
@@ -306,6 +305,35 @@ void CPoltergeist::net_Relcase(CObject *O)
 	CTelekinesis::remove_links	(O);
 }
 
+float	CPoltergeist::get_detection_near_range_factor ()
+{
+	return override_if_debug("detection_near_range_factor", m_detection_near_range_factor);
+}
+
+float	CPoltergeist::get_detection_far_range_factor	() 
+{
+	return override_if_debug("detection_far_range_factor", m_detection_far_range_factor);
+}
+
+float	CPoltergeist::get_detection_speed_factor	() 
+{
+	return override_if_debug("detection_speed_factor", m_detection_speed_factor);
+}
+
+float	CPoltergeist::get_detection_loose_speed () 
+{
+	return override_if_debug("detection_loose_speed", m_detection_loose_speed);
+}
+
+float	CPoltergeist::get_detection_far_range() 
+{
+	return override_if_debug("detection_far_range", m_detection_far_range);
+}
+
+float	CPoltergeist::get_detection_success_level () 
+{
+	return override_if_debug("detection_success_level", m_detection_success_level);
+}
 
 #ifdef DEBUG
 CBaseMonster::SDebugInfo CPoltergeist::show_debug_info()

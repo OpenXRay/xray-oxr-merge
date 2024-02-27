@@ -135,7 +135,6 @@ void CUIGameDM::ShowPlayersList(bool bShow)
 		RemoveDialogToRender(m_pTeamPanels);
 }
 
-
 void CUIGameDM::SetSpectrModeMsgCaption(LPCSTR str)
 {
 	m_spectrmode_caption->SetTextST(str);

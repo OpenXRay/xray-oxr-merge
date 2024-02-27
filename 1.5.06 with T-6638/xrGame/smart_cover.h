@@ -75,8 +75,8 @@ public:
 			bool 				is_position_in_fov		(loophole const &source, Fvector const &position) const;
 			bool 				is_position_in_range	(loophole const &source, Fvector const &position) const;
 			bool 				in_min_acceptable_range	(loophole const &source, Fvector const &position, float const &min_range) const;
-	IC		bool const			&is_combat_cover		() const;
-
+	IC		bool 				is_combat_cover		() const;
+	IC		bool				can_fire				() const;
 
 #ifdef DEBUG
 private:

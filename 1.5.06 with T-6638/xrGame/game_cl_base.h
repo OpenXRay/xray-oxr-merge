@@ -28,7 +28,6 @@ class	game_cl_GameState	: public game_GameState, public ISheduled
 {
 	typedef game_GameState	inherited;
 	shared_str							m_game_type_name;
-//	bool								m_bCrosshair;	//был ли показан прицел-курсор HUD перед вызовом меню
 protected:
 	CUIGameCustom*						m_game_ui_custom;
 	u16									m_u16VotingEnabled;	
@@ -43,7 +42,6 @@ public:
 	ClientID							local_svdpnid;
 	game_PlayerState*					local_player;
 	game_PlayerState*					lookat_player();
-//.	xr_vector<CGameObject*>				targets;
 
 
 	WeaponUsageStatistic				*m_WeaponUsageStatistic;	
@@ -61,7 +59,7 @@ protected:
 
 
 	virtual		shared_str			shedule_Name			() const		{ return shared_str("game_cl_GameState"); };
-	virtual		float				shedule_Scale			();
+	virtual		float				shedule_Scale			()				{ return 1.0f;};
 	virtual		bool				shedule_Needed			()				{return true;};
 
 				void				sv_GameEventGen			(NET_Packet& P);
@@ -89,17 +87,16 @@ public:
 				ClientID			GetClientIDByOrderID	(u32 id);
 				u32					GetPlayersCount			() const {return players.size();};
 	virtual		CUIGameCustom*		createGameUI			(){return NULL;};
+	virtual		void				SetGameUI				(CUIGameCustom*){};
 	virtual		void				GetMapEntities			(xr_vector<SZoneMapEntityData>& dst)	{};
 
 
-				void				StartStopMenu			(CUIDialogWnd* pDialog, bool bDoHideIndicators);
 	virtual		void				shedule_Update			(u32 dt);
 
 	void							u_EventGen				(NET_Packet& P, u16 type, u16 dest);
 	void							u_EventSend				(NET_Packet& P);
 
-	virtual		void				ChatSayTeam				(const shared_str &phrase)	{};
-	virtual		void				ChatSayAll				(const shared_str &phrase)	{};
+	virtual		void				ChatSay					(LPCSTR phrase, bool bAll)	{};
 	virtual		void				OnChatMessage			(NET_Packet* P)	{};
 	virtual		void				OnWarnMessage			(NET_Packet* P)	{};
 	virtual		void				OnRadminMessage			(u16 type, NET_Packet* P)	{};
@@ -130,5 +127,5 @@ public:
 	virtual		void				SendPickUpEvent			(u16 ID_who, u16 ID_what);
 
 	virtual		bool				IsPlayerInTeam			(game_PlayerState* ps, ETeam team) {return ps->team == team;};
-	virtual		void				OnConnected				() {};
+	virtual		void				OnConnected				();
 };

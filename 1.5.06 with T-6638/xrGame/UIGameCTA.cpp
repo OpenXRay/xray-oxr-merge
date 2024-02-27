@@ -137,21 +137,6 @@ CUIGameCTA::~CUIGameCTA()
 	xr_delete	(m_pReinforcementInidcator);
 }
 
-void CUIGameCTA::ReInitShownUI()
-{
-	/*
-	if (m_pInventoryMenu && m_pInventoryMenu->IsShown())
-	{
-		m_pInventoryMenu->InitInventory();
-	}
-	*/
-}
-
-void CUIGameCTA::reset_ui()
-{
-	inherited::reset_ui();
-}
-
 bool CUIGameCTA::IsTeamPanelsShown()
 {
 	VERIFY(teamPanels);
@@ -183,7 +168,7 @@ void CUIGameCTA::SetClGame(game_cl_GameState* g)
 	{
 		if (m_pMapDesc->IsShown())
 		{
-			HUD().GetUI()->StartStopMenu(m_pMapDesc, true);
+			m_pMapDesc->HideDialog();
 		}
 		delete_data(m_pMapDesc);
 	}
@@ -344,6 +329,9 @@ void CUIGameCTA::BuyMenuItemIDInserter(u16 const & itemID)
 	
 }*/
 
+void TryToDefuseWeapon(CWeapon const * weapon,
+					   TIItemContainer const & all_items,
+					   buffer_vector<shared_str> & dest_ammo);
 
 void CUIGameCTA::TryToDefuseAllWeapons	(aditional_ammo_t & dest_ammo)
 {
@@ -416,6 +404,7 @@ void CUIGameCTA::TryToDefuseGrenadeLauncher(CWeaponMagazinedWGrenade const * wea
 
 	u16 ammo_box_size	= pSettings->r_u16(ammo_section.c_str(), "box_size");
 	u16 ammo_elapsed	= static_cast<u16>(weapon->iAmmoElapsed2);
+
 	R_ASSERT2(ammo_elapsed <= 1, make_string(
 		"weapon [%s] can't have more than one grenade in grenade launcher",
 		weapon->cNameSect().c_str()).c_str());
@@ -823,12 +812,12 @@ void CUIGameCTA::SetDemoPlayCaption(LPCSTR str)
 void CUIGameCTA::ResetCaptions()
 {
 	//bad ...
-	SetRoundResultCaption("");
-	SetPressBuyMsgCaption("");
-	SetPressJumpMsgCaption("");
-	SetSpectatorMsgCaption("");
-	SetWarmUpCaption("");
-	SetTimeMsgCaption("");
+	SetRoundResultCaption	(NULL);
+	SetPressBuyMsgCaption	(NULL);
+	SetPressJumpMsgCaption	(NULL);
+	SetSpectatorMsgCaption	(NULL);
+	SetWarmUpCaption		(NULL);
+	SetTimeMsgCaption		(NULL);
 }
 
 bool CUIGameCTA::IsBuySpawnShown()
@@ -900,6 +889,9 @@ void CUIGameCTA::SetVoteTimeResultMsg(LPCSTR str)
 
 bool CUIGameCTA::IR_UIOnKeyboardPress(int dik)
 {
+	if (inherited::IR_UIOnKeyboardPress(dik))
+		return true;
+
 	switch (dik) {
 		case DIK_CAPSLOCK :
 		{
@@ -938,14 +930,14 @@ bool CUIGameCTA::IR_UIOnKeyboardPress(int dik)
 		}break;
 	}
 	
-	if(inherited::IR_UIOnKeyboardPress(dik))
-		return true;
-
 	return false;
 }
 
 bool CUIGameCTA::IR_UIOnKeyboardRelease(int dik)
 {
+	if(inherited::IR_UIOnKeyboardRelease(dik))
+		return true;
+
 	switch (dik)
 	{
 		case DIK_CAPSLOCK :
@@ -958,9 +950,6 @@ bool CUIGameCTA::IR_UIOnKeyboardRelease(int dik)
 				};
 			}break;
 	}
-	if(inherited::IR_UIOnKeyboardRelease(dik))
-		return true;
-	
 	return false;
 }
 

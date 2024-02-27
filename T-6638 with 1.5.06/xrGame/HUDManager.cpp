@@ -103,6 +103,14 @@ void CFontManager::InitializeFont(CGameFont*& F, LPCSTR section, u32 flags)
 #ifdef DEBUG
 	F->m_font_name = section;
 #endif
+	if (pSettings->line_exist(section,"size")){
+		float sz = pSettings->r_float(section,"size");
+		if (flags&CGameFont::fsDeviceIndependent)	F->SetHeightI(sz);
+		else										F->SetHeight(sz);
+	}
+	if (pSettings->line_exist(section,"interval"))
+	F->SetInterval(pSettings->r_fvector2(section,"interval"));
+
 }
 
 CFontManager::~CFontManager()

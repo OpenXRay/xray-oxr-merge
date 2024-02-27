@@ -10,7 +10,6 @@
 #include "game_base_space.h"
 #include "level.h"
 #include "ParticlesObject.h"
-#include "actor.h"
 #include "game_base_space.h"
 #include "stalker_animation_data_storage.h"
 #include "stalker_velocity_holder.h"
@@ -19,7 +18,17 @@
 #include "actor.h"
 #include "spectator.h"
 
+#include "UI/UItextureMaster.h"
+
 #include "../xrEngine/xrSASH.h"
+#include "ai_space.h"
+#include "../xrServerEntities/script_engine.h"
+
+#include "holder_custom.h"
+#include "game_cl_base.h"
+#include "xrserver_objects_alife_monsters.h"
+#include "../xrServerEntities/xrServer_Object_Base.h"
+#include "UI/UIGameTutorial.h"
 
 #ifndef MASTER_GOLD
 #	include "custommonster.h"
@@ -156,7 +165,6 @@ void CGamePersistent::OnAppEnd	()
 void CGamePersistent::Start		(LPCSTR op)
 {
 	__super::Start				(op);
-	m_intro_event.bind			(this,&CGamePersistent::start_game_intro);
 }
 
 void CGamePersistent::Disconnect()
@@ -421,9 +429,7 @@ void CGamePersistent::WeathersUpdate()
 	}
 }
 
-#include "UI/UIGameTutorial.h"
-
-void CGamePersistent::start_logo_intro		()
+bool allow_intro ()
 {
 #ifdef MASTER_GOLD
 	if (g_SASH.IsRunning())
@@ -431,11 +437,13 @@ void CGamePersistent::start_logo_intro		()
 	if ((0!=strstr(Core.Params, "-nointro")) || g_SASH.IsRunning())
 #endif	// #ifdef MASTER_GOLD
 	{
-		m_intro_event			= 0;
-		Console->Show			();
-		Console->Execute		("main_menu on");
-		return;
+		return false;
+	}else
+		return true;
 	}
+
+void CGamePersistent::start_logo_intro()
+{
 	if (Device.dwPrecacheFrame==0)
 	{
 		m_intro_event.bind		(this,&CGamePersistent::update_logo_intro);
@@ -444,47 +452,87 @@ void CGamePersistent::start_logo_intro		()
 			VERIFY				(NULL==m_intro);
 			m_intro				= xr_new<CUISequencer>();
 			m_intro->Start		("intro_logo");
+			Msg					("intro_start intro_logo");
 			Console->Hide		();
 		}
 	}
 }
+
 void CGamePersistent::update_logo_intro			()
 {
-	if(m_intro && (false==m_intro->IsActive())){
+	if(m_intro && (false==m_intro->IsActive()))
+	{
 		m_intro_event			= 0;
 		xr_delete				(m_intro);
+		Msg("intro_delete ::update_logo_intro");
 		Console->Execute		("main_menu on");
+	}else
+	if(!m_intro)
+	{
+		m_intro_event			= 0;
 	}
+}
+
+extern int g_keypress_on_start;
+void CGamePersistent::game_loaded()
+{
+	if(Device.dwPrecacheFrame<=2)
+	{
+		if(	g_pGameLevel							&&
+			g_pGameLevel->bReady					&&
+			(allow_intro() && g_keypress_on_start)	&&
+			load_screen_renderer.b_need_user_input	&& 
+			m_game_params.m_e_game_type == eGameIDSingle)
+		{
+			VERIFY				(NULL==m_intro);
+			m_intro				= xr_new<CUISequencer>();
+			m_intro->Start		("game_loaded");
+			Msg					("intro_start game_loaded");
+			m_intro->m_on_destroy_event.bind(this, &CGamePersistent::update_game_loaded);
+		}
+		m_intro_event			= 0;
+	}
+}
+
+void CGamePersistent::update_game_loaded()
+{
+	xr_delete				(m_intro);
+	Msg("intro_delete ::update_game_loaded");
+	start_game_intro		();
 }
 
 void CGamePersistent::start_game_intro		()
 {
-#ifdef MASTER_GOLD
-	if (g_SASH.IsRunning())
-#else	// #ifdef MASTER_GOLD
-	if ((0!=strstr(Core.Params,"-nointro")) || g_SASH.IsRunning())
-#endif	// #ifdef MASTER_GOLD
+	if(!allow_intro())
 	{
 		m_intro_event			= 0;
 		return;
 	}
 
-	if (g_pGameLevel && g_pGameLevel->bReady && Device.dwPrecacheFrame<=2){
+	if (g_pGameLevel && g_pGameLevel->bReady && Device.dwPrecacheFrame<=2)
+	{
 		m_intro_event.bind		(this,&CGamePersistent::update_game_intro);
-		if (0==stricmp(m_game_params.m_new_or_load,"new")){
+		if (0==stricmp(m_game_params.m_new_or_load, "new"))
+		{
 			VERIFY				(NULL==m_intro);
 			m_intro				= xr_new<CUISequencer>();
 			m_intro->Start		("intro_game");
-#ifdef DEBUG
-			Log("Intro start",Device.dwFrame);
-#endif // #ifdef DEBUG
+			Msg("intro_start intro_game");
 		}
 	}
 }
+
 void CGamePersistent::update_game_intro			()
 {
-	if(m_intro && (false==m_intro->IsActive())){
+	if(m_intro && (false==m_intro->IsActive()))
+	{
 		xr_delete				(m_intro);
+		Msg("intro_delete ::update_game_intro");
+		m_intro_event			= 0;
+	}
+	else
+	if(!m_intro)
+	{
 		m_intro_event			= 0;
 	}
 }
@@ -494,6 +542,11 @@ extern CUISequencer * g_tutorial2;
 
 void CGamePersistent::OnFrame	()
 {
+	if(Device.dwPrecacheFrame==5 && m_intro_event.empty())
+	{
+		m_intro_event.bind			(this,&CGamePersistent::game_loaded);
+	}
+
 	if(g_tutorial2)
 	{ 
 		g_tutorial2->Destroy	();
@@ -509,6 +562,9 @@ void CGamePersistent::OnFrame	()
 	++m_frame_counter;
 #endif
 	if (!g_dedicated_server && !m_intro_event.empty())	m_intro_event();
+
+	if(!g_dedicated_server && Device.dwPrecacheFrame==0 && !m_intro && m_intro_event.empty())
+		load_screen_renderer.stop();
 
 	if( !m_pMainMenu->IsActive() )
 		m_pMainMenu->DestroyInternal(false);
@@ -545,6 +601,7 @@ void CGamePersistent::OnFrame	()
 
 				Actor()->Cameras().UpdateFromCamera		(C);
 				Actor()->Cameras().ApplyDevice			(VIEWPORT_NEAR);
+#ifdef DEBUG
 					if(psActorFlags.test(AF_NO_CLIP))
 					{
 						Actor()->dbg_update_cl			= 0;
@@ -632,6 +689,8 @@ void CGamePersistent::OnFrame	()
 #include "game_sv_single.h"
 #include "xrServer.h"
 #include "UIGameCustom.h"
+#include "ui/UIMainIngameWnd.h"
+#include "ui/UIPdaWnd.h"
 
 void CGamePersistent::OnEvent(EVENT E, u64 P1, u64 P2)
 {
@@ -643,7 +702,15 @@ void CGamePersistent::OnEvent(EVENT E, u64 P1, u64 P2)
 		if(CurrentGameUI())
 		{
 			CurrentGameUI()->HideShownDialogs();
+			CurrentGameUI()->UIMainIngameWnd->reset_ui();
+			CurrentGameUI()->PdaMenu().Reset();
 		}
+
+		if(g_tutorial)
+			g_tutorial->Stop();
+
+		if(g_tutorial2)
+			g_tutorial2->Stop();
 
 		LPSTR		saved_name	= (LPSTR)(P1);
 

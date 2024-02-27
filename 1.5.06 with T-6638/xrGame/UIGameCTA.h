@@ -1,15 +1,13 @@
 #ifndef UIGAMECTA
 #define UIGAMECTA
 
-#include "UIGameCustom.h"
+#include "UIGameMP.h"
 #include "game_base.h"
 #include "inventory.h"
 
 
 class UITeamPanels;
 
-//-class CUIActorMenu;
-//-class CUIPdaWnd;
 class CUIMapDesc;
 class CUIMoneyIndicator;
 class CUIRankIndicator;
@@ -25,7 +23,7 @@ class UIVoteStatusWnd;
 class game_cl_CaptureTheArtefact;
 
 /// This class used to control UI part of client for Capture the Artefact mp game mode.
-class CUIGameCTA : public CUIGameCustom
+class CUIGameCTA : public UIGameMP
 {
 private:
 	CUISpawnWnd			*m_pUITeamSelectWnd;
@@ -36,8 +34,6 @@ private:
 	CUIStatic*			m_pFragLimitIndicator;
 	game_cl_CaptureTheArtefact*			m_game;
 
-//-	CUIActorMenu*					m_pActorMenu;
-//-	CUIPdaWnd*						m_pPdaMenu;
 	CUIMapDesc*						m_pMapDesc;
 	CUIMoneyIndicator*				m_pMoneyIndicator;
 	CUIRankIndicator*				m_pRankIndicator;
@@ -85,7 +81,7 @@ private:
 	
 	PRESET_ITEMS				PlayerDefItems;
 
-	typedef CUIGameCustom inherited;
+	typedef UIGameMP inherited;
 
 	typedef buffer_vector<shared_str> aditional_ammo_t;
 			void		TryToDefuseAllWeapons		(aditional_ammo_t & dest_ammo);
@@ -108,15 +104,13 @@ public:
 
 						CUIGameCTA				();
 	virtual				~CUIGameCTA				();
-	virtual void		ReInitShownUI			();
-	virtual	void		reset_ui				();
 	virtual void		SetClGame				(game_cl_GameState* g);
 	virtual	void		Init					();
 	virtual void		OnFrame					();
 	virtual void		Render					();
 	
-	virtual bool		IR_OnKeyboardPress		(int dik);
-	virtual bool		IR_OnKeyboardRelease	(int dik);
+	virtual bool		IR_UIOnKeyboardPress		(int dik);
+	virtual bool		IR_UIOnKeyboardRelease	(int dik);
 
 			bool		IsTeamPanelsShown		();
 			void		ShowTeamPanels			(bool bShow);
@@ -135,6 +129,7 @@ public:
 			void		HideBuyMenu				();
 			BuyMenuItemPair	GetBuyMenuItem		(shared_str const & itemSectionName);
 			void		GetPurchaseItems		(BuyMenuItemsCollection & dest, s32 & moneyDif);
+			IBuyWnd*	GetBuyWnd				() const { return m_pCurBuyMenu; };
 
 			void		ReInitPlayerDefItems	();
 
@@ -157,7 +152,7 @@ public:
 
 	virtual void		ChangeTotalMoneyIndicator	(LPCSTR newMoneyString);
 	virtual void		DisplayMoneyChange			(LPCSTR deltaMoney);
-	virtual void		DisplayMoneyBonus			(KillMessageStruct bonus);
+	virtual void		DisplayMoneyBonus			(KillMessageStruct* bonus);
 			
 			void		SetRank(ETeam team, u8 rank);
 			void		SetScore(s32 max_score, s32 greenTeamScore, s32 blueTeamScore);

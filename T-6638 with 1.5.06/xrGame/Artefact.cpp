@@ -212,7 +212,6 @@ void CArtefact::UpdateWorkload		(u32 dt)
 	// custom-logic
 	if(!CAttachableItem::enabled())
 		UpdateCLChild					();
-	
 }
 
 void CArtefact::shedule_Update		(u32 dt) 

@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "dxerr9.h"
+#include "dxerr.h"
 #include "NET_Common.h"
 #include "net_server.h"
 #include <functional>
@@ -50,7 +50,7 @@ void ip_address::set(LPCSTR src_string)
 xr_string ip_address::to_string() const
 {
 	string128	res;
-	sprintf_s	(res,sizeof(res),"%d.%d.%d.%d", m_data.a1, m_data.a2, m_data.a3, m_data.a4);
+	xr_sprintf	(res,sizeof(res),"%d.%d.%d.%d", m_data.a1, m_data.a2, m_data.a3, m_data.a4);
 	return		res;
 }
 
@@ -88,7 +88,7 @@ xr_string IBannedClient::BannedTimeTo() const
 	string256			res;
 	tm*					_tm_banned;
 	_tm_banned			= _localtime64(&BanTime);
-	sprintf_s			(	res, sizeof(res),
+	xr_sprintf			(	res, sizeof(res),
 							"%02d.%02d.%d_%02d:%02d:%02d",
 							_tm_banned->tm_mday, 
 							_tm_banned->tm_mon+1, 
@@ -298,7 +298,7 @@ IPureServer::EConnect IPureServer::Connect(LPCSTR options, GameDescriptionData &
 	
 
 	//sertanly we can use game_descr structure for determinig level_name, but for backward compatibility we save next line...
-	strcpy_s					(session_name,options);
+	xr_strcpy				(session_name,options);
 	if (strchr(session_name,'/'))	*strchr(session_name,'/')=0;
 
 	if (strstr(options, "psw="))
@@ -425,7 +425,7 @@ if(!psNET_direct_connect)
 
 	HRESULT HostSuccess = S_FALSE;
 	// We are now ready to host the app and will try different ports
-	psNET_Port = dwServerPort;//BASE_PORT;
+	psNET_Port = dwServerPort;/
 	while (HostSuccess != S_OK && psNET_Port <=END_PORT)
 	{
 		CHK_DX(net_Address_device->AddComponent	(DPNA_KEY_PORT, &psNET_Port, sizeof(psNET_Port), DPNA_DATATYPE_DWORD ));
@@ -525,11 +525,11 @@ HRESULT	IPureServer::net_Handler(u32 dwMessageType, PVOID pMessage)
 
 			CHK_DX					(_hr);
 			
-			string64			cname;
-			CHK_DX( WideCharToMultiByte( CP_ACP, 0, Pinfo->pwszName, -1, cname, sizeof(cname) , 0, 0 ) );
+			//string64			cname;
+			//CHK_DX( WideCharToMultiByte( CP_ACP, 0, Pinfo->pwszName, -1, cname, sizeof(cname) , 0, 0 ) );
 
 			SClientConnectData	cl_data;
-			strcpy_s( cl_data.name, cname );
+			//xr_strcpy( cl_data.name, cname );
 
 			if( Pinfo->pvData && Pinfo->dwDataSize == sizeof(cl_data) )
 			{
@@ -753,11 +753,11 @@ u32	IPureServer::OnMessage	(NET_Packet& P, ClientID sender)	// Non-Zero means br
 
 void IPureServer::OnCL_Connected		(IClient* CL)
 {
-	Msg("* Player '%s' connected.\n",	CL->name.c_str());
+	Msg("* Player 0x%08x connected.\n",	CL->ID.value());
 }
 void IPureServer::OnCL_Disconnected		(IClient* CL)
 {
-	Msg("* Player '%s' disconnected.\n",CL->name.c_str());
+	Msg("* Player 0x%08x disconnected.\n", CL->ID.value());
 }
 
 BOOL IPureServer::HasBandwidth			(IClient* C)

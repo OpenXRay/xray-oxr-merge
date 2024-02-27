@@ -133,12 +133,11 @@ void CActor::PickupModeUpdate()
 		u_EventSend		(P);
 	}
 
-	//. ????? GetNearest ?????
 	feel_touch_update	(Position(), m_fPickupInfoRadius);
 	
 	CFrustum frustum;
 	frustum.CreateFromMatrix(Device.mFullTransform, FRUSTUM_P_LRTB|FRUSTUM_P_FAR);
-	//. slow (ray-query test)
+
 	for(xr_vector<CObject*>::iterator it = feel_touch.begin(); it != feel_touch.end(); it++)
 	{
 		if (CanPickItem(frustum, Device.vCameraPosition, *it))
@@ -221,10 +220,61 @@ void	CActor::PickupModeUpdate_COD	()
 
 	if (pNearestItem && m_bPickupMode)
 	{
+		CUsableScriptObject*	pUsableObject = smart_cast<CUsableScriptObject*>(pNearestItem);
+		if(pUsableObject && (!m_pUsableObject))
+			pUsableObject->use(this);
+
 		//подбирание объекта
 		Game().SendPickUpEvent(ID(), pNearestItem->object().ID());
 	}
 };
+
+void	CActor::Check_for_AutoPickUp()
+{
+	// mp only
+	if (!psActorFlags.test(AF_AUTOPICKUP))		return;
+	if (IsGameTypeSingle())						return;
+	if (Level().CurrentControlEntity() != this) return;
+	if (!g_Alive())								return;
+
+	Fvector bc; 
+	bc.add				(Position(), m_AutoPickUp_AABB_Offset);
+	Fbox APU_Box;
+	APU_Box.set			(Fvector().sub(bc, m_AutoPickUp_AABB), Fvector().add(bc, m_AutoPickUp_AABB));
+
+	xr_vector<ISpatial*>	ISpatialResult;
+	g_SpatialSpace->q_box   (ISpatialResult, 0, STYPE_COLLIDEABLE, bc, m_AutoPickUp_AABB);
+
+	// Determine visibility for dynamic part of scene
+	for (u32 o_it=0; o_it<ISpatialResult.size(); o_it++)
+	{
+		ISpatial*		spatial	= ISpatialResult[o_it];
+		CInventoryItem*	pIItem	= smart_cast<CInventoryItem*> (spatial->dcast_CObject());
+
+		if (0 == pIItem)														continue;
+		if (!pIItem->CanTake())													continue;
+		if (Level().m_feel_deny.is_object_denied(spatial->dcast_CObject()) )	continue;
+
+
+		CGrenade*	pGrenade	= smart_cast<CGrenade*> (pIItem);
+		if (pGrenade) continue;
+
+		if (APU_Box.Pick(pIItem->object().Position(), pIItem->object().Position()))
+		{
+			if (GameID() == eGameIDDeathmatch || GameID() == eGameIDTeamDeathmatch)
+			{
+				if (pIItem->BaseSlot() == INV_SLOT_2 || pIItem->BaseSlot() == INV_SLOT_3 )
+				{
+					if (inventory().ItemFromSlot(pIItem->BaseSlot()))
+						continue;
+				}
+			}			
+			
+			Game().SendPickUpEvent(ID(), pIItem->object().ID());
+		}		
+	}
+}
+
 
 void CActor::PickupInfoDraw(CObject* object)
 {

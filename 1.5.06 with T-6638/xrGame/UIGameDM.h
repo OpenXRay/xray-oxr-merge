@@ -18,15 +18,13 @@ class CUIMapDesc;
 
 class UITeamPanels;
 
-class CUIGameDM: public CUIGameCustom
+class CUIGameDM: public UIGameMP
 {
 private:
 	game_cl_Deathmatch *	m_game;
-	typedef CUIGameCustom inherited;
+	typedef UIGameMP inherited;
 
 public:
-//-	CUIActorMenu*		m_pActorMenu;
-//-	CUIPdaWnd*			m_pPdaMenu;
 	CUIMapDesc*			m_pMapDesc;
 
 protected:
@@ -34,8 +32,6 @@ protected:
 		flShowFragList	= (1<<1),
 		fl_force_dword	= u32(-1)	};
 
-
-//.	DEF_VECTOR			(PLAYERS_LISTS, CUIDMPlayerList*);
 
 	CUIWindow*				m_pFragLists;
 	CUIWindow*				m_pPlayerLists;
@@ -78,7 +74,7 @@ public:
 
 	virtual void					ChangeTotalMoneyIndicator		(LPCSTR newMoneyString);
 	virtual void					DisplayMoneyChange				(LPCSTR deltaMoney);
-	virtual void					DisplayMoneyBonus				(KillMessageStruct bonus);
+	virtual void					DisplayMoneyBonus				(KillMessageStruct* bonus);
 	virtual void					SetFraglimit					(int local_frags, int fraglimit);
 
 			void					SetTimeMsgCaption				(LPCSTR str);
@@ -96,13 +92,7 @@ public:
 
 			void					UpdateTeamPanels				();
 
-	virtual bool		IR_OnKeyboardPress		(int dik);
-	virtual bool		IR_OnKeyboardRelease	(int dik);
-
-
 			void					ShowFragList			(bool bShow);
 			void					ShowPlayersList			(bool bShow);
 			void					ShowStatistic			(bool bShow);
-
-	virtual	void					reset_ui				();
 };

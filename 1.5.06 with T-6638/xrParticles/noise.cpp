@@ -3,6 +3,15 @@
 
 #include "noise.h"
  
+#ifndef _EDITOR
+#include <xmmintrin.h>
+
+__forceinline int iFloor_SSE( float const x )
+{
+	return _mm_cvtt_ss2si( _mm_set_ss( x ) );
+}
+#endif
+ 
 //==============================================================================
 // Perlin's noise from Texturing and Modeling...
 #define B 256
@@ -11,6 +20,17 @@
 #define AT(rx,ry,rz)	(rx*q[0] + ry*q[1] + rz*q[2] );
 #define S_CURVE(t)		( t*t*(3.f-2.f*t) )
 #define LERP(t, a, b)	( a + t*(b-a) )
+
+#ifndef _EDITOR
+  #define PN_SETUP(i,b0,b1,r0,r1) \
+      t = vec[i] + 10000.f;\
+      tt = iFloor_SSE(t); \
+      b0 = tt & (B-1);\
+      b1 = (b0+1) & (B-1);\
+      r0 = t - float(tt);\
+      r1 = r0 - 1.f;
+#else
+
 #define PN_SETUP(i,b0,b1,r0,r1) \
 	t = vec[i] + 10000.f;\
 	b0 = iFloor(t) & (B-1);\
@@ -18,7 +38,8 @@
 	r0 = t - iFloor(t);\
 	r1 = r0 - 1.f;
 
-static int		start = 1;
+#endif
+
 static int 		p[B+B+2];
 static float	g[B+B+2][3];
 
@@ -80,13 +101,7 @@ float	noise3(const Fvector& vec)
 	float	*q;
 	float	sx, sy, sz;
 	float	a, b, c, d, t, u, v;
-	int		i, j;
-	
-	if (start)
-	{
-		start = 0;
-		noise3Init();
-	}
+	int		i, j, tt;
 	
 	PN_SETUP(0, bx0, bx1, rx0, rx1);
 	PN_SETUP(1, by0, by1, ry0, ry1);

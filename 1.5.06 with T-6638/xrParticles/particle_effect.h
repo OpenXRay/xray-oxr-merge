@@ -67,6 +67,7 @@ namespace PAPI{
 			Particle& m				= particles[i];
             if (d_cb)				d_cb(owner,param,m,i);
             m 						= particles[--p_count]; // не менять правило удаления !!! (dependence ParticleGroup)
+			// Msg( "pDel() : %u" , p_count );
 		}
 
 		IC BOOL		Add				(const pVector &pos, const pVector &posB,
@@ -87,6 +88,7 @@ namespace PAPI{
 				P.flags.assign(flags); 
 	            if (b_cb)	b_cb(owner,param,P,p_count);
 				p_count++;
+				// Msg( "pAdd() : %u" , p_count );
 				return TRUE;
 			}
 		}

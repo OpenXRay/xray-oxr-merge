@@ -274,8 +274,11 @@ void CMissile::State(u32 state)
 		} break;
 	case eHiding:
 		{
-			SetPending			(TRUE);
-			PlayHUDMotion("anm_hide", TRUE, this, GetState());
+			if(H_Parent())
+			{
+				SetPending			(TRUE);
+				PlayHUDMotion		("anm_hide", TRUE, this, GetState());
+			}
 		} break;
 	case eHidden:
 		{
@@ -545,10 +548,12 @@ bool CMissile::Action(u16 cmd, u32 flags)
 			m_constpower = true;			
 			if(flags&CMD_START) 
 			{
-				m_throw = true;
 				if(GetState()==eIdle) 
+				{
+					m_throw = true;
 					SwitchState(eThrowStart);
-			} 
+				}
+			}
 			return true;
 		}break;
 

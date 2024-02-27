@@ -1528,14 +1528,16 @@ void CActor::SetPhPosition(const Fmatrix &transform)
 
 void CActor::ForceTransform(const Fmatrix& m)
 {
-	if( !g_Alive() )
-				return;
-	VERIFY(_valid(m));
-	XFORM().set( m );
-	if( character_physics_support()->movement()->CharacterExist() )
-			character_physics_support()->movement()->EnableCharacter();
-	character_physics_support()->set_movement_position( m.c );
-	character_physics_support()->movement()->SetVelocity( 0, 0, 0 );
+	//if( !g_Alive() )
+	//			return;
+	//VERIFY(_valid(m));
+	//XFORM().set( m );
+	//if( character_physics_support()->movement()->CharacterExist() )
+	//		character_physics_support()->movement()->EnableCharacter();
+	//character_physics_support()->set_movement_position( m.c );
+	//character_physics_support()->movement()->SetVelocity( 0, 0, 0 );
+
+	character_physics_support()->ForceTransform( m );
 	const float block_damage_time_seconds = 2.f;
 	if(!IsGameTypeSingle())
 		character_physics_support()->movement()->BlockDamageSet( u64( block_damage_time_seconds/fixed_step ) );
@@ -1779,11 +1781,6 @@ void CActor::AnimTorsoPlayCallBack(CBlend* B)
 	actor->m_bAnimTorsoPlayed = FALSE;
 }
 
-void CActor::SetActorVisibility(u16 who, float value)
-{
-	CUIMotionIcon		&motion_icon	= HUD().GetUI()->UIMainIngameWnd->MotionIcon();
-	motion_icon.SetActorVisibility		(who, value);
-}
 
 void CActor::UpdateMotionIcon(u32 mstate_rl)
 {
@@ -1888,11 +1885,6 @@ bool CActor::is_on_ground()
 	return (character_physics_support()->movement()->Environment() != CPHMovementControl::peInAir);
 }
 
-CCustomOutfit* CActor::GetOutfit() const
-{
-	PIItem _of	= inventory().m_slots[OUTFIT_SLOT].m_pIItem;
-	return _of?smart_cast<CCustomOutfit*>(_of):NULL;
-}
 
 bool CActor::is_ai_obstacle				() const
 {
@@ -2016,11 +2008,6 @@ float CActor::GetRestoreSpeed( ALife::EConditionRestoreType const& type )
 
 void CActor::On_SetEntity()
 {
-	prev_cam_inert_value = psCamInert;
-	if (this != Level().CurrentControlEntity())
-	{
-		psCamInert = cam_inert_value;
-	}
 	CCustomOutfit* pOutfit = GetOutfit();
 	if( !pOutfit )
 		g_player_hud->load_default();
@@ -2028,7 +2015,7 @@ void CActor::On_SetEntity()
 		pOutfit->ApplySkinModel(this, true, true);
 }
 
-void CActor::On_LostEntity()
+bool CActor::unlimited_ammo()
 {
-	psCamInert = prev_cam_inert_value;
+	return !!psActorFlags.test(AF_UNLIMITEDAMMO);
 }

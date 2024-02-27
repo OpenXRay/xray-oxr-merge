@@ -134,11 +134,7 @@ void CLevel::ClientReceive()
 		case M_UPDATE:
 			{
 				game->net_import_update	(*P);
-				//-------------------------------------------
-				if (OnServer()) break;
-				//-------------------------------------------
-			};	// ни в коем случае нельз€ здесь ставить break, т.к. в случае если все объекты не влаз€т в пакет M_UPDATE,
-				// они досылаютс€ через M_UPDATE_OBJECTS
+			}break;
 		case M_UPDATE_OBJECTS:
 			{
 				Objects.net_Import		(P);
@@ -157,11 +153,11 @@ void CLevel::ClientReceive()
 				u32 NumSteps = physics_world()->CalcNumSteps(dTime);
 				SetNumCrSteps(NumSteps);
 			}break;
-//		case M_UPDATE_OBJECTS:
-//			{
-//				Objects.net_Import		(P);
-//			}break;
-		//----------- for E3 -----------------------------
+		case M_COMPRESSED_UPDATE_OBJECTS:
+			{
+				u8 compression_type = P->r_u8();
+				ProcessCompressedUpdate(*P, compression_type);
+			}break;
 		case M_CL_UPDATE:
 			{
 				/*if (!game_configured)

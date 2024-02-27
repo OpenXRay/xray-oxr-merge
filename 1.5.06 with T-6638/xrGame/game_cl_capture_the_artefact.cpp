@@ -1674,3 +1674,20 @@ char* game_cl_CaptureTheArtefact::getTeamSection(int Team)
 	return NULL;
 #endif
 }
+
+LPCSTR	game_cl_CaptureTheArtefact::GetGameScore(string32&	score_dest)
+{
+	xr_sprintf(score_dest, "[%d:%d]", greenTeamScore, blueTeamScore);
+	return score_dest;
+}
+
+void game_cl_CaptureTheArtefact::OnConnected()
+{
+	inherited::OnConnected	();
+	if (m_game_ui)
+	{
+		VERIFY(!g_dedicated_server);
+		m_game_ui				= smart_cast<CUIGameCTA*>	(CurrentGameUI());
+		m_game_ui->SetClGame	(this);
+	}
+}

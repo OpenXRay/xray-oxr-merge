@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "game_cl_teamdeathmatch.h"
 #include "xrMessages.h"
-#include "hudmanager.h"
 #include "level.h"
 #include "UIGameTDM.h"
 #include "xr_level_controller.h"
@@ -25,6 +24,7 @@
 #define MESSAGE_MENUS	"tdm_messages_menu"
 
 #include "game_cl_teamdeathmatch_snd_messages.h"
+#include "reward_event_generator.h"
 
 const shared_str game_cl_TeamDeathmatch::GetTeamMenu(s16 team) 
 {
@@ -86,7 +86,9 @@ game_cl_TeamDeathmatch::~game_cl_TeamDeathmatch()
 void				game_cl_TeamDeathmatch::net_import_state		(NET_Packet& P)
 {
 	bool teamsEqual = (!teams.empty())?(teams[0].score == teams[1].score) : false;
+	u16 old_phase = Phase();
 	inherited::net_import_state	(P);
+	u16 new_phase = Phase();
 	m_bFriendlyIndicators = !!P.r_u8();
 	m_bFriendlyNames = !!P.r_u8();
 	if (!teams.empty())
@@ -111,6 +113,15 @@ void				game_cl_TeamDeathmatch::net_import_state		(NET_Packet& P)
 					PlaySndMessage(ID_TEAMS_EQUAL);
 		}
 	};
+	if ((old_phase != new_phase) &&
+		(
+			(new_phase == GAME_PHASE_TEAM1_SCORES) ||
+			(new_phase == GAME_PHASE_TEAM2_SCORES)
+		))
+	{
+		if (m_reward_generator)
+			m_reward_generator->OnRoundEnd();
+	}
 }
 void game_cl_TeamDeathmatch::TranslateGameMessage	(u32 msg, NET_Packet& P)
 {
@@ -135,7 +146,7 @@ void game_cl_TeamDeathmatch::TranslateGameMessage	(u32 msg, NET_Packet& P)
 							*st.translate("mp_joined"),
 							CTeamInfo::GetTeam_color_tag(int(Team)),							
 							CTeamInfo::GetTeam_name(int(Team)));
-			CommonMessageOut(Text);
+			if(CurrentGameUI()) CurrentGameUI()->CommonMessageOut(Text);
 			//---------------------------------------
 			Msg("%s %s %s", PlayerName, *st.translate("mp_joined"),
 				CTeamInfo::GetTeam_name(int(Team)));
@@ -153,14 +164,14 @@ void game_cl_TeamDeathmatch::TranslateGameMessage	(u32 msg, NET_Packet& P)
 
 			xr_sprintf(Text, "%s%s %s%s %s%s", 
 							CTeamInfo::GetTeam_color_tag(int(OldTeam)), 
-							pPlayer->name, 
+							pPlayer->getName(), 
 							Color_Main, 
 							*st.translate("mp_switched_to"),
 							CTeamInfo::GetTeam_color_tag(int(NewTeam)), 
 							CTeamInfo::GetTeam_name(int(NewTeam)));
-			CommonMessageOut(Text);
+			if(CurrentGameUI()) CurrentGameUI()->CommonMessageOut(Text);
 			//---------------------------------------
-			Msg("%s *s %s", pPlayer->name, *st.translate("mp_switched_to"), CTeamInfo::GetTeam_name(int(NewTeam)));
+			Msg("%s *s %s", pPlayer->getName(), *st.translate("mp_switched_to"), CTeamInfo::GetTeam_name(int(NewTeam)));
 		}break;
 
 	default:
@@ -168,24 +179,24 @@ void game_cl_TeamDeathmatch::TranslateGameMessage	(u32 msg, NET_Packet& P)
 	};
 }
 
+void game_cl_TeamDeathmatch::SetGameUI(CUIGameCustom* uigame)
+{
+	inherited::SetGameUI(uigame);
+	m_game_ui			= smart_cast<CUIGameTDM*>(uigame);
+	R_ASSERT			(m_game_ui);
+};
+
 CUIGameCustom* game_cl_TeamDeathmatch::createGameUI()
 {
-	game_cl_mp::createGameUI();
+	if (g_dedicated_server)
+		return NULL;
+
 	CLASS_ID clsid			= CLSID_GAME_UI_TEAMDEATHMATCH;
 	m_game_ui	= smart_cast<CUIGameTDM*> ( NEW_INSTANCE ( clsid ) );
 	R_ASSERT(m_game_ui);
+	m_game_ui->Load			();
 	m_game_ui->SetClGame(this);
-	m_game_ui->Init();
-	
-	//-----------------------------------------------------------
-//	pInventoryMenu = xr_new<CUIInventoryWnd>();
-	//-----------------------------------------------------------	
-//	pPdaMenu = xr_new<CUIPdaWnd>();
-	//-----------------------------------------------------------
-//	pMapDesc = xr_new<CUIMapDesc>();
-	//-----------------------------------------------------------
 	LoadMessagesMenu(MESSAGE_MENUS);
-	//-----------------------------------------------------------
 	return m_game_ui;
 }
 
@@ -297,6 +308,8 @@ void game_cl_TeamDeathmatch::SetCurrentBuyMenu	()
 {
 	if (!local_player) return;
 	if (!local_player->team || local_player->skin == -1) return;
+	if (g_dedicated_server) return;
+
 	if (!pCurBuyMenu)
 	{
 		s16 team_index = local_player->team == 1 ? 1 : 2;
@@ -317,8 +330,10 @@ void game_cl_TeamDeathmatch::SetCurrentBuyMenu	()
 	if (!pCurBuyMenu) return;	
 
 	//-----------------------------------
-	if (m_cl_dwWarmUp_Time != 0) pCurBuyMenu->IgnoreMoneyAndRank(true);
-	else pCurBuyMenu->IgnoreMoneyAndRank(false);
+	if (m_cl_dwWarmUp_Time != 0)
+		pCurBuyMenu->IgnoreMoneyAndRank(true);
+	else
+		pCurBuyMenu->IgnoreMoneyAndRank(false);
 	//-----------------------------------
 };
 
@@ -336,7 +351,8 @@ void game_cl_TeamDeathmatch::SetCurrentSkinMenu	()
 		return;
 
 	if (pCurSkinMenu && new_team != pCurSkinMenu->GetTeam())
-		if (pCurSkinMenu->IsShown()) StartStopMenu(pCurSkinMenu,true);
+		if (pCurSkinMenu->IsShown())
+			StartStopMenu(pCurSkinMenu,true);
 
 	xr_delete		(pCurSkinMenu);
 	pCurSkinMenu	= InitSkinMenu(new_team);
@@ -397,7 +413,7 @@ void game_cl_TeamDeathmatch::shedule_Update			(u32 dt)
 	{
 	case GAME_PHASE_TEAM1_SCORES:
 		{
-			xr_sprintf(msg, /*team %s wins*/ *st.translate("mp_team_wins"), CTeamInfo::GetTeam_name(1));
+			xr_sprintf(msg, st.translate("mp_team_wins").c_str(), CTeamInfo::GetTeam_name(1));
 			m_game_ui->SetRoundResultCaption(msg);
 			
 			m_game_ui->UpdateTeamPanels();
@@ -407,7 +423,7 @@ void game_cl_TeamDeathmatch::shedule_Update			(u32 dt)
 		}break;
 	case GAME_PHASE_TEAM2_SCORES:
 		{
-			xr_sprintf(msg, /*team %s wins*/ *st.translate("mp_team_wins"), CTeamInfo::GetTeam_name(2));
+			xr_sprintf(msg, st.translate("mp_team_wins").c_str(), CTeamInfo::GetTeam_name(2));
 			m_game_ui->SetRoundResultCaption(msg);
 			
 			m_game_ui->UpdateTeamPanels();
@@ -459,6 +475,7 @@ void	game_cl_TeamDeathmatch::SetScore				()
 
 bool	game_cl_TeamDeathmatch::OnKeyboardPress			(int key)
 {
+	if(inherited::OnKeyboardPress(key))	return true;
 	if (kTEAM == key )
 	{
 		if (m_game_ui)
@@ -472,7 +489,7 @@ bool	game_cl_TeamDeathmatch::OnKeyboardPress			(int key)
 		}
 	};
 	
-	return inherited::OnKeyboardPress(key);
+	return false;
 }
 
 bool		game_cl_TeamDeathmatch::IsEnemy					(game_PlayerState* ps)
@@ -704,7 +721,11 @@ void				game_cl_TeamDeathmatch::OnGameMenuRespond_ChangeTeam	(NET_Packet& P)
 	s16 OldTeam = local_player->team;
 	local_player->team = u8(P.r_s16() & 0x00ff);
 	if (OldTeam != local_player->team)
+	{
 		OnTeamChanged();
+		if (m_reward_generator)
+			m_reward_generator->OnPlayerChangeTeam(local_player->team);
+	}
 
 	SetCurrentSkinMenu();
 	if (pCurSkinMenu)
@@ -726,4 +747,16 @@ bool				game_cl_TeamDeathmatch::IsPlayerInTeam(game_PlayerState* ps, ETeam team)
 		return false;
 	}
 	return (ModifyTeam(s16(ps->team)) == s16(team));
+}
+
+LPCSTR game_cl_TeamDeathmatch::GetGameScore(string32&	score_dest)
+{
+	xr_sprintf(score_dest, "[%d:%d]", teams[0].score, teams[1].score);
+	return score_dest;
+}
+
+void game_cl_TeamDeathmatch::OnConnected()
+{
+	inherited::OnConnected();
+	m_game_ui = smart_cast<CUIGameTDM*>( CurrentGameUI() );
 }

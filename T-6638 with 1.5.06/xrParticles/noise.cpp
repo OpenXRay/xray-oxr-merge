@@ -145,13 +145,6 @@ float	noise3(const Fvector& vec)
 //--------------------------------------------------------------------
 float	fractalsum3(const Fvector& v, float freq, int octaves)
 {
-	/* already initialized somewhere
-	if (start) {
-		start = 0;
-		noise3Init();
-	}
-	*/
-
 	int		i;
 	float	sum = 0.0;
 	Fvector	v_;
@@ -174,13 +167,6 @@ float	fractalsum3(const Fvector& v, float freq, int octaves)
 //--------------------------------------------------------------------
 float	turbulence3(const Fvector& v, float freq, int octaves)
 {
-	/* Not used now
-	if (start) {
-		start = 0;
-		noise3Init();
-	}
-	*/
-
 	int		i;
 	float	sum = 0.0;
 	Fvector	v_;

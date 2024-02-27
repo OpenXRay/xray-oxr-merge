@@ -210,7 +210,8 @@ void CArtefact::UpdateWorkload		(u32 dt)
 	}
 
 	// custom-logic
-	UpdateCLChild					();
+	if(!CAttachableItem::enabled())
+		UpdateCLChild					();
 }
 
 void CArtefact::shedule_Update		(u32 dt) 
@@ -249,7 +250,9 @@ void CArtefact::StartLights()
 
 	VERIFY						(m_pTrailLight == NULL);
 	m_pTrailLight				= ::Render->light_create();
-	m_pTrailLight->set_shadow	(false);
+	bool const b_light_shadow	= !!pSettings->r_bool(cNameSect(), "idle_light_shadow");
+
+	m_pTrailLight->set_shadow	(b_light_shadow);
 
 	m_pTrailLight->set_color	(m_TrailLightColor); 
 	m_pTrailLight->set_range	(m_fTrailLightRange);
@@ -346,6 +349,8 @@ void CArtefact::UpdateXForm()
 		VERIFY				(E);
 		IKinematics*		V		= smart_cast<IKinematics*>	(E->Visual());
 		VERIFY				(V);
+		if(CAttachableItem::enabled())
+			return;
 
 		// Get matrices
 		int					boneL = -1, boneR = -1, boneR2 = -1;

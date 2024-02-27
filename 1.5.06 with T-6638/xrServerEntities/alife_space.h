@@ -95,6 +95,7 @@ namespace ALife {
 		eHitTypeFireWound,
 		eHitTypeWound_2,		//knife's alternative fire
 		eHitTypePhysicStrike,
+		eHitTypeLightBurn,
 		eHitTypeMax,
 	};
 

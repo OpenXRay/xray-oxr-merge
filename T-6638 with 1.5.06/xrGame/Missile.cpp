@@ -551,7 +551,7 @@ bool CMissile::Action(u16 cmd, u32 flags)
 					m_throw = true;
 					SwitchState(eThrowStart);
 				}
-			} 
+			}
 			return true;
 		}break;
 

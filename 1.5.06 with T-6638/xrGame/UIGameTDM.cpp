@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "UIGameTDM.h"
 
-//. #include "UITDMPlayerList.h"
-//.#include "UITDMFragList.h"
 #include "UIDMStatisticWnd.h"
 
 #include "hudmanager.h"
@@ -112,8 +110,8 @@ CUIGameTDM::~CUIGameTDM()
 
 	delete_data			(m_pUITeamSelectWnd);
 }
-//--------------------------------------------------------------------
-bool CUIGameTDM::IR_OnKeyboardPress(int dik)
+
+bool CUIGameTDM::IR_UIOnKeyboardPress(int dik)
 {
 	switch (dik) {
 		case DIK_CAPSLOCK :
@@ -128,11 +126,10 @@ bool CUIGameTDM::IR_OnKeyboardPress(int dik)
 			};
 		}break;
 	}
-	if(inherited::IR_OnKeyboardPress(dik)) return true;
-	return false;
+	return inherited::IR_UIOnKeyboardPress(dik);
 }
 
-bool CUIGameTDM::IR_OnKeyboardRelease(int dik)
+bool CUIGameTDM::IR_UIOnKeyboardRelease(int dik)
 {
 	switch (dik) {
 		case DIK_CAPSLOCK :
@@ -145,9 +142,8 @@ bool CUIGameTDM::IR_OnKeyboardRelease(int dik)
 				};
 			}break;
 	}
-	if(inherited::IR_OnKeyboardRelease(dik)) return true;
 	
-	return false;
+	return inherited::IR_UIOnKeyboardRelease(dik);
 }
 
 void CUIGameTDM::OnFrame()

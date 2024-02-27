@@ -159,6 +159,7 @@ Fvector CMovementManager::path_position	(const float & velocity, const Fvector &
 		++current_travel_point;
 		if ((current_travel_point+1) >= detail().path().size()) {
 //			VERIFY				(dist <= dist_to_target);
+			dist				= 0.f;
 			return				(dest_position);
 		}
 

@@ -10,6 +10,8 @@
 #include "gamepersistent.h"
 #include "mt_config.h"
 #include "game_cl_base_weapon_usage_statistic.h"
+#include "game_cl_mp.h"
+#include "reward_event_generator.h"
 
 #include "../Include/xrRender/UIRender.h"
 #include "../Include/xrRender/Kinematics.h"
@@ -29,6 +31,7 @@ float const CBulletManager::parent_ignore_distance	= 3.f;
 #else // #ifdef DEBUG
 	static float const air_resistance_epsilon		= .1f;
 #endif // #ifdef DEBUG
+float g_bullet_time_factor							= 1.f;
 
 SBullet::SBullet()
 {
@@ -43,13 +46,14 @@ void SBullet::Init(const Fvector& position,
 				   const Fvector& direction,
 				   float starting_speed,
 				   float power,
-				   float power_critical,
+//.				   float power_critical,
 				   float impulse,
 				   u16	sender_id,
 				   u16 sendersweapon_id,
 				   ALife::EHitType e_hit_type,
 				   float maximum_distance,
 				   const CCartridge& cartridge,
+				   float const air_resistance_factor,
 				   bool SendHit)
 {
 	flags._storage			= 0;
@@ -66,7 +70,6 @@ void SBullet::Init(const Fvector& position,
 	dir.normalize			(direction);
 
 	hit_param.power			= power          * cartridge.param_s.kHit;
-	hit_param.power_critical= power_critical * cartridge.param_s.kCritical;
 	hit_param.impulse		= impulse        * cartridge.param_s.kImpulse;
 
 	max_dist				= maximum_distance * cartridge.param_s.kDist;
@@ -79,7 +82,7 @@ void SBullet::Init(const Fvector& position,
 	hit_type				= e_hit_type;
 
 	armor_piercing			= cartridge.param_s.kAP;
-	air_resistance			= cartridge.param_s.kAirRes;
+	air_resistance			= cartridge.param_s.kAirRes*air_resistance_factor;
 	wallmark_size			= cartridge.param_s.fWallmarkSize;
 	m_u8ColorID				= cartridge.param_s.u8ColorID;
 
@@ -89,6 +92,7 @@ void SBullet::Init(const Fvector& position,
 	flags.allow_tracer		= !!cartridge.m_flags.test(CCartridge::cfTracer);
 	flags.allow_ricochet	= !!cartridge.m_flags.test(CCartridge::cfRicochet);
 	flags.explosive			= !!cartridge.m_flags.test(CCartridge::cfExplosive);
+	flags.magnetic_beam		= !!cartridge.m_flags.test(CCartridge::cfMagneticBeam);
 //	flags.skipped_frame		= 0;
 
 	init_frame_num			= Device.dwFrame;
@@ -182,17 +186,17 @@ void CBulletManager::AddBullet(const Fvector& position,
 							   const Fvector& direction,
 							   float starting_speed,
 							   float power,
-							   float power_critical,
+//.							   float power_critical,
 							   float impulse,
 							   u16	sender_id,
 							   u16 sendersweapon_id,
 							   ALife::EHitType e_hit_type,
 							   float maximum_distance,
 							   const CCartridge& cartridge,
+							   float const air_resistance_factor,
 							   bool SendHit,
 							   bool AimBullet)
 {
-//.	m_Lock.Enter				();
 	VERIFY						( m_thread_id == GetCurrentThreadId() );
 
 	VERIFY						(u16(-1)!=cartridge.bullet_material_idx);
@@ -200,7 +204,7 @@ void CBulletManager::AddBullet(const Fvector& position,
 //	u32 OwnerID					= sender_id;
 	m_Bullets.push_back			(SBullet());
 	SBullet& bullet				= m_Bullets.back();
-	bullet.Init					(position, direction, starting_speed, power, power_critical, impulse, sender_id, sendersweapon_id, e_hit_type, maximum_distance, cartridge, SendHit);
+	bullet.Init					(position, direction, starting_speed, power, /*power_critical,*/ impulse, sender_id, sendersweapon_id, e_hit_type, maximum_distance, cartridge, air_resistance_factor, SendHit);
 //	bullet.frame_num			= Device.dwFrame;
 	bullet.flags.aim_bullet		= AimBullet;
 	if (SendHit && !IsGameTypeSingle())
@@ -393,7 +397,7 @@ inline static float trajectory_max_error_time	(
 {
 	return					( (t1 + t0)*.5f );
 	// this is correct even in our case
-	// y(t) = V0y*t - V0y*ar*t^2/2 -` g*t^2/2
+	// y(t) = V0y*t - V0y*ar*t^2/2 - g*t^2/2
 	// x(t) = V0x*t - V0x*ar*t^2/2
 }
 

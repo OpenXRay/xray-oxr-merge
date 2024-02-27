@@ -256,7 +256,7 @@ IPureServer::EConnect IPureServer::Connect(LPCSTR options, GameDescriptionData &
 	
 
 	//sertanly we can use game_descr structure for determinig level_name, but for backward compatibility we save next line...
-	xr_strcpy					(session_name,options);
+	xr_strcpy				(session_name,options);
 	if (strchr(session_name,'/'))	*strchr(session_name,'/')=0;
 
 	if (strstr(options, "psw="))

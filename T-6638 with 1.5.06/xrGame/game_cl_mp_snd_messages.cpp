@@ -15,7 +15,7 @@ void	game_cl_mp::LoadSndMessage			(LPCSTR caSection, LPCSTR caLine, u32 ID)
 	string4096 Name, Prior;
 	_GetItem(Line, 0, Name);
 	_GetItem(Line, 1, Prior);
-	m_pSndMessages.push_back( xr_new<SND_Message>());
+	m_pSndMessages.push_back(xr_new<SND_Message>());
 	m_pSndMessages.back()->Load(ID, atol(Prior), Name);
 }
 

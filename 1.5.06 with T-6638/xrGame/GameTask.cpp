@@ -87,6 +87,7 @@ void CGameTask::CreateMapLocation( bool on_load )
 		}
 		m_linked_map_location =	Level().MapManager().AddMapLocation(m_map_location, m_map_object_id);
 	}
+
 	VERIFY( m_linked_map_location );
 
 	if ( !on_load )
@@ -108,15 +109,8 @@ void CGameTask::CreateMapLocation( bool on_load )
 void CGameTask::RemoveMapLocations(bool notify)
 {
 	if ( m_linked_map_location && !notify)
-	{
-		Level().MapManager().RemoveMapLocation( m_map_location, m_map_object_id );
+		Level().MapManager().RemoveMapLocation( m_linked_map_location );
 
-		while ( Level().MapManager().HasMapLocation( m_map_location, m_map_object_id ) )
-		{
-			Msg( "! Remove duplicated MapLocation of GameTask: task_id=%s,  map_location=%s,  object_id=%d", m_ID.c_str(), m_map_location.c_str(), m_map_object_id );
-			Level().MapManager().RemoveMapLocation( m_map_location, m_map_object_id );
-		}
-	}
 	m_map_location			= 0;
 	m_linked_map_location	= NULL;
 	m_map_object_id			= u16(-1);

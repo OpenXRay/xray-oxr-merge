@@ -99,7 +99,6 @@ void CControlJump::start_jump(const Fvector &point)
 	// ignore collision hit when object is landing
 	m_object->set_ignore_collision_hit	(true);
 
-
 	// select correct state 
 	if (is_flag(SControlJumpData::ePrepareSkip)) {
 		m_anim_state_current	= eStateGlide;
@@ -109,6 +108,7 @@ void CControlJump::start_jump(const Fvector &point)
 		bool prepared = false;
 
 		if (is_flag(SControlJumpData::ePrepareInMove)) {
+
 			// get animation time
 			float time			= m_man->animation().motion_time(m_data.state_prepare_in_move.motion, m_object->Visual());
 			// set acceleration and velocity
@@ -130,12 +130,14 @@ void CControlJump::start_jump(const Fvector &point)
 
 			// node is checked, so try to build path
 			if (prepared) {
+
 				if (m_man->build_path_line(this, target_point, u32(-1), m_data.state_prepare_in_move.velocity_mask | MonsterMovement::eVelocityParameterStand)) {
 					//---------------------------------------------------------------------------------------------------
 					// set path params
 					SControlPathBuilderData		*ctrl_path = (SControlPathBuilderData*)m_man->data(this, ControlCom::eControlPath); 
 					VERIFY						(ctrl_path);
 					ctrl_path->enable			= true;
+
 					m_man->lock					(this, ControlCom::eControlPath);
 					//---------------------------------------------------------------------------------------------------
 
@@ -144,7 +146,9 @@ void CControlJump::start_jump(const Fvector &point)
 
 					m_man->dir_stop				(this);
 
-				} else prepared = false;
+				} else {
+					prepared = false;
+				}
 			}
 		} 
 

@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "game_sv_deathmatch.h"
-#include "HUDmanager.h"
 #include "xrserver_objects_alife_monsters.h"
 #include "level.h"
 #include "xrserver.h"
@@ -117,7 +116,9 @@ void game_sv_Deathmatch::RespawnPlayerAsSpectator(IClient* client)
 {
 	xrClientData *l_pC		= static_cast<xrClientData*>(client);
 
-	if (!l_pC || !l_pC->net_Ready || !l_pC->ps) return;
+	if (!l_pC || !l_pC->net_Ready || !l_pC->ps)
+		return;
+	
 	game_PlayerState* ps	= l_pC->ps;
 
 	ps->clear				();
@@ -168,27 +169,6 @@ void game_sv_Deathmatch::OnRoundStart()
 	fastdelegate::FastDelegate1<IClient*, void> tmp_delegate;
 	tmp_delegate.bind(this, &game_sv_Deathmatch::RespawnPlayerAsSpectator);
 	m_server->ForEachClientDoSender(tmp_delegate);
-	
-	//Clear disconnected players
-	struct DisconnectedPlayersClearer
-	{
-		game_sv_Deathmatch*	m_owner;
-		DisconnectedPlayersClearer(game_sv_Deathmatch* owner) :
-			m_owner(owner)
-		{}
-		void operator()(IClient* client)
-		{
-			xrClientData*		l_pC = (xrClientData*)(client);
-			if (!l_pC || !l_pC->ps)
-				return;
-			game_PlayerState*	ps	= l_pC->ps;
-			ps->clear				();		
-			m_owner->SetPlayersDefItems		(ps);
-			m_owner->Money_SetStart			(l_pC->ID);
-		}
-	};
-	DisconnectedPlayersClearer tmp_functor(this);
-	m_server->ForEachDisconnectedClientDo(tmp_functor);
 	m_item_respawner.respawn_all_items();
 }
 
@@ -451,8 +431,8 @@ void	game_sv_Deathmatch::Update()
 				if (!m_pSM_CurViewEntity || !smart_cast<CActor*>(m_pSM_CurViewEntity) || m_dwSM_LastSwitchTime<Level().timeServer())
 					SM_SwitchOnNextActivePlayer();
 				CUIGameDM* GameDM = NULL;
-				if (HUD().GetUI())
-					GameDM = smart_cast<CUIGameDM*>(HUD().GetUI()->UIGame());
+				if (CurrentGameUI())
+					GameDM = smart_cast<CUIGameDM*>(CurrentGameUI());
 
 				if(GameDM)
 				{
@@ -460,7 +440,7 @@ void	game_sv_Deathmatch::Update()
 					if (pObject && smart_cast<CActor*>(pObject))
 					{
 						string1024					Text;
-						sprintf_s						(Text, "Following %s", pObject->cName().c_str());
+						xr_sprintf					(Text, "Following %s", pObject->cName().c_str());
 
 						GameDM->SetSpectrModeMsgCaption(Text);
 					}else
@@ -584,6 +564,7 @@ void	game_sv_Deathmatch::SM_SwitchOnNextActivePlayer()
 		{
 			xrClientData *l_pC			= static_cast<xrClientData*>(client);
 			game_PlayerState* ps		= l_pC->ps;
+			if (!ps)					return;
 			if (!l_pC->net_Ready)		return;
 			if (ps->IsSkip())			return;
 			if (ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD)) return;
@@ -673,6 +654,9 @@ BOOL	game_sv_Deathmatch::AllPlayers_Ready ()
 		{
 			xrClientData *l_pC = static_cast<xrClientData*>(client);
 			game_PlayerState* ps	= l_pC->ps;
+			if (!ps)
+				return;
+
 			if (!l_pC->net_Ready)
 			{
 				if (l_pC->ID == serverClientID)
@@ -776,7 +760,7 @@ void game_sv_Deathmatch::assign_RP(CSE_Abstract* E, game_PlayerState* ps_who)
 	VERIFY				(E);
 	u32		Team		= RP_2_Use(E);
 #ifdef DEBUG
-	Msg("--- Deathmatch RPoint for %s uses team %d", ps_who->name, Team);
+	Msg("--- Deathmatch RPoint for %s uses team %d", ps_who->getName(), Team);
 #endif // #ifdef DEBUG
 	VERIFY				(rpoints[Team].size());
 
@@ -807,7 +791,8 @@ void game_sv_Deathmatch::assign_RP(CSE_Abstract* E, game_PlayerState* ps_who)
 		{
 			xrClientData* tmp_client = static_cast<xrClientData*>(client);
 			game_PlayerState*	ps	=	tmp_client->ps;
-			VERIFY(ps);
+			if (!ps)
+				return;
 			if (ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD) ) return;
 			if (ps->team == pA->s_team && !m_owner->teams.empty()) pFriends.push_back(tmp_client);
 			else pEnemies.push_back(tmp_client);
@@ -1059,7 +1044,7 @@ void	game_sv_Deathmatch::SpawnWeaponsForActor(CSE_Abstract* pE, game_PlayerState
 	{
 		u16 ItemID			= ps->pItemList.front();
 #ifdef DEBUG
-		Msg("--- Server: spawning item [%d] for actor [%s]", ItemID, ps->name);
+		Msg("--- Server: spawning item [%d] for actor [%s]", ItemID, ps->getName());
 #endif // #ifdef DEBUG
 		SpawnWeapon4Actor	(pA->ID, *m_strWeaponsData->GetItemName(ItemID& 0x00FF), u8((ItemID & 0xFF00)>>0x08), ps->pItemList);
 		//Game().m_WeaponUsageStatistic->OnWeaponBought(ps, *m_strWeaponsData->GetItemName(ItemID& 0x00FF));
@@ -1087,7 +1072,7 @@ void game_sv_Deathmatch::LoadSkinsForTeam(const shared_str& caSection, TEAM_SKIN
 	if (!pSettings->line_exist(caSection, "skins")) return;
 
 	// Читаем данные этого поля
-	strcpy_s(Skins, pSettings->r_string(caSection, "skins"));
+	xr_strcpy(Skins, pSettings->r_string(caSection, "skins"));
 	u32 count	= _GetItemCount(Skins);
 	// теперь для каждое имя оружия, разделенные запятыми, заносим в массив
 	for (u32 i = 0; i < count; ++i)
@@ -1111,7 +1096,7 @@ void game_sv_Deathmatch::LoadDefItemsForTeam(const shared_str& caSection, DEF_IT
 	if (!pSettings->line_exist(caSection, "default_items")) return;
 
 	// Читаем данные этого поля
-	strcpy_s(DefItems, pSettings->r_string(caSection, "default_items"));
+	xr_strcpy(DefItems, pSettings->r_string(caSection, "default_items"));
 	u32 count	= _GetItemCount(DefItems);
 	// теперь для каждое имя оружия, разделенные запятыми, заносим в массив
 	for (u32 i = 0; i < count; ++i)
@@ -1129,7 +1114,7 @@ void game_sv_Deathmatch::SetSkin(CSE_Abstract* E, u16 Team, u16 ID)
 	if (!pV) return;
 	//-------------------------------------------
 	string256 SkinName;
-	strcpy_s(SkinName, pSettings->r_string("mp_skins_path", "skin_path"));
+	xr_strcpy(SkinName, pSettings->r_string("mp_skins_path", "skin_path"));
 	//загружены ли скины для этой комманды
 //	if (SkinID != -1) ID = u16(SkinID);
 
@@ -1140,10 +1125,10 @@ void game_sv_Deathmatch::SetSkin(CSE_Abstract* E, u16 Team, u16 ID)
 		//загружено ли достаточно скинов для этой комманды
 		if (TeamList[Team].aSkins.size() > ID)
 		{
-			std::strcat(SkinName, TeamList[Team].aSkins[ID].c_str());
+			xr_strcat(SkinName, TeamList[Team].aSkins[ID].c_str());
 		}
 		else
-			std::strcat(SkinName, TeamList[Team].aSkins[0].c_str());
+			xr_strcat(SkinName, TeamList[Team].aSkins[0].c_str());
 	}
 	else
 	{
@@ -1151,20 +1136,20 @@ void game_sv_Deathmatch::SetSkin(CSE_Abstract* E, u16 Team, u16 ID)
 		switch (Team)
 		{
 		case 0:
-			std::strcat(SkinName, "stalker_hood_multiplayer");
+			xr_strcat(SkinName, "stalker_hood_multiplayer");
 			break;
 		case 1:
-			std::strcat(SkinName, "soldat_beret");
+			xr_strcat(SkinName, "soldat_beret");
 			break;
 		case 2:
-			std::strcat(SkinName, "stalker_black_mask");
+			xr_strcat(SkinName, "stalker_black_mask");
 			break;
 		default:
 			R_ASSERT2(0,"Unknown Team");
 			break;
 		};
 	};
-	std::strcat(SkinName, ".ogf");
+	xr_strcat(SkinName, ".ogf");
 	Msg("* Skin - %s", SkinName);
 	int len = xr_strlen(SkinName);
 	R_ASSERT2(len < 64, "Skin Name is too LONG!!!");
@@ -1357,6 +1342,8 @@ void	game_sv_Deathmatch::OnTeamScore	(u32 Team, bool Minor)
 		{
 			xrClientData *l_pC = static_cast<xrClientData*>(client);
 			game_PlayerState* ps	= l_pC->ps;
+			if (!ps)
+				return;
 			if (!l_pC->net_Ready) return;
 			if (ps->IsSkip()) return;		
 
@@ -1442,7 +1429,10 @@ void game_sv_Deathmatch::OnPlayerChangeSkin(ClientID id_who, s8 skin)
 void game_sv_Deathmatch::SetTeamScore(u32 idx, int val)
 {
 	VERIFY( (idx>=0) && (idx<teams.size()) );
-	teams[idx].score = val;
+	if (Phase() == GAME_PHASE_INPROGRESS)
+	{
+		teams[idx].score = val;
+	}
 }
 
 
@@ -1473,11 +1463,11 @@ void	game_sv_Deathmatch::LoadAnomalySets			()
 		AnomalySingleSet.clear();
 		AnomalyIDSingleSet.clear();
 
-		sprintf_s(SetName, "set%i", i);		
+		xr_sprintf(SetName, "set%i", i);		
 		if (!Level().pLevel->line_exist(ASetBaseName, SetName))
 			continue;
 
-		strcpy_s(AnomaliesNames, Level().pLevel->r_string(ASetBaseName, SetName));
+		xr_strcpy(AnomaliesNames, Level().pLevel->r_string(ASetBaseName, SetName));
 		u32 count	= _GetItemCount(AnomaliesNames);
 		if (!count) continue;
 
@@ -1494,7 +1484,7 @@ void	game_sv_Deathmatch::LoadAnomalySets			()
 	//---------------------------------------------------------
 	if (Level().pLevel->line_exist(ASetBaseName, "permanent"))
 	{
-		strcpy_s(AnomaliesNames, Level().pLevel->r_string(ASetBaseName, "permanent"));
+		xr_strcpy(AnomaliesNames, Level().pLevel->r_string(ASetBaseName, "permanent"));
 		u32 count	= _GetItemCount(AnomaliesNames);
 		for (u32 j=0; j<count; j++)
 		{
@@ -1732,7 +1722,8 @@ void game_sv_Deathmatch::OnDetach(u16 eid_who, u16 eid_what)
 			if (std::find(to_reject.begin(), to_reject.end(), e_item) != to_reject.end())
 				continue;
 
-			if (e_item->m_tClassID == CLSID_OBJECT_W_KNIFE)
+			if ((e_item->m_tClassID == CLSID_OBJECT_W_KNIFE) ||
+				(e_item->m_tClassID == CLSID_DEVICE_TORCH))
 			{
 				to_destroy.push_back	(e_item);
 			} else if (m_strWeaponsData->GetItemIdx(e_item->s_name) != u32(-1))
@@ -1811,10 +1802,12 @@ void game_sv_Deathmatch::OnPlayerConnect(ClientID id_who)
 		GenerateGameMessage 		(P);
 		P.w_u32						(GAME_EVENT_PLAYER_CONNECTED);
 		P.w_clientID				(id_who);
-		xrCData->ps->net_Export		(P, true);
-		P.w_stringZ					(xrCData->name.c_str());
-		
+		xrCData->ps->team			= 0;
+		xrCData->ps->setFlag		(GAME_PLAYER_FLAG_SPECTATOR);
+		xrCData->ps->setFlag		(GAME_PLAYER_FLAG_READY);
+		xrCData->ps->net_Export		(P, TRUE);
 		u_EventSend					(P);
+		xrCData->net_Ready			= TRUE;
 	};
 	Send_Anomaly_States				(id_who);
 };
@@ -1839,7 +1832,12 @@ void game_sv_Deathmatch::check_InvinciblePlayers()
 		{
 			xrClientData *l_pC = static_cast<xrClientData*>(client);
 			game_PlayerState* ps	= l_pC->ps;
-			if (ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD)) return;
+			if (!ps)
+				return;
+
+			if (ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD))
+				return;
+
 			u16 OldFlags = ps->flags__;
 			m_owner->check_Player_for_Invincibility(ps);
 			if (ps->flags__ != OldFlags) m_owner->signal_Syncronize();
@@ -1896,6 +1894,7 @@ void	game_sv_Deathmatch::check_ForceRespawn		()
 		{
 			xrClientData *l_pC = static_cast<xrClientData*>(client);
 			game_PlayerState* ps	= l_pC->ps;
+			if (!ps) return;
 			if (!l_pC->net_Ready || ps->IsSkip()) return;
 			if (!ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD)) return;
 			if (ps->testFlag(GAME_PLAYER_FLAG_SPECTATOR)) return;

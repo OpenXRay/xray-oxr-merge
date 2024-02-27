@@ -271,8 +271,8 @@ public:
 #endif //#ifdef DEBUG
 																					csMessage.Leave();
 																				}
-	template<typename ActionFunctor>
-	void					ForEachDisconnectedClientDo(ActionFunctor & action) { net_players.ForEachDisconnectedClientDo(action); };
+	//template<typename ActionFunctor>
+	//void					ForEachDisconnectedClientDo(ActionFunctor & action) { net_players.ForEachDisconnectedClientDo(action); };
 #ifdef DEBUG
 	bool					IsPlayersMonitorLockedByMe()	const				{ return net_players.IsCurrentThreadIteratingOnClients() && !sender_functor_invoked; };
 #endif
@@ -280,7 +280,7 @@ public:
 	//WARNING! very bad method :(
 	//IClient*				client_Get		(u32 index)							{return net_players.GetClientByIndex(index);};
 	IClient*				GetClientByID	(ClientID clientId)					{return net_players.GetFoundClient(ClientIdSearchPredicate(clientId));};
-	IClient*				GetDisconnectedClientByID(ClientID clientId)		{return net_players.GetFoundDisconnectedClient(ClientIdSearchPredicate(clientId));}
+	//IClient*				GetDisconnectedClientByID(ClientID clientId)		{return net_players.GetFoundDisconnectedClient(ClientIdSearchPredicate(clientId));}
 
 
 	const shared_str&		GetConnectOptions	() const {return connect_options;}

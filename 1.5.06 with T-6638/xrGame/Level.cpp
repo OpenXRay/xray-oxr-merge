@@ -151,6 +151,7 @@ CLevel::CLevel():IPureClient	(Device.GetTimerGlobal())
 	
 	m_ph_commander				= xr_new<CPHCommander>();
 	m_ph_commander_scripts		= xr_new<CPHCommander>();
+	//m_ph_commander_physics_worldstep	= xr_new<CPHCommander>();
 
 #ifdef DEBUG
 	m_bSynchronization			= false;
@@ -737,7 +738,6 @@ void CLevel::OnFrame	()
 	m_ph_commander_scripts->update		();
 //	autosave_manager().update			();
 
-	//просчитать полет пуль
 	Device.Statistic->TEST0.Begin		();
 	BulletManager().CommitRenderSet		();
 	Device.Statistic->TEST0.End			();
@@ -791,11 +791,9 @@ void CLevel::OnRender()
 		return;
 
 	Game().OnRender();
-	//отрисовать трассы пуль
 	//Device.Statistic->TEST1.Begin();
 	BulletManager().Render();
 	//Device.Statistic->TEST1.End();
-	//отрисовать интерфейc пользователя
 	HUD().RenderUI();
 
 #ifdef DEBUG
@@ -822,6 +820,10 @@ void CLevel::OnRender()
 			CAI_Stalker*		stalker = smart_cast<CAI_Stalker*>(_O);
 			if (stalker)
 				stalker->OnRender	();
+
+			CCustomMonster*		monster = smart_cast<CCustomMonster*>(_O);
+			if (monster)
+				monster->OnRender	();
 
 			CPhysicObject		*physic_object = smart_cast<CPhysicObject*>(_O);
 			if (physic_object)

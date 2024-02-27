@@ -180,7 +180,6 @@ void CStepManager::update(bool b_hud_view)
 		u32 offset_time = m_time_anim_started + u32(1000 * (cycle_anim_time * (m_step_info.cur_cycle-1) + cycle_anim_time * step.step[i].time));
 		if (offset_time <= cur_time)
 		{
-
 			if( !material_picked )
 			{
 				mtl_pair		= m_object->material().get_current_pair();
@@ -192,7 +191,7 @@ void CStepManager::update(bool b_hud_view)
 							break;
 
 			// Играть звук
-			if(b_play && is_on_ground() )
+			if(b_play && is_on_ground())
 				m_step_sound.play_next(mtl_pair, m_object, m_step_info.params.step[i].power, b_hud_view);
 
 			// Играть партиклы

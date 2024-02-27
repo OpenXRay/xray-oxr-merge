@@ -38,6 +38,9 @@ float		g_sv_mp_fVoteTime				= VOTE_LENGTH_TIME;
 BOOL		g_sv_mp_save_proxy_screenshots	= FALSE;
 BOOL		g_sv_mp_save_proxy_configs		= FALSE;
 //-----------------------------------------------------------------
+u32			g_sv_adm_menu_ban_time			= 1;
+int			g_sv_adm_menu_ping_limit		= 25;
+//-----------------------------------------------------------------
 
 extern xr_token	round_end_result_str[];
 
@@ -138,14 +141,16 @@ void game_sv_mp::OnRoundStart()
 		{
 			xrClientData* tmp_client = static_cast<xrClientData*>(client);
 			game_PlayerState* tmp_ps = tmp_client->ps;
+			if (!tmp_ps)
+				return;
 			tmp_ps->resetFlag(GAME_PLAYER_FLAG_READY+GAME_PLAYER_FLAG_VERY_VERY_DEAD);
 			tmp_ps->m_online_time = Level().timeServer();
 		}
 	};
-	m_server->clear_DisconnectedClients();
 	ready_clearer tmp_functor;
 	m_server->ForEachClientDo(tmp_functor);
 	m_async_stats_request_time = 0;
+	m_server->ClearDisconnectedPool	();
 	
 	
 	// 1. We have to destroy all delayed events
@@ -326,7 +331,9 @@ void	game_sv_mp::OnEvent (NET_Packet &P, u16 type, u32 time, ClientID sender )
 		{
 			if (!IsVotingEnabled()) break;
 			string1024 VoteCommand;
-			P.r_stringZ(VoteCommand);
+			if (P.r_elapsed() > (sizeof(VoteCommand) - 1))
+				break;
+			P.r_stringZ_s(VoteCommand);
 			OnVoteStart(VoteCommand, sender);
 		}break;
 	case GAME_EVENT_VOTE_YES:
@@ -433,15 +440,6 @@ void game_sv_mp::ReconnectPlayer(ClientID const & clientID)
 	P.w_stringZ			(Level().name().c_str());
 	P.w_stringZ			(GameTypeToString(Type(),true));
 	m_server->SendTo(clientID, P, net_flags(TRUE, TRUE));
-	IClient* pCL = m_server->client_Find_Get(clientID);
-	R_ASSERT2(pCL, make_string(
-		"client 0x%08x not found", clientID).c_str());
-	/*if (pCL)
-	{
-		string512 disconnect_reason;
-		sprintf_s(disconnect_reason, "reconnect");
-		m_server->DisconnectClient(pCL, disconnect_reason);
-	}*/
 }
 
 bool g_bConsoleCommandsCreated = false;
@@ -980,8 +978,8 @@ s32 game_sv_mp::ExcludeBanTimeFromVoteStr(char const * vote_string, char* new_vo
 		return 0;
 	
 	s32 ret_time = 0;
-	strncpy(new_vote_str, vote_string, new_vote_str_size - 1);
-	new_vote_str[new_vote_str_size - 1] = 0;
+	strncpy_s(new_vote_str, new_vote_str_size, vote_string, new_vote_str_size - 1);
+	new_vote_str[xr_strlen(vote_string)] = 0;
 	char * start_time_str = strrchr(new_vote_str, ' ');
 	if (!start_time_str || !xr_strlen(++start_time_str))
 		return 0;
@@ -995,9 +993,9 @@ struct SearcherClientByName
 	string128 player_name;
 	SearcherClientByName(LPCSTR name)
 	{
-		strncpy_s(player_name, sizeof(player_name), name, sizeof(player_name) - 1);
+		strncpy_s(player_name, name, sizeof(player_name) - 1);
 		xr_strlwr(player_name);
-		player_name[sizeof(player_name) - 1] = 0;
+		player_name[xr_strlen(name)] = 0;
 	}
 	bool operator()(IClient* client)
 	{
@@ -1128,6 +1126,8 @@ void game_sv_mp::OnVoteStart				(LPCSTR VoteCommand, ClientID sender)
 		void operator()(IClient* client)
 		{
 			xrClientData* tmp_client = static_cast<xrClientData*>(client);
+			if (!tmp_client->ps)
+				return;
 			if (tmp_client->ID == senderID)
 			{
 				tmp_client->ps->m_bCurrentVoteAgreed = 1;
@@ -1483,60 +1483,6 @@ void	game_sv_mp::SendPlayerKilledMessage	(u16 KilledID, KILL_TYPE KillType, u16 
 	sender.P = &P;
 	sender.server_for_send = m_server;
 	m_server->ForEachClientDoSender(sender);
-};
-
-void	game_sv_mp::OnPlayerChangeName		(NET_Packet& P, ClientID sender)
-{
-	string1024 received_name = "";
-	P.r_stringZ			(received_name);
-	string256 NewName;
-	modify_player_name	(received_name, NewName);
-
-	xrClientData*	pClient	= (xrClientData*)m_server->ID_to_client	(sender);
-	
-	if (!pClient || !pClient->net_Ready) return;
-	game_PlayerState* ps = pClient->ps;
-	if (!ps) return;
-
-	xrGameSpyServer* sv = smart_cast<xrGameSpyServer*>( m_server );
-	if( sv && sv->HasProtected() )
-	{
-		Msg( "Player \"%s\" try to change name on \"%s\" at protected server.", ps->getName(), NewName );
-
-		NET_Packet			P;
-		GenerateGameMessage (P);
-		P.w_u32				(GAME_EVENT_SERVER_STRING_MESSAGE);
-		P.w_stringZ			("Server is protected. Can\'t change player name!");
-		m_server->SendTo	( sender, P );
-		return;
-	}
-
-	if (NewPlayerName_Exists(pClient, NewName))
-	{
-		NewPlayerName_Generate(pClient, NewName);
-	};
-
-	if (pClient->owner)
-	{
-		NET_Packet			P;
-		GenerateGameMessage(P);
-		P.w_u32(GAME_EVENT_PLAYER_NAME);
-		P.w_u16(pClient->owner->ID);
-		P.w_s16(ps->team);
-		P.w_stringZ(ps->getName());
-		P.w_stringZ(NewName);
-		//---------------------------------------------------
-		real_sender tmp_functor(m_server, &P);
-		m_server->ForEachClientDoSender(tmp_functor);
-		//---------------------------------------------------
-		pClient->owner->set_name_replace(NewName);
-		NewPlayerName_Replace(pClient, NewName);
-	};
-
-	Game().m_WeaponUsageStatistic->ChangePlayerName( ps->name, NewName );
-	ps->setName(NewName);
-
-	signal_Syncronize();
 };
 
 void		game_sv_mp::OnPlayerSpeechMessage	(NET_Packet& P, ClientID sender)
@@ -1964,6 +1910,9 @@ void game_sv_mp::DumpOnlineStatistic()
 		{
 			xrClientData *l_pC			= static_cast<xrClientData*>(client);
 		
+			if (!l_pC->ps)
+				return;
+		
 			if(m_server->GetServerClient()==l_pC && g_dedicated_server) 
 				return;
 			
@@ -1989,6 +1938,10 @@ void game_sv_mp::DumpOnlineStatistic()
 void game_sv_mp::WritePlayerStats(CInifile& ini, LPCSTR sect, xrClientData* pCl)
 {
 	ini.w_string(sect,"player_name",	pCl->ps->getName());
+	if (pCl->ps->m_account.is_online())
+	{
+		ini.w_u32(sect,"player_profile_id",	pCl->ps->m_account.profile_id());
+	}
 	ini.w_u32	(sect,"player_team",	pCl->ps->team);
 	ini.w_u32	(sect,"kills_rival",	pCl->ps->m_iRivalKills);
 	ini.w_u32	(sect,"kills_self",		pCl->ps->m_iSelfKills);
@@ -2160,6 +2113,8 @@ void game_sv_mp::DumpRoundStatistics()
 				return;
 			if (!l_pC->m_cdkey_digest.size())
 				return;
+			if (!l_pC->ps)
+				return;
 			
 			string16					num_buf;
 			xr_sprintf					(num_buf,"player_%d",player_index);
@@ -2290,3 +2245,57 @@ void game_sv_mp::SetCanOpenBuyMenu(ClientID id)
 	bm_ready.w_u32		( GAME_EVENT_PLAYER_BUYMENU_CLOSE );
 	m_server->SendTo	(id, bm_ready, net_flags(TRUE, TRUE));
 }
+
+void	game_sv_mp::OnPlayerChangeName		(NET_Packet& P, ClientID sender)
+{
+	string1024 received_name = "";
+	P.r_stringZ			(received_name);
+	string256 NewName;
+	modify_player_name	(received_name, NewName);
+
+	xrClientData*	pClient	= (xrClientData*)m_server->ID_to_client	(sender);
+	
+	if (!pClient || !pClient->net_Ready) return;
+	game_PlayerState* ps = pClient->ps;
+	if (!ps) return;
+
+	xrGameSpyServer* sv = smart_cast<xrGameSpyServer*>( m_server );
+	if( sv && sv->HasProtected() )
+	{
+		Msg( "Player \"%s\" try to change name on \"%s\" at protected server.", ps->getName(), NewName );
+
+		NET_Packet			P;
+		GenerateGameMessage (P);
+		P.w_u32				(GAME_EVENT_SERVER_STRING_MESSAGE);
+		P.w_stringZ			("Server is protected. Can\'t change player name!");
+		m_server->SendTo	( sender, P );
+		return;
+	}
+
+	if (NewPlayerName_Exists(pClient, NewName))
+	{
+		NewPlayerName_Generate(pClient, NewName);
+	};
+
+	if (pClient->owner)
+	{
+		NET_Packet			P;
+		GenerateGameMessage(P);
+		P.w_u32(GAME_EVENT_PLAYER_NAME);
+		P.w_u16(pClient->owner->ID);
+		P.w_s16(ps->team);
+		P.w_stringZ(ps->getName());
+		P.w_stringZ(NewName);
+		//---------------------------------------------------
+		real_sender tmp_functor(m_server, &P);
+		m_server->ForEachClientDoSender(tmp_functor);
+		//---------------------------------------------------
+		pClient->owner->set_name_replace(NewName);
+		NewPlayerName_Replace(pClient, NewName);
+	};
+
+	Game().m_WeaponUsageStatistic->ChangePlayerName( ps->name, NewName );
+	ps->setName(NewName);
+
+	signal_Syncronize();
+};

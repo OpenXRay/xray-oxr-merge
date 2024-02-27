@@ -36,11 +36,11 @@ public:
 	virtual void		SetClGame				(game_cl_GameState* g);
 	virtual	void		Init					();
 			void		SetScoreCaption			(int t1, int t2);			
+			void		SetBuyMsgCaption		(LPCSTR str);
 	virtual void		SetFraglimit			(int local_frags, int fraglimit);
 	virtual void		Render					();
 	virtual void		OnFrame					();
 	
-	virtual	bool		IR_OnKeyboardPress		( int dik );
-	virtual bool		IR_OnKeyboardRelease	( int dik );
-	virtual	void		reset_ui				();
+	virtual	bool		IR_UIOnKeyboardPress	(int dik);
+	virtual bool		IR_UIOnKeyboardRelease	(int dik);
 };

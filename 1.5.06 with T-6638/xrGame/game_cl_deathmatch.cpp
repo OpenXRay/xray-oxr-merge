@@ -80,15 +80,23 @@ game_cl_Deathmatch::~game_cl_Deathmatch()
 	xr_delete(pCurSkinMenu);
 }
 
+void game_cl_Deathmatch::SetGameUI(CUIGameCustom* uigame)
+{
+	inherited::SetGameUI(uigame);
+	m_game_ui			= smart_cast<CUIGameDM*>(uigame);
+	R_ASSERT			(m_game_ui);
+};
 
 CUIGameCustom* game_cl_Deathmatch::createGameUI()
 {
-	game_cl_mp::createGameUI();
+	if (g_dedicated_server)
+		return NULL;
+
 	CLASS_ID clsid			= CLSID_GAME_UI_DEATHMATCH;
 	m_game_ui	= smart_cast<CUIGameDM*> ( NEW_INSTANCE ( clsid ) );
 	R_ASSERT(m_game_ui);
+	m_game_ui->Load			();
 	m_game_ui->SetClGame(this);
-	m_game_ui->Init();
 	return m_game_ui;
 }
 
@@ -433,6 +441,17 @@ string16 places[] = {
 	"25th", "26th", "27th", "28th", "29th", "30th", "31th", "32th"
 };
 
+void game_cl_Deathmatch::OnConnected()
+{
+	inherited::OnConnected				();
+	if (m_game_ui)
+	{
+		VERIFY(!g_dedicated_server);
+		m_game_ui = smart_cast<CUIGameDM*>	(CurrentGameUI());
+		m_game_ui->SetClGame				(this);
+	}
+}
+
 void game_cl_Deathmatch::shedule_Update			(u32 dt)
 {
 	CStringTable st;
@@ -442,16 +461,15 @@ void game_cl_Deathmatch::shedule_Update			(u32 dt)
 	if(g_dedicated_server)	return;
 
 	//fake	
-	if(!m_game_ui && HUD().GetUI() ) m_game_ui = smart_cast<CUIGameDM*>( HUD().GetUI()->UIGame() );
 	if(m_game_ui)
 	{
-		m_game_ui->SetTimeMsgCaption("");
-		m_game_ui->SetRoundResultCaption("");
-		m_game_ui->SetSpectatorMsgCaption("");
-		m_game_ui->SetPressJumpMsgCaption("");
-		m_game_ui->SetPressBuyMsgCaption("");
-		m_game_ui->SetForceRespawnTimeCaption("");
-		m_game_ui->SetWarmUpCaption("");
+		m_game_ui->SetTimeMsgCaption		(NULL);
+		m_game_ui->SetRoundResultCaption	(NULL);
+		m_game_ui->SetSpectatorMsgCaption	(NULL);
+		m_game_ui->SetPressJumpMsgCaption	(NULL);
+		m_game_ui->SetPressBuyMsgCaption	(NULL);
+		m_game_ui->SetForceRespawnTimeCaption(NULL);
+		m_game_ui->SetWarmUpCaption			(NULL);
 	};
 	if ((Level().IsDemoPlayStarted() || Level().IsDemoPlayFinished()) && m_game_ui)
 	{
@@ -478,6 +496,9 @@ void game_cl_Deathmatch::shedule_Update			(u32 dt)
 
 			Check_Invincible_Players();
 
+			if (!m_game_ui)
+				break;
+
 			if (m_s32TimeLimit && m_cl_dwWarmUp_Time == 0)
 			{
 				if (Level().timeServer()<(m_start_time + m_s32TimeLimit))
@@ -486,13 +507,11 @@ void game_cl_Deathmatch::shedule_Update			(u32 dt)
 					u32 Rest = (m_start_time + m_s32TimeLimit) - lts;
 					string64 S;
 					ConvertTime2String(&S, Rest);
-					if(m_game_ui)
-						m_game_ui->SetTimeMsgCaption(S);
+					m_game_ui->SetTimeMsgCaption(S);
 				}
 				else
 				{
-					if(m_game_ui)
-						m_game_ui->SetTimeMsgCaption("00:00:00");
+					m_game_ui->SetTimeMsgCaption("00:00:00");
 				}
 			};
 			game_PlayerState* lookat_player = Game().lookat_player();
@@ -506,15 +525,15 @@ void game_cl_Deathmatch::shedule_Update			(u32 dt)
 					GetActiveVoting();
 				};
 
-				if (m_game_ui && lookat_player)
+				if (lookat_player)
 				{
 					string256 MoneyStr;
 					xr_sprintf(MoneyStr, "%d", lookat_player->money_for_round);
 					m_game_ui->ChangeTotalMoneyIndicator(MoneyStr);
 				}				
 
-				m_game_ui->SetPressJumpMsgCaption("");
-				m_game_ui->SetPressBuyMsgCaption("");				
+				m_game_ui->SetPressJumpMsgCaption(NULL);
+				m_game_ui->SetPressBuyMsgCaption(NULL);				
 
 				if (m_cl_dwWarmUp_Time > Level().timeServer())
 				{
@@ -597,28 +616,24 @@ void game_cl_Deathmatch::shedule_Update			(u32 dt)
 					}
 					
 					xr_sprintf	(VoteTimeResStr, st.translate("mp_timeleft").c_str(), MinitsLeft, SecsLeft, float(NumAgreed)/players.size());
-					if (m_game_ui)
-						m_game_ui->SetVoteTimeResultMsg(VoteTimeResStr);
+					m_game_ui->SetVoteTimeResultMsg(VoteTimeResStr);
 				};
 
 				if (	local_player->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD) && 
 						m_u32ForceRespawn &&
 						!local_player->testFlag(GAME_PLAYER_FLAG_SPECTATOR)		)
 				{
-					if(m_game_ui)
-					{
-						u32 Rest			= m_u32ForceRespawn - local_player->DeathTime;
-						string64			S;
-						ConvertTime2String	(&S, Rest);
-						string128			FullS;
-						xr_sprintf			(FullS, "%s : %s", *st.translate("mp_time2respawn"), S);
+					u32 Rest			= m_u32ForceRespawn - local_player->DeathTime;
+					string64			S;
+					ConvertTime2String	(&S, Rest);
+					string128			FullS;
+					xr_sprintf			(FullS, "%s : %s", *st.translate("mp_time2respawn"), S);
 
-						m_game_ui->SetForceRespawnTimeCaption(FullS);
-					};
+					m_game_ui->SetForceRespawnTimeCaption(FullS);
 				};
 
 
-				if (Level().CurrentViewEntity() && m_game_ui)
+				if (Level().CurrentViewEntity())
 				{
 					game_PlayerState* ps = GetPlayerByGameID(Level().CurrentViewEntity()->ID());
 					
@@ -640,6 +655,9 @@ void game_cl_Deathmatch::shedule_Update			(u32 dt)
 		}break;
 	case GAME_PHASE_PLAYER_SCORES:
 		{
+			if (!m_game_ui)
+				break;
+
 			string128 resstring;
 			xr_sprintf(resstring, st.translate("mp_player_wins").c_str(), WinnerName);
 			m_game_ui->SetRoundResultCaption(resstring);
@@ -670,12 +688,12 @@ void game_cl_Deathmatch::shedule_Update			(u32 dt)
 	u32 cur_game_state = Phase();
 	if(m_game_ui->m_pMapDesc && m_game_ui->m_pMapDesc->IsShown() && cur_game_state!=GAME_PHASE_INPROGRESS)
 	{
-		m_game_ui->m_pMapDesc->GetHolder()->StartStopMenu(m_game_ui->m_pMapDesc, true);
+		m_game_ui->m_pMapDesc->HideDialog();
 	}
 
 	if(pCurSkinMenu && pCurSkinMenu->IsShown() && cur_game_state!=GAME_PHASE_INPROGRESS)
 	{
-		pCurSkinMenu->GetHolder()->StartStopMenu(pCurSkinMenu, true);
+		pCurSkinMenu->HideDialog();
 	}
 }
 
@@ -694,16 +712,14 @@ void	game_cl_Deathmatch::SetScore				()
 
 bool	game_cl_Deathmatch::OnKeyboardPress			(int key)
 {
-	if (Level().IsDemoPlay() && (key != kSCORES))
+	if(inherited::OnKeyboardPress(key))	return true;
+
+	if (Level().IsDemoPlay() && (key != kSCORES) && (key != kCROUCH))
 		return false;
+
 	if (kSCORES == key && Phase() == GAME_PHASE_INPROGRESS)
 	{
 		if(m_game_ui)
-#ifdef DEBUG
-			if (Level().IR_GetKeyState(DIK_LCONTROL))
-				m_game_ui->ShowStatistic(true);
-			else
-#endif //#ifdef DEBUG
 				m_game_ui->ShowFragList(true);
 		return true;
 	};
@@ -787,11 +803,12 @@ bool	game_cl_Deathmatch::OnKeyboardPress			(int key)
 		}
 	};
 */
-	return inherited::OnKeyboardPress(key);
+	return false;
 }
 
 bool	game_cl_Deathmatch::OnKeyboardRelease		(int key)
 {
+	if(inherited::OnKeyboardRelease(key))	return true;
 	if (kSCORES == key )
 	{
 		if (m_game_ui)
@@ -800,7 +817,7 @@ bool	game_cl_Deathmatch::OnKeyboardRelease		(int key)
 		};
 		return true;
 	};
-	return inherited::OnKeyboardRelease(key);
+	return false;
 }
 
 #define MAX_VOTE_PARAMS		5
@@ -1012,6 +1029,13 @@ void game_cl_Deathmatch::OnSpawn(CObject* pObj)
 	{
 		if (xr_strlen(Actor_Spawn_Effect))
 			PlayParticleEffect(Actor_Spawn_Effect.c_str(), pObj->Position());
+		game_PlayerState *ps = GetPlayerByGameID(pActor->ID());
+		
+		if (ps && m_reward_generator)
+		{
+			m_reward_generator->OnPlayerSpawned(ps);
+			m_reward_generator->init_bone_groups(pActor);
+		}
 	};
 	if (smart_cast<CWeapon*>(pObj))
 	{
@@ -1099,6 +1123,7 @@ void				game_cl_Deathmatch::OnGameRoundStarted				()
 		if (pCurBuyMenu && pCurPresetItems)
 		{
 			LoadTeamDefaultPresetItems(GetTeamMenu(local_player->team), pCurBuyMenu, pCurPresetItems);
+			ReInitRewardGenerator(local_player);
 		}
 	}
 	if (pCurBuyMenu) pCurBuyMenu->ClearPreset(_preset_idx_last);

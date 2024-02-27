@@ -442,7 +442,7 @@ void CLocatorAPI::ProcessArchive(LPCSTR _path)
 	}
 //	g_temporary_stuff			= g_temporary_stuff_subst;
 	
-	if(bProcessArchiveLoading)
+	if(bProcessArchiveLoading || strstr(Core.Params, "-auto_load_arch"))
 		LoadArchive				(A);
 	else
 		A.close					();
@@ -549,7 +549,7 @@ bool CLocatorAPI::Recurse		(const char* path)
 	xr_strcpy		(N,sizeof(N),path);
 	xr_strcat		(N,"*.*");
 
-	rec_files.reserve(256);
+	rec_files.reserve(1224);
 
 	// find all files    
 	if (-1==(hFile=_findfirst(N, &sFile)))

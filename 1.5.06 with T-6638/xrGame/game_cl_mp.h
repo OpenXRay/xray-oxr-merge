@@ -197,13 +197,10 @@ public:
 
 	void xr_stdcall					OnBuySpawn				(CUIWindow* pWnd, void* p);
 	virtual		void				TranslateGameMessage	(u32 msg, NET_Packet& P);
-	virtual		void				CommonMessageOut		(LPCSTR msg);
 
 	virtual		bool				OnKeyboardPress			(int key);
-	virtual		bool				OnKeyboardRelease		(int key);
 
 	virtual		bool				CanBeReady				();
-	virtual		CUIGameCustom*		createGameUI			();
 	virtual		void				shedule_Update			(u32 dt);
 				bool				IsLocalPlayerInitialized() const;
 

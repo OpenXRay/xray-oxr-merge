@@ -154,7 +154,7 @@ void CUIGameCustom::RemoveCustomStatic(LPCSTR id)
 	st_vec::iterator it = std::find_if(m_custom_statics.begin(),m_custom_statics.end(), predicate_find_stat(id) );
 	if(it!=m_custom_statics.end())
 	{
-			delete_data				(*it);
+		delete_data				(*it);
 		m_custom_statics.erase	(it);
 	}
 }
@@ -311,7 +311,7 @@ void SDrawStaticStruct::destroy()
 bool SDrawStaticStruct::IsActual() const
 {
 	if(m_endTime<0)			return true;
-	return (Device.fTimeGlobal < m_endTime);
+	return Device.fTimeGlobal < m_endTime;
 }
 
 void SDrawStaticStruct::SetText(LPCSTR text)
@@ -500,4 +500,3 @@ const GAME_WEATHERS& CMapListHelper::GetGameWeathers()
 
 	return m_weathers;
 }
-

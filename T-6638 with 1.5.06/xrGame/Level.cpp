@@ -738,7 +738,6 @@ void CLevel::OnFrame	()
 	m_ph_commander_scripts->update		();
 //	autosave_manager().update			();
 
-	//  
 	Device.Statistic->TEST0.Begin		();
 	BulletManager().CommitRenderSet		();
 	Device.Statistic->TEST0.End			();
@@ -792,11 +791,9 @@ void CLevel::OnRender()
 		return;
 
 	Game().OnRender();
-	//  
 	//Device.Statistic->TEST1.Begin();
 	BulletManager().Render();
 	//Device.Statistic->TEST1.End();
-	// c 
 	HUD().RenderUI();
 
 #ifdef DEBUG

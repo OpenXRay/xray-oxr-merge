@@ -10,9 +10,15 @@
 #include "spectator.h"
 #include "Car.h"
 #include "UIGameCustom.h"
+#include "UICursor.h"
+#include "string_table.h"
+#include "game_cl_base.h"
 #ifdef	DEBUG
 #include "phdebug.h"
 #endif
+
+extern CUIGameCustom*	CurrentGameUI()	{return HUD().GetGameUI();}
+
 CFontManager::CFontManager()
 {
 	Device.seqDeviceReset.Add(this,REG_PRIORITY_HIGH);
@@ -52,6 +58,7 @@ void CFontManager::InitializeFonts()
 	InitializeFont(pFontGraffiti50Russian	,"ui_font_graff_50"				);
 	InitializeFont(pFontLetterica25			,"ui_font_letter_25"			);
 	InitializeFont(pFontStat				,"stat_font",					CGameFont::fsDeviceIndependent);
+	pFontStat->SetInterval	(0.75f, 1.0f);
 
 }
 
@@ -127,28 +134,33 @@ void CFontManager::OnDeviceReset()
 }
 
 //--------------------------------------------------------------------
-CHUDManager::CHUDManager() : m_Renderable(true), pUIGame(NULL), m_pHUDTarget(xr_new<CHUDTarget>())
+CHUDManager::CHUDManager() : pUIGame(NULL), m_pHUDTarget(xr_new<CHUDTarget>())
 { 
-	OnDisconnected();
 }
 //--------------------------------------------------------------------
 CHUDManager::~CHUDManager()
 {
+	OnDisconnected();
+
+	if(pUIGame)		
+		pUIGame->UnLoad	();
+
 	xr_delete(pUIGame);
 	xr_delete(m_pHUDTarget);
-	b_online = false;
 }
 
 //--------------------------------------------------------------------
 void CHUDManager::OnFrame()
 {
-	if ( !m_Renderable )
-	{
+	if (!psHUD_Flags.is(HUD_DRAW_RT2))	
 		return;
-	}
 
-	if(!b_online)					return;
-	if (pUIGame) pUIGame->UIOnFrame();
+	if(!b_online)
+		return;
+
+	if (pUIGame)
+		pUIGame->OnFrame();
+
 	m_pHUDTarget->CursorOnFrame();
 }
 //--------------------------------------------------------------------
@@ -157,12 +169,7 @@ ENGINE_API extern float psHUD_FOV;
 
 void CHUDManager::Render_First()
 {
-	if ( !m_Renderable )
-	{
-		return;
-	}
-
-	if (!psHUD_Flags.is(HUD_WEAPON|HUD_WEAPON_RT|HUD_WEAPON_RT2))return;
+	if (!psHUD_Flags.is(HUD_WEAPON|HUD_WEAPON_RT|HUD_WEAPON_RT2|HUD_DRAW_RT2))return;
 	if (0==pUIGame)						return;
 	CObject*	O					= g_pGameLevel->CurrentViewEntity();
 	if (0==O)						return;
@@ -177,24 +184,30 @@ void CHUDManager::Render_First()
 	::Render->set_Invisible			(FALSE);
 }
 
+bool need_render_hud()
+{
+	CObject*	O					= g_pGameLevel ? g_pGameLevel->CurrentViewEntity() : NULL;
+	if (0==O)						
+		return false;
+
+	CActor*		A					= smart_cast<CActor*> (O);
+	if (A && (!A->HUDview() || !A->g_Alive()) ) 
+		return false;
+
+	if( smart_cast<CCar*>(O) || smart_cast<CSpectator*>(O) )
+		return false;
+
+	return true;
+}
+
 void CHUDManager::Render_Last()
 {
-	if ( !m_Renderable )
-	{
-		return;
-	}
-
-	if (!psHUD_Flags.is(HUD_WEAPON|HUD_WEAPON_RT|HUD_WEAPON_RT2))return;
+	if (!psHUD_Flags.is(HUD_WEAPON|HUD_WEAPON_RT|HUD_WEAPON_RT2|HUD_DRAW_RT2))return;
 	if (0==pUIGame)						return;
-	CObject*	O					= g_pGameLevel->CurrentViewEntity();
-	if (0==O)						return;
-	CActor*		A					= smart_cast<CActor*> (O);
-	if (A && !A->HUDview())			return;
-	if( smart_cast<CCar*>(O) || smart_cast<CSpectator*>(O) )
-	{
-		return;
-	}
 
+	if(!need_render_hud())			return;
+
+	CObject*	O					= g_pGameLevel->CurrentViewEntity();
 	// hud itself
 	::Render->set_HUD				(TRUE);
 	::Render->set_Object			(O->H_Root());
@@ -205,46 +218,42 @@ void CHUDManager::Render_Last()
 #include "player_hud.h"
 bool   CHUDManager::RenderActiveItemUIQuery()
 {
-	if ( !m_Renderable )
-	{
+	if (!psHUD_Flags.is(HUD_DRAW_RT2))	
 		return false;
-	}
 
 	if (!psHUD_Flags.is(HUD_WEAPON|HUD_WEAPON_RT|HUD_WEAPON_RT2))return false;
+
+	if(!need_render_hud())			return false;
+
 	return (g_player_hud && g_player_hud->render_item_ui_query() );
 }
 
 void   CHUDManager::RenderActiveItemUI()
 {
-	if ( !m_Renderable )
-	{
+	if (!psHUD_Flags.is(HUD_DRAW_RT2))	
 		return;
-	}
 
 	g_player_hud->render_item_ui		();
 }
 
 extern ENGINE_API BOOL bShowPauseString;
 //отрисовка элементов интерфейса
-#include "string_table.h"
 void  CHUDManager::RenderUI()
 {
-	if ( !m_Renderable )
-	{
+	if (!psHUD_Flags.is(HUD_DRAW_RT2))	
 		return;
-	}
 
 	if(!b_online)					return;
 
-	BOOL bAlready					= FALSE;
-	if (true || psHUD_Flags.is(HUD_DRAW | HUD_DRAW_RT))
+	if (true /*|| psHUD_Flags.is(HUD_DRAW | HUD_DRAW_RT)*/)
 	{
 		HitMarker.Render			();
-		bAlready					= ! (pUIGame && !pUIGame->Render());
-		Font().Render();
+		if(pUIGame)
+			pUIGame->Render			();
+
+		UI().RenderFont				();
 	}
 
-	if (/* psHUD_Flags.is(HUD_CROSSHAIR|HUD_CROSSHAIR_RT|HUD_CROSSHAIR_RT2) &&*/ !bAlready)	
 		m_pHUDTarget->Render();
 
 
@@ -368,4 +377,12 @@ void CHUDManager::net_Relcase( CObject* obj )
 #ifdef	DEBUG
 	DBG_PH_NetRelcase( obj );
 #endif
+}
+
+CDialogHolder* CurrentDialogHolder()
+{
+	if(MainMenu()->IsActive())
+		return MainMenu();
+	else
+		return HUD().GetGameUI();
 }

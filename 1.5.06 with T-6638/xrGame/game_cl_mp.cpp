@@ -1442,8 +1442,7 @@ void game_cl_mp::LoadBonuses				()
 		}
 		else
 		{
-			LPCSTR IconShader = CUITextureMaster::GetTextureFileName("ui_hud_status_blue_01");			
-			NewBonus.IconShader->create("hud\\default", IconShader);
+			CUITextureMaster::GetTextureShader("ui_hud_status_blue_01", NewBonus.IconShader);
 
 			Frect IconRect;
 			for (u32 r=1; r<=5; r++)

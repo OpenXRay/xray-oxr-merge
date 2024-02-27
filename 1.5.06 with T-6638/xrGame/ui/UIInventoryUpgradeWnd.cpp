@@ -92,7 +92,7 @@ void CUIInventoryUpgradeWnd::Init()
 	m_item_info->InitItemInfo( "inventory_upgrade_info.xml" );
 //	m_info_orig_pos.set( m_item_info->GetWndPos() );
 	
-	m_btn_repair = UIHelper::Create3tButtonEx( uiXml, "repair_button", this );
+	m_btn_repair = UIHelper::Create3tButton( uiXml, "repair_button", this );
 	CUIActorMenu* parent_wnd = smart_cast<CUIActorMenu*>(m_pParentWnd);
 	if ( parent_wnd )
 	{

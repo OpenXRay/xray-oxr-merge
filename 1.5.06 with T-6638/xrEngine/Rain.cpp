@@ -10,7 +10,7 @@
 #else
     #include "render.h"
 	#include "igame_level.h"
-	#include "xr_area.h"
+	#include "../xrcdb/xr_area.h"
 	#include "xr_object.h"
 #endif
 
@@ -125,6 +125,11 @@ void	CEffect_Rain::OnFrame	()
 #ifndef _EDITOR
 	if (!g_pGameLevel)			return;
 #endif
+
+#ifdef DEDICATED_SERVER
+	return;
+#endif
+
 	// Parse states
 	float	factor				= g_pGamePersistent->Environment().CurrentEnv->rain_density;
 	float	hemi_factor			= 1.f;
@@ -152,7 +157,8 @@ void	CEffect_Rain::OnFrame	()
 	}
 
 	// ambient sound
-	if (snd_Ambient._feedback()){
+	if (snd_Ambient._feedback())
+	{
 		Fvector					sndP;
 		sndP.mad				(Device.vCameraPosition,Fvector().set(0,1,0),source_offset);
 		snd_Ambient.set_position(sndP);

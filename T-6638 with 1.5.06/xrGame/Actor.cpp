@@ -98,6 +98,7 @@ int				psActorSleepTime = 1;
 
 CActor::CActor() : CEntityAlive(),current_ik_cam_shift(0)
 {
+	encyclopedia_registry	= xr_new<CEncyclopediaRegistryWrapper	>();
 	game_news_registry		= xr_new<CGameNewsRegistryWrapper		>();
 	// Cameras
 	cameras[eacFirstEye]	= xr_new<CCameraFirstEye>				(this);
@@ -212,6 +213,8 @@ CActor::~CActor()
 {
 	xr_delete				(m_location_manager);
 	xr_delete				(m_memory);
+
+	xr_delete				(encyclopedia_registry);
 	xr_delete				(game_news_registry);
 #ifdef DEBUG
 	Device.seqRender.Remove(this);
@@ -1809,7 +1812,6 @@ void CActor::AnimTorsoPlayCallBack(CBlend* B)
 }
 
 
-/*
 void CActor::UpdateMotionIcon(u32 mstate_rl)
 {
 	CUIMotionIcon*	motion_icon=CurrentGameUI()->UIMainIngameWnd->MotionIcon();
@@ -1836,7 +1838,6 @@ void CActor::UpdateMotionIcon(u32 mstate_rl)
 			motion_icon->ShowState(CUIMotionIcon::stNormal);
 	}
 }
-*/
 
 
 CPHDestroyable*	CActor::ph_destroyable	()
