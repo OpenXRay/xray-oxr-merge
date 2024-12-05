@@ -57,5 +57,8 @@ bool CMPPlayersBag::NeedToDestroyObject()	const
 	if (H_Parent()) return false;
 	if (g_iWeaponRemove == -1) return false;
 	if (g_iWeaponRemove == 0) return true;
-	return (TimePassedAfterIndependant() > BAG_REMOVE_TIME);
+	if (TimePassedAfterIndependant() > BAG_REMOVE_TIME)
+		return true;
+
+	return false;
 }

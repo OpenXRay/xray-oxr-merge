@@ -6,7 +6,7 @@
 #include "PhysicsCommon.h"
 #include "alife_space.h"
 #include "script_export_space.h"
-
+#include "../xrEngine/iphysicsshell.h"
 
 class CPhysicsJoint;
 class CPhysicsElement;
@@ -19,8 +19,9 @@ class CPhysicsShellHolder;
 class CGameObject;
 class NET_Packet;
 struct SBoneShape;
+struct NearestToPointCallback;
 class  CPHShellSplitterHolder;
-class CKinematics;
+class IKinematics;
 typedef u32	CLClassBits;
 typedef u32	CLBits;
 typedef u32	CGID;
@@ -53,9 +54,9 @@ public:
 	virtual		void			net_Export								(NET_Packet& P)																											= 0;
 	virtual		void			GetGlobalPositionDynamic				(Fvector* v)																											= 0;
 	virtual		bool			isBreakable								()																														= 0;
-	virtual		bool			isEnabled								()																														= 0;
-	virtual		bool			isActive								()																														= 0;
-	virtual		bool			isFullActive							()																														= 0;
+	virtual		bool			isEnabled								() const																												= 0;
+	virtual		bool			isActive								() const																												= 0;
+	virtual		bool			isFullActive							() const																														= 0;
 	virtual		void			Deactivate								()																														= 0;
 	virtual		void			Enable									()																														= 0;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -83,8 +84,8 @@ public:
 	virtual		void			set_CallbackData						(void * cd)																												= 0;
 	virtual		void			*get_CallbackData						()																														= 0;
 	virtual		void			set_PhysicsRefObject					(CPhysicsShellHolder* ref_object)																						= 0;
-	virtual		void			get_LinearVel							(Fvector& velocity)																										= 0;
-	virtual		void			get_AngularVel							(Fvector& velocity)																										= 0;
+	virtual		void			get_LinearVel							(Fvector& velocity) const																								= 0;
+	virtual		void			get_AngularVel							(Fvector& velocity) const																								= 0;
 	virtual		void			set_LinearVel							(const Fvector& velocity)																								= 0;
 	virtual		void			set_AngularVel							(const Fvector& velocity)																								= 0;
 	virtual		void			TransformPosition						(const Fmatrix &form)																									= 0;
@@ -234,13 +235,13 @@ class CPHIsland;
 class CPhysicsShell			: public CPhysicsBase
 {
 protected:
-					CKinematics					*m_pKinematics																															;
+					IKinematics					*m_pKinematics																															;
 public:
 #ifdef DEBUG
 					CPhysicsShellHolder			*dbg_obj																																;
 #endif
 public:
-IC					CKinematics					*PKinematics								()																{return m_pKinematics		;}
+IC					IKinematics					*PKinematics								()																{return m_pKinematics		;}
 
 #ifdef ANIMATED_PHYSICS_OBJECT_SUPPORT
 	virtual			CPhysicsShellAnimator*		PPhysicsShellAnimator						()																							= 0;
@@ -346,7 +347,7 @@ CPhysicsShell*				P_create_splited_Shell		()																					;
 CPhysicsShell*				P_build_Shell				(CGameObject* obj,bool not_active_state,LPCSTR	fixed_bones)						;
 CPhysicsShell*				P_build_Shell				(CGameObject* obj,bool not_active_state,U16Vec& fixed_bones)						;
 CPhysicsShell*				P_build_Shell				(CGameObject* obj,bool not_active_state,BONE_P_MAP* bone_map,LPCSTR	fixed_bones)	;
-CPhysicsShell*				P_build_Shell				(CGameObject* obj,bool not_active_state,BONE_P_MAP* bone_map=NULL)					;
+CPhysicsShell*				P_build_Shell				(CGameObject* obj,bool not_active_state,BONE_P_MAP* bone_map = 0, bool not_set_bone_callbacks = false)		;
 CPhysicsShell*				P_build_SimpleShell			(CGameObject* obj,float mass,bool not_active_state)									;
 		void				ApplySpawnIniToPhysicShell	(CInifile* ini,CPhysicsShell* physics_shell,bool fixed)								;
 		void				fix_bones					(LPCSTR	fixed_bones,CPhysicsShell* shell )											;

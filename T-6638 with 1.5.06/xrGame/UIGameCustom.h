@@ -21,7 +21,6 @@ struct KillMessageStruct;
 class CUIMainIngameWnd;
 class CUIMessagesWindow;
 
-
 struct SDrawStaticStruct :public IPureDestroyableObject
 {
 	SDrawStaticStruct	();
@@ -144,4 +143,5 @@ public:
 
 	DECLARE_SCRIPT_REGISTER_FUNCTION
 }; // class CUIGameCustom
+
 extern CUIGameCustom*		CurrentGameUI();

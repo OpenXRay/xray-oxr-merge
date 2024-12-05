@@ -26,7 +26,7 @@ void	dump_URL	(LPCSTR p, IDirectPlay8Address* A);
 LPCSTR nameTraffic	= "traffic.net";
 
 XRNETSERVER_API int		psNET_ServerUpdate	= 30;		// FPS
-XRNETSERVER_API int		psNET_ServerPending	= 2;
+XRNETSERVER_API int		psNET_ServerPending	= 3;
 
 XRNETSERVER_API ClientID BroadcastCID(0xffffffff);
 
@@ -167,8 +167,10 @@ void IClientStatistic::Update(DPN_CONNECTION_INFO& CI)
 		mps_send		= cur_msend - mps_send_base;
 		mps_send_base	= cur_msend;
 
-		dwBytesPerSec = (dwBytesPerSec*9 + dwBytesSended)/10;
+		dwBytesSendedPerSec		= dwBytesSended;
 		dwBytesSended = 0;
+		dwBytesReceivedPerSec	= dwBytesReceived;
+		dwBytesReceived			= 0;
 	}
 	ci_last	= CI;
 }
@@ -305,18 +307,18 @@ IPureServer::EConnect IPureServer::Connect(LPCSTR options, GameDescriptionData &
 	{
 		const char* PSW = strstr(options, "psw=") + 4;
 		if (strchr(PSW, '/')) 
-			strncpy(password_str, PSW, strchr(PSW, '/') - PSW);
+			strncpy_s(password_str, PSW, strchr(PSW, '/') - PSW);
 		else
-			strncpy(password_str, PSW, 63);
+			strncpy_s(password_str, PSW, 63);
 	}
 	if (strstr(options, "maxplayers="))
 	{
 		const char* sMaxPlayers = strstr(options, "maxplayers=") + 11;
 		string64 tmpStr = "";
 		if (strchr(sMaxPlayers, '/')) 
-			strncpy(tmpStr, sMaxPlayers, strchr(sMaxPlayers, '/') - sMaxPlayers);
+			strncpy_s(tmpStr, sMaxPlayers, strchr(sMaxPlayers, '/') - sMaxPlayers);
 		else
-			strncpy(tmpStr, sMaxPlayers, 63);
+			strncpy_s(tmpStr, sMaxPlayers, 63);
 		dwMaxPlayers = atol(tmpStr);
 	}
 	if (dwMaxPlayers > 32 || dwMaxPlayers<1) dwMaxPlayers = 32;
@@ -326,17 +328,17 @@ IPureServer::EConnect IPureServer::Connect(LPCSTR options, GameDescriptionData &
 
 	//-------------------------------------------------------------------
 	BOOL bPortWasSet = FALSE;
-	u32 dwServerPort = BASE_PORT_LAN_SV;
+	u32 dwServerPort = START_PORT_LAN_SV;
 	if (strstr(options, "portsv="))
 	{
 		const char* ServerPort = strstr(options, "portsv=") + 7;
 		string64 tmpStr = "";
 		if (strchr(ServerPort, '/')) 
-			strncpy(tmpStr, ServerPort, strchr(ServerPort, '/') - ServerPort);
+			strncpy_s(tmpStr, ServerPort, strchr(ServerPort, '/') - ServerPort);
 		else
-			strncpy(tmpStr, ServerPort, 63);
+			strncpy_s(tmpStr, ServerPort, 63);
 		dwServerPort = atol(tmpStr);
-		clamp(dwServerPort, u32(BASE_PORT), u32(END_PORT));
+		clamp(dwServerPort, u32(START_PORT), u32(END_PORT));
 		bPortWasSet = TRUE; //this is not casual game
 	}
 	//-------------------------------------------------------------------
@@ -425,8 +427,8 @@ if(!psNET_direct_connect)
 
 	HRESULT HostSuccess = S_FALSE;
 	// We are now ready to host the app and will try different ports
-	psNET_Port = dwServerPort;/
-	while (HostSuccess != S_OK && psNET_Port <=END_PORT)
+	psNET_Port = dwServerPort;
+	while (HostSuccess != S_OK)
 	{
 		CHK_DX(net_Address_device->AddComponent	(DPNA_KEY_PORT, &psNET_Port, sizeof(psNET_Port), DPNA_DATATYPE_DWORD ));
 
@@ -445,11 +447,16 @@ if(!psNET_direct_connect)
 					Msg("! IPureServer : port %d is BUSY!", psNET_Port);
 					return ErrConnect;
 				}
-#ifdef DEBUG
 				else
+				{
 					Msg("! IPureServer : port %d is BUSY!", psNET_Port);
-#endif	
+				}
+
 				psNET_Port++;
+				if (psNET_Port > END_PORT_LAN)
+				{
+					return ErrConnect;
+				}
 		}
 		else
 		{

@@ -44,10 +44,10 @@ public:
 	virtual void			net_Destroy						();
 
 public:
-			void			add_border						(u32 start_vertex_id, float radius) const;
-			void			add_border						(const Fvector &start_position, const Fvector &dest_position) const;
-			void			add_border						(u32 start_vertex_id, u32 dest_vertex_id) const;
-			void			remove_border					() const;
+	virtual	void			add_border						(u32 start_vertex_id, float radius) const;
+	virtual	void			add_border						(const Fvector &start_position, const Fvector &dest_position) const;
+	virtual	void			add_border						(u32 start_vertex_id, u32 dest_vertex_id) const;
+	virtual	void			remove_border					() const;
 
 public:
 			u32				accessible_nearest				(const Fvector &position, Fvector &result) const;

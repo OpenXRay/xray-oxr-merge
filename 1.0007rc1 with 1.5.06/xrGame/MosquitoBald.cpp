@@ -4,11 +4,11 @@
 #include "ParticlesObject.h"
 #include "level.h"
 #include "physicsshellholder.h"
+
 CMosquitoBald::CMosquitoBald(void) 
 {
 	m_dwDeltaTime			= 0;
 	m_fHitImpulseScale		= 1.f;
-
 	m_bLastBlowoutUpdate	= false;
 }
 
@@ -65,13 +65,13 @@ void CMosquitoBald::Affect(SZoneObjectInfo* O)
 		::Random.randF(-.5f,.5f)); 
 	hit_dir.normalize();
 
-
 	Fvector position_in_bone_space;
 
 	VERIFY(!pGameObject->getDestroy());
 
 	float dist = pGameObject->Position().distance_to(P) - pGameObject->Radius();
 	float power = Power(dist>0.f?dist:0.f);
+	float power_critical = 0.0f;
 	float impulse = m_fHitImpulseScale*power*pGameObject->GetMass();
 
 	//статистика по объекту
@@ -83,7 +83,7 @@ void CMosquitoBald::Affect(SZoneObjectInfo* O)
 		m_dwDeltaTime = 0;
 		position_in_bone_space.set(0.f,0.f,0.f);
 
-		CreateHit(pGameObject->ID(),ID(),hit_dir,power,0,position_in_bone_space,impulse,m_eHitTypeBlowout);
+		CreateHit(pGameObject->ID(),ID(),hit_dir,power,power_critical,0,position_in_bone_space,impulse,m_eHitTypeBlowout);
 
 		PlayHitParticles(pGameObject);
 	}

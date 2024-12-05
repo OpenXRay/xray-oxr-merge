@@ -1,16 +1,18 @@
 #include "pch_script.h"
 #include "actor.h"
+#include "hudmanager.h"
 #include "Actor_Flags.h"
 #include "inventory.h"
 #include "xrserver_objects_alife_monsters.h"
 #include "xrServer.h"
-
+#include "../xrEngine/CustomHUD.h"
 #include "CameraLook.h"
 #include "CameraFirstEye.h"
 
 #include "ActorEffector.h"
 
-#include "PHWorld.h"
+#include "../xrphysics/iPHWorld.h"
+#include "../xrphysics/actorcameracollision.h"
 #include "level.h"
 #include "xr_level_controller.h"
 #include "game_cl_base.h"
@@ -28,8 +30,11 @@
 
 #include "actor_anim_defs.h"
 
+#include "UIGameCustom.h"
+#include "ui/UIPdaWnd.h"
+#include "ui/UITaskWnd.h"
+
 #include "map_manager.h"
-#include "HUDManager.h"
 #include "ui/UIMainIngameWnd.h"
 #include "gamepersistent.h"
 #include "game_object_space.h"
@@ -40,10 +45,10 @@
 #include "actor_statistic_mgr.h"
 #include "characterphysicssupport.h"
 #include "game_cl_base_weapon_usage_statistic.h"
-
+#include "../xrengine/xr_collide_form.h"
 #ifdef DEBUG
 #	include "debug_renderer.h"
-#	include "Physics.h"
+#	include "../xrPhysics/phvalide.h"
 #endif
 
 int			g_cl_InterpolationType		= 0;
@@ -580,7 +585,9 @@ BOOL CActor::net_Spawn		(CSE_Abstract* DC)
 	mstate_real				= 0;
 	mstate_old				= 0;
 	m_bJumpKeyPressed		= FALSE;
-
+//
+//	m_bJumpKeyPressed = ((mstate_wishful&mcJump)!=0);
+//		
 	NET_SavedAccel.set		(0,0,0);
 	NET_WasInterpolating	= TRUE;
 
@@ -1335,6 +1342,16 @@ void CActor::save(NET_Packet &output_packet)
 	inherited::save(output_packet);
 	CInventoryOwner::save(output_packet);
 	output_packet.w_u8(u8(m_bOutBorder));
+	CUITaskWnd* task_wnd = HUD().GetGameUI()->PdaMenu().pUITaskWnd;
+	output_packet.w_u8(task_wnd->IsTreasuresEnabled() ? 1 : 0);
+	output_packet.w_u8(task_wnd->IsQuestNpcsEnabled() ? 1 : 0);
+	output_packet.w_u8(task_wnd->IsSecondaryTasksEnabled() ? 1 : 0);
+	output_packet.w_u8(task_wnd->IsPrimaryObjectsEnabled() ? 1 : 0);
+
+	output_packet.w_stringZ(g_quick_use_slots[0]);
+	output_packet.w_stringZ(g_quick_use_slots[1]);
+	output_packet.w_stringZ(g_quick_use_slots[2]);
+	output_packet.w_stringZ(g_quick_use_slots[3]);
 }
 
 void CActor::load(IReader &input_packet)
@@ -1342,6 +1359,17 @@ void CActor::load(IReader &input_packet)
 	inherited::load(input_packet);
 	CInventoryOwner::load(input_packet);
 	m_bOutBorder=!!(input_packet.r_u8());
+	CUITaskWnd* task_wnd = HUD().GetGameUI()->PdaMenu().pUITaskWnd;
+	task_wnd->TreasuresEnabled(!!input_packet.r_u8());
+	task_wnd->QuestNpcsEnabled(!!input_packet.r_u8());
+	task_wnd->SecondaryTasksEnabled(!!input_packet.r_u8());
+	task_wnd->PrimaryObjectsEnabled(!!input_packet.r_u8());
+	//need_quick_slot_reload = true;
+
+	input_packet.r_stringZ(g_quick_use_slots[0], sizeof(g_quick_use_slots[0]));
+	input_packet.r_stringZ(g_quick_use_slots[1], sizeof(g_quick_use_slots[1]));
+	input_packet.r_stringZ(g_quick_use_slots[2], sizeof(g_quick_use_slots[2]));
+	input_packet.r_stringZ(g_quick_use_slots[3], sizeof(g_quick_use_slots[3]));
 }
 
 #ifdef DEBUG
@@ -1736,53 +1764,6 @@ BOOL CActor::net_SaveRelevant()
 	return TRUE;
 }
 
-void	CActor::Check_for_AutoPickUp()
-{
-	if (!psActorFlags.test(AF_AUTOPICKUP)) return;
-	if (GameID() == eGameIDSingle) return;
-	if (Level().CurrentControlEntity() != this) return;
-	if (!g_Alive()) return;
-
-	Fvector bc; bc.add(Position(), m_AutoPickUp_AABB_Offset);
-	Fbox APU_Box;
-	APU_Box.set(Fvector().sub(bc, m_AutoPickUp_AABB), Fvector().add(bc, m_AutoPickUp_AABB));
-
-	xr_vector<ISpatial*>	ISpatialResult;
-	g_SpatialSpace->q_box   (ISpatialResult,0,STYPE_COLLIDEABLE,bc,m_AutoPickUp_AABB);
-
-	// Determine visibility for dynamic part of scene
-	for (u32 o_it=0; o_it<ISpatialResult.size(); o_it++)
-	{
-		ISpatial*		spatial	= ISpatialResult[o_it];
-		CInventoryItem*	pIItem	= smart_cast<CInventoryItem*> (spatial->dcast_CObject());
-
-		if (0 == pIItem)														continue;
-		if (!pIItem->CanTake())													continue;
-		if (Level().m_feel_deny.is_object_denied(spatial->dcast_CObject()) )	continue;
-
-
-		CGrenade*	pGrenade	= smart_cast<CGrenade*> (pIItem);
-		if (pGrenade) continue;
-
-		if (APU_Box.Pick(pIItem->object().Position(), pIItem->object().Position()))
-		{
-			if (GameID() == eGameIDDeathmatch || GameID() == eGameIDTeamDeathmatch)
-			{
-				if (pIItem->GetSlot() == PISTOL_SLOT || pIItem->GetSlot() == RIFLE_SLOT )
-				{
-					if (inventory().ItemFromSlot(pIItem->GetSlot()))
-					{
-						continue;
-					}
-				}
-			}			
-			NET_Packet P;
-			u_EventGen(P,GE_OWNERSHIP_TAKE, ID());
-			P.w_u16(pIItem->object().ID());
-			u_EventSend(P);
-		}		
-	}
-}
 
 void				CActor::SetHitInfo				(CObject* who, CObject* weapon, s16 element, Fvector Pos, Fvector Dir)
 {
@@ -1983,7 +1964,7 @@ bool CActor::InventoryAllowSprint()
 	if (pActiveItem && !pActiveItem->IsSprintAllowed())
 		return false;
 
-	PIItem pOutfitItem = inventory().ItemFromSlot(OUTFIT_SLOT);
+	CCustomOutfit* pOutfitItem = GetOutfit();
 	if (pOutfitItem && !pOutfitItem->IsSprintAllowed())
 		return false;
 
@@ -1994,7 +1975,7 @@ BOOL CActor::BonePassBullet(int boneID)
 {
 	if (GameID() == eGameIDSingle) return inherited::BonePassBullet(boneID);
 
-	CCustomOutfit* pOutfit			= (CCustomOutfit*)inventory().m_slots[OUTFIT_SLOT].m_pIItem;
+	CCustomOutfit* pOutfit			= GetOutfit();
 	if(!pOutfit)
 	{
 		IKinematics* V		= smart_cast<IKinematics*>(Visual()); VERIFY(V);

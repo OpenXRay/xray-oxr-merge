@@ -286,7 +286,7 @@ IC float		prg_pos_on_plane(const Fvector	&in_norm,float d,const Fvector &in_pos,
 	return prg;
 }
 
-IC void		prg_dir_on_plane(const Fvector	&in_norm,const Fvector &in_dir,Fvector &out_dir)
+IC void		prg_on_normal( const Fvector	&in_norm, const Fvector &in_dir, Fvector &out_dir )
 {
 	float prg=-in_dir.dotproduct(in_norm);
 	Fvector diff;diff.set(in_norm);diff.mul(prg);
@@ -453,10 +453,13 @@ IC float DET(const Fmatrix &a){
 		a._13 * ( a._21 * a._32 - a._22 * a._31 ) ));
 }
 
+
 IC bool valid_pos(const Fvector &P,const Fbox &B){
 	Fbox BB=B;BB.grow(100000);
 	return !!BB.contains(P) ;
 }
+
+
 
 #ifdef DEBUG
 const float				DET_CHECK_EPS =0.15f					;//scale -35%  !? ;)

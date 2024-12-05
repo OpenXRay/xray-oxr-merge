@@ -345,7 +345,8 @@ bool SGameTaskObjective::CheckInfo		(xr_vector<shared_str>& v)
 {
 	bool res = false;
 	xr_vector<shared_str>::iterator it	= v.begin();
-	for(;it!=v.end();++it){
+	for(;it!=v.end();++it)
+	{
 		res = Actor()->HasInfo					(*it);
 		if(!res) break;
 	}
@@ -356,7 +357,8 @@ bool SGameTaskObjective::CheckFunctions	(xr_vector<luabind::functor<bool> >& v)
 {
 	bool res = false;
 	xr_vector<luabind::functor<bool> >::iterator it	= v.begin();
-	for(;it!=v.end();++it){
+	for(;it!=v.end();++it)
+	{
 		if( (*it).is_valid() ) res = (*it)(*(parent->m_ID), idx);
 		if(!res) break;
 	}

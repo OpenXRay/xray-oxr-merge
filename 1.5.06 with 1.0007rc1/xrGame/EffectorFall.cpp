@@ -13,7 +13,6 @@ CEffectorFall::CEffectorFall(float power,float life_time) : CEffectorCam(eCEFall
 	fPhase					= 0;
 }
 
-
 BOOL CEffectorFall::ProcessCam(SCamEffectorInfo& info)
 {
 	fPhase+=FALL_SPEED*Device.fTimeDelta;

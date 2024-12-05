@@ -102,9 +102,6 @@ BOOL CEffectorZoomInertion::ProcessCam(SCamEffectorInfo& info)
 	Fvector dir;
 	dir.sub(m_vCurrentPoint,m_vTargetPoint);
 
-
-///	if(dir.magnitude()<m_fEpsilon || m_dwTimePassed>m_dwDeltaTime)
-//	if (m_dwTimePassed>m_dwDeltaTime)
 	if (m_dwTimePassed == 0)
 	{
 		m_vLastPoint.set(m_vCurrentPoint);

@@ -778,7 +778,6 @@ void CCharacterPhysicsSupport::ForceTransform( const Fmatrix &m )
 			movement()->EnableCharacter();
 	set_movement_position( m.c );
 	movement()->SetVelocity( 0, 0, 0 );
-
 }
 /*
 void reset_root_bone_start_pose( CPhysicsShell& shell )

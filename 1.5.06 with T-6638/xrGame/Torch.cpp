@@ -7,16 +7,17 @@
 #include "xrserver_objects_alife_items.h"
 #include "ai_sounds.h"
 
-#include "HUDManager.h"
 #include "level.h"
 #include "../Include/xrRender/Kinematics.h"
 #include "../xrEngine/camerabase.h"
+#include "../xrengine/xr_collide_form.h"
 #include "inventory.h"
 #include "game_base_space.h"
 
 #include "UIGameCustom.h"
 #include "actorEffector.h"
 #include "CustomOutfit.h"
+#include "ActorHelmet.h"
 
 static const float		TIME_2_HIDE					= 5.f;
 static const float		TORCH_INERTION_CLAMP		= PI_DIV_6;
@@ -108,8 +109,8 @@ void CTorch::SwitchNightVision(bool vision_on)
 	}
 
 	CActor *pA = smart_cast<CActor *>(H_Parent());
-
-	if(!pA)					return;
+	if(!pA)
+		return;
 	bool bPlaySoundFirstPerson = (pA == Level().CurrentViewEntity());
 
 	LPCSTR disabled_names	= pSettings->r_string(cNameSect(),"disabled_maps");
@@ -156,22 +157,7 @@ void CTorch::UpdateSwitchNightVision   ()
 {
 	if(!m_bNightVisionEnabled) return;
 	if (OnClient()) return;
-
-
-	/*if(m_bNightVisionOn)
-	{
-		m_NightVisionChargeTime			-= Device.fTimeDelta;
-
-		if(m_NightVisionChargeTime<0.f)
-			SwitchNightVision(false);
-	}
-	else
-	{
-		m_NightVisionChargeTime			+= Device.fTimeDelta;
-		clamp(m_NightVisionChargeTime, 0.f, m_NightVisionRechargeTime);
-	}*/
 }
-
 
 void CTorch::Switch()
 {
@@ -187,8 +173,9 @@ void CTorch::Switch(bool light_on)
 	{
 		light_render->set_active(light_on);
 		
-		CActor *pA = smart_cast<CActor *>(H_Parent());
-		if(!pA)light_omni->set_active(light_on);
+		// CActor *pA = smart_cast<CActor *>(H_Parent());
+		//if(!pA)
+			light_omni->set_active(light_on);
 	}
 	glow_render->set_active					(light_on);
 
@@ -199,8 +186,11 @@ void CTorch::Switch(bool light_on)
 
 		pVisual->LL_SetBoneVisible			(bi,	light_on,	TRUE);
 		pVisual->CalculateBones				(TRUE);
-//.		pVisual->LL_SetBoneVisible			(bi,	light_on,	TRUE); //hack
 	}
+}
+bool CTorch::torch_active					() const
+{
+	return (m_switched_on);
 }
 
 BOOL CTorch::net_Spawn(CSE_Abstract* DC) 
@@ -466,19 +456,12 @@ void CTorch::net_Import			(NET_Packet& P)
 
 bool  CTorch::can_be_attached		() const
 {
-//	if( !inherited::can_be_attached() ) return false;
-
 	const CActor *pA = smart_cast<const CActor *>(H_Parent());
 	if (pA) 
-	{
-//		if(pA->inventory().Get(ID(), false))
-		if((const CTorch*)smart_cast<CTorch*>(pA->inventory().m_slots[GetSlot()].m_pIItem) == this )
-			return true;
-		else
-			return false;
-	}
+		return pA->inventory().InSlot(this);
 	return true;
 }
+
 void CTorch::afterDetach			()
 {
 	inherited::afterDetach	();

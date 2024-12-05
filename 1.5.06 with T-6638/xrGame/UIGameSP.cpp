@@ -52,73 +52,104 @@ void CUIGameSP::SetClGame (game_cl_GameState* g)
 	m_game = smart_cast<game_cl_Single*>(g);
 	R_ASSERT							(m_game);
 }
+#ifdef DEBUG
+	void attach_adjust_mode_keyb(int dik);
+	void attach_draw_adjust_mode();
+	void hud_adjust_mode_keyb(int dik);
+	void hud_draw_adjust_mode();
+#endif
 
+void CUIGameSP::OnFrame()
+{
+	inherited::OnFrame();
+	
+	if(Device.Paused())	return;
+
+	if(m_game_objective)
+	{
+		bool b_remove = false;
+		int dik = get_action_dik(kSCORES, 0);
+		if(dik && !pInput->iGetAsyncKeyState(dik))
+			b_remove=true;
+		
+		dik = get_action_dik(kSCORES, 1);
+		if(!b_remove && dik && !pInput->iGetAsyncKeyState(dik))
+			b_remove=true;
+
+		if(b_remove)
+		{
+			RemoveCustomStatic		("main_task");
+			RemoveCustomStatic		("secondary_task");
+			m_game_objective		= NULL;
+		}
+	}
+}
 
 bool CUIGameSP::IR_UIOnKeyboardPress(int dik) 
 {
 	if(inherited::IR_UIOnKeyboardPress(dik)) return true;
-
 	if( Device.Paused()		) return false;
+
+#ifdef DEBUG
+	hud_adjust_mode_keyb	(dik);
+	attach_adjust_mode_keyb	(dik);
+#endif
 
 	CInventoryOwner* pInvOwner = smart_cast<CInventoryOwner*>( Level().CurrentEntity() );
 	if ( !pInvOwner )				return false;
 	CEntityAlive* EA			= smart_cast<CEntityAlive*>(Level().CurrentEntity());
 	if (!EA || !EA->g_Alive() )	return false;
 
+	CActor *pActor = smart_cast<CActor*>(pInvOwner);
+	if( !pActor ) 
+		return false;
+
+	if( !pActor->g_Alive() )	
+		return false;
+
 	switch ( get_binded_action(dik) )
 	{
 	case kACTIVE_JOBS:
 		{
+			if ( !pActor->inventory_disabled() )
 			ShowPdaMenu();
 			break;
 		}
 
 	case kINVENTORY:
 		{
+			if ( !pActor->inventory_disabled() )
 			ShowActorMenu();
+
 			break;
 		}
 
 	case kSCORES:
+		if ( !pActor->inventory_disabled() )
 		{
-			CActor *pActor = smart_cast<CActor*>(pInvOwner);
-			if( !pActor ) return false;
-			if( !pActor->g_Alive() )	return false;
+			m_game_objective		= AddCustomStatic("main_task", true);
+			CGameTask* t1			= Level().GameTaskManager().ActiveTask();
+			m_game_objective->m_static->TextItemControl()->SetTextST((t1) ? t1->m_Title.c_str() : "st_no_active_task");
 
-
-			SDrawStaticStruct* sm	= AddCustomStatic("main_task", true);
-			CGameTask* t1			= Level().GameTaskManager().ActiveTask(eTaskTypeStoryline);
-			CGameTask* t2			= Level().GameTaskManager().ActiveTask(eTaskTypeAdditional);
-			if(t1 && t2)
+			if ( t1 && t1->m_Description.c_str() )
 			{
-				sm->m_static->SetTextST		(t1->m_Title.c_str());
 				SDrawStaticStruct* sm2		= AddCustomStatic("secondary_task", true);
-				sm2->m_static->SetTextST	(t2->m_Title.c_str());
-			}else
-			if(t1 || t2)
-			{
-				CGameTask* t				= (t1)?t1:t2;
-				sm->m_static->SetTextST		(t->m_Title.c_str());
-			}else
-				sm->m_static->SetTextST	("st_no_active_task");
-
+				sm2->m_static->SetTextST	(t1->m_Description.c_str());
+			}
 		}break;
 	}
+
 	return false;
 }
-
-bool CUIGameSP::IR_UIOnKeyboardRelease(int dik) 
+#ifdef DEBUG
+void CUIGameSP::Render()
 {
-	if(inherited::IR_OnKeyboardRelease(dik)) return true;
-
-	if( is_binded(kSCORES, dik))
-	{
-			RemoveCustomStatic		("main_task");
-			RemoveCustomStatic		("secondary_task");
-	}
-
-	return false;
+	inherited::Render();
+	hud_draw_adjust_mode();
+	attach_draw_adjust_mode();
 }
+#endif
+
 
 void  CUIGameSP::StartTrade(CInventoryOwner* pActorInv, CInventoryOwner* pOtherOwner)
 {
@@ -144,6 +175,9 @@ void  CUIGameSP::StartUpgrade(CInventoryOwner* pActorInv, CInventoryOwner* pMech
 
 void CUIGameSP::StartTalk(bool disable_break)
 {
+	RemoveCustomStatic		("main_task");
+	RemoveCustomStatic		("secondary_task");
+
 	TalkMenu->b_disable_break = disable_break;
 	TalkMenu->ShowDialog		(true);
 }

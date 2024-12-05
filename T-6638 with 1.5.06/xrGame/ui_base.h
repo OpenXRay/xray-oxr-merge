@@ -5,8 +5,6 @@ class CUIGameCustom;
 
 #include "ui_defs.h"
 
-
-
 class CDeviceResetNotifier :public pureDeviceReset
 {
 public:

@@ -144,11 +144,12 @@ bool CLevel::net_start2				()
 		{
 			net_start_result_total = false;
 			Msg				("! Failed to start server.");
-//			Console->Execute("main_menu on");
 			return true;
 		}
 		Server->SLS_Default		();
 		map_data.m_name			= Server->level_name(m_caServerOptions);
+		if (!g_dedicated_server)
+			g_pGamePersistent->LoadTitle(true, map_data.m_name);
 	}
 	return true;
 }
@@ -219,6 +220,7 @@ bool CLevel::net_start5				()
 	{
 		NET_Packet		NP;
 		NP.w_begin		(M_CLIENTREADY);
+		Game().local_player->net_Export(NP, TRUE);
 		Send			(NP,net_flags(TRUE,TRUE));
 
 		if (OnClient() && Server)
@@ -247,14 +249,6 @@ bool CLevel::net_start6				()
 	}else{
 		Msg				("! Failed to start client. Check the connection or level existance.");
 
-		if (m_connect_server_err==xrServer::ErrBELoad)
-		{
-			DEL_INSTANCE	(g_pGameLevel);
-			Console->Execute("main_menu on");
-
-			MainMenu()->OnLoadError("BattlEye/BEServer.dll");
-		}
-		else
 		if (m_connect_server_err==xrServer::ErrConnect&&!psNET_direct_connect && !g_dedicated_server) 
 		{
 			DEL_INSTANCE	(g_pGameLevel);

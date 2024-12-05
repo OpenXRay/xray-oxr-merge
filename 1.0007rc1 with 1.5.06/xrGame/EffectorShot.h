@@ -8,7 +8,8 @@
 #include "../cameramanager.h"
 #include "Actor.h"
 
-class CWeaponShotEffector{
+class CWeaponShotEffector
+{
 protected:
 	float			fAngleVert;
 	float			fAngleVertMax;

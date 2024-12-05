@@ -16,7 +16,8 @@ namespace ScriptEntity {
 		eActionTypeSound,
 		eActionTypeParticle,
 		eActionTypeObject,
-		eActionTypeCount
+		eActionTypeCount,
+		eActionTypeRemoved
 	};
 };
 

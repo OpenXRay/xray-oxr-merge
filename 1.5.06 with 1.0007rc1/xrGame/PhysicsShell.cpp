@@ -16,7 +16,6 @@
 extern CPHWorld			*ph_world;
 CPhysicsShell::~CPhysicsShell()
 {
-	
 	//if(ph_world)ph_world->NetRelcase(this);
 }
 

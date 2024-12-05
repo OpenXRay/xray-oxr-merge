@@ -20,7 +20,7 @@ CGameSpy_Browser* g_gs_browser = NULL;
 
 CServerList::CServerList()
 {
-	m_GSBrowser	= MainMenu()->GetGS()->m_pGS_SB;
+	m_GSBrowser	= MainMenu()->GetGS()->GetGameSpyBrowser();
 	browser().Init(this);
 
 	for (int i = 0; i<LST_COLUMN_COUNT; i++)
@@ -84,8 +84,6 @@ void CServerList::on_game_spy_browser_destroy	(CGameSpy_Browser* browser)
 
 void CServerList::Update()
 {
-	//	browser().Update();
-	
 	if (m_need_refresh_fr<Device.dwFrame+10)
 		RefreshList_internal();
 
@@ -430,12 +428,6 @@ bool CServerList::IsValidItem(ServerInfo& item)
 	result &= !m_sf.with_pass ? (m_sf.with_pass == item.m_bPassword)							: true;
 	result &= !m_sf.without_pass ? (m_sf.without_pass != item.m_bPassword)						: true;
 	result &= !m_sf.without_ff ? (m_sf.without_ff != item.m_bFFire)								: true;
-#ifdef BATTLEYE
-	if ( !m_b_local )
-	{
-		result &= m_sf.with_battleye ? (/*m_sf.with_battleye	== */item.m_bBattlEye)			: true;
-	}
-#endif // BATTLEYE
 	result &= !m_sf.listen_servers ? (m_sf.listen_servers != item.m_bDedicated)					: true;
 
 	return result;

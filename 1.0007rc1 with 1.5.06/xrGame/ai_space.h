@@ -17,6 +17,7 @@ class CALifeSimulator;
 class CCoverManager;
 class CScriptEngine;
 class CPatrolPathStorage;
+class moving_objects;
 
 class CAI_Space {
 private:
@@ -28,9 +29,6 @@ private:
 
 private:
 	CGameGraph							*m_game_graph;
-#ifndef PRIQUEL
-	CGameLevelCrossTable				*m_cross_table;
-#endif // PRIQUEL
 	CLevelGraph							*m_level_graph;
 	CGraphEngine						*m_graph_engine;
 	CEF_Storage							*m_ef_storage;
@@ -38,6 +36,7 @@ private:
 	CCoverManager						*m_cover_manager;
 	CScriptEngine						*m_script_engine;
 	CPatrolPathStorage					*m_patrol_path_storage;
+	moving_objects						*m_moving_objects;
 
 private:
 			void						load					(LPCSTR level_name);
@@ -45,11 +44,7 @@ private:
 			void						patrol_path_storage_raw	(IReader &stream);
 			void						patrol_path_storage		(IReader &stream);
 			void						set_alife				(CALifeSimulator *alife_simulator);
-
-#ifdef PRIQUEL
-private:
 			void						game_graph				(CGameGraph *game_graph);
-#endif // PRIQUEL
 
 public:
 										CAI_Space				();
@@ -59,13 +54,8 @@ public:
 	IC		CGameGraph					*get_game_graph			() const;
 	IC		CLevelGraph					&level_graph			() const;
 	IC		const CLevelGraph			*get_level_graph		() const;
-#ifdef PRIQUEL
 			const CGameLevelCrossTable	&cross_table			() const;
 			const CGameLevelCrossTable	*get_cross_table		() const;
-#else // PRIQUEL
-	IC		const CGameLevelCrossTable	&cross_table			() const;
-	IC		const CGameLevelCrossTable	*get_cross_table		() const;
-#endif // PRIQUEL
 	IC		const CPatrolPathStorage	&patrol_paths			() const;
 	IC		CEF_Storage					&ef_storage				() const;
 	IC		CGraphEngine				&graph_engine			() const;
@@ -73,7 +63,7 @@ public:
 	IC		const CALifeSimulator		*get_alife				() const;
 	IC		const CCoverManager			&cover_manager			() const;
 	IC		CScriptEngine				&script_engine			() const;
-
+	IC		moving_objects				&moving_objects			() const;
 #ifdef DEBUG
 			void						validate				(const u32			level_id) const;
 #endif

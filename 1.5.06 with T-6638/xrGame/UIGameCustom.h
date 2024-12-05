@@ -1,5 +1,3 @@
-#ifndef __XR_UIGAMECUSTOM_H__
-#define __XR_UIGAMECUSTOM_H__
 #pragma once
 
 
@@ -19,6 +17,9 @@ class CUIWindow;
 class CUIXml;
 class CUIActorMenu;
 class CUIPdaWnd;			
+struct KillMessageStruct;
+class CUIMainIngameWnd;
+class CUIMessagesWindow;
 
 struct SDrawStaticStruct :public IPureDestroyableObject
 {
@@ -30,7 +31,8 @@ struct SDrawStaticStruct :public IPureDestroyableObject
 	void			Draw();
 	void			Update();
 	CUIStatic*		wnd()		{return m_static;}
-	bool			IsActual();
+	bool			IsActual()	const;
+	void			SetText		(LPCSTR);
 	bool operator ==(LPCSTR str){
 		return (m_name == str);
 	}
@@ -94,19 +96,23 @@ protected:
 	CUIActorMenu*		m_ActorMenu;
 	CUIPdaWnd*			m_PdaMenu;
 
+	bool				m_bShowGameIndicators;
+
 public:
-	virtual void		SetClGame				(game_cl_GameState* g){};
+	CUIMainIngameWnd*	UIMainIngameWnd;
+	CUIMessagesWindow*	m_pMessagesWnd;
+
+	virtual void		SetClGame				(game_cl_GameState* g);
 	virtual void		OnInventoryAction		(PIItem item, u16 action_type);
 
 
 						CUIGameCustom			();
 	virtual				~CUIGameCustom			();
 
-	virtual	void		Init					()	{};
+	virtual	void		Init					(int stage)	{};
 	
 	virtual void		Render					();
 	virtual void		OnFrame					();
-	virtual	void		reset_ui				();
 	
 	IC CUIActorMenu&	ActorMenu				() const { return *m_ActorMenu; }
 	IC CUIPdaWnd&		PdaMenu					() const { return *m_PdaMenu;   }
@@ -134,12 +140,17 @@ public:
 	virtual void		ChangeTotalMoneyIndicator	(LPCSTR newMoneyString) {};
 	virtual void		DisplayMoneyChange			(LPCSTR deltaMoney) {};
 	virtual void		DisplayMoneyBonus			(KillMessageStruct* bonus) {};
+	
+	virtual void		UnLoad					();
+	void				Load					();
+	
+	void				OnConnected				();
+
+	void				UpdatePda				();
+	void				update_fake_indicators	(u8 type, float power);
+	void				enable_fake_indicators	(bool enable);
 
 	DECLARE_SCRIPT_REGISTER_FUNCTION
 }; // class CUIGameCustom
 
-add_to_type_list(CUIGameCustom)
-#undef script_type_list
-#define script_type_list save_type_list(CUIGameCustom)
-
-#endif // __XR_UIGAMECUSTOM_H__
+extern CUIGameCustom*		CurrentGameUI();

@@ -6,7 +6,7 @@
 //	Description : smart cover object class
 ////////////////////////////////////////////////////////////////////////////
 
-#include "stdafx.h"
+#include "pch_script.h"
 #include "smart_cover_object.h"
 #include "../xrServerEntities/xrServer_Objects_ALife_Smartcovers.h"
 #include "level.h"
@@ -61,7 +61,7 @@ BOOL object::net_Spawn		(CSE_Abstract *server_entity)
 		return						(FALSE);
 
 	if (ai().get_alife() && smart_cover->m_description.size())
-		m_cover						= ai().cover_manager().add_smart_cover(smart_cover->m_description.c_str(), *this, smart_cover->m_is_combat_cover ? true : false);
+		m_cover						= ai().cover_manager().add_smart_cover(smart_cover->m_description.c_str(), *this, smart_cover->m_is_combat_cover ? true : false, smart_cover->m_can_fire ? true : false, smart_cover->m_available_loopholes);
 	else
 		m_cover						= 0;
 

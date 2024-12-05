@@ -12,7 +12,6 @@
 #include "alife_simulator.h"
 #include "alife_space.h"
 #include "inventory.h"
-#include "clsid_game.h"
 #include "pda.h"
 #include "eatable_item.h"
 #include "medkit.h"
@@ -22,6 +21,7 @@
 #include "ef_primary.h"
 #include "ef_pattern.h"
 #include "trade_parameters.h"
+#include "clsid_game.h"
 
 extern u32 get_rank								(const shared_str &section);
 
@@ -247,7 +247,6 @@ void CAI_Stalker::update_sell_info					()
 		return;
 
 	m_sell_info_actuality	= true;
-
 	m_temp_items.clear		();
 	m_current_trader		= 0;
 	m_total_money			= get_money();
@@ -264,7 +263,7 @@ void CAI_Stalker::update_sell_info					()
 	}
 }
 
-bool CAI_Stalker::can_sell							(CInventoryItem const * item)
+bool CAI_Stalker::can_sell							(CInventoryItem* item)
 {
 	update_sell_info		();
 	xr_vector<CTradeItem>::const_iterator	I = std::find(m_temp_items.begin(),m_temp_items.end(),item->object().ID());
@@ -277,12 +276,12 @@ bool CAI_Stalker::AllowItemToTrade 					(CInventoryItem const * item, EItemPlace
 	if (!g_Alive())
 		return				(trade_parameters().enabled(CTradeParameters::action_show(0),item->object().cNameSect()));
 
-	return					(const_cast<CAI_Stalker*>(this)->can_sell(item));
+	return					(const_cast<CAI_Stalker*>(this)->can_sell(const_cast<CInventoryItem*>(item)));
 }
 
 bool CAI_Stalker::non_conflicted					(const CInventoryItem *item, const CWeapon *new_weapon) const
 {
-	if (item->object().ID() == new_weapon->ID())
+	if (item == new_weapon)
 		return				(true);
 
 	const CWeapon			*weapon = smart_cast<const CWeapon*>(item);

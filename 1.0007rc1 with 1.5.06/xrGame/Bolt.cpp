@@ -24,22 +24,6 @@ void CBolt::OnH_A_Chield()
 	
 }
 
-void CBolt::OnEvent(NET_Packet& P, u16 type) 
-{
-	inherited::OnEvent(P,type);
-}
-
-bool CBolt::Activate() 
-{
-	Show();
-	return true;
-}
-
-void CBolt::Deactivate() 
-{
-	Hide();
-}
-
 void CBolt::Throw() 
 {
 	CMissile					*l_pBolt = smart_cast<CMissile*>(m_fake_missile);

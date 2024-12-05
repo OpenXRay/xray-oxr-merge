@@ -170,6 +170,7 @@ void CSE_SmartCover::UPDATE_Write(NET_Packet &tNetPacket)
 {
 	inherited1::UPDATE_Write	(tNetPacket);
 }
+
 #ifndef XRGAME_EXPORTS
 void CSE_SmartCover::FillProps	(LPCSTR pref, PropItemVec& items)
 {

@@ -1,9 +1,12 @@
 #include "stdafx.h"
+
+//#if 0
+
 #include "ParticlesObject.h"
 #include "Physics.h"
 
 #ifdef DEBUG
-#	include "../StatGraph.h"
+#	include "../xrEngine/StatGraph.h"
 #	include "PHDebug.h"
 #endif // DEBUG
 
@@ -19,12 +22,12 @@
 #include "script_entity_action.h"
 #include "inventory.h"
 #include "xrserver_objects_alife_items.h"
-#include "../skeletonanimated.h"
+#include "../Include/xrRender/Kinematics.h"
 #include "level.h"
 #include "ui/UIMainIngameWnd.h"
 #include "CarWeapon.h"
 #include "game_object_space.h"
-#include "GameMtlLib.h"
+#include "../xrEngine/gamemtllib.h"
 #include "PHActivationShape.h"
 #include "CharacterPhysicsSupport.h"
 #include "car_memory.h"
@@ -122,7 +125,7 @@ void CCar::reload		(LPCSTR section)
 void CCar::cb_Steer			(CBoneInstance* B)
 {
 	VERIFY2(fsimilar(DET(B->mTransform),1.f,DET_CHECK_EPS),"Bones receive returns 0 matrix");
-	CCar*	C			= static_cast<CCar*>(B->Callback_Param);
+	CCar*	C			= static_cast<CCar*>(B->callback_param());
 	Fmatrix m;
 
 
@@ -157,13 +160,13 @@ BOOL	CCar::net_Spawn				(CSE_Abstract* DC)
 	BOOL							R = inherited::net_Spawn(DC);
 
 	PKinematics(Visual())->CalculateBones_Invalidate();
-	PKinematics(Visual())->CalculateBones();
+	PKinematics(Visual())->CalculateBones(TRUE);
 
 	CPHSkeleton::Spawn(e);
 	setEnabled						(TRUE);
 	setVisible						(TRUE);
 	PKinematics(Visual())->CalculateBones_Invalidate();
-	PKinematics(Visual())->CalculateBones();
+	PKinematics(Visual())->CalculateBones(TRUE);
 	m_fSaveMaxRPM					= m_max_rpm;
 	SetfHealth						(co->health);
 
@@ -204,9 +207,9 @@ void CCar::SpawnInitPhysics	(CSE_Abstract	*D)
 	R_ASSERT						(so);
 	ParseDefinitions				();//parse ini filling in m_driving_wheels,m_steering_wheels,m_breaking_wheels
 	CreateSkeleton					(D);//creates m_pPhysicsShell & fill in bone_map
-	CKinematics *K					=smart_cast<CKinematics*>(Visual());
+	IKinematics *K					=smart_cast<IKinematics*>(Visual());
 	K->CalculateBones_Invalidate();//this need to call callbacks
-	K->CalculateBones	();
+	K->CalculateBones	(TRUE);
 	Init							();//inits m_driving_wheels,m_steering_wheels,m_breaking_wheels values using recieved in ParceDefinitions & from bone_map
 	//PPhysicsShell()->add_ObjectContactCallback(ActorObstacleCallback);
 	SetDefaultNetState				(so);
@@ -218,7 +221,7 @@ void	CCar::net_Destroy()
 #ifdef DEBUG
 	DBgClearPlots();
 #endif
-	CKinematics* pKinematics=smart_cast<CKinematics*>(Visual());
+	IKinematics* pKinematics=smart_cast<IKinematics*>(Visual());
 	if(m_bone_steer!=BI_NONE)
 	{
 
@@ -405,7 +408,7 @@ void CCar::UpdateEx			(float fov)
 	if(OwnerActor() && OwnerActor()->IsMyCamera()) 
 	{
 		cam_Update(Device.fTimeDelta, fov);
-		OwnerActor()->Cameras().Update(Camera());
+		OwnerActor()->Cameras().UpdateFromCamera(Camera());
 		OwnerActor()->Cameras().ApplyDevice(VIEWPORT_NEAR);
 	}
 
@@ -466,7 +469,7 @@ void CCar::UpdateCL				( )
 		if(HUD().GetUI())//
 		{
 			HUD().GetUI()->UIMainIngameWnd->CarPanel().Show(true);
-			HUD().GetUI()->UIMainIngameWnd->CarPanel().SetCarHealth(GetfHealth()/* /100.f*/);
+			HUD().GetUI()->UIMainIngameWnd->CarPanel().SetCarHealth(GetfHealth());
 			HUD().GetUI()->UIMainIngameWnd->CarPanel().SetSpeed(lin_vel.magnitude()/1000.f*3600.f/100.f);
 			HUD().GetUI()->UIMainIngameWnd->CarPanel().SetRPM(m_current_rpm/m_max_rpm/2.f);
 		}
@@ -499,7 +502,7 @@ void	CCar::net_Import			(NET_Packet& P)
 //	P.w_u32 (NumItems);
 }
 
-void	CCar::OnHUDDraw				(CCustomHUD* /**hud/**/)
+void	CCar::OnHUDDraw				(CCustomHUD* /**hud*/)
 {
 #ifdef DEBUG
 	Fvector velocity;
@@ -540,7 +543,7 @@ void	CCar::Hit							(SHit* pHDS)
 	}
 	CDamagableItem::HitEffect();
 	if(Owner()&&Owner()->ID()==Level().CurrentEntity()->ID())
-		HUD().GetUI()->UIMainIngameWnd->CarPanel().SetCarHealth(GetfHealth()/* /100.f */);
+		HUD().GetUI()->UIMainIngameWnd->CarPanel().SetCarHealth(GetfHealth());
 }
 
 void CCar::ChangeCondition	(float fDeltaCondition)	
@@ -551,28 +554,28 @@ void CCar::ChangeCondition	(float fDeltaCondition)
 	if (Local() && !g_Alive() && !AlreadyDie())
 		KillEntity	(Initiator());
 	if(Owner()&&Owner()->ID()==Level().CurrentEntity()->ID())
-		HUD().GetUI()->UIMainIngameWnd->CarPanel().SetCarHealth(GetfHealth()/* /100.f */);
+		HUD().GetUI()->UIMainIngameWnd->CarPanel().SetCarHealth(GetfHealth());
 }
 
-void CCar::PHHit(float P,Fvector &dir, CObject *who,s16 element,Fvector p_in_object_space, float impulse, ALife::EHitType hit_type)
+void CCar::PHHit(SHit &H)
 {
 	if(!m_pPhysicsShell)	return;
-	if(m_bone_steer==element) return;
+	if(m_bone_steer==H.bone()) return;
 	if(CPHUpdateObject::IsActive())
 	{
-		Fvector vimpulse;vimpulse.set(dir);
-		vimpulse.mul(impulse);
+		Fvector vimpulse;vimpulse.set(H.direction());
+		vimpulse.mul( H.phys_impulse( ) );
 		vimpulse.y *=GravityFactorImpulse();
 		float mag=vimpulse.magnitude();
 		if(!fis_zero(mag))
 		{
 			 vimpulse.mul(1.f/mag);
-			 m_pPhysicsShell->applyHit(p_in_object_space,vimpulse,mag,element,hit_type);
+			 m_pPhysicsShell->applyHit(H.bone_space_position(),vimpulse,mag,H.bone(),H.type());
 		}
 		
 	} else
 	{
-		m_pPhysicsShell->applyHit(p_in_object_space,dir,impulse,element,hit_type);
+		m_pPhysicsShell->applyHit( H.bone_space_position(), H.direction(), H.phys_impulse(), H.bone(), H.type() );
 	}
 }
 
@@ -622,7 +625,7 @@ bool CCar::attach_Actor(CGameObject* actor)
 	if(Owner()||CPHDestroyable::Destroyed()) return false;
 	CHolderCustom::attach_Actor(actor);
 
-	CKinematics* K	= smart_cast<CKinematics*>(Visual());
+	IKinematics* K	= smart_cast<IKinematics*>(Visual());
 	CInifile* ini	= K->LL_UserData();
 	int id;
 	if(ini->line_exist("car_definition","driver_place"))
@@ -718,7 +721,7 @@ void CCar::ParseDefinitions()
 	
 	bone_map.clear();
 
-	CKinematics* pKinematics=smart_cast<CKinematics*>(Visual());
+	IKinematics* pKinematics=smart_cast<IKinematics*>(Visual());
 	bone_map.insert(mk_pair(pKinematics->LL_GetBoneRoot(),physicsBone()));
 	CInifile* ini = pKinematics->LL_UserData();
 	R_ASSERT2(ini,"Car has no description !!! See ActorEditor Object - UserData");
@@ -850,7 +853,7 @@ void CCar::Init()
 	CPHCollisionDamageReceiver::Init();
 
 	//get reference wheel radius
-	CKinematics* pKinematics=smart_cast<CKinematics*>(Visual());
+	IKinematics* pKinematics=smart_cast<IKinematics*>(Visual());
 	CInifile* ini = pKinematics->LL_UserData();
 	R_ASSERT2(ini,"Car has no description !!! See ActorEditor Object - UserData");
 	///SWheel& ref_wheel=m_wheels_map.find(pKinematics->LL_BoneID(ini->r_string("car_definition","reference_wheel")))->second;
@@ -1844,7 +1847,7 @@ void CCar::CarExplode()
 
 template <class T> IC void CCar::fill_wheel_vector(LPCSTR S,xr_vector<T>& type_wheels)
 {
-	CKinematics* pKinematics	=smart_cast<CKinematics*>(Visual());
+	IKinematics* pKinematics	=smart_cast<IKinematics*>(Visual());
 	string64					S1;
 	int count =					_GetItemCount(S);
 	for (int i=0 ;i<count; ++i) 
@@ -1879,7 +1882,7 @@ template <class T> IC void CCar::fill_wheel_vector(LPCSTR S,xr_vector<T>& type_w
 
 IC void CCar::fill_exhaust_vector(LPCSTR S,xr_vector<SExhaust>& exhausts)
 {
-	CKinematics* pKinematics	=smart_cast<CKinematics*>(Visual());
+	IKinematics* pKinematics	=smart_cast<IKinematics*>(Visual());
 	string64					S1;
 	int count =					_GetItemCount(S);
 	for (int i=0 ;i<count; ++i) 
@@ -1903,7 +1906,7 @@ IC void CCar::fill_exhaust_vector(LPCSTR S,xr_vector<SExhaust>& exhausts)
 
 IC void CCar::fill_doors_map(LPCSTR S,xr_map<u16,SDoor>& doors)
 {
-	CKinematics* pKinematics	=smart_cast<CKinematics*>(Visual());
+	IKinematics* pKinematics	=smart_cast<IKinematics*>(Visual());
 	string64					S1;
 	int count =					_GetItemCount(S);
 	for (int i=0 ;i<count; ++i) 
@@ -2024,3 +2027,4 @@ Fvector	CCar::		ExitVelocity				()
 	return v;
 }
 
+//#endif // #if 0

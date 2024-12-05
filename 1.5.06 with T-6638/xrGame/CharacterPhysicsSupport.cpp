@@ -121,6 +121,9 @@ CCharacterPhysicsSupport::CCharacterPhysicsSupport( EType atype, CEntityAlive* a
 		break;
 	case etBitting:
 		m_PhysicMovementControl->AllocateCharacterObject(CPHMovementControl::ai);
+
+		m_PhysicMovementControl->SetRestrictionType(rtMonsterMedium);
+		//m_PhysicMovementControl->SetActorMovable(false);
 	}
 };
 
@@ -234,6 +237,9 @@ void CCharacterPhysicsSupport::in_NetSpawn( CSE_Abstract* e )
 	anim_mov_state.init( );
 
 	anim_mov_state.active = m_EntityAlife.animation_movement_controlled( );
+	CInifile * ini = m_EntityAlife.spawn_ini			();
+	if(ini && ini->section_exist("physics") && ini->line_exist("physics","controller_can_be_moved_by_player") )
+		m_PhysicMovementControl->SetActorMovable(!! ini->r_bool("physics","controller_can_be_moved_by_player") );	
 }
 
 bool		CCharacterPhysicsSupport::CollisionCorrectObjPos( )
@@ -293,6 +299,22 @@ void CCharacterPhysicsSupport::SpawnInitPhysics( CSE_Abstract* e )
 	{
 		ActivateShell( NULL );
 	}
+
+	CSE_PHSkeleton *po		= smart_cast<CSE_PHSkeleton*>(e);
+	VERIFY( po );
+
+	PHNETSTATE_VECTOR& saved_bones=po->saved_bones.bones;
+	if( po->_flags.test(CSE_PHSkeleton::flSavedData) &&
+		saved_bones.size() != m_EntityAlife.PHGetSyncItemsNumber()
+		)
+	{
+#ifdef DEBUG
+		Msg("! saved bones %d , current bones %d, object :%s", saved_bones.size(), m_EntityAlife.PHGetSyncItemsNumber(), m_EntityAlife.cName().c_str() );
+#endif
+		po->_flags.set(CSE_PHSkeleton::flSavedData, FALSE );
+		saved_bones.clear();
+	}
+
 }
 void		CCharacterPhysicsSupport::					SpawnCharacterCreate			( )
 {
@@ -719,19 +741,20 @@ bool CCharacterPhysicsSupport::CollisionCorrectObjPos(const Fvector& start_from,
 	shift.add(activation_pos);
 	vbox.mul(2.f);
 	activation_pos.add(shift,m_EntityAlife.Position());
+	bool not_collide_characters =	!DoCharacterShellCollide() && !character_create;
+	bool set_rotation =				!character_create;
+	
+	Fvector activation_res = Fvector().set(0,0,0);
+////////////////
 
-	CPHActivationShape activation_shape;
-	activation_shape.Create(activation_pos,vbox,&m_EntityAlife);
-	if( !DoCharacterShellCollide() && !character_create )
-	{
-		CPHCollideValidator::SetCharacterClassNotCollide(activation_shape);
-	}
-	if( !character_create )
-			activation_shape.set_rotation( mXFORM );
-	bool ret = activation_shape.Activate(vbox,1,1.f,M_PI/8.f);
-	m_EntityAlife.Position().sub(activation_shape.Position(),shift);
+	bool ret = ActivateShapeCharacterPhysicsSupport( activation_res, vbox, activation_pos, mXFORM, not_collide_characters, set_rotation, &m_EntityAlife );
+//////////////////
 
-	activation_shape.Destroy();
+
+
+	m_EntityAlife.Position().sub(activation_res,shift);
+
+
 	if(m_pPhysicsShell)
 		m_pPhysicsShell->EnableCollision();
 	return ret;
@@ -745,7 +768,18 @@ void CCharacterPhysicsSupport::set_movement_position( const Fvector &pos)
 	
 	movement()->SetPosition( m_EntityAlife.Position() );
 }
-
+void CCharacterPhysicsSupport::ForceTransform( const Fmatrix &m )
+{
+	if( !m_EntityAlife.g_Alive() )
+				return;
+	VERIFY(_valid(m));
+	m_EntityAlife.XFORM().set( m );
+	if( movement()->CharacterExist() )
+			movement()->EnableCharacter();
+	set_movement_position( m.c );
+	movement()->SetVelocity( 0, 0, 0 );
+}
+/*
 void reset_root_bone_start_pose( CPhysicsShell& shell )
 {
 	VERIFY( &shell );
@@ -791,6 +825,7 @@ void reset_root_bone_start_pose( CPhysicsShell& shell )
 
 	//physics_root_element->TransformPosition( Fmatrix().mul_43( Fmatrix().invert( K->LL_GetTransform( animation_root_bone_id ) ), physics_root_bone_corrected_pos ) );
 }
+*/
 static const u32 physics_shell_animated_destroy_delay = 3000;
 void	CCharacterPhysicsSupport::	destroy_animation_collision		( )
 {
@@ -884,7 +919,7 @@ void	CCharacterPhysicsSupport::	RemoveActiveWeaponCollision		()
 	Fmatrix m1_to_e = Fmatrix().mul_43( Fmatrix().invert( m1 ), me );
 
 	Fmatrix m0e = Fmatrix().mul_43( m0, m1_to_e );
-	root->SetTransform( m0e );
+	root->SetTransform( m0e, mh_unspecified );
 
 	for( ;ii!=ee; ++ii )
 	{
@@ -978,13 +1013,13 @@ void	CCharacterPhysicsSupport::	AddActiveWeaponCollision		()
 	CPhysicsElement* weapon_attach_bone = m_pPhysicsShell->get_PhysicsParrentElement( (u16)br );
 
 	bone_chain_disable( (u16)br, weapon_attach_bone->m_SelfID, *m_pPhysicsShell->PKinematics() );
-	if( bl!=-1 )
+	if(bl != br && bl!=-1 )
 	{
 		CPhysicsElement* p = m_pPhysicsShell->get_PhysicsParrentElement( (u16) bl );
 		VERIFY( p );
 		bone_chain_disable( (u16)bl, p->m_SelfID, *m_pPhysicsShell->PKinematics() );
 	}
-	if( br2!=-1 )
+	if(br2!=bl && br2 != br && br2!=-1 )
 	{
 		CPhysicsElement* p = m_pPhysicsShell->get_PhysicsParrentElement( (u16) br2 );
 		VERIFY( p );
@@ -1238,10 +1273,12 @@ void CCharacterPhysicsSupport::in_ChangeVisual()
 			m_physics_skeleton->Deactivate()		;
 			xr_delete(m_physics_skeleton)			;
 		}
+		if( m_EntityAlife.Visual( ) )
 		CreateSkeleton(m_physics_skeleton);
 		if(m_pPhysicsShell)
 			m_pPhysicsShell->Deactivate();
 		xr_delete(m_pPhysicsShell);
+		if( m_EntityAlife.Visual( ) )
 		ActivateShell(NULL);
 	}
 
@@ -1287,9 +1324,7 @@ void CCharacterPhysicsSupport::DestroyIKController()
 
 void		 CCharacterPhysicsSupport::in_NetRelcase(CObject* O)																													
 {
-	CPHCapture* c=m_PhysicMovementControl->PHCapture();
-	if(c)
-		c->RemoveConnection( O );
+	m_PhysicMovementControl->NetRelcase( O );
 
 	if( m_sv_hit.is_valide() && m_sv_hit.initiator() == O )
 		m_sv_hit = SHit();

@@ -36,7 +36,6 @@ public:
 	
 	void		CoreThink		(gsi_time theMs)	{ xrGS_gsCoreThink(theMs);	};
 private:
-
 	CGameSpy_Available*	m_pGSA;
 	CGameSpy_Patching*	m_pGS_Patching;
 	CGameSpy_HTTP*		m_pGS_HTTP;

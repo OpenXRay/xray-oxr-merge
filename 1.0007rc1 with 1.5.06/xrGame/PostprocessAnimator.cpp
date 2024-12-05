@@ -53,12 +53,14 @@ CPostprocessAnimator::~CPostprocessAnimator           ()
     Clear ();
 }
 
+#ifndef _PP_EDITOR_
 BOOL CPostprocessAnimator::Valid()
 {
 	if(m_bCyclic)	return TRUE;
 
 	return CEffectorPP::Valid	();
 }
+#endif
 
 void        CPostprocessAnimator::Clear                           ()
 {
@@ -76,7 +78,7 @@ void        CPostprocessAnimator::Load                            (LPCSTR name)
           Debug.fatal (DEBUG_INFO,"Can't find motion file '%s'.", name);
 #else /*_PP_EDITOR_*/
     string_path full_path;
-    strcpy (full_path, name);
+    strcpy_s (full_path, name);
 #endif /*_PP_EDITOR_*/
 
     LPCSTR  ext = strext(full_path);
@@ -395,6 +397,7 @@ void        CPostProcessValue::add_value                       (float time, floa
     (*i)->continuity = c;
     (*i)->bias = b;
 }
+
 void        CPostProcessValue::update_value                    (float time, float value, float t, float c, float b, int index)
 {
     KeyIt i = m_Value.FindKey (time, 0.01f);
@@ -403,6 +406,7 @@ void        CPostProcessValue::update_value                    (float time, floa
     (*i)->continuity = c;
     (*i)->bias = b;
 }
+
 void        CPostProcessValue::get_value                       (float time, float &value, float &t, float &c, float &b, int index)
 {
     KeyIt i = m_Value.FindKey (time, 0.01f);

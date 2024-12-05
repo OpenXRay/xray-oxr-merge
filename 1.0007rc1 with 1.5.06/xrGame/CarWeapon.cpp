@@ -2,7 +2,8 @@
 #include "CarWeapon.h"
 #include "PhysicsShell.h"
 #include "PhysicsShellHolder.h"
-#include "../skeletoncustom.h"
+//#include "../Include/xrRender/Kinematics.h"
+#include "../Include/xrRender/Kinematics.h"
 #include "object_broker.h"
 #include "ai_sounds.h"
 #include "weaponAmmo.h"
@@ -11,14 +12,14 @@
 
 void CCarWeapon::BoneCallbackX		(CBoneInstance *B)
 {
-	CCarWeapon	*P = static_cast<CCarWeapon*>(B->Callback_Param);
+	CCarWeapon	*P = static_cast<CCarWeapon*>(B->callback_param());
 	Fmatrix rX;		rX.rotateX		(P->m_cur_x_rot);
 	B->mTransform.mulB_43			(rX);
 }
 
 void CCarWeapon::BoneCallbackY		(CBoneInstance *B)
 {
-	CCarWeapon	*P = static_cast<CCarWeapon*>(B->Callback_Param);
+	CCarWeapon	*P = static_cast<CCarWeapon*>(B->callback_param());
 	Fmatrix rY;		rY.rotateY		(P->m_cur_y_rot);
 	B->mTransform.mulB_43			(rY);
 }
@@ -30,7 +31,7 @@ CCarWeapon::CCarWeapon(CPhysicsShellHolder* obj)
 	m_object	= obj;
 	m_Ammo		= xr_new<CCartridge>();
 
-	CKinematics* K			= smart_cast<CKinematics*>(m_object->Visual());
+	IKinematics* K			= smart_cast<IKinematics*>(m_object->Visual());
 	CInifile* pUserData		= K->LL_UserData(); 
 
 	m_rotate_x_bone			= K->LL_BoneID	(pUserData->r_string("mounted_weapon_definition","rotate_x_bone"));
@@ -79,7 +80,7 @@ CCarWeapon::~CCarWeapon()
 void CCarWeapon::Load(LPCSTR section)
 {
 	inheritedShooting::Load(section);
-	HUD_SOUND::LoadSound(section,"snd_shoot", m_sndShot, SOUND_TYPE_WEAPON_SHOOTING);
+	HUD_SOUND_ITEM::LoadSound(section,"snd_shoot", m_sndShot, SOUND_TYPE_WEAPON_SHOOTING);
 	m_Ammo->Load(pSettings->r_string(section, "ammo_class"), 0);
 }
 
@@ -87,15 +88,15 @@ void CCarWeapon::UpdateCL()
 {
 	if(!m_bActive)				return;
 	UpdateBarrelDir				();
-	CKinematics* K				= smart_cast<CKinematics*>(m_object->Visual());
+	IKinematics* K				= smart_cast<IKinematics*>(m_object->Visual());
 	K->CalculateBones_Invalidate();
-	K->CalculateBones			();
+	K->CalculateBones			(TRUE);
 	UpdateFire					();
 }
 
 void CCarWeapon::UpdateFire()
 {
-	fTime -= Device.fTimeDelta;
+	fShotTimeCounter -= Device.fTimeDelta;
 
 	inheritedShooting::UpdateFlameParticles();
 	inheritedShooting::UpdateLight();
@@ -107,14 +108,16 @@ void CCarWeapon::UpdateFire()
 			FireEnd();
 	};
 
-	if(!IsWorking()){
-		if(fTime<0) fTime = 0.f;
+	if(!IsWorking())
+	{
+		clamp(fShotTimeCounter, 0.0f, flt_max);
 		return;
 	}
 
-	if(fTime<=0){
+	if(fShotTimeCounter<=0)
+	{
 		OnShot();
-		fTime += fTimeToFire;
+		fShotTimeCounter += fOneShotTime;
 	}
 }
 
@@ -127,17 +130,17 @@ void CCarWeapon::SetBoneCallbacks()
 {
 //	m_object->PPhysicsShell()->EnabledCallbacks(FALSE);
 	
-	CBoneInstance& biX		= smart_cast<CKinematics*>(m_object->Visual())->LL_GetBoneInstance(m_rotate_x_bone);	
+	CBoneInstance& biX		= smart_cast<IKinematics*>(m_object->Visual())->LL_GetBoneInstance(m_rotate_x_bone);	
 	biX.set_callback		(bctCustom,BoneCallbackX,this);
-	CBoneInstance& biY		= smart_cast<CKinematics*>(m_object->Visual())->LL_GetBoneInstance(m_rotate_y_bone);	
+	CBoneInstance& biY		= smart_cast<IKinematics*>(m_object->Visual())->LL_GetBoneInstance(m_rotate_y_bone);	
 	biY.set_callback		(bctCustom,BoneCallbackY,this);
 }
 
 void CCarWeapon::ResetBoneCallbacks()
 {
-	CBoneInstance& biX		= smart_cast<CKinematics*>(m_object->Visual())->LL_GetBoneInstance(m_rotate_x_bone);	
+	CBoneInstance& biX		= smart_cast<IKinematics*>(m_object->Visual())->LL_GetBoneInstance(m_rotate_x_bone);	
 	biX.reset_callback		();
-	CBoneInstance& biY		= smart_cast<CKinematics*>(m_object->Visual())->LL_GetBoneInstance(m_rotate_y_bone);	
+	CBoneInstance& biY		= smart_cast<IKinematics*>(m_object->Visual())->LL_GetBoneInstance(m_rotate_y_bone);	
 	biY.reset_callback		();
 
 //	m_object->PPhysicsShell()->EnabledCallbacks(TRUE);
@@ -145,7 +148,7 @@ void CCarWeapon::ResetBoneCallbacks()
 
 void CCarWeapon::UpdateBarrelDir()
 {
-	CKinematics* K		= smart_cast<CKinematics*>(m_object->Visual());
+	IKinematics* K		= smart_cast<IKinematics*>(m_object->Visual());
 	m_fire_bone_xform	= K->LL_GetTransform(m_fire_bone);
 
 	m_fire_bone_xform.mulA_43(m_object->XFORM());
@@ -234,7 +237,7 @@ void CCarWeapon::OnShot()
 	StartSmokeParticles		(m_fire_pos, zero_vel);
 //	OnShellDrop				(m_fire_pos, zero_vel);
 
-	HUD_SOUND::PlaySound	(m_sndShot, m_fire_pos, m_object, false);
+	HUD_SOUND_ITEM::PlaySound	(m_sndShot, m_fire_pos, m_object, false);
 }
 
 void CCarWeapon::Action				(int id, u32 flags)

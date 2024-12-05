@@ -158,7 +158,8 @@ IC int dcTriListCollider::dSortTriPrimitiveCollide (
 			neg_tri.depth=sidePr-neg_tri.dist;
 			neg_depth=neg_tri.depth;
 			intersect	=	true;
-		} else
+		}
+		else
 		{
 			*pushing_neg=false;
 		}

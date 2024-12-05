@@ -139,6 +139,7 @@ public:
 	virtual void StartTalk			(CInventoryOwner* talk_partner);
 			void RunTalkDialog		(CInventoryOwner* talk_partner, bool disable_break);
 	CActorStatisticMgr&				StatisticMgr()	{return *m_statistic_manager;}
+	CEncyclopediaRegistryWrapper	*encyclopedia_registry;
 	CGameNewsRegistryWrapper		*game_news_registry;
 	CCharacterPhysicsSupport		*m_pPhysics_support;
 
@@ -275,7 +276,7 @@ protected:
 
 public:
 	SActorMotions*			m_anims;
-//.	SActorVehicleAnims*		m_vehicle_anims;
+	SActorVehicleAnims*		m_vehicle_anims;
 
 	CBlend*					m_current_legs_blend;
 	CBlend*					m_current_torso_blend;
@@ -287,11 +288,11 @@ public:
 	// callback на анимации модели актера
 	void					SetCallbacks		();
 	void					ResetCallbacks		();
-	static void		_BCL	Spin0Callback		(CBoneInstance*);
-	static void		_BCL	Spin1Callback		(CBoneInstance*);
-	static void		_BCL	ShoulderCallback	(CBoneInstance*);
-	static void		_BCL	HeadCallback		(CBoneInstance*);
-	static void		_BCL	VehicleHeadCallback	(CBoneInstance*);
+	static void				Spin0Callback		(CBoneInstance*);
+	static void				Spin1Callback		(CBoneInstance*);
+	static void				ShoulderCallback	(CBoneInstance*);
+	static void				HeadCallback		(CBoneInstance*);
+	static void				VehicleHeadCallback	(CBoneInstance*);
 
 	virtual const SRotation	Orientation			()	const	{ return r_torso; };
 	SRotation				&Orientation		()			 { return r_torso; };
@@ -384,7 +385,7 @@ public:
 	void					g_sv_Orientate			(u32 mstate_rl, float dt);
 	void					g_Orientate				(u32 mstate_rl, float dt);
 	bool					g_LadderOrient			() ;
-//	void					UpdateMotionIcon		(u32 mstate_rl);
+	void					UpdateMotionIcon		(u32 mstate_rl);
 
 	bool					CanAccelerate			();
 	bool					CanJump					();
@@ -650,6 +651,7 @@ public:
 	virtual bool				natural_weapon				() const {return false;}
 	virtual bool				natural_detector			() const {return false;}
 	virtual bool				use_center_to_aim			() const;
+
 protected:
 	u16							m_iLastHitterID;
 	u16							m_iLastHittingWeaponID;

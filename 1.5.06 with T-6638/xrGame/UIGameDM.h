@@ -11,11 +11,7 @@ class game_cl_Deathmatch;
 class CUIMoneyIndicator;
 class CUIRankIndicator;
 class UIVoteStatusWnd;
-
-//-class CUIActorMenu;
-//-class CUIPdaWnd;
 class CUIMapDesc;
-
 class UITeamPanels;
 
 class CUIGameDM: public UIGameMP
@@ -36,19 +32,14 @@ protected:
 	CUIWindow*				m_pFragLists;
 	CUIWindow*				m_pPlayerLists;
 	UITeamPanels*			m_pTeamPanels;
-	//-----------------------------------------
 	CUIWindow*				m_pStatisticWnds;
-	//-----------------------------------------
 	
-	//-----------------------------------------
 	shared_str					m_time_caption;		
 	shared_str					m_spectrmode_caption;		
 	
 	shared_str					m_spectator_caption;
 	shared_str					m_pressjump_caption;
 	shared_str					m_pressbuy_caption;
-//.	shared_str					m_vote_caption0, m_vote_caption1;
-//.	shared_str					m_votetimeresult_caption;
 	shared_str					m_round_result_caption;		
 	shared_str					m_force_respawn_time_caption;
 	shared_str					m_demo_play_caption;
@@ -66,7 +57,8 @@ public:
 	virtual 						~CUIGameDM				();
 
 	virtual void					SetClGame				(game_cl_GameState* g);
-	virtual	void					Init					();
+	virtual	void					Init					(int stage);
+	virtual void					UnLoad					();
 	virtual void					Render					();
 	virtual void					OnFrame					();
 

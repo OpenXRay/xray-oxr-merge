@@ -4,6 +4,7 @@ struct SHit
 {
 	SHit(float powerA, float power_criticalA, Fvector &dirA, CObject *whoA, u16 elementA, Fvector p_in_bone_spaceA,\
 		float impulseA, ALife::EHitType hit_typeA, float armor_piercingA=0.0f, bool AimBullet=false);
+
 	SHit										();	
 	bool				is_valide				()		const	;	
 	void				invalidate				()				;

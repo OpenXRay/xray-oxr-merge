@@ -3,9 +3,9 @@
 #pragma once
 
 #ifndef _PP_EDITOR_
-    #include "../envelope.h"
-    #include "../EffectorPP.h"
-	#include "../cameramanager.h"
+    #include "../xrEngine/envelope.h"
+    #include "../xrEngine/EffectorPP.h"
+	#include "../xrEngine/cameramanager.h"
 
 	class CEffectorController;
 #else
@@ -33,6 +33,7 @@ typedef enum _pp_params
     pp_noise_i              =   7,
     pp_noise_g              =   8,
     pp_noise_f              =   9,
+    pp_last					=	10,
     pp_force_dword          =   0x7fffffff
 } pp_params;
 
@@ -46,6 +47,7 @@ public:
     virtual void    save                            (IWriter &pWriter) = 0;
     virtual float   get_length                      () = 0;
     virtual size_t  get_keys_count                  () = 0;
+	virtual ~CPostProcessParam() {}
 #ifdef _PP_EDITOR_
     virtual void    add_value                       (float time, float value, float t, float c, float b, int index = 0) = 0;
     virtual void    update_value                    (float time, float value, float t, float c, float b, int index = 0) = 0;
@@ -164,8 +166,8 @@ public:
 		void		SetCurrentFactor				(float f);
 		void		SetCyclic						(bool b)					{m_bCyclic=b;}
         float       GetLength                       ();
-virtual	BOOL		Valid							();
 #ifndef _PP_EDITOR_
+virtual	BOOL		Valid							();
 virtual	BOOL		Process							(SPPInfo &PPInfo);
 #else
 virtual	BOOL		Process							(float dt, SPPInfo &PPInfo);

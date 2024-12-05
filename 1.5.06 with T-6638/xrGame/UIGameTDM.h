@@ -34,7 +34,8 @@ public:
 	CUIGameTDM			();
 	virtual 			~CUIGameTDM				();
 	virtual void		SetClGame				(game_cl_GameState* g);
-	virtual	void		Init					();
+	virtual	void		UnLoad					();
+	virtual	void		Init					(int stage);
 			void		SetScoreCaption			(int t1, int t2);			
 			void		SetBuyMsgCaption		(LPCSTR str);
 	virtual void		SetFraglimit			(int local_frags, int fraglimit);

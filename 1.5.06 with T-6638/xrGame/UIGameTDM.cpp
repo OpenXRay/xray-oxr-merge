@@ -100,15 +100,20 @@ void CUIGameTDM::Init ()
 
 	m_pStatisticWnds->AttachChild(pStatisticWnd);
 }
-//--------------------------------------------------------------------
-CUIGameTDM::~CUIGameTDM()
+
+void CUIGameTDM::UnLoad()
 {
+	inherited::UnLoad	();
 	xr_delete			(m_team1_icon);
 	xr_delete			(m_team2_icon);
 	xr_delete			(m_team1_score);
 	xr_delete			(m_team2_score);
 
 	delete_data			(m_pUITeamSelectWnd);
+}
+
+CUIGameTDM::~CUIGameTDM()
+{
 }
 
 bool CUIGameTDM::IR_UIOnKeyboardPress(int dik)
@@ -185,10 +190,4 @@ void CUIGameTDM::SetFraglimit(int local_frags, int fraglimit)
 		xr_sprintf(str,"%s", "--");
 
 	m_pFragLimitIndicator->SetText(str);
-}
-
-void CUIGameTDM::reset_ui				()
-{
-	inherited::reset_ui();
-	m_pUITeamSelectWnd->Reset();
 }

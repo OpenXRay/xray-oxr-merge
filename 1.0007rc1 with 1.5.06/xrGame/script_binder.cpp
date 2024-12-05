@@ -172,6 +172,8 @@ void CScriptBinder::set_object		(CScriptBinderObject *object)
 		Msg					("* Core object %s is binded with the script object",smart_cast<CGameObject*>(this) ? *smart_cast<CGameObject*>(this)->cName() : "");
 #endif // _DEBUG
 		m_object			= object;
+	} else {
+		xr_delete			(object);
 	}
 }
 

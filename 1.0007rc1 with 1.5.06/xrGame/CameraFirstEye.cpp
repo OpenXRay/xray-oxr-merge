@@ -3,7 +3,7 @@
 
 #include "CameraFirstEye.h"
 #include "xr_level_controller.h"
-#include "../xr_object.h"
+#include "../xrEngine/xr_object.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -43,7 +43,8 @@ void CCameraFirstEye::Update(Fvector& point, Fvector& noise_dangle)
 	vDirection.set	(mR.k);
 	vNormal.set		(mR.j);
 
-	if (m_Flags.is(flRelativeLink))	{
+	if (m_Flags.is(flRelativeLink))
+	{
 		parent->XFORM().transform_dir	(vDirection);
 		parent->XFORM().transform_dir	(vNormal);
 	}

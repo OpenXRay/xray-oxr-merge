@@ -5,18 +5,17 @@
 #include "PHObject.h"
 #include "script_export_space.h"
 
-struct SArtefactActivation;
+class SArtefactActivation;
 
 class CArtefact :	public CHudItemObject, 
-					public CPHUpdateObject {
-private:
+					public CPHUpdateObject
+					{
 	typedef			CHudItemObject	inherited;
 public:
 									CArtefact						();
 	virtual							~CArtefact						();
 
 	virtual void					Load							(LPCSTR section);
-	
 	virtual BOOL					net_Spawn						(CSE_Abstract* DC);
 	virtual void					net_Destroy						();
 
@@ -35,7 +34,6 @@ public:
 	virtual BOOL					renderable_ShadowReceive		()		{ return TRUE;	}
 	virtual void					create_physic_shell();
 
-	//for smart_cast
 	virtual CArtefact*				cast_artefact						()		{return this;}
 
 protected:

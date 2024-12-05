@@ -9,7 +9,7 @@
 #include "fire_disp_controller.h"
 #include "entity_alive.h"
 #include "PHMovementControl.h"
-#include "PhysicsShell.h"
+#include "../xrphysics/PhysicsShell.h"
 #include "InventoryOwner.h"
 #include "../xrEngine/StatGraph.h"
 #include "PhraseDialogManager.h"
@@ -165,10 +165,10 @@ public:
 
 	virtual void OnItemTake		(CInventoryItem *inventory_item);
 	
-	virtual void OnItemRuck		(CInventoryItem *inventory_item, EItemPlace previous_place);
-	virtual void OnItemBelt		(CInventoryItem *inventory_item, EItemPlace previous_place);
+	virtual void OnItemRuck		(CInventoryItem *inventory_item, const SInvItemPlace& previous_place);
+	virtual void OnItemBelt		(CInventoryItem *inventory_item, const SInvItemPlace& previous_place);
 	
-	virtual void OnItemDrop		(CInventoryItem *inventory_item);
+	virtual void OnItemDrop		(CInventoryItem *inventory_item, bool just_before_destroy);
 	virtual void OnItemDropUpdate ();
 
 	virtual	void OnPlayHeadShotParticle (NET_Packet P);
@@ -334,6 +334,7 @@ protected:
 	CCameraBase*			cameras[eacMaxCam];
 	EActorCameras			cam_active;
 	float					fPrevCamPos;
+	float					current_ik_cam_shift;
 	Fvector					vPrevCamDir;
 	float					fCurAVelocity;
 	CEffectorBobbing*		pCamBobbing;
@@ -364,10 +365,12 @@ protected:
 	shared_str				m_sCharacterUseAction;
 	shared_str				m_sDeadCharacterUseAction;
 	shared_str				m_sDeadCharacterUseOrDragAction;
+	shared_str				m_sDeadCharacterDontUseAction;
 	shared_str				m_sCarCharacterUseAction;
 	shared_str				m_sInventoryItemUseAction;
 	shared_str				m_sInventoryBoxUseAction;
 
+//	shared_str				m_quick_use_slots[4];
 	//режим подбирания предметов
 	bool					m_bPickupMode;
 	//расстояние (в метрах) на котором актер чувствует гранату (любую)
@@ -429,6 +432,9 @@ protected:
 
 	float					m_fWalk_StrafeFactor;
 	float					m_fRun_StrafeFactor;
+
+public:
+	Fvector					GetMovementSpeed		() {return NET_SavedAccel;};
 	//////////////////////////////////////////////////////////////////////////
 	// User input/output
 	//////////////////////////////////////////////////////////////////////////
@@ -646,9 +652,13 @@ protected:
 		void							Check_for_AutoPickUp			();
 		void							SelectBestWeapon				(CObject* O);
 public:
-		void							SetWeaponHideState				(u32 State, bool bSet);
+		void							SetWeaponHideState				(u16 State, bool bSet);
+private://IPhysicsShellHolder
+
+virtual	 void	_BCL	HideAllWeapons					( bool v ){ SetWeaponHideState(INV_STATE_BLOCK_ALL,v); }	
+
+public:
 		void							SetCantRunState					(bool bSet);
-		virtual CCustomOutfit*			GetOutfit() const;
 private:
 	CActorCondition				*m_entity_condition;
 
@@ -686,6 +696,9 @@ public:
 	virtual void				OnPrevWeaponSlot				();
 			void				SwitchNightVision				();
 			void				SwitchTorch						();
+#ifdef DEBUG
+			void				NoClipFly						(int cmd);
+#endif //DEBUG
 
 public:
 	
@@ -705,7 +718,6 @@ private:
 	CActorMemory				*m_memory;
 
 public:
-			void				SetActorVisibility				(u16 who, float value);
 	IC		CActorMemory		&memory							() const {VERIFY(m_memory); return(*m_memory); };
 
 	void						OnDifficultyChanged				();

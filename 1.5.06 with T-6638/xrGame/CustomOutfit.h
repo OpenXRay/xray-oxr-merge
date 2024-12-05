@@ -47,7 +47,7 @@ public:
 	float					m_additional_weight;
 	float					m_additional_weight2;
 
-	float					m_fHealthRestoreSpeed; // as from artefact
+	float					m_fHealthRestoreSpeed;
 	float 					m_fRadiationRestoreSpeed;
 	float 					m_fSatietyRestoreSpeed;
 	float					m_fPowerRestoreSpeed;
@@ -67,7 +67,8 @@ public:
 	virtual void			net_Export				(NET_Packet& P);
 	virtual void			net_Import				(NET_Packet& P);
 			void			ApplySkinModel			(CActor* pActor, bool bDress, bool bHUDOnly);
-			void			ReloadBonesProtection	(CActor* pActor);
+			void			ReloadBonesProtection	();
+			void			AddBonesProtection		(LPCSTR bones_section);
 
 protected:
 	virtual bool			install_upgrade_impl( LPCSTR section, bool test );

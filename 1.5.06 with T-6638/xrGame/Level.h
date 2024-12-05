@@ -192,11 +192,6 @@ public:
 	CZoneList*					hud_zones_list;
 	CZoneList*					create_hud_zones_list();
 
-#ifdef BATTLEYE
-	BattlEyeSystem				battleye_system;
-	virtual bool				TestLoadBEClient();
-#endif // BATTLEYE
-
 private:
 	// preload sounds registry
 	DEFINE_MAP					(shared_str,ref_sound,SoundRegistryMap,SoundRegistryMapIt);
@@ -403,8 +398,6 @@ IC CLevel&				Level()		{ return *((CLevel*) g_pGameLevel);			}
 IC game_cl_GameState&	Game()		{ return *Level().game;					}
 	u32					GameID();
 
-
-IC CHUDManager&			HUD()		{ return *((CHUDManager*)Level().pHUD);	}
 
 #ifdef DEBUG
 IC CLevelDebug&			DBG()		{return *((CLevelDebug*)Level().m_level_debug);}

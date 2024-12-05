@@ -352,8 +352,10 @@ void CAgentEnemyManager::permutate_enemies		()
 			CHitMemoryManager&	hit = (*I)->object().memory().hit();
 			ENEMIES::iterator	i = m_enemies.begin();
 			ENEMIES::iterator	e = m_enemies.end();
-			for ( ; i != e; ++i) {
-				if (visual.visible_now((*i).m_object)) {
+			for ( ; i != e; ++i)
+			{
+				if (visual.visible_now((*i).m_object))
+				{
 					(*i).m_distribute_mask.assign((*i).m_distribute_mask.get() | object().member().mask(&(*I)->object()));
 					continue;
 				}

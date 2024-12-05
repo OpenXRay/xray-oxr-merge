@@ -83,13 +83,8 @@ CUIGameDM::CUIGameDM()
 	m_pFragLimitIndicator			= xr_new<CUIStatic>();
 	CUIXmlInit::InitStatic			(uiXml,"fraglimit",0,m_pFragLimitIndicator);
 
-//.	m_voteStatusWnd					= xr_new<UIVoteStatusWnd>();
-//.	m_voteStatusWnd->InitFromXML	(uiXml);
-//.	m_voteStatusWnd->Show			(false);
 	m_voteStatusWnd					= NULL;
 
-//-	m_pActorMenu		= xr_new<CUIActorMenu>();
-//-	m_pPdaMenu			= xr_new<CUIPdaWnd>();
 	m_pMapDesc			= NULL;//xr_new<CUIMapDesc>		();
 
 }
@@ -155,7 +150,6 @@ void	CUIGameDM::Init				()
 	m_pStatisticWnds->AttachChild(pStatisticWnd);
 
 };
-//--------------------------------------------------------------------
 
 void	CUIGameDM::ClearLists ()
 {
@@ -163,8 +157,8 @@ void	CUIGameDM::ClearLists ()
 	m_pPlayerLists->DetachAll	();
 	m_pStatisticWnds->DetachAll	();
 }
-//--------------------------------------------------------------------
-CUIGameDM::~CUIGameDM()
+
+void CUIGameDM::UnLoad()
 {
 	ClearLists					();
 	xr_delete					(m_pFragLists);
@@ -175,16 +169,17 @@ CUIGameDM::~CUIGameDM()
 	xr_delete					(m_pRankIndicator);
 	xr_delete					(m_pFragLimitIndicator);
 	xr_delete					(m_voteStatusWnd);
-	//---------------------------------------------------
-//-	delete_data(m_pActorMenu);
-//-	delete_data(m_pPdaMenu);	
 	delete_data(m_pMapDesc);	
+}
+
+CUIGameDM::~CUIGameDM()
+{
 }
 
 
 void CUIGameDM::SetTimeMsgCaption		(LPCSTR str)
 {
-		GameCaptions()->setCaption(m_time_caption, str, TIME_MSG_COLOR, true);
+	GameCaptions()->setCaption(m_time_caption, str, TIME_MSG_COLOR, true);
 }
 
 void CUIGameDM::ShowFragList			(bool bShow)

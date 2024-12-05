@@ -257,6 +257,29 @@ public:
 
 public:
 	virtual	void					on_restrictions_change		();
+
+protected:
+			bool					move_along_path				() const;
+
+protected:
+			Fvector					path_position				(const float &time_to_check);
+			Fvector					path_position				(const float &velocity, const Fvector &position, const float &time_delta, u32 &current_travel_point, float &dist, float &dist_to_target, Fvector &dir_to_target);
+
+protected:
+	virtual	CRestrictedObject		*create_restricted_object	();
+			xr_vector<u32>			&level_path_path			();
+
+public:
+	virtual	void					build_level_path			();
+
+private:
+			void					show_game_path_info			();
+
+public:
+	virtual	const float				&prediction_speed			() const;
+			Fvector					predict_position			(const float &time_delta, const Fvector &position, u32 &current_travel_point, const float &prediction_speed) const;
+			Fvector					predict_position			(const float &time_delta) const;
+			Fvector					target_position				() const;
 };
 
 #include "movement_manager_inline.h"

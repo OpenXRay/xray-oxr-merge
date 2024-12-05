@@ -19,8 +19,6 @@
 #include "stalker_animation_manager.h"
 #include "object_handler_planner.h"
 
-#define ALLOW_STRANGE_BEHAVIOUR
-
 //////////////////////////////////////////////////////////////////////////
 // CObjectActionCommand
 //////////////////////////////////////////////////////////////////////////
@@ -105,6 +103,23 @@ void CObjectActionHide::execute		()
 	VERIFY							(m_item);
 	object().inventory().Activate	(NO_ACTIVE_SLOT);
 	set_property					(ObjectHandlerSpace::eWorldPropertyUseEnough,false);
+}
+
+void CObjectActionHide::finalize	()
+{
+	inherited::finalize				();
+
+	if ( !object().inventory().ActiveItem() )
+		return;
+
+	CHudItem* const hud_item		= smart_cast<CHudItem*>( object().inventory().ActiveItem() );
+	VERIFY							( hud_item );
+	if ( hud_item->IsHidden() )
+		return;
+
+	hud_item->StopCurrentAnimWithoutCallback( );
+	hud_item->SetState				( CHUDState::eIdle);
+	hud_item->SetNextState			( CHUDState::eIdle);
 }
 
 // to prevent several recharges
@@ -368,6 +383,9 @@ void CObjectActionStrapping::initialize			()
 
 	m_callback_removed			= false;
 
+	if ( object().inventory().ActiveItem() )
+		stop_hiding_operation_if_any	( );
+
 	m_storage->set_property		(ObjectHandlerSpace::eWorldPropertyStrapped2Idle,true);
 	
 	object().animation().torso().add_callback	(
@@ -385,6 +403,8 @@ void CObjectActionStrapping::execute			()
 	VERIFY						(m_item);
 	VERIFY						(object().inventory().ActiveItem());
 	VERIFY						(object().inventory().ActiveItem()->object().ID() == m_item->object().ID());
+
+	prevent_weapon_state_switch_ugly	( );
 }
 
 void CObjectActionStrapping::finalize		()
@@ -469,6 +489,9 @@ void CObjectActionStrappingToIdle::initialize		()
 	VERIFY						(object().inventory().ActiveItem());
 	VERIFY						(object().inventory().ActiveItem()->object().ID() == m_item->object().ID());
 
+	if ( object().inventory().ActiveItem() )
+		stop_hiding_operation_if_any	( );
+
 	m_callback_removed			= false;
 
 	object().animation().torso().add_callback	(
@@ -486,6 +509,8 @@ void CObjectActionStrappingToIdle::execute			()
 	VERIFY						(m_item);
 	VERIFY						(object().inventory().ActiveItem());
 	VERIFY						(object().inventory().ActiveItem()->object().ID() == m_item->object().ID());
+
+	prevent_weapon_state_switch_ugly	( );
 }
 
 void CObjectActionStrappingToIdle::finalize		()
@@ -570,6 +595,9 @@ void CObjectActionUnstrapping::initialize		()
 	VERIFY						(object().inventory().ActiveItem());
 	VERIFY						(object().inventory().ActiveItem()->object().ID() == m_item->object().ID());
 
+	if ( object().inventory().ActiveItem() )
+		stop_hiding_operation_if_any	( );
+
 	m_callback_removed			= false;
 
 	m_storage->set_property(ObjectHandlerSpace::eWorldPropertyStrapped2Idle,true);
@@ -589,6 +617,8 @@ void CObjectActionUnstrapping::execute			()
 	VERIFY						(m_item);
 	VERIFY						(object().inventory().ActiveItem());
 	VERIFY						(object().inventory().ActiveItem()->object().ID() == m_item->object().ID());
+
+	prevent_weapon_state_switch_ugly	( );
 }
 
 void CObjectActionUnstrapping::finalize		()
@@ -673,6 +703,9 @@ void CObjectActionUnstrappingToIdle::initialize		()
 	VERIFY						(object().inventory().ActiveItem());
 	VERIFY						(object().inventory().ActiveItem()->object().ID() == m_item->object().ID());
 
+	if ( object().inventory().ActiveItem() )
+		stop_hiding_operation_if_any	( );
+
 	m_callback_removed			= false;
 
 	object().animation().torso().add_callback	(
@@ -690,6 +723,8 @@ void CObjectActionUnstrappingToIdle::execute			()
 	VERIFY						(m_item);
 	VERIFY						(object().inventory().ActiveItem());
 	VERIFY						(object().inventory().ActiveItem()->object().ID() == m_item->object().ID());
+
+	prevent_weapon_state_switch_ugly	( );
 }
 
 void CObjectActionUnstrappingToIdle::finalize		()
@@ -754,11 +789,11 @@ void CObjectActionQueueWait::finalize		()
 {
 	inherited::finalize		();
 	
-	VERIFY						(m_item);
-	VERIFY						(object().inventory().ActiveItem());
-	VERIFY						(object().inventory().ActiveItem()->object().ID() == m_item->object().ID());
+	//VERIFY						(m_item);
+	//VERIFY						(object().inventory().ActiveItem());
+	//VERIFY						(object().inventory().ActiveItem()->object().ID() == m_item->object().ID());
 
-	if (!completed())
+	if ( (object().inventory().ActiveItem() == m_magazined) && !completed())
 		m_magazined->StopedAfterQueueFired(false);
 }
 

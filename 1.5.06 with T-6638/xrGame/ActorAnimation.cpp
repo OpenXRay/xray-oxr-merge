@@ -34,6 +34,7 @@ static const float r_spin1_factor		= 0.3f;
 static const float r_shoulder_factor	= 0.2f;
 static const float r_head_factor		= 0.2f;
 
+CBlend	*PlayMotionByParts(IKinematicsAnimated* sa, MotionID motion_ID, BOOL bMixIn, PlayCallback Callback, LPVOID CallbackParam);
 
 void  CActor::Spin0Callback(CBoneInstance* B)
 {
@@ -332,9 +333,12 @@ void CActor::g_SetAnimation( u32 mstate_rl )
 	SActorState*					ST 		= 0;
 	SAnimState*						AS 		= 0;
 	
-	if		(mstate_rl&mcCrouch)	ST 		= &m_anims->m_crouch;
-	else if	(mstate_rl&mcClimb)		ST 		= &m_anims->m_climb;
-	else							ST 		= &m_anims->m_normal;
+	if		(mstate_rl&mcCrouch)
+		ST 		= &m_anims->m_crouch;
+	else if	(mstate_rl&mcClimb)
+		ST 		= &m_anims->m_climb;
+	else
+		ST 		= &m_anims->m_normal;
 
 	bool bAccelerated = isActorAccelerated(mstate_rl, IsZoomAimingMode());
 	if ( bAccelerated )
@@ -540,18 +544,24 @@ void CActor::g_SetAnimation( u32 mstate_rl )
 		else 
 			M_legs	= ST->legs_idle;
 	}
-	if (!M_head)					M_head	= ST->m_head_idle;
+	if (!M_head)
+		M_head	= ST->m_head_idle;
+
 	if (!M_torso)
 	{				
-		if (m_bAnimTorsoPlayed)		M_torso	= m_current_torso;
-		else						M_torso = ST->m_torso_idle;
+		if (m_bAnimTorsoPlayed)
+			M_torso	= m_current_torso;
+		else
+			M_torso = ST->m_torso_idle;
 	}
 	
 	// есть анимация для всего - запустим / иначе запустим анимацию по частям
 	if (m_current_torso!=M_torso)
 	{
-		if (m_bAnimTorsoPlayed)		m_current_torso_blend = smart_cast<IKinematicsAnimated*>	(Visual())->PlayCycle(M_torso,TRUE,AnimTorsoPlayCallBack,this);
-		else						/**/m_current_torso_blend = /**/smart_cast<IKinematicsAnimated*>	(Visual())->PlayCycle(M_torso);
+		if (m_bAnimTorsoPlayed)
+			m_current_torso_blend = smart_cast<IKinematicsAnimated*>	(Visual())->PlayCycle(M_torso,TRUE,AnimTorsoPlayCallBack,this);
+		else
+			m_current_torso_blend = smart_cast<IKinematicsAnimated*>	(Visual())->PlayCycle(M_torso);
 
 		m_current_torso=M_torso;
 	}
@@ -570,7 +580,11 @@ void CActor::g_SetAnimation( u32 mstate_rl )
 		VERIFY						(!m_current_legs_blend || !fis_zero(m_current_legs_blend->timeTotal));
 		if ((mstate_real&mcAnyMove)&&(mstate_old&mcAnyMove)&&m_current_legs_blend)
 			pos						= fmod(m_current_legs_blend->timeCurrent,m_current_legs_blend->timeTotal)/m_current_legs_blend->timeTotal;
-		m_current_legs_blend		= smart_cast<IKinematicsAnimated*>(Visual())->PlayCycle(M_legs,TRUE,legs_play_callback,this);
+
+
+		IKinematicsAnimated* ka		= smart_cast<IKinematicsAnimated*>(Visual());
+		m_current_legs_blend		= PlayMotionByParts(ka, M_legs, TRUE, legs_play_callback, this);
+//		m_current_legs_blend		= smart_cast<IKinematicsAnimated*>(Visual())->PlayCycle(M_legs,TRUE,legs_play_callback,this);
 
 
 		if ((!(mstate_old&mcAnyMove))&&(mstate_real&mcAnyMove))
@@ -588,10 +602,17 @@ void CActor::g_SetAnimation( u32 mstate_rl )
 
 
 #ifdef DEBUG
-	if(bDebug)
+	if(bDebug && g_ShowAnimationInfo)
 	{
 		UI().Font().pFontStat->OutSetI	(0,0);
 		UI().Font().pFontStat->OutNext("[%s]",mov_state[moving_idx]);
+		IKinematicsAnimated* KA = smart_cast<IKinematicsAnimated*>(Visual());
+		if(M_torso)
+			UI().Font().pFontStat->OutNext("torso [%s]",KA->LL_MotionDefName_dbg(M_torso).first);
+		if(M_head)
+			UI().Font().pFontStat->OutNext("head [%s]",KA->LL_MotionDefName_dbg(M_head).first);
+		if(M_legs)
+			UI().Font().pFontStat->OutNext("legs [%s]",KA->LL_MotionDefName_dbg(M_legs).first);
 	}
 #endif
 

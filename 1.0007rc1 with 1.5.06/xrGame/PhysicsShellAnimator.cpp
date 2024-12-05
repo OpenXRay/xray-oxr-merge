@@ -1,17 +1,18 @@
 #include "StdAfx.h"
 #include "PhysicsShellAnimator.h"
 #include "PhysicsShellAnimatorBoneData.h"
-#include "../SkeletonCustom.h"
+#include "../Include/xrRender/KinematicsAnimated.h"
+#include "../Include/xrRender/Kinematics.h"
 #include "PHDynamicData.h"
 #include "game_object_space.h"
 #include "PhysicsShellHolder.h"
+#include "../xrEngine/bone.h"
 
 
 ICF bool no_physics_shape( const SBoneShape& shape );
 
-CPhysicsShellAnimator::CPhysicsShellAnimator( CPhysicsShell* _pPhysicsShell ) : m_pPhysicsShell( _pPhysicsShell ) 
+CPhysicsShellAnimator::CPhysicsShellAnimator( CPhysicsShell* _pPhysicsShell, CInifile* ini, LPCSTR section ) : m_pPhysicsShell( _pPhysicsShell ) 
 {
-	
 	for (xr_vector<CPHElement*>::iterator i=m_pPhysicsShell->Elements().begin();i!=m_pPhysicsShell->Elements().end();i++)
 	{
 		CPhysicsShellAnimatorBoneData PhysicsShellAnimatorBoneDataC;
@@ -66,5 +67,5 @@ void CPhysicsShellAnimator::OnFrame()
 		i->m_element->CPHGeometryOwner::get_mc_vs_transform(mc,target_obj_posFmatrixS);
 		dJointSetFixedQuaternionPos(i->m_anim_fixed_dJointID,target_obj_quat_dQuaternionS,&mc.x);
 	}
-	(*(m_pPhysicsShell->Elements().begin()))->PhysicsRefObject()->XFORM().set(m_pPhysicsShell->mXFORM);
+	//(*(m_pPhysicsShell->Elements().begin()))->PhysicsRefObject()->XFORM().set(m_pPhysicsShell->mXFORM);
 }

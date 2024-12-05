@@ -19,6 +19,7 @@
 CDetailPathManager::CDetailPathManager	(CRestrictedObject *object)
 {
 	m_restricted_object		= object;
+	m_dest_vertex_id		= u32(-1);
 }
 
 CDetailPathManager::~CDetailPathManager	()

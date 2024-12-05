@@ -169,8 +169,8 @@ void IKinematicsAnimatedScript::script_register		(lua_State *L)
 {
 	module(L)
 	[
-		class_<CKinematicsAnimated>("CKinematicsAnimated")
-			.def("PlayCycle",		&CKinematicsAnimated_PlayCycle)
+		class_<IKinematicsAnimated>("IKinematicsAnimated")
+			.def("PlayCycle",		&IKinematicsAnimated_PlayCycle)
 	];
 }
 
@@ -188,7 +188,7 @@ void IKinematicsScript::script_register		(lua_State *L)
 {
 	module(L)
 		[
-			class_<IKinematics, FHierrarhyVisual>("CKinematics")
+			class_<IKinematics, FHierrarhyVisual>("IKinematics")
 			//			.def(constructor<>())
 		];
 }

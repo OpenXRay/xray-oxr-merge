@@ -100,9 +100,7 @@ void CTorch::SwitchNightVision(bool vision_on, bool use_sounds)
 
 	CActor *pA = smart_cast<CActor *>(H_Parent());
 	if(!pA)						
-	{
 		return;
-	}
 	if(!m_night_vision)
 		m_night_vision			= xr_new<CNightVisionEffector>(cNameSect());
 
@@ -448,13 +446,13 @@ void CTorch::net_Import			(NET_Packet& P)
 		}
 	}
 }
+
 bool  CTorch::can_be_attached		() const
 {
 	const CActor *pA = smart_cast<const CActor *>(H_Parent());
 	if (pA)
 		return pA->inventory().InSlot(this);
-	else
-		return true;
+	return true;
 }
 
 void CTorch::afterDetach			()

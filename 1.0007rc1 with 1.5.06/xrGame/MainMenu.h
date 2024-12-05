@@ -6,8 +6,8 @@ class CUICursor;
 class CUIMessageBoxEx;
 class CGameSpy_HTTP;
 class CGameSpy_Full;
-#include "../IInputReceiver.h"
-#include "../IGame_Persistent.h"
+#include "../xrEngine/IInputReceiver.h"
+#include "../xrEngine/IGame_Persistent.h"
 #include "UIDialogHolder.h"
 #include "ui/UIWndCallback.h"
 #include "ui_base.h"
@@ -93,11 +93,6 @@ protected:
 	
 	xr_vector<CUIMessageBoxEx*>	m_pMB_ErrDlgs;
 
-//.	CUIMessageBoxEx*	m_pMSB_NoNewPatch;
-//.	CUIMessageBoxEx*	m_pMSB_NewPatch;
-//.	CUIMessageBoxEx*	m_pMSB_PatchDownloadError;
-//.	CUIMessageBoxEx*	m_pMSB_PatchDownloadSuccess;
-//.	CUIMessageBoxEx*	m_pMSB_ConnectToMasterServer;
 public:
 	u32				m_deactivated_frame;
 	virtual void	DestroyInternal					(bool bForce);

@@ -7,13 +7,10 @@
 #include "gametype_chooser.h"
 #include "../RegistryFuncs.h"
 #include "../../xrGameSpy/xrGameSpy_MainDefs.h"
-#include "../battleye.h"
-#include "player_name_modifyer.h"
 
-extern	void	GetCDKey_FromRegistry		(char* cdkey);
-extern	void	WriteCDKey_ToRegistry		(LPSTR cdkey);
-extern	void	GetPlayerName_FromRegistry	(char* name, u32 const name_size);
-extern	void	WritePlayerName_ToRegistry	(LPSTR name);
+#include "gamespy/GameSpy_GP.h"
+
+#include "ui/UICDkey.h"
 
 xr_token g_GameModes	[] = {
 	{ "st_deathmatch",				eGameIDDeathmatch			},
@@ -35,14 +32,14 @@ public:
 	{
 		string512 str;
 		xr_strcpy(str, arguments);
-		if(xr_strlen(str)>17)
-			str[17] = 0;
+
+		u32 const max_name_length	=	GP_UNIQUENICK_LEN - 1;
+		if(xr_strlen(str)>max_name_length)
+			str[max_name_length] = 0;
 
 		CCC_String::Execute(str);
-		string256	new_name;
-		modify_player_name(value, new_name);
 
-		WritePlayerName_ToRegistry( new_name );
+		WritePlayerName_ToRegistry( value );
 	}
 	virtual void	Save	(IWriter *F)	{};
 };
@@ -61,11 +58,6 @@ void CUIOptConCom::Init()
 	CMD3(CCC_Mask,		"mm_mm_net_srv_dedicated",			&m_uNetSrvParams,	flNetSrvDedicated);
 	CMD3(CCC_Mask,		"mm_net_con_publicserver",			&m_uNetSrvParams,	flNetConPublicServer);
 	CMD3(CCC_Mask,		"mm_net_con_spectator_on",			&m_uNetSrvParams,	flNetConSpectatorOn);
-#ifdef BATTLEYE
-	CMD3(CCC_Mask,		"mm_net_use_battleye",				&m_uNetSrvParams,	flNetConBattlEyeOn);
-//-	CMD3(CCC_Mask,		"mm_net_battleye_auto_update",		&m_uNetSrvParams,	flNetConBattlEyeAutoUpdate);
-#endif // BATTLEYE
-
 	m_iNetConSpectator	= 20;
 	CMD4(CCC_Integer,	"mm_net_con_spectator",				&m_iNetConSpectator, 1, 32);
 
@@ -88,11 +80,6 @@ void CUIOptConCom::Init()
 	CMD3(CCC_Mask,		"mm_net_filter_wo_pass",			&m_uNetFilter,		fl_wo_pass);
 	CMD3(CCC_Mask,		"mm_net_filter_wo_ff",				&m_uNetFilter,		fl_wo_ff);
 	CMD3(CCC_Mask,		"mm_net_filter_listen",				&m_uNetFilter,		fl_listen);
-
-#ifdef BATTLEYE
-	CMD3(CCC_Mask,		"mm_net_filter_battleye",			&m_uNetFilter,		fl_battleye);
-#endif // BATTLEYE
-
 };
 
 void		CUIOptConCom::ReadPlayerNameFromRegistry	()
@@ -102,7 +89,5 @@ void		CUIOptConCom::ReadPlayerNameFromRegistry	()
 
 void		CUIOptConCom::WritePlayerNameToRegistry		()
 {
-	string256 new_name;
-	modify_player_name(m_playerName, new_name);
-	WritePlayerName_ToRegistry( new_name );
+	WritePlayerName_ToRegistry( m_playerName );
 };

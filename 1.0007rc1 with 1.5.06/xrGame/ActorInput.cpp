@@ -3,10 +3,12 @@
 #include "Actor.h"
 #include "Torch.h"
 #include "trade.h"
-#include "../CameraBase.h"
+#include "../xrEngine/CameraBase.h"
+
 #ifdef DEBUG
 #include "PHDebug.h"
 #endif
+
 #include "hit.h"
 #include "PHDestroyable.h"
 #include "Car.h"
@@ -17,13 +19,17 @@
 #include "game_cl_base.h"
 #include "xr_level_controller.h"
 #include "UsableScriptObject.h"
-#include "clsid_game.h"
 #include "actorcondition.h"
 #include "actor_input_handler.h"
 #include "string_table.h"
 #include "UI/UIStatic.h"
 #include "CharacterPhysicsSupport.h"
 #include "InventoryBox.h"
+#include "player_hud.h"
+#include "../xrEngine/xr_input.h"
+#include "flare.h"
+#include "CustomDetector.h"
+#include "clsid_game.h"
 
 bool g_bAutoClearCrouch = true;
 

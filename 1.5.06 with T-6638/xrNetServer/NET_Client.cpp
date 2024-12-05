@@ -4,21 +4,25 @@
 #include "net_server.h"
 #include "net_messages.h"
 #include "NET_Log.h"
-#include "../xrGame/battleye.h"
+
+#include "../xrGameSpy/xrGameSpy_MainDefs.h"
 
 #pragma warning(push)
 #pragma warning(disable:4995)
 #include <malloc.h>
-#include "dxerr9.h"
+#include "dxerr.h"
 
 //#pragma warning(pop)
 
-static	INetLog* pClNetLog = NULL; 
+// {0218FA8B-515B-4bf2-9A5F-2F079D1759F3}
+static const GUID NET_GUID = 
+{ 0x218fa8b,  0x515b, 0x4bf2, { 0x9a, 0x5f, 0x2f, 0x7, 0x9d, 0x17, 0x59, 0xf3 } };
 
-#define BASE_PORT_LAN_SV	5445
-#define BASE_PORT_LAN_CL	5446
-#define BASE_PORT			0
-#define END_PORT			65535
+// {8D3F9E5E-A3BD-475b-9E49-B0E77139143C}
+static const GUID CLSID_NETWORKSIMULATOR_DP8SP_TCPIP =
+{ 0x8d3f9e5e, 0xa3bd, 0x475b, { 0x9e, 0x49, 0xb0, 0xe7, 0x71, 0x39, 0x14, 0x3c } };
+
+static	INetLog* pClNetLog = NULL; 
 
 void	dump_URL	(LPCSTR p, IDirectPlay8Address* A)
 {
@@ -170,13 +174,14 @@ XRNETSERVER_API int		psNET_ClientPending	= 2;
 XRNETSERVER_API char	psNET_Name[32]		= "Player";
 XRNETSERVER_API BOOL	psNET_direct_connect = FALSE;
 
-// {0218FA8B-515B-4bf2-9A5F-2F079D1759F3}
-static const GUID NET_GUID = 
-{ 0x218fa8b,  0x515b, 0x4bf2, { 0x9a, 0x5f, 0x2f, 0x7, 0x9d, 0x17, 0x59, 0xf3 } };
+/****************************************************************************
+ *
+ * DirectPlay8 Service Provider GUIDs
+ *
+ ****************************************************************************/
 
-// {8D3F9E5E-A3BD-475b-9E49-B0E77139143C}
-static const GUID CLSID_NETWORKSIMULATOR_DP8SP_TCPIP =
-{ 0x8d3f9e5e, 0xa3bd, 0x475b, { 0x9e, 0x49, 0xb0, 0xe7, 0x71, 0x39, 0x14, 0x3c } };
+
+
 
 static HRESULT WINAPI Handler (PVOID pvUserContext, DWORD dwMessageType, PVOID pMessage)
 {
@@ -201,6 +206,7 @@ void
 IPureClient::_Recieve( const void* data, u32 data_size, u32 /*param*/ )
 {
     MSYS_PING*    cfg = (MSYS_PING*)data;
+	net_Statistic.dwBytesReceived += data_size;
 
 	if(     (data_size>2*sizeof(u32)) 
 	    &&  (cfg->sign1==0x12071980) 
@@ -222,18 +228,7 @@ IPureClient::_Recieve( const void* data, u32 data_size, u32 /*param*/ )
 		
 		if ( data_size == sizeof(MSYS_CONFIG) )
 		{
-			MSYS_CONFIG* msys_cfg = (MSYS_CONFIG*)data;
-			if ( msys_cfg->is_battleye )
-			{
-#ifdef BATTLEYE
-				if ( !TestLoadBEClient() )
-				{
-					net_Connected = EnmConnectionFails;
-					return;
-				}
-#endif // BATTLEYE
-			}
-					net_Connected = EnmConnectionCompleted;
+			net_Connected = EnmConnectionCompleted;
 			return;
 			}
 		Msg( "! Unknown system message" );
@@ -297,9 +292,9 @@ if(!psNET_direct_connect)
 {
 	//
 		string256						server_name = "";
-//	strcpy_s							(server_name,options);
+//	xr_strcpy							(server_name,options);
 	if (strchr(options, '/'))
-		strncpy(server_name,options, strchr(options, '/')-options);
+		strncpy_s(server_name,options, strchr(options, '/')-options);
 	if (strchr(server_name,'/'))	*strchr(server_name,'/') = 0;
 
 	string64				password_str = "";
@@ -307,9 +302,9 @@ if(!psNET_direct_connect)
 	{
 		const char* PSW = strstr(options, "psw=") + 4;
 		if (strchr(PSW, '/')) 
-			strncpy(password_str, PSW, strchr(PSW, '/') - PSW);
+			strncpy_s(password_str, PSW, strchr(PSW, '/') - PSW);
 		else
-			strcpy_s(password_str, PSW);
+			xr_strcpy(password_str, PSW);
 	}
 
 		string64				user_name_str = "";
@@ -317,9 +312,9 @@ if(!psNET_direct_connect)
 		{
 			const char* NM = strstr(options, "name=") + 5;
 			if (strchr(NM, '/')) 
-				strncpy(user_name_str, NM, strchr(NM, '/') - NM);
+				strncpy_s(user_name_str, NM, strchr(NM, '/') - NM);
 			else
-				strcpy_s(user_name_str, NM);
+				xr_strcpy(user_name_str, NM);
 		}
 
 		string64				user_pass = "";
@@ -327,30 +322,30 @@ if(!psNET_direct_connect)
 		{
 			const char* UP = strstr(options, "pass=") + 5;
 			if (strchr(UP, '/')) 
-				strncpy(user_pass, UP, strchr(UP, '/') - UP);
+				strncpy_s(user_pass, UP, strchr(UP, '/') - UP);
 			else
-				strcpy_s(user_pass, UP);
+				xr_strcpy(user_pass, UP);
 		}
 	
-	int				psSV_Port	= BASE_PORT_LAN_SV;
+	int				psSV_Port	= START_PORT_LAN_SV;
 	if (strstr(options, "port="))
 	{
 		string64	portstr;
-        strcpy_s(portstr, strstr(options, "port=")+5);
+        xr_strcpy(portstr, strstr(options, "port=")+5);
 		if (strchr(portstr,'/'))	*strchr(portstr,'/') = 0;
 		psSV_Port = atol(portstr);
-		clamp(psSV_Port, int(BASE_PORT), int(END_PORT));
+		clamp(psSV_Port, int(START_PORT), int(END_PORT));
 	};
 	
 	BOOL bPortWasSet = FALSE;
-	int				psCL_Port = BASE_PORT_LAN_CL;
+	int				psCL_Port = START_PORT_LAN_CL;
 	if (strstr(options, "portcl="))
 	{
 		string64	portstr;
-		strcpy_s(portstr, strstr(options, "portcl=")+7);
+		xr_strcpy(portstr, strstr(options, "portcl=")+7);
 		if (strchr(portstr,'/'))	*strchr(portstr,'/') = 0;
 		psCL_Port = atol(portstr);
-		clamp(psCL_Port, int(BASE_PORT), int(END_PORT));
+		clamp(psCL_Port, int(START_PORT), int(END_PORT));
 		bPortWasSet = TRUE;
 	};
 //	Msg("* Client connect on port %d\n",psNET_Port);
@@ -415,10 +410,10 @@ if(!psNET_direct_connect)
     dpAppDesc.guidApplication	= NET_GUID;
 	
 	// Setup client info
-		/*strcpy_s( tmp, server_name );
-		strcat_s( tmp, "/name=" );
-		strcat_s( tmp, user_name_str );
-		strcat_s( tmp, "/" );*/
+		/*xr_strcpy( tmp, server_name );
+		xr_strcat( tmp, "/name=" );
+		xr_strcat( tmp, user_name_str );
+		xr_strcat( tmp, "/" );*/
 		
 	WCHAR	ClientNameUNICODE	[256];
 		R_CHK(MultiByteToWideChar	(CP_ACP, 0, user_name_str, -1, ClientNameUNICODE, 256 ));
@@ -432,8 +427,8 @@ if(!psNET_direct_connect)
 
 			SClientConnectData			cl_data;
 			cl_data.process_id			= GetCurrentProcessId();
-			strcpy_s( cl_data.name, user_name_str );
-			strcpy_s( cl_data.pass, user_pass );
+			xr_strcpy( cl_data.name, user_name_str );
+			xr_strcpy( cl_data.pass, user_pass );
 
 			Pinfo.pvData				= &cl_data;
 			Pinfo.dwDataSize			= sizeof(cl_data);
@@ -452,7 +447,7 @@ if(!psNET_direct_connect)
 
 		u32 c_port			= u32(psCL_Port);
 		HRESULT res			= S_FALSE;
-		while (res != S_OK && c_port <=u32(psCL_Port+100))
+		while (res != S_OK)
 		{
 			R_CHK(net_Address_device->AddComponent	(DPNA_KEY_PORT, &c_port, sizeof(c_port), DPNA_DATATYPE_DWORD ));
 			res = NET->Connect(
@@ -474,11 +469,16 @@ if(!psNET_direct_connect)
 					Msg("! IPureClient : port %d is BUSY!", c_port);
 					return FALSE;
 				}				
-#ifdef DEBUG
 				else
+				{
 					Msg("! IPureClient : port %d is BUSY!", c_port);
-#endif
+				}
+
 				c_port++;
+				if (c_port > END_PORT_LAN)
+				{
+					return FALSE;
+				}
 			}
 			else
 			{
@@ -519,7 +519,7 @@ if(!psNET_direct_connect)
 	} else {
 		string64						EnumData;
 		EnumData[0] = 0;
-		strcat	(EnumData, "ToConnect");
+		xr_strcat	(EnumData, "ToConnect");
 		DWORD	EnumSize = xr_strlen(EnumData) + 1;
 		// We now have the host address so lets enum
 		u32 c_port			= psCL_Port;
@@ -805,7 +805,7 @@ HRESULT	IPureClient::net_Handler(u32 dwMessageType, PVOID pMessage)
 					if (pMsg->dwApplicationReplyDataSize)
 					{
 						string256 ResStr = "";
-						strncpy(ResStr, (char*)(pMsg->pvApplicationReplyData), pMsg->dwApplicationReplyDataSize);
+						strncpy_s(ResStr, (char*)(pMsg->pvApplicationReplyData), pMsg->dwApplicationReplyDataSize);
 						Msg("Connection result : %s", ResStr);
 					}
 					else

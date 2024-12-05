@@ -344,11 +344,16 @@ void CAgentEnemyManager::permutate_enemies		()
 		CAgentMemberManager::iterator					I = object().member().combat_members().begin();
 		CAgentMemberManager::iterator					E = object().member().combat_members().end();
 		for ( ; I != E; ++I) {
+			CVisualMemoryManager& visual = (*I)->object().memory().visual();
 			ENEMIES::iterator	i = m_enemies.begin();
 			ENEMIES::iterator	e = m_enemies.end();
 			for ( ; i != e; ++i)
-				if ((*I)->object().memory().visual().visible_now((*i).m_object))
+			{
+				if (visual.visible_now((*i).m_object))
+				{
 					(*i).m_distribute_mask.assign((*i).m_distribute_mask.get() | object().member().mask(&(*I)->object()));
+				}
+			}
 		}
 	}
 }
@@ -674,7 +679,7 @@ void CAgentEnemyManager::wounded_processed		(const CEntityAlive *object, bool va
 	if (I == m_wounded.end())
 		return;
 	VERIFY							((*I).second.first != ALife::_OBJECT_ID(-1));
-	VERIFY							(!(*I).second.second);
+//	VERIFY							(!(*I).second.second);
 	(*I).second.second				= true;
 }
 

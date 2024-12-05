@@ -142,5 +142,4 @@ public:
 	//  [7/5/2005]
 protected:
 	virtual		void				WriteGameState			(CInifile& ini, LPCSTR sect, bool bRoundResult);
-
 };

@@ -5,7 +5,6 @@
 
 
 #define ACTOR_HEIGHT		1.75f
-#define ACTOR_LOOKOUT_ANGLE	PI_DIV_4
 #define ACTOR_LOOKOUT_SPEED	2.f
 
 namespace ACTOR_DEFS 
