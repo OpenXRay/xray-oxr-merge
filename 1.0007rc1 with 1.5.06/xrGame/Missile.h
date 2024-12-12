@@ -42,21 +42,15 @@ public:
 
 	virtual void 			OnAnimationEnd				(u32 state);
 
-	virtual void 			Show();
-	virtual void 			Hide();
-	virtual bool 			IsHidden					() const {return GetState() == MS_HIDDEN;}
-	virtual bool 			IsHiding					() const {return GetState() == MS_HIDING;}
-	virtual bool 			IsShowing					() const {return GetState() == MS_SHOWING;}
 
 	virtual void 			Throw();
 	virtual void 			Destroy();
 
 	virtual bool 			Action						(s32 cmd, u32 flags);
 
-//.	IC u32		 			State						()				{return m_state;}
 	virtual void 			State						(u32 state);
 	virtual void 			OnStateSwitch				(u32 S);
-	virtual void			GetBriefInfo				(xr_string& str_name, xr_string& icon_sect_name, xr_string& str_count);
+	virtual void			GetBriefInfo				(xr_string& str_name, xr_string& icon_sect_name, xr_string& str_count, string16& fire_mode);
 
 protected:
 	virtual void			UpdateFireDependencies_internal	();
@@ -69,7 +63,6 @@ protected:
 	virtual void			OnHiddenItem		();
 
 	//для сети
-	virtual void			StartIdleAnim		();
 	virtual void			net_Relcase			(CObject* O );
 protected:
 
@@ -118,13 +111,14 @@ public:
 	virtual void			setup_physic_shell		();
 	virtual void			create_physic_shell		();
 	IC		void			set_destroy_time		(u32 delta_destroy_time) {m_dwDestroyTime = delta_destroy_time + Device.dwTimeGlobal;}
+	virtual void			PH_A_CrPr				();
 
 protected:
 	u32						m_ef_weapon_type;
 
 public:
 	virtual u32				ef_weapon_type			() const;
-	IC		u32				destroy_time			() const {return m_dwDestroyTime;};
+	IC		u32				destroy_time			() const {return m_dwDestroyTime;}
+	IC		int				time_from_begin_throw	() const { return (Device.dwTimeGlobal + m_dwDestroyTimeMax - m_dwDestroyTime); }
 	static	void			ExitContactCallback		(bool& do_colide,bool bo1,dContact& c,SGameMtl * /*material_1*/,SGameMtl * /*material_2*/);
-	virtual u16				bone_count_to_synchronize	() const;
 };

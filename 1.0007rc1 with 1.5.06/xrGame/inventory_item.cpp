@@ -79,7 +79,7 @@ CInventoryItem::CInventoryItem()
 	m_flags.set			(Fbelt,FALSE);
 	m_flags.set			(Fruck,TRUE);
 	m_flags.set			(FRuckDefault,TRUE);
-	m_pCurrentInventory	= NULL;
+	m_pInventory	= NULL;
 
 	SetDropManual		(FALSE);
 
@@ -90,7 +90,7 @@ CInventoryItem::CInventoryItem()
 
 	m_name = m_nameShort = NULL;
 
-	m_eItemPlace		= eItemPlaceUndefined;
+	m_eItemCurrPlace		= eItemPlaceUndefined;
 	m_Description		= "";
 }
 
@@ -98,12 +98,12 @@ CInventoryItem::~CInventoryItem()
 {
 	delete_data			(m_net_updateData);
 
-	bool B_GOOD			= (	!m_pCurrentInventory || 
-							(std::find(	m_pCurrentInventory->m_all.begin(),m_pCurrentInventory->m_all.end(), this)==m_pCurrentInventory->m_all.end()) );
+	bool B_GOOD			= (	!m_pInventory || 
+							(std::find(	m_pInventory->m_all.begin(),m_pInventory->m_all.end(), this)==m_pInventory->m_all.end()) );
 	if(!B_GOOD)
 	{
 		CObject* p	= object().H_Parent();
-		Msg("inventory ptr is [%s]",m_pCurrentInventory?"not-null":"null");
+		Msg("inventory ptr is [%s]",m_pInventory?"not-null":"null");
 		if(p)
 			Msg("parent name is [%s]",p->cName().c_str());
 
@@ -156,7 +156,6 @@ void CInventoryItem::Load(LPCSTR section)
 
 }
 
-
 void  CInventoryItem::ChangeCondition(float fDeltaCondition)
 {
 	m_fCondition += fDeltaCondition;
@@ -189,25 +188,25 @@ bool CInventoryItem::Useful() const
 	return CanTake();
 }
 
-bool CInventoryItem::Activate() 
+bool CInventoryItem::Activate()
 {
 	return false;
 }
 
-void CInventoryItem::Deactivate() 
+void CInventoryItem::Deactivate()
 {
 }
 
 void CInventoryItem::OnH_B_Independent(bool just_before_destroy)
 {
 	UpdateXForm();
-	m_eItemPlace = eItemPlaceUndefined ;
+	m_eItemCurrPlace = eItemPlaceUndefined ;
 }
 
 void CInventoryItem::OnH_A_Independent()
 {
 	m_dwItemIndependencyTime	= Level().timeServer();
-	m_eItemPlace				= eItemPlaceUndefined;	
+	m_eItemCurrPlace				= eItemPlaceUndefined;	
 	inherited::OnH_A_Independent();
 }
 
@@ -227,7 +226,7 @@ void CInventoryItem::UpdateCL()
 {
 #ifdef DEBUG
 	if(bDebug){
-		if (dbg_net_Draw_Flags.test(1<<4) )
+		if (dbg_net_Draw_Flags.test(dbg_draw_invitem) )
 		{
 			Device.seqRender.Remove(this);
 			Device.seqRender.Add(this);
@@ -311,7 +310,7 @@ bool CInventoryItem::Detach(const char* item_section_name, bool b_spawn_item)
 		D->s_gameid			=	u8(GameID());
 		D->s_RP				=	0xff;
 		D->ID				=	0xffff;
-		if (GameID() == GAME_SINGLE)
+		if (GameID() == eGameIDSingle)
 		{
 			D->ID_Parent		=	u16(object().H_Parent()->ID());
 		}
@@ -339,6 +338,8 @@ bool CInventoryItem::Detach(const char* item_section_name, bool b_spawn_item)
 /////////// network ///////////////////////////////
 BOOL CInventoryItem::net_Spawn			(CSE_Abstract* DC)
 {
+	VERIFY							(!m_pInventory);
+
 	m_flags.set						(FInInterpolation, FALSE);
 	m_flags.set						(FInInterpolate,	FALSE);
 //	m_bInInterpolation				= false;
@@ -367,12 +368,12 @@ BOOL CInventoryItem::net_Spawn			(CSE_Abstract* DC)
 void CInventoryItem::net_Destroy		()
 {
 	//инвентарь которому мы принадлежали
-//.	m_pCurrentInventory = NULL;
+//.	m_pInventory = NULL;
 }
 
 void CInventoryItem::save(NET_Packet &packet)
 {
-	packet.w_u8				((u8)m_eItemPlace);
+	packet.w_u8				((u8)m_eItemCurrPlace);
 	packet.w_float			(m_fCondition);
 
 	if (object().H_Parent()) {
@@ -532,7 +533,7 @@ void CInventoryItem::net_Export			(NET_Packet& P)
 
 void CInventoryItem::load(IReader &packet)
 {
-	m_eItemPlace			= (EItemPlace)packet.r_u8();
+	m_eItemCurrPlace			= (EItemPlace)packet.r_u8();
 	m_fCondition			= packet.r_float();
 
 	u8						tmp = packet.r_u8();
@@ -863,8 +864,8 @@ void CInventoryItem::reload		(LPCSTR section)
 
 void CInventoryItem::reinit		()
 {
-	m_pCurrentInventory	= NULL;
-	m_eItemPlace	= eItemPlaceUndefined;
+	m_pInventory	= NULL;
+	m_eItemCurrPlace	= eItemPlaceUndefined;
 }
 
 bool CInventoryItem::can_kill			() const
@@ -923,12 +924,13 @@ void CInventoryItem::UpdateXForm	()
 		return;
 
 	R_ASSERT		(E);
-	CKinematics*	V		= smart_cast<CKinematics*>	(E->Visual());
+	IKinematics*	V		= smart_cast<IKinematics*>	(E->Visual());
 	VERIFY			(V);
 
 	// Get matrices
-	int				boneL,boneR,boneR2;
+	int						boneL = -1, boneR = -1, boneR2 = -1;
 	E->g_WeaponBones(boneL,boneR,boneR2);
+	if (boneR == -1)	return;
 	//	if ((HandDependence() == hd1Hand) || (STATE == eReload) || (!E->g_Alive()))
 	//		boneL = boneR2;
 #pragma todo("TO ALL: serious performance problem")
@@ -969,10 +971,10 @@ void CInventoryItem::OnRender()
 {
 	if (bDebug && object().Visual())
 	{
-		if (!(dbg_net_Draw_Flags.is_any((1<<4)))) return;
+		if (!(dbg_net_Draw_Flags.is_any(dbg_draw_invitem))) return;
 
 		Fvector bc,bd; 
-		object().Visual()->vis.box.get_CD	(bc,bd);
+		object().Visual()->getVisData().box.get_CD	(bc,bd);
 		Fmatrix	M = object().XFORM();
 		M.c.add (bc);
 		Level().debug_renderer().draw_obb			(M,bd,color_rgba(0,0,255,255));
@@ -1074,8 +1076,8 @@ bool	CInventoryItem::CanTrade() const
 {
 	bool res = true;
 #pragma todo("Dima to Andy : why CInventoryItem::CanTrade can be called for the item, which doesn't have owner?")
-	if(m_pCurrentInventory)
-		res = inventory_owner().AllowItemToTrade(this,m_eItemPlace);
+	if(m_pInventory)
+		res = inventory_owner().AllowItemToTrade(this,m_eItemCurrPlace);
 
 	return (res && m_flags.test(FCanTrade) && !IsQuestItem());
 }

@@ -96,7 +96,6 @@ void CMissile::net_Destroy()
 {
 	inherited::net_Destroy();
 	m_fake_missile = 0;
-	m_dwStateTime		= 0;
 }
 
 void CMissile::PH_A_CrPr		()
@@ -225,7 +224,6 @@ void CMissile::UpdateCL()
 		}
 	}
 
-
 	if(GetState() == eReady) 
 	{
 		if(m_throw)
@@ -234,7 +232,7 @@ void CMissile::UpdateCL()
 		}else 
 		{
 			CActor	*actor = smart_cast<CActor*>(H_Parent());
-			if (actor) 
+			if (actor)
 			{				
 				m_fThrowForce		+= (m_fForceGrowSpeed * Device.dwTimeDelta) * .001f;
 				clamp(m_fThrowForce, m_fMinForce, m_fMaxForce);
@@ -463,7 +461,6 @@ void CMissile::OnMotionMark(u32 state, const motion_marks& M)
 	}
 }
 
-
 void CMissile::Throw() 
 {
 #ifndef MASTER_GOLD
@@ -486,7 +483,8 @@ void CMissile::Throw()
 	
 	m_fThrowForce						= m_fMinForce;
 
-	if (Local() && H_Parent()) {
+	if (Local() && H_Parent())
+	{
 		NET_Packet						P;
 		u_EventGen						(P,GE_OWNERSHIP_REJECT,ID());
 		P.w_u16							(u16(m_fake_missile->ID()));
@@ -567,7 +565,7 @@ bool CMissile::Action(s32 cmd, u32 flags)
 				}
 
 			} 
-			else 
+			else
 			if(GetState()==eReady || GetState()==eThrowStart || GetState()==eIdle) 
 			{
 				m_throw = true; 
@@ -744,4 +742,3 @@ void CMissile::GetBriefInfo(xr_string& str_name, xr_string& icon_sect_name, xr_s
 	str_count		= "";
 	icon_sect_name	= "";
 }
-

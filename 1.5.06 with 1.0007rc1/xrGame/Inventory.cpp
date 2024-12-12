@@ -114,7 +114,7 @@ void CInventory::Take(CGameObject *pObj, bool bNotActivate, bool strict_placemen
 	VERIFY								(pIItem);
 	VERIFY								(pIItem->m_pInventory==NULL);
 	VERIFY								(CanTakeItem(pIItem));
-	
+
 	pIItem->m_pInventory				= this;
 	pIItem->SetDropManual				(FALSE);
 	pIItem->AllowTrade					();
@@ -126,7 +126,7 @@ void CInventory::Take(CGameObject *pObj, bool bNotActivate, bool strict_placemen
 	m_all.push_back						(pIItem);
 
 	if(!strict_placement)
-		pIItem->m_eItemCurrPlace			= eItemPlaceUndefined;
+		pIItem->m_eItemCurrPlace		= eItemPlaceUndefined;
 
 	bool result							= false;
 	switch(pIItem->m_eItemCurrPlace)
@@ -168,21 +168,30 @@ void CInventory::Take(CGameObject *pObj, bool bNotActivate, bool strict_placemen
 		{
 			if( CanPutInSlot(pIItem) )
 			{
-				result						= Slot(pIItem, bNotActivate,strict_placement); VERIFY(result);
-			}else
+				result						= Slot(pIItem, bNotActivate, strict_placement);
+				VERIFY(result);
+			}
+			else
+			{
 				if (CanPutInBelt(pIItem))
 				{
-					result					= Belt(pIItem,strict_placement); VERIFY(result);
-				}else
-				{
-					result					= Ruck(pIItem,strict_placement); VERIFY(result);
+					result					= Belt(pIItem,strict_placement);
+					VERIFY(result);
 				}
-		}else
+				else
+				{
+					result					= Ruck(pIItem,strict_placement);
+					VERIFY(result);
+				}
+			}
+		}
+		else
 		{
-			result						= Ruck(pIItem,strict_placement); VERIFY(result);
+			result						= Ruck(pIItem,strict_placement);
+			VERIFY(result);
 		}
 	}
-	
+
 	m_pOwner->OnItemTake				(pIItem);
 
 	CalcTotalWeight						();
@@ -385,7 +394,8 @@ bool CInventory::Slot(PIItem pIItem, bool bNotActivate, bool strict_placement)
 
 bool CInventory::Belt(PIItem pIItem, bool strict_placement) 
 {
-	if(!strict_placement && !CanPutInBelt(pIItem))	return false;
+	if(!strict_placement && !CanPutInBelt(pIItem))
+		return false;
 	
 	//גושü בûכא ג סכמעו
 	bool in_slot = InSlot(pIItem);
@@ -421,7 +431,8 @@ bool CInventory::Belt(PIItem pIItem, bool strict_placement)
 
 bool CInventory::Ruck(PIItem pIItem, bool strict_placement) 
 {
-	if(!strict_placement && !CanPutInRuck(pIItem)) return false;
+	if(!strict_placement && !CanPutInRuck(pIItem))
+		return false;
 
 	if (!IsGameTypeSingle())
 	{
@@ -841,37 +852,6 @@ void CInventory::ActiveWeapon( u32 slot )
 
 void CInventory::Update() 
 {
-/*
-	CObject*	curControl	= Level().CurrentControlEntity();
-	CObject*	parentObj	= m_pOwner ? m_pOwner->cast_game_object() : NULL;
-*/
-/*	if ((m_iNextActiveSlot == NO_ACTIVE_SLOT) || 
-		(m_iNextActiveSlot == m_iActiveSlot))
-*/
-/*
-	if (m_iNextActiveSlot==m_iActiveSlot)
-	{
-		UpdateDropTasks();
-		return;
-	} 
-*/
-/*	
-	if (curControl && parentObj)
-	{
-		CHudItem* activeItem = NULL;
-		if ((m_iActiveSlot != NO_ACTIVE_SLOT) &&
-			(m_slots[m_iActiveSlot].m_pIItem))
-		{
-			activeItem = m_slots[m_iActiveSlot].m_pIItem->cast_hud_item();
-		}
-		
-		if ((curControl->ID() == parentObj->ID()) && activeItem && 	!activeItem->IsHidden())
-		{
-			UpdateDropTasks();
-			return;
-		}
-	}
-*/
 	if( OnServer() )
 	{
 		if(m_iActiveSlot!=m_iNextActiveSlot)

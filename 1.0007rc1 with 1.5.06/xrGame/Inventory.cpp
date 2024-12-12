@@ -117,7 +117,9 @@ void CInventory::Take(CGameObject *pObj, bool bNotActivate, bool strict_placemen
 {
 	CInventoryItem *pIItem				= smart_cast<CInventoryItem*>(pObj);
 	VERIFY								(pIItem);
-	
+	VERIFY								(pIItem->m_pInventory==NULL);
+	VERIFY								(CanTakeItem(pIItem));
+
 	if(pIItem->m_pCurrentInventory)
 	{
 		Msg("! ERROR CInventory::Take but object has m_pCurrentInventory");
@@ -137,13 +139,15 @@ void CInventory::Take(CGameObject *pObj, bool bNotActivate, bool strict_placemen
 	m_all.push_back						(pIItem);
 
 	if(!strict_placement)
-		pIItem->m_eItemPlace			= eItemPlaceUndefined;
+		pIItem->m_eItemCurrPlace		= eItemPlaceUndefined;
 
 	bool result							= false;
-	switch(pIItem->m_eItemPlace)
+	switch(pIItem->m_eItemCurrPlace)
 	{
 	case eItemPlaceBelt:
-		result							= Belt(pIItem); 
+		result							= Belt(pIItem, strict_placement); 
+		if(!result)
+			pIItem->m_eItemCurrPlace	= eItemPlaceUndefined;
 #ifdef DEBUG
 		if(!result) 
 			Msg("cant put in belt item %s", *pIItem->object().cName());
@@ -151,7 +155,9 @@ void CInventory::Take(CGameObject *pObj, bool bNotActivate, bool strict_placemen
 
 		break;
 	case eItemPlaceRuck:
-		result							= Ruck(pIItem);
+		result							= Ruck(pIItem, strict_placement);
+		if(!result)
+			pIItem->m_eItemCurrPlace	= eItemPlaceUndefined;
 #ifdef DEBUG
 		if(!result) 
 			Msg("cant put in ruck item %s", *pIItem->object().cName());
@@ -159,7 +165,9 @@ void CInventory::Take(CGameObject *pObj, bool bNotActivate, bool strict_placemen
 
 		break;
 	case eItemPlaceSlot:
-		result							= Slot(pIItem, bNotActivate); 
+		result							= Slot(pIItem, bNotActivate, strict_placement); 
+		if(!result)
+			pIItem->m_eItemCurrPlace	= eItemPlaceUndefined;
 #ifdef DEBUG
 		if(!result) 
 			Msg("cant slot in ruck item %s", *pIItem->object().cName());
@@ -167,27 +175,32 @@ void CInventory::Take(CGameObject *pObj, bool bNotActivate, bool strict_placemen
 
 		break;
 	default:
-		if(CanPutInSlot(pIItem))
 		{
-			result						= Slot(pIItem, bNotActivate); VERIFY(result);
-		} 
-		else if ( !pIItem->RuckDefault() && CanPutInBelt(pIItem))
-		{
-			result						= Belt(pIItem); VERIFY(result);
-		}
-		else
-		{
-			result						= Ruck(pIItem); VERIFY(result);
+    		if(CanPutInSlot(pIItem))
+    		{
+    			result						= Slot(pIItem, bNotActivate, strict_placement);
+    			VERIFY(result);
+    		} 
+    		else if ( !pIItem->RuckDefault() && CanPutInBelt(pIItem))
+    		{
+    			result						= Belt(pIItem, strict_placement);
+    			VERIFY(result);
+    		}
+    		else
+    		{
+    			result						= Ruck(pIItem, strict_placement);
+    			VERIFY(result);
+    		}
 		}
 	}
-	
+
 	m_pOwner->OnItemTake				(pIItem);
 
 	CalcTotalWeight						();
 	InvalidateState						();
 
 	pIItem->object().processing_deactivate();
-	VERIFY								(pIItem->m_eItemPlace != eItemPlaceUndefined);
+	VERIFY								(pIItem->m_eItemCurrPlace != eItemPlaceUndefined);
 }
 
 bool CInventory::DropItem(CGameObject *pObj) 
@@ -206,11 +219,11 @@ bool CInventory::DropItem(CGameObject *pObj)
 
 	R_ASSERT							(pIItem->m_pCurrentInventory);
 	R_ASSERT							(pIItem->m_pCurrentInventory==this);
-	VERIFY								(pIItem->m_eItemPlace!=eItemPlaceUndefined);
+	VERIFY								(pIItem->m_eItemCurrPlace!=eItemPlaceUndefined);
 
 	pIItem->object().processing_activate(); 
 	
-	switch(pIItem->m_eItemPlace)
+	switch(pIItem->m_eItemCurrPlace)
 	{
 	case eItemPlaceBelt:{
 			R_ASSERT(InBelt(pIItem));
@@ -284,11 +297,15 @@ bool CInventory::Slot(PIItem pIItem, bool bNotActivate)
 
 
 	if (( (m_iActiveSlot==pIItem->GetSlot())||(m_iActiveSlot==NO_ACTIVE_SLOT) && m_iNextActiveSlot==NO_ACTIVE_SLOT) && (!bNotActivate))
+	{
+#ifdef DEBUG
+		Msg("---To Slot: activating slot [%d], Frame[%d]", pIItem->GetSlot(), Device.dwFrame);
+#endif // #ifdef DEBUG
 		Activate				(pIItem->GetSlot());
+}
 
-	
-	m_pOwner->OnItemSlot		(pIItem, pIItem->m_eItemPlace);
-	pIItem->m_eItemPlace		= eItemPlaceSlot;
+	m_pOwner->OnItemSlot		(pIItem, pIItem->m_eItemCurrPlace);
+	pIItem->m_eItemCurrPlace		= eItemPlaceSlot;
 	pIItem->OnMoveToSlot		();
 	
 	pIItem->object().processing_activate();
@@ -296,9 +313,10 @@ bool CInventory::Slot(PIItem pIItem, bool bNotActivate)
 	return						true;
 }
 
-bool CInventory::Belt(PIItem pIItem) 
+bool CInventory::Belt(PIItem pIItem, bool strict_placement) 
 {
-	if(!CanPutInBelt(pIItem))	return false;
+	if(!strict_placement && !CanPutInBelt(pIItem))
+		return false;
 	
 	//вещь была в слоте
 	bool in_slot = InSlot(pIItem);
@@ -319,8 +337,8 @@ bool CInventory::Belt(PIItem pIItem)
 	CalcTotalWeight();
 	InvalidateState						();
 
-	EItemPlace p = pIItem->m_eItemPlace;
-	pIItem->m_eItemPlace = eItemPlaceBelt;
+	EItemPlace p = pIItem->m_eItemCurrPlace;
+	pIItem->m_eItemCurrPlace = eItemPlaceBelt;
 	m_pOwner->OnItemBelt(pIItem, p);
 	pIItem->OnMoveToBelt();
 
@@ -332,9 +350,10 @@ bool CInventory::Belt(PIItem pIItem)
 	return true;
 }
 
-bool CInventory::Ruck(PIItem pIItem) 
+bool CInventory::Ruck(PIItem pIItem, bool strict_placement) 
 {
-	if(!CanPutInRuck(pIItem)) return false;
+	if(!strict_placement && !CanPutInRuck(pIItem))
+		return false;
 	
 	bool in_slot = InSlot(pIItem);
 	//вещь была в слоте
@@ -355,8 +374,8 @@ bool CInventory::Ruck(PIItem pIItem)
 	CalcTotalWeight									();
 	InvalidateState									();
 
-	m_pOwner->OnItemRuck							(pIItem, pIItem->m_eItemPlace);
-	pIItem->m_eItemPlace							= eItemPlaceRuck;
+	m_pOwner->OnItemRuck							(pIItem, pIItem->m_eItemCurrPlace);
+	pIItem->m_eItemCurrPlace							= eItemPlaceRuck;
 	pIItem->OnMoveToRuck							();
 
 	if(in_slot)
@@ -565,15 +584,13 @@ bool CInventory::Action(s32 cmd, u32 flags)
 		};
 	};
 
-	if (g_pGameLevel && OnClient() && pActor) {
+	if (g_pGameLevel && OnClient() && pActor)
+	{
 		switch(cmd)
 		{
-		case kUSE:
-			{
-			}break;
+		case kUSE: break;
 		
 		case kDROP:		
-		
 			{
 				SendActionEvent(cmd, flags);
 				return true;
@@ -650,7 +667,6 @@ bool CInventory::Action(s32 cmd, u32 flags)
 
 	return false;
 }
-
 
 void CInventory::Update() 
 {
@@ -895,13 +911,12 @@ CInventoryItem *CInventory::get_object_by_id(ALife::_OBJECT_ID tObjectID)
 #include "script_game_object.h"
 bool CInventory::Eat(PIItem pIItem)
 {
-	R_ASSERT(pIItem->m_pCurrentInventory==this);
 	//устанаовить съедобна ли вещь
 	CEatableItem* pItemToEat = smart_cast<CEatableItem*>(pIItem);
-	R_ASSERT				(pItemToEat);
+	if ( !pItemToEat )			return false;
 
 	CEntityAlive *entity_alive = smart_cast<CEntityAlive*>(m_pOwner);
-	R_ASSERT				(entity_alive);
+	if ( !entity_alive )		return false;
 	
 	pItemToEat->UseBy		(entity_alive);
 
