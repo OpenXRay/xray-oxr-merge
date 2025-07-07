@@ -7,11 +7,11 @@
 #include "level.h"
 #include "../skeletoncustom.h"
 
-CWeaponRPG7::CWeaponRPG7(void) : CWeaponCustomPistol("RPG7") 
+CWeaponRPG7::CWeaponRPG7()
 {
 }
 
-CWeaponRPG7::~CWeaponRPG7(void) 
+CWeaponRPG7::~CWeaponRPG7() 
 {
 }
 

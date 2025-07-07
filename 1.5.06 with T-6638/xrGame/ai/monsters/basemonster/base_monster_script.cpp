@@ -50,11 +50,11 @@ bool CBaseMonster::bfAssignMovement (CScriptEntityAction *tpEntityAction)
 
 	// translate script.action into anim().action
 	switch (l_tMovementAction.m_tMoveAction) {
-		case eMA_WalkFwd:	anim().m_tAction = ACT_WALK_FWD;	break;
 		case eMA_WalkBkwd:	anim().m_tAction = ACT_WALK_BKWD;	break;
-		case eMA_Run:		anim().m_tAction = ACT_RUN;			break;
 		case eMA_Drag:		anim().m_tAction = ACT_DRAG;		break;
 		case eMA_Steal:		anim().m_tAction = ACT_STEAL;		break;
+		case eMA_WalkFwd:	anim().m_tAction = ACT_WALK_FWD;	break;
+		case eMA_Run:		anim().m_tAction = ACT_RUN;			break;
 //		case eMA_Jump:		anim().m_tAction = ACT_JUMP;		break;
 	}
 

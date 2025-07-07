@@ -66,7 +66,7 @@ void CControlAnimationBase::reinit()
 	UpdateAnimCount			();
 
 	// инициализаци€ информации о текущей анимации
-	m_cur_anim.set_motion			(eAnimStandIdle);
+	m_cur_anim.set_motion		(eAnimStandIdle);
 	m_cur_anim.index			= 0;
 	m_cur_anim.time_started		= 0;
 	m_cur_anim.speed._set_current	(-1.f);
@@ -246,7 +246,7 @@ void CControlAnimationBase::select_animation(bool anim_end)
 	// «аполнить текущую анимацию
 	string64	st,tmp;
 	strconcat	(sizeof(st),st,*anim_it->target_name,itoa(index,tmp,10));
-	//	xr_sprintf		(st, "%s%d", *anim_it->second.target_name, index);
+	//	xr_sprintf	(st, "%s%d", *anim_it->second.target_name, index);
 	m_cur_anim.name				= st; 
 	m_cur_anim.index			= u8(index);
 	m_cur_anim.time_started		= Device.dwTimeGlobal;
@@ -482,8 +482,8 @@ void CControlAnimationBase::ValidateAnimation()
 		return;
 	}
 
-	if (!m_object->control().direction().is_turning() && 
-		((cur_anim_info().get_motion() == eAnimStandTurnLeft) || 
+	if (!m_object->control().direction().is_turning() &&
+		((cur_anim_info().get_motion() == eAnimStandTurnLeft) ||
 		 (cur_anim_info().get_motion() == eAnimStandTurnRight))) {
 		cur_anim_info().set_motion(eAnimStandIdle);
 		return;
@@ -597,7 +597,7 @@ void CControlAnimationBase::check_hit(MotionID motion, float time_perc)
 	// определить дистанцию до врага
 	Fvector d;
 	d.sub(enemy->Position(),m_object->Position());
-	if (d.magnitude() > params.dist) 
+	if (d.magnitude() > params.dist)
 		should_hit = false;
 	
 	// проверка на  Field-Of-Hit
@@ -610,16 +610,16 @@ void CControlAnimationBase::check_hit(MotionID motion, float time_perc)
 	float from	= angle_normalize(my_h + params.foh.from_yaw);
 	float to	= angle_normalize(my_h + params.foh.to_yaw);
 	
-	if (!is_angle_between(h, from, to)) 
+	if (!is_angle_between(h, from, to))
 		should_hit = false;
 
 	from		= angle_normalize(my_p + params.foh.from_pitch);
 	to			= angle_normalize(my_p + params.foh.to_pitch);
 
-	if (!is_angle_between(p, from, to)) 
+	if (!is_angle_between(p, from, to))
 		should_hit = false;
 
-	if (should_hit) 
+	if (should_hit)
 		m_object->HitEntity(enemy, params.hit_power, params.impulse, params.impulse_dir);
 
 	m_object->MeleeChecker.on_hit_attempt(should_hit);

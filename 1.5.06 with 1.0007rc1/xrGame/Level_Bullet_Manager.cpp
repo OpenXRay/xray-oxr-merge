@@ -940,7 +940,7 @@ void CBulletManager::Render	()
 
 	for(BulletVecIt it = m_BulletsRendered.begin(); it!=m_BulletsRendered.end(); it++){
 		SBullet* bullet					= &(*it);
-		if(!bullet->flags.allow_tracer)	
+		if(!bullet->flags.allow_tracer)
 			continue;
 
 		if (!bullet->CanBeRenderedNow())

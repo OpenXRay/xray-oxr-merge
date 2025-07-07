@@ -19,13 +19,13 @@
 #include "phdebug.h"
 #endif
 
-CWeaponMagazinedWGrenade::CWeaponMagazinedWGrenade(LPCSTR name,ESoundTypes eSoundType) : CWeaponMagazined(name, eSoundType)
+CWeaponMagazinedWGrenade::CWeaponMagazinedWGrenade(ESoundTypes eSoundType) : CWeaponMagazined(eSoundType)
 {
 	m_ammoType2 = 0;
     m_bGrenadeMode = false;
 }
 
-CWeaponMagazinedWGrenade::~CWeaponMagazinedWGrenade(void)
+CWeaponMagazinedWGrenade::~CWeaponMagazinedWGrenade()
 {
 	// sounds
 	HUD_SOUND::DestroySound(sndShotG);

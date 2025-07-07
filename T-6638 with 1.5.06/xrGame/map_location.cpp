@@ -741,7 +741,8 @@ bool CRelationMapLocation::Update()
 		CSE_ALifeCreatureAbstract*		pCreature = smart_cast<CSE_ALifeCreatureAbstract*>(m_owner_se_object);
 		if(pCreature) //maybe trader ?
 			bAlive = pCreature->g_Alive		();
-	}else
+	}
+	else
 	{
 		CInventoryOwner*			pEnt = NULL;
 		CInventoryOwner*			pAct = NULL;

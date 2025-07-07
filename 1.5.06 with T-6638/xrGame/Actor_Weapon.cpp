@@ -114,8 +114,8 @@ void CActor::SetWeaponHideState (u16 State, bool bSet)
 	};
 }
 static	u16 BestWeaponSlots [] = {
-	RIFLE_SLOT		,		// 2
-	PISTOL_SLOT		,		// 1
+	INV_SLOT_3		,		// 2
+	INV_SLOT_2		,		// 1
 	GRENADE_SLOT	,		// 3
 	KNIFE_SLOT		,		// 0
 };
@@ -131,14 +131,18 @@ void CActor::SelectBestWeapon	(CObject* O)
 	CArtefact* pArtefact = smart_cast<CArtefact*>(O);
 	CInventoryItem*	pIItem	= smart_cast<CInventoryItem*> (O);
 	bool NeedToSelectBestWeapon = false;
+
+	if (pArtefact && pArtefact->H_Parent()) //just take an artefact
+		return;
+	
 	if ((pWeapon || pGrenade || pArtefact) && pIItem)
 	{
 		NeedToSelectBestWeapon = true;
 		if ((GameID() == eGameIDArtefactHunt) || (GameID() == eGameIDCaptureTheArtefact)) //only for test...
 		{
-			if (pIItem->GetSlot() == PISTOL_SLOT || pIItem->GetSlot() == RIFLE_SLOT)
+			if (pIItem->BaseSlot() == INV_SLOT_2 || pIItem->BaseSlot() == INV_SLOT_3)
 			{
-				CInventoryItem* pIItemInSlot = inventory().ItemFromSlot(pIItem->GetSlot());
+				CInventoryItem* pIItemInSlot = inventory().ItemFromSlot(pIItem->BaseSlot());
 				if (pIItemInSlot != NULL && pIItemInSlot != pIItem)				
 					NeedToSelectBestWeapon = false;
 			}
@@ -148,7 +152,7 @@ void CActor::SelectBestWeapon	(CObject* O)
 	//-------------------------------------------------
 	for (int i=0; i<4; i++)
 	{
-		if (inventory().m_slots[BestWeaponSlots[i]].m_pIItem)
+		if (inventory().ItemFromSlot(BestWeaponSlots[i]) )
 		{
 			if (inventory().GetActiveSlot() != BestWeaponSlots[i])
 			{

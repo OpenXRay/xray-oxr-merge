@@ -35,7 +35,8 @@ CUIComboBox::CUIComboBox()
 CUIComboBox::~CUIComboBox()
 {}
 
-void CUIComboBox::SetListLength(int length){
+void CUIComboBox::SetListLength(int length)
+{
 	R_ASSERT(0 == m_iListHeight);
 	m_iListHeight = length;
 }
@@ -143,14 +144,6 @@ void CUIComboBox::SaveValue()
 bool CUIComboBox::IsChanged()
 {
 	return				(m_backup_itoken_id != m_itoken_id);
-/*
-	xr_token* tok		= GetOptToken();
-	LPCSTR	cur_val		= get_token_name(tok, m_itoken_id);
-
-	bool bChanged		= (0 != xr_strcmp(GetOptTokenValue(), cur_val));
-
-	return				bChanged;
-*/
 }
 
 LPCSTR CUIComboBox::GetText()
@@ -270,7 +263,8 @@ void CUIComboBox::SendMessage(CUIWindow* pWnd, s16 msg, void* pData)
 {
 	CUIWindow::SendMessage	(pWnd, msg, pData);
 
-	switch (msg){
+	switch (msg)
+	{
 /*		case BUTTON_CLICKED:
 			if (pWnd == &m_btn || pWnd == &m_list)
 				OnBtnClicked();

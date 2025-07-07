@@ -77,7 +77,8 @@ BOOL CTheoraSurface::Update(u32 _time)
 			{
 				tm_start = tm_start+tm_total;
 				Reset	();
-			}else
+			}
+			else
 			{
 				Stop	();
 				return	FALSE;
@@ -97,10 +98,10 @@ BOOL CTheoraSurface::Load(const char* fname)
 	BOOL res			= m_rgb->Load(fname);
 	if (res){
 		string_path		alpha,ext;
-		xr_strcpy			(alpha,fname);
+		xr_strcpy		(alpha,fname);
 		pstr pext		= strext(alpha);
 		if (pext){	
-			xr_strcpy		(ext,pext);
+			xr_strcpy	(ext,pext);
 			*pext		= 0;
 		}
 		strconcat		(sizeof(alpha),alpha,alpha,"#alpha",ext);

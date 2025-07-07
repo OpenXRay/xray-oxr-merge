@@ -1,26 +1,18 @@
-// Weapon.cpp: implementation of the CWeapon class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "stdafx.h"
-
 #include "Weapon.h"
 #include "ParticlesObject.h"
 #include "HUDManager.h"
 #include "WeaponHUD.h"
 #include "entity_alive.h"
 #include "inventory_item_impl.h"
-
 #include "inventory.h"
 #include "xrserver_objects_alife_items.h"
-
 #include "actor.h"
 #include "actoreffector.h"
 #include "level.h"
-
 #include "xr_level_controller.h"
 #include "game_cl_base.h"
-#include "../skeletoncustom.h"
+#include "../Include/xrRender/Kinematics.h"
 #include "ai_object_location.h"
 #include "clsid_game.h"
 #include "mathutils.h"
@@ -30,11 +22,7 @@
 #define WEAPON_REMOVE_TIME		60000
 #define ROTATION_TIME			0.25f
 
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
-
-CWeapon::CWeapon(LPCSTR name)
+CWeapon::CWeapon()
 {
 	SetState				(eHidden);
 	SetNextState			(eHidden);
@@ -120,7 +108,7 @@ void CWeapon::UpdateXForm	()
 		return;
 
 	R_ASSERT		(E);
-	CKinematics*	V		= smart_cast<CKinematics*>	(E->Visual());
+	IKinematics*	V		= smart_cast<IKinematics*>	(E->Visual());
 	VERIFY			(V);
 
 	// Get matrices
@@ -303,7 +291,7 @@ void CWeapon::Load		(LPCSTR section)
 	// дисперсия стрельбы
 
 	//подбрасывание камеры во время отдачи
-	camMaxAngle			= pSettings->r_float		(section,"cam_max_angle"	); 
+	camMaxAngle			= pSettings->r_float		(section,"cam_max_angle"	);
 	camMaxAngle			= deg2rad					(camMaxAngle);
 	camRelaxSpeed		= pSettings->r_float		(section,"cam_relax_speed"	); 
 	camRelaxSpeed		= deg2rad					(camRelaxSpeed);
@@ -493,8 +481,8 @@ void CWeapon::net_Destroy	()
 
 BOOL CWeapon::IsUpdating()
 {	
-	bool bIsActiveItem = m_pCurrentInventory && m_pCurrentInventory->ActiveItem()==this;
-	return bIsActiveItem || bWorking || m_bPending || getVisible();
+	bool bIsActiveItem = m_pInventory && m_pInventory->ActiveItem()==this;
+	return bIsActiveItem || bWorking || IsPending() || getVisible();
 }
 
 void CWeapon::net_Export(NET_Packet& P)
@@ -740,7 +728,8 @@ void CWeapon::renderable_Render		()
 
 void CWeapon::signal_HideComplete()
 {
-	if(H_Parent()) setVisible(FALSE);
+	if(H_Parent())
+		setVisible(FALSE);
 	m_bPending = false;
 	if(m_pHUD) m_pHUD->Hide();
 }
@@ -777,12 +766,12 @@ bool CWeapon::Action(s32 cmd, u32 flags)
 				{				
 					if(flags&CMD_START) 
 					{
-						if(IsPending())		return false;
+						if(IsPending())
+							return false;
 						FireStart			();
 					}else 
 						FireEnd();
 				};
-
 			} 
 			return true;
 		case kWPN_NEXT: 
@@ -800,7 +789,7 @@ bool CWeapon::Action(s32 cmd, u32 flags)
 					{
 						l_newType = (l_newType+1)%m_ammoTypes.size();
 						b1 = l_newType != m_ammoType;
-						b2 = unlimited_ammo() ? false : (!m_pCurrentInventory->GetAny(*m_ammoTypes[l_newType]));						
+						b2 = unlimited_ammo() ? false : (!m_pInventory->GetAny(*m_ammoTypes[l_newType]));						
 					} while( b1 && b2);
 
 					if(l_newType != m_ammoType) 
@@ -904,10 +893,10 @@ void CWeapon::SpawnAmmo(u32 boxCurr, LPCSTR ammoSect, u32 ParentID)
 int CWeapon::GetAmmoCurrent(bool use_item_to_spawn) const
 {
 	int l_count = iAmmoElapsed;
-	if(!m_pCurrentInventory) return l_count;
+	if(!m_pInventory) return l_count;
 
 	//чтоб не делать лишних пересчетов
-	if(m_pCurrentInventory->ModifyFrame()<=m_dwAmmoCurrentCalcFrame)
+	if(m_pInventory->ModifyFrame()<=m_dwAmmoCurrentCalcFrame)
 		return l_count + iAmmoCurrent;
 
  	m_dwAmmoCurrentCalcFrame = Device.dwFrame;
@@ -917,7 +906,7 @@ int CWeapon::GetAmmoCurrent(bool use_item_to_spawn) const
 	{
 		LPCSTR l_ammoType = *m_ammoTypes[i];
 
-		for(TIItemContainer::iterator l_it = m_pCurrentInventory->m_belt.begin(); m_pCurrentInventory->m_belt.end() != l_it; ++l_it) 
+		for(TIItemContainer::iterator l_it = m_pInventory->m_belt.begin(); m_pInventory->m_belt.end() != l_it; ++l_it) 
 		{
 			CWeaponAmmo *l_pAmmo = smart_cast<CWeaponAmmo*>(*l_it);
 
@@ -927,7 +916,7 @@ int CWeapon::GetAmmoCurrent(bool use_item_to_spawn) const
 			}
 		}
 
-		for(TIItemContainer::iterator l_it = m_pCurrentInventory->m_ruck.begin(); m_pCurrentInventory->m_ruck.end() != l_it; ++l_it) 
+		for(TIItemContainer::iterator l_it = m_pInventory->m_ruck.begin(); m_pInventory->m_ruck.end() != l_it; ++l_it) 
 		{
 			CWeaponAmmo *l_pAmmo = smart_cast<CWeaponAmmo*>(*l_it);
 			if(l_pAmmo && !xr_strcmp(l_pAmmo->cNameSect(), l_ammoType)) 
@@ -989,37 +978,37 @@ void CWeapon::Reload()
 
 bool CWeapon::IsGrenadeLauncherAttached() const
 {
-	return (CSE_ALifeItemWeapon::eAddonAttachable == m_eGrenadeLauncherStatus &&
+	return (ALife::eAddonAttachable == m_eGrenadeLauncherStatus &&
 			0 != (m_flagsAddOnState&CSE_ALifeItemWeapon::eWeaponAddonGrenadeLauncher)) || 
-			CSE_ALifeItemWeapon::eAddonPermanent == m_eGrenadeLauncherStatus;
+			ALife::eAddonPermanent == m_eGrenadeLauncherStatus;
 }
 
 bool CWeapon::IsScopeAttached() const
 {
-	return (CSE_ALifeItemWeapon::eAddonAttachable == m_eScopeStatus &&
+	return (ALife::eAddonAttachable == m_eScopeStatus &&
 			0 != (m_flagsAddOnState&CSE_ALifeItemWeapon::eWeaponAddonScope)) || 
-			CSE_ALifeItemWeapon::eAddonPermanent == m_eScopeStatus;
+			ALife::eAddonPermanent == m_eScopeStatus;
 
 }
 
 bool CWeapon::IsSilencerAttached() const
 {
-	return (CSE_ALifeItemWeapon::eAddonAttachable == m_eSilencerStatus &&
+	return (ALife::eAddonAttachable == m_eSilencerStatus &&
 			0 != (m_flagsAddOnState&CSE_ALifeItemWeapon::eWeaponAddonSilencer)) || 
-			CSE_ALifeItemWeapon::eAddonPermanent == m_eSilencerStatus;
+			ALife::eAddonPermanent == m_eSilencerStatus;
 }
 
 bool CWeapon::GrenadeLauncherAttachable()
 {
-	return (CSE_ALifeItemWeapon::eAddonAttachable == m_eGrenadeLauncherStatus);
+	return (ALife::eAddonAttachable == m_eGrenadeLauncherStatus);
 }
 bool CWeapon::ScopeAttachable()
 {
-	return (CSE_ALifeItemWeapon::eAddonAttachable == m_eScopeStatus);
+	return (ALife::eAddonAttachable == m_eScopeStatus);
 }
 bool CWeapon::SilencerAttachable()
 {
-	return (CSE_ALifeItemWeapon::eAddonAttachable == m_eSilencerStatus);
+	return (ALife::eAddonAttachable == m_eSilencerStatus);
 }
 
 LPCSTR wpn_scope				= "wpn_scope";
@@ -1034,8 +1023,6 @@ void CWeapon::UpdateHUDAddonsVisibility()
 {//actor only
 	if( H_Parent() != Level().CurrentEntity() )				return;
 	if(m_pHUD->IsHidden())									return;
-//	if(IsZoomed() && )
-
 
 	CKinematics* pHudVisual									= smart_cast<CKinematics*>(m_pHUD->Visual());
 	VERIFY(pHudVisual);
@@ -1118,7 +1105,7 @@ void CWeapon::UpdateHUDAddonsVisibility()
 
 void CWeapon::UpdateAddonsVisibility()
 {
-	CKinematics* pWeaponVisual = smart_cast<CKinematics*>(Visual()); R_ASSERT(pWeaponVisual);
+	IKinematics* pWeaponVisual = smart_cast<IKinematics*>(Visual()); R_ASSERT(pWeaponVisual);
 
 	u16  bone_id;
 	UpdateHUDAddonsVisibility								();	
@@ -1128,7 +1115,7 @@ void CWeapon::UpdateAddonsVisibility()
 	{
 		if(IsScopeAttached())
 		{
-			if(FALSE==pWeaponVisual->LL_GetBoneVisible		(bone_id))
+			if(!pWeaponVisual->LL_GetBoneVisible		(bone_id))
 			pWeaponVisual->LL_SetBoneVisible				(bone_id,TRUE,TRUE);
 		}else{
 			if(pWeaponVisual->LL_GetBoneVisible				(bone_id))
@@ -1225,9 +1212,16 @@ void CWeapon::SwitchState(u32 S)
 {
 	if (OnClient()) return;
 
-	SetNextState		( S );	// Very-very important line of code!!! :)
-	if (CHudItem::object().Local() && !CHudItem::object().getDestroy()/* && (S!=NEXT_STATE)*/ 
-		&& m_pCurrentInventory && OnServer())	
+#ifndef MASTER_GOLD
+	if ( bDebug )
+	{
+		Msg("---Server is going to send GE_WPN_STATE_CHANGE to [%d], weapon_section[%s], parent[%s]",
+			S, cNameSect().c_str(), H_Parent() ? H_Parent()->cName().c_str() : "NULL Parent");
+	}
+#endif // #ifndef MASTER_GOLD
+
+	SetNextState		( S );
+	if (CHudItem::object().Local() && !CHudItem::object().getDestroy() && m_pInventory && OnServer())	
 	{
 		// !!! Just single entry for given state !!!
 		NET_Packet		P;
@@ -1494,12 +1488,13 @@ void CWeapon::OnDrawUI()
 
 bool CWeapon::unlimited_ammo() 
 { 
-	if (GameID() == GAME_SINGLE	)
+	if (IsGameTypeSingle())
 		return psActorFlags.test(AF_UNLIMITEDAMMO) && 
 				m_DefaultCartridge.m_flags.test(CCartridge::cfCanBeUnlimited); 
 
-	return (GameID()!=GAME_ARTEFACTHUNT) && 
-		m_DefaultCartridge.m_flags.test(CCartridge::cfCanBeUnlimited); 
+	return ((GameID() != eGameIDArtefactHunt) &&
+			(GameID() != eGameIDCaptureTheArtefact) &&
+			m_DefaultCartridge.m_flags.test(CCartridge::cfCanBeUnlimited)); 
 			
 };
 

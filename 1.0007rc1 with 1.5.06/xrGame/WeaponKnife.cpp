@@ -15,7 +15,7 @@
 
 #define KNIFE_MATERIAL_NAME "objects\\knife"
 
-CWeaponKnife::CWeaponKnife() : CWeapon("KNIFE") 
+CWeaponKnife::CWeaponKnife()
 {
 	m_attackStart			= false;
 	SetState				( eHidden );

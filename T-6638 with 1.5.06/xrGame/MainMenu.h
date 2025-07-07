@@ -141,7 +141,6 @@ public:
 
 	virtual bool	IgnorePause						()	{return true;}
 
-
 	virtual void	IR_OnMousePress					(int btn);
 	virtual void	IR_OnMouseRelease				(int btn);
 	virtual void	IR_OnMouseHold					(int btn);
@@ -158,8 +157,8 @@ public:
 	void			OnRenderPPUI_main				();
 	void			OnRenderPPUI_PP					();
 
-	virtual void			OnRender						();
-	virtual void	_BCL	OnFrame							(void);
+	virtual void	OnRender						();
+	virtual void	OnFrame							(void);
 
 	virtual bool	UseIndicators					()						{return false;}
 

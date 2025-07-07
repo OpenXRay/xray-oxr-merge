@@ -249,7 +249,6 @@ class CPolterTele : public CPolterSpecialAbility {
 	ref_sound			m_sound_tele_hold;
 	ref_sound			m_sound_tele_throw;
 
-
 	enum ETeleState {
 		eStartRaiseObjects,
 		eRaisingObjects,

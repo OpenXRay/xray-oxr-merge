@@ -310,6 +310,7 @@ public:
 	// Anomaly Detector
 private:
 	CAnomalyDetector		*m_anomaly_detector;
+	bool					m_force_anti_aim;
 
 public:
 	CAnomalyDetector		&anomaly_detector	() {return (*m_anomaly_detector);}
@@ -446,10 +447,15 @@ protected:
 
 	//////////////////////////////////////////////////////////////////////////
 public:	
+	virtual	char*			get_monster_class_name () = 0;
 
 //////////////////////////////////////////////////////////////////////////
 // DEBUG stuff
 #ifdef DEBUG
+
+	template <class Type>
+	bool					get_debug_var (pcstr var_name, OUT Type& result);
+
 public:
 	struct SDebugInfo {
 		bool	active;
@@ -477,10 +483,14 @@ public:
 //////////////////////////////////////////////////////////////////////////
 
 
-// Lain: added
+//-------------------------------------------------------------------
+// CBaseMonster's      Steering Behaviour
+//-------------------------------------------------------------------
+public:
 	steering_behaviour::manager*    get_steer_manager ();
 
 	float get_feel_enemy_who_just_hit_max_distance () { return m_feel_enemy_who_just_hit_max_distance; }
+	float get_feel_enemy_who_made_sound_max_distance () { return m_feel_enemy_who_made_sound_max_distance; }
 	float get_feel_enemy_max_distance			   () { return m_feel_enemy_max_distance; }
 	virtual bool  can_use_agressive_jump (const CObject*) { return false; }
 
@@ -493,6 +503,7 @@ private:
 	void update_pos_by_grouping_behaviour (); 
 	TTime m_last_grouping_behaviour_update_tick;
 
+	float							m_feel_enemy_who_made_sound_max_distance;
 	float m_feel_enemy_who_just_hit_max_distance;
 	float m_feel_enemy_max_distance;
 

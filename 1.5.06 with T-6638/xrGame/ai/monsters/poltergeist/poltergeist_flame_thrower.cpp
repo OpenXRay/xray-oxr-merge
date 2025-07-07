@@ -242,7 +242,9 @@ void CPolterFlame::update_schedule()
 	);
 	
 	// check if we can create another flame
-	if (m_object->g_Alive() && m_object->EnemyMan.get_enemy() && (m_flames.size() < m_count)) {
+	if (m_object->g_Alive() &&
+		m_object->EnemyMan.get_enemy() &&
+		(m_flames.size() < m_count)) {
 		// check aura radius and accessibility
 		float dist = m_object->EnemyMan.get_enemy()->Position().distance_to(m_object->Position());
 		if ((dist < m_pmt_aura_radius) && m_object->control().path_builder().accessible(m_object->EnemyMan.get_enemy()->Position())) {

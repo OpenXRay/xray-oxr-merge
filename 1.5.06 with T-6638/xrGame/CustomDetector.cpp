@@ -250,7 +250,6 @@ void CCustomDetector::UpdateCL()
 	inherited::UpdateCL();
 
 	UpdateVisibility		();
-
 	if( !IsWorking() )		return;
 	UpfateWork				();
 }
@@ -308,8 +307,7 @@ void CCustomDetector::UpdateNightVisionMode(bool b_on)
 
 BOOL CAfList::feel_touch_contact	(CObject* O)
 {
-	CLASS_ID	clsid			= O->CLS_ID;
-	TypesMapIt it				= m_TypesMap.find(clsid);
+	TypesMapIt it				= m_TypesMap.find(O->cNameSect());
 
 	bool res					 = (it!=m_TypesMap.end());
 	if(res)

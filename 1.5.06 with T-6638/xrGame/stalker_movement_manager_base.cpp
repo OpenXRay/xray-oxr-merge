@@ -436,11 +436,12 @@ void stalker_movement_manager_base::parse_velocity_mask	(stalker_movement_params
 				}
 			}
 			else {
-				if (!fis_zero(path_direction_angle(),PI_DIV_8*.5f))
+				CDetailPathManager::STravelParams const& path_velocity = detail().velocity(path()[detail().curr_travel_point_index()].velocity);
+				if (!fis_zero(path_direction_angle(),path_velocity.real_angular_velocity ))
 				{
 					setup_body_orientation	();
 					guard.enable		(false);
-					current_velocity		= detail().velocity(path()[detail().curr_travel_point_index()].velocity);
+					current_velocity		= path_velocity;
 					current_velocity.linear_velocity	= 0.f;
 					current_velocity.real_angular_velocity	= PI;
 				}

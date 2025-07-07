@@ -52,9 +52,7 @@ void CMonsterEnemyMemory::update()
 									monster->get_feel_enemy_max_distance();
 
 		if ( feel_enemy || monster->memory().visual().visible_now(*I) )
-		{
 			add_enemy(*I);
-		}
 	}
 	
 	// удалить устаревших врагов
@@ -109,7 +107,9 @@ void CMonsterEnemyMemory::remove_non_actual()
 	TTime cur_time = Device.dwTimeGlobal;
 
 	// удалить 'старых' врагов и тех, расстояние до которых > 30м и др.
-	for (ENEMIES_MAP_IT it = m_objects.begin(), nit; it != m_objects.end(); it = nit)
+	for ( ENEMIES_MAP_IT	it	=	m_objects.begin(), nit; 
+							it	!=	m_objects.end(); 
+							it	=	nit	)
 	{
 		nit = it; ++nit;
 		// проверить условия удаления
@@ -119,7 +119,9 @@ void CMonsterEnemyMemory::remove_non_actual()
 			(it->second.time + time_memory < cur_time) ||
 			(it->first->g_Team() == monster->g_Team())
 			) 
+		{
 			m_objects.erase (it);
+		}
 	}
 }
 

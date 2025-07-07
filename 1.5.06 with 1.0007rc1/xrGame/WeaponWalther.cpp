@@ -2,7 +2,8 @@
 #include "weaponwalther.h"
 
 CWeaponWalther::CWeaponWalther(void)
-{}
+{
+}
 
 CWeaponWalther::~CWeaponWalther(void)
 {}

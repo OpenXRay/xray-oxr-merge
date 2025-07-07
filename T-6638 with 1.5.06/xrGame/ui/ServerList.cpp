@@ -480,7 +480,6 @@ void CServerList::ConnectToSelected()
 		}
 	}
 
-
 	CUIListItemServer* item = smart_cast<CUIListItemServer*>(m_list[LST_SERVER].GetSelectedItem());
 	if(!item)
 		return;

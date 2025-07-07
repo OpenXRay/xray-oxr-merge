@@ -35,7 +35,7 @@ public:
 
 	void			FitToWidth						(float width);
 	void			FitToHeight						(float height);
-	float			GetCurrentZoom					()const					{return GetWndRect().width()/m_BoundRect.width();}
+	Fvector2		GetCurrentZoom					()const					{return Fvector2().set(GetWndRect().height()/BoundRect().height(), GetWndRect().width()/BoundRect().width());}
 	const Frect&    BoundRect						()const					{return m_BoundRect_;}
 	virtual void	OptimalFit						(const Frect& r);
 

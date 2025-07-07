@@ -8,7 +8,8 @@
 #include "WeaponBinocularsVision.h"
 #include "object_broker.h"
 #include "hudmanager.h"
-CWeaponBinoculars::CWeaponBinoculars() : CWeaponCustomPistol("BINOCULARS")
+
+CWeaponBinoculars::CWeaponBinoculars()
 {
 	m_binoc_vision	= NULL;
 	m_bVision		= false;

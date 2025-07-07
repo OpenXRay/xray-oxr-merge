@@ -237,7 +237,7 @@ void CAI_Stalker::Hit(SHit* pHDS)
 		{
 			hit_power *= m_boneHitProtection->m_fHitFrac;
 			HDS.add_wound = false;
-		}// if >=
+		}
 
 		if ( wounded() ) //уже лежит => добивание
 		{
@@ -361,8 +361,15 @@ void CAI_Stalker::OnItemDrop			(CInventoryItem *inventory_item, bool just_before
 
 void CAI_Stalker::update_best_item_info	()
 {
-	ai().ef_storage().alife_evaluation(false);
+	if(m_bTrading || !m_can_select_weapon)
+		return;
 
+	update_best_item_info_impl();
+}
+
+void CAI_Stalker::update_best_item_info_impl()
+{
+	ai().ef_storage().alife_evaluation(false);
 	if	(
 			m_item_actuality &&
 			m_best_item_to_kill &&

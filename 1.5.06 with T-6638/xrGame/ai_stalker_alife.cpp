@@ -16,6 +16,7 @@
 #include "eatable_item.h"
 #include "medkit.h"
 #include "weapon.h"
+#include "Grenade.h"
 #include "customdetector.h"
 #include "ef_storage.h"
 #include "ef_primary.h"
@@ -25,7 +26,7 @@
 
 extern u32 get_rank								(const shared_str &section);
 
-static const int MAX_AMMO_ATTACH_COUNT = 10;
+static const int MAX_AMMO_ATTACH_COUNT = 1;
 static const int enough_ammo_box_count = 1;
 
 IC	bool CAI_Stalker::CTradeItem::operator<		(const CTradeItem &trade_item) const
@@ -153,24 +154,33 @@ void CAI_Stalker::choose_weapon					(ALife::EWeaponPriorityType weapon_priority_
 				if (1 != j)
 					continue;
 				current_value		= ai().ef_storage().m_pfItemValue->ffGetValue();
+				if(I->m_item->m_ItemCurrPlace.type==eItemPlaceSlot)
+					current_value += 10.0f;
+				
 				break;
 			}
 			case ALife::eWeaponPriorityTypeSecondary : {
 				if (5 != j)
 					continue;
 				current_value		= ai().ef_storage().m_pfSmallWeaponValue->ffGetValue();
+				if(I->m_item->m_ItemCurrPlace.type==eItemPlaceSlot)
+					current_value += 10.0f;
 				break;
 			}
 			case ALife::eWeaponPriorityTypePrimary : {
-				if ((6 != j) && (8 != j) && (9 != j))
+				if ((6 != j) && (7 != j) && (8 != j) && (9 != j) && (11 != j) && (12 != j))
 					continue;
 				current_value		= ai().ef_storage().m_pfMainWeaponValue->ffGetValue();
+				if(I->m_item->m_ItemCurrPlace.type==eItemPlaceSlot)
+					current_value += 10.0f;
 				break;
 			}
 			case ALife::eWeaponPriorityTypeGrenade : {
-				if (7 != j)
+				if (4 != j)
 					continue;
 				current_value		= ai().ef_storage().m_pfItemValue->ffGetValue();
+				if(I->m_item->m_ItemCurrPlace.type==eItemPlaceSlot)
+					current_value += 10.0f;
 				break;
 			}
 			default : NODEFAULT;
@@ -292,50 +302,7 @@ bool CAI_Stalker::non_conflicted					(const CInventoryItem *item, const CWeapon 
 	if (!weapon)
 		return				(true);
 
-	switch (weapon->ef_weapon_type()) {
-		// binoculars
-		case 0 : 
-			return			(true);
-		// knives
-		case 1 : {
-			if (weapon->ef_weapon_type() != new_weapon->ef_weapon_type())
-				return		(true);
-
-			break;
-		}
-		// pistols
-		case 5 : {
-			if (weapon->ef_weapon_type() != new_weapon->ef_weapon_type())
-				return		(true);
-
-			break;
-		}
-		// automatic weapon
-		case 6 :
-		// shotguns
-		case 7 :
-		// sniper rifles
-		case 8 : {
-			if ((new_weapon->ef_weapon_type() < 6) || (new_weapon->ef_weapon_type() > 8))
-				return		(true);
-
-			break;
-		}
-		case 9 : {
-			if (weapon->ef_weapon_type() != new_weapon->ef_weapon_type())
-				return		(true);
-
-			break;
-		}
-		case 10 : {
-			if (weapon->ef_weapon_type() != new_weapon->ef_weapon_type())
-				return		(true);
-
-			break;
-		}
-	}
-
-	return					(false);
+	return					(weapon->ef_weapon_type() != new_weapon->ef_weapon_type());
 }
 
 bool CAI_Stalker::enough_ammo						(const CWeapon *new_weapon) const

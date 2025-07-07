@@ -2,7 +2,7 @@
 #define fmeshH
 #pragma once
 
-BOOL ValidateIndices		(u32 vCount, u32 iCount, u16* pIndices);
+//BOOL ValidateIndices		(u32 vCount, u32 iCount, u16* pIndices);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // MESH as it is represented in file

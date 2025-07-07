@@ -207,10 +207,10 @@ void CPolterFlame::update_schedule()
 
 	CEntityAlive const* enemy	=	Actor();
 	// check if we can create another flame
-	if ( m_object->g_Alive() && 
-		 enemy && 
+	if ( m_object->g_Alive() &&
+		 enemy &&
 		 m_flames.size() < m_count &&
-		 !m_object->get_actor_ignore() && 
+		 !m_object->get_actor_ignore() &&
 		 detected ) {
 		// check aura radius and accessibility
 		float dist = enemy->Position().distance_to(m_object->Position());

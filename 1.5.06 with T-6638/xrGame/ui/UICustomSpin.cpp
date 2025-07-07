@@ -12,8 +12,9 @@
 #include "UILines.h"
 #include "UICustomSpin.h"
 
-#define SPIN_HEIGHT 22.0f
-#define BTN_SIZE 11.0f
+#define SPIN_HEIGHT 20.0f
+#define BTN_SIZE_X 11.0f
+#define BTN_SIZE_Y 8.0f
 
 CUICustomSpin::CUICustomSpin()
 {
@@ -54,16 +55,16 @@ void CUICustomSpin::InitSpin(Fvector2 pos, Fvector2 size)
 
 	m_pFrameLine->SetWndPos		(Fvector2().set(0,0));
 	m_pFrameLine->SetWndSize	(Fvector2().set(size.x, SPIN_HEIGHT));
-	m_pFrameLine->InitTexture	("ui_spiner","hud\\default");
+	m_pFrameLine->InitTexture	("ui_inGame2_spin_box","hud\\default");
 
-	m_pBtnUp->InitButton		(Fvector2().set(size.x-BTN_SIZE-1, 0.0f),Fvector2().set(BTN_SIZE, BTN_SIZE));
-	m_pBtnUp->InitTexture		("ui_spiner_button_t");
+	m_pBtnUp->InitButton		(Fvector2().set(size.x-BTN_SIZE_X-2.0f, 1.0f),Fvector2().set(BTN_SIZE_X, BTN_SIZE_Y));
+	m_pBtnUp->InitTexture		("ui_inGame2_spin_box_button_top");
 
-	m_pBtnDown->InitButton		(Fvector2().set(size.x-BTN_SIZE-1, BTN_SIZE+1),Fvector2().set(BTN_SIZE, BTN_SIZE));
-	m_pBtnDown->InitTexture		("ui_spiner_button_b");
+	m_pBtnDown->InitButton		(Fvector2().set(size.x-BTN_SIZE_X-2.0f, BTN_SIZE_Y+2.0f),Fvector2().set(BTN_SIZE_X, BTN_SIZE_Y));
+	m_pBtnDown->InitTexture		("ui_inGame2_spin_box_button_bottom");
 
-	m_pLines->SetWndPos			(Fvector2().set(0,0));
-	m_pLines->SetWndSize		(Fvector2().set(size.x-BTN_SIZE-10, SPIN_HEIGHT));
+	m_pLines->m_wndPos.set		(Fvector2().set(0,0));
+	m_pLines->m_wndSize.set		(Fvector2().set(size.x-BTN_SIZE_X-10.0f, SPIN_HEIGHT));
 }
 
 void CUICustomSpin::SendMessage(CUIWindow* pWnd, s16 msg, void* pData)

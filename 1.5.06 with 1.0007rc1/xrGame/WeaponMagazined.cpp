@@ -81,7 +81,7 @@ void CWeaponMagazined::Load	(LPCSTR section)
 			m_sSilencerFlameParticles = pSettings->r_string(section, "silencer_flame_particles");
 		if(pSettings->line_exist(section, "silencer_smoke_particles"))
 			m_sSilencerSmokeParticles = pSettings->r_string(section, "silencer_smoke_particles");
-		
+
 		m_sounds.LoadSound(section,"snd_silncer_shot", "sndSilencerShot", m_eSoundShot);
 	}
 
@@ -131,7 +131,8 @@ void CWeaponMagazined::FireStart		()
 				
 				if (iAmmoElapsed == 0) 
 					OnMagazineEmpty();
-				else{
+				else
+				{
 					R_ASSERT(H_Parent());
 					SwitchState(eFire);
 				}
@@ -141,7 +142,8 @@ void CWeaponMagazined::FireStart		()
 			if(eReload!=GetState()) 
 				OnMagazineEmpty();
 		}
-	}else
+	}
+	else
 	{//misfire
 		if(smart_cast<CActor*>(this->H_Parent()) && (Level().CurrentViewEntity()==H_Parent()) )
 			HUD().GetUI()->AddInfoMessage("gun_jammed");
@@ -402,7 +404,6 @@ void CWeaponMagazined::OnStateSwitch	(u32 S)
 		break;
 	}
 }
-
 
 void CWeaponMagazined::UpdateCL			()
 {
@@ -885,13 +886,7 @@ bool CWeaponMagazined::Detach(const char* item_section_name, bool b_spawn_item)
 	else
 		return inherited::Detach(item_section_name, b_spawn_item);;
 }
-/*
-void CWeaponMagazined::LoadAddons()
-{
-	m_zoom_params.m_fIronSightZoomFactor = READ_IF_EXISTS( pSettings, r_float, cNameSect(), "ironsight_zoom_factor", 50.0f );
 
-}
-*/
 void CWeaponMagazined::InitAddons()
 {
 	m_zoom_params.m_fIronSightZoomFactor = READ_IF_EXISTS( pSettings, r_float, cNameSect(), "ironsight_zoom_factor", 50.0f );
@@ -1051,7 +1046,7 @@ void CWeaponMagazined::OnZoomIn			()
 }
 void CWeaponMagazined::OnZoomOut		()
 {
-	if(!IsZoomed())	 
+	if(!IsZoomed())
 		return;
 
 	inherited::OnZoomOut	();
@@ -1060,7 +1055,6 @@ void CWeaponMagazined::OnZoomOut		()
 		PlayAnimIdle		();
 
 	CActor* pActor			= smart_cast<CActor*>(H_Parent());
-
 	if(pActor)
 		pActor->Cameras().RemoveCamEffector	(eCEZoom);
 

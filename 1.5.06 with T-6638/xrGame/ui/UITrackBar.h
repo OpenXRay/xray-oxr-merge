@@ -1,13 +1,12 @@
 #pragma once
 
-#include "UIWindow.h"
 #include "UIOptionsItem.h"
+#include "UI_IB_Static.h"
 
 class CUI3tButton;
-class CUIFrameLineWnd;
 class CUITrackButton;
 
-class CUITrackBar : public CUIWindow, public CUIOptionsItem 
+class CUITrackBar : public CUI_IB_FrameLineWnd, public CUIOptionsItem 
 {
 	friend class CUITrackButton;
 public:
@@ -41,8 +40,6 @@ protected:
 			void 	UpdatePosRelativeToMouse();
 
     CUI3tButton*		m_pSlider;
-	CUIFrameLineWnd*	m_pFrameLine;
-	CUIFrameLineWnd*	m_pFrameLine_d;
 	bool				m_b_invert;
 	bool				m_b_is_float;
 	bool				m_b_mouse_capturer;

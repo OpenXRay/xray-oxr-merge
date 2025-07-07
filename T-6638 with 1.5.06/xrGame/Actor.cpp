@@ -862,9 +862,9 @@ void CActor::g_Physics			(Fvector& _accel, float jump, float dt)
 #ifdef DEBUG
 		if(!psActorFlags.test(AF_NO_CLIP))
 			character_physics_support()->movement()->GetPosition		(Position());
-#else //DEBUG
+#else
 		character_physics_support()->movement()->GetPosition		(Position());
-#endif //DEBUG
+#endif
 		character_physics_support()->movement()->bSleep				=false;
 	}
 

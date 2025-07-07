@@ -448,7 +448,8 @@ void CWeapon::LoadFireParams		(LPCSTR section)
 	cam_recoil.Dispersion = deg2rad( pSettings->r_float( section,"cam_dispersion" ) ); 
 	cam_recoil.DispersionInc = 0.0f;
 
-	if ( pSettings->line_exist( section, "cam_dispersion_inc" ) )	{
+	if ( pSettings->line_exist( section, "cam_dispersion_inc" ) )
+	{
 		cam_recoil.DispersionInc = deg2rad( pSettings->r_float( section, "cam_dispersion_inc" ) ); 
 	}
 	
@@ -808,7 +809,7 @@ void CWeapon::renderable_Render		()
 
 void CWeapon::signal_HideComplete()
 {
-	if(H_Parent()) 
+	if(H_Parent())
 		setVisible			(FALSE);
 	SetPending				(FALSE);
 }
@@ -1169,8 +1170,6 @@ shared_str wpn_grenade_launcher		= "wpn_launcher";
 void CWeapon::UpdateHUDAddonsVisibility()
 {//actor only
 	if(!GetHUDmode())										return;
-
-//.	return;
 
 	if(ScopeAttachable())
 	{
@@ -1622,7 +1621,7 @@ bool CWeapon::unlimited_ammo()
 		return psActorFlags.test(AF_UNLIMITEDAMMO) && 
 				m_DefaultCartridge.m_flags.test(CCartridge::cfCanBeUnlimited); 
 
-	return ((GameID() != eGameIDArtefactHunt) && 
+	return ((GameID() != eGameIDArtefactHunt) &&
 			(GameID() != eGameIDCaptureTheArtefact) &&
 			m_DefaultCartridge.m_flags.test(CCartridge::cfCanBeUnlimited)); 
 			

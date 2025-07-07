@@ -2,6 +2,7 @@
 #pragma		hdrstop
 
 #include	"xrRender_console.h"
+#include	"dxRenderDeviceRender.h"
 
 u32			ps_Preset				=	2	;
 xr_token							qpreset_token							[ ]={
@@ -13,7 +14,16 @@ xr_token							qpreset_token							[ ]={
 	{ 0,							0											}
 };
 
-u32			ps_r_sun_shafts				=	0;
+u32			ps_r_ssao_mode			=	2;
+xr_token							qssao_mode_token						[ ]={
+	{ "disabled",					0											},
+	{ "default",					1											},
+	{ "hdao",						2											},
+	{ "hbao",						3											},
+	{ 0,							0											}
+};
+
+u32			ps_r_sun_shafts				=	2;
 xr_token							qsun_shafts_token							[ ]={
 	{ "st_opt_off",					0												},
 	{ "st_opt_low",					1												},
@@ -22,22 +32,26 @@ xr_token							qsun_shafts_token							[ ]={
 	{ 0,							0												}
 };
 
-u32			ps_r_ssao				=	0;
+u32			ps_r_ssao				=	3;
 xr_token							qssao_token									[ ]={
 	{ "st_opt_off",					0												},
 	{ "st_opt_low",					1												},
 	{ "st_opt_medium",				2												},
 	{ "st_opt_high",				3												},
+#if defined(USE_DX10) || defined(USE_DX11)
+	{ "st_opt_ultra",				4												},
+#endif
 	{ 0,							0												}
 };
 
-u32			ps_r_sun_quality		=	0;			//	=	0;
+u32			ps_r_sun_quality		=	1;			//	=	0;
 xr_token							qsun_quality_token							[ ]={
 	{ "st_opt_low",					0												},
 	{ "st_opt_medium",				1												},
 	{ "st_opt_high",				2												},
-#ifdef	USE_DX10
+#if defined(USE_DX10) || defined(USE_DX11)
 	{ "st_opt_ultra",				3												},
+	{ "st_opt_extreme",				4												},
 #endif	//	USE_DX10
 	{ 0,							0												}
 };
@@ -117,6 +131,7 @@ float		ps_r1_pps_v					= 0.f	;
 // R1-specific
 int			ps_r1_GlowsPerFrame			= 16	;					// r1-only
 float		ps_r1_fog_luminance			= 1.f	;					// r1-only
+int			ps_r1_SoftwareSkinning		= 0		;					// r1-only
 
 // R2
 float		ps_r2_ssaLOD_A				= 48.f	;
@@ -137,6 +152,7 @@ Flags32		ps_r2_ls_flags				= { R2FLAG_SUN
 
 Flags32		ps_r2_ls_flags_ext			= {
 		/*R2FLAGEXT_SSAO_OPT_DATA |*/ R2FLAGEXT_SSAO_HALF_DATA
+		|R2FLAGEXT_ENABLE_TESSELLATION
 	};
 
 float		ps_r2_df_parallax_h			= 0.02f;
@@ -207,7 +223,7 @@ float		ps_r2_gloss_factor			= 3.0f;
 #include	"../../xrEngine/xr_ioconsole.h"
 #include	"../../xrEngine/xr_ioc_cmd.h"
 
-#ifdef	USE_DX10
+#if defined(USE_DX10) || defined(USE_DX11)
 #include "../xrRenderDX10/StateManager/dx10SamplerStateCache.h"
 #endif	//	USE_DX10
 
@@ -218,7 +234,7 @@ public:
 	void	apply	()	{
 		if (0==HW.pDevice)	return	;
 		int	val = *value;	clamp(val,1,16);
-#ifdef	USE_DX10
+#if defined(USE_DX10) || defined(USE_DX11)
 		SSManager.SetMaxAnisotropy(val);
 #else	//	USE_DX10
 		for (u32 i=0; i<HW.Caps.raster.dwStages; i++)
@@ -243,7 +259,7 @@ public:
 	void	apply	()	{
 		if (0==HW.pDevice)	return	;
 
-#ifdef	USE_DX10
+#if defined(USE_DX10) || defined(USE_DX11)
 		//	TODO: DX10: Implement mip bias control
 		//VERIFY(!"apply not implmemented.");
 #else	//	USE_DX10
@@ -319,6 +335,62 @@ public:
 		RImplementation.Models->dump();
 	}
 };
+
+class	CCC_SSAO_Mode		: public CCC_Token
+{
+public:
+	CCC_SSAO_Mode(LPCSTR N, u32* V, xr_token* T) : CCC_Token(N,V,T)	{}	;
+
+	virtual void	Execute	(LPCSTR args)	{
+		CCC_Token::Execute	(args);
+				
+		switch	(*value)
+		{
+			case 0:
+			{
+				ps_r_ssao = 0;
+				ps_r2_ls_flags_ext.set(R2FLAGEXT_SSAO_HBAO, 0);
+				ps_r2_ls_flags_ext.set(R2FLAGEXT_SSAO_HDAO, 0);
+				break;
+			}
+			case 1:
+			{
+				if (ps_r_ssao==0)
+				{
+					ps_r_ssao = 1;
+				}
+				ps_r2_ls_flags_ext.set(R2FLAGEXT_SSAO_HBAO, 0);
+				ps_r2_ls_flags_ext.set(R2FLAGEXT_SSAO_HDAO, 0);
+				ps_r2_ls_flags_ext.set(R2FLAGEXT_SSAO_HALF_DATA, 0);
+				break;
+			}
+			case 2:
+			{
+				if (ps_r_ssao==0)
+				{
+					ps_r_ssao = 1;
+				}
+				ps_r2_ls_flags_ext.set(R2FLAGEXT_SSAO_HBAO, 0);
+				ps_r2_ls_flags_ext.set(R2FLAGEXT_SSAO_HDAO, 1);
+				ps_r2_ls_flags_ext.set(R2FLAGEXT_SSAO_OPT_DATA, 0);
+				ps_r2_ls_flags_ext.set(R2FLAGEXT_SSAO_HALF_DATA, 0);
+				break;
+			}
+			case 3:
+			{
+				if (ps_r_ssao==0)
+				{
+					ps_r_ssao = 1;
+				}
+				ps_r2_ls_flags_ext.set(R2FLAGEXT_SSAO_HBAO, 1);
+				ps_r2_ls_flags_ext.set(R2FLAGEXT_SSAO_HDAO, 0);
+				ps_r2_ls_flags_ext.set(R2FLAGEXT_SSAO_OPT_DATA, 1);
+				break;
+			}
+		}
+	}
+};
+
 //-----------------------------------------------------------------------
 class	CCC_Preset		: public CCC_Token
 {
@@ -343,6 +415,50 @@ public:
 	}
 };
 
+class CCC_memory_stats : public IConsole_Command
+{
+protected	:
+
+public		:
+
+	CCC_memory_stats(LPCSTR N) :	IConsole_Command(N)	{ bEmptyArgsHandled = true; };
+
+	virtual void	Execute	(LPCSTR args)
+	{
+		u32 m_base = 0;
+		u32 c_base = 0;
+		u32 m_lmaps = 0; 
+		u32 c_lmaps = 0;
+
+		dxRenderDeviceRender::Instance().ResourcesGetMemoryUsage( m_base, c_base, m_lmaps, c_lmaps );
+
+		Msg		("memory usage  mb \t \t video    \t managed      \t system \n" );
+
+		float vb_video		= (float)HW.stats_manager.memory_usage_summary[enum_stats_buffer_type_vertex][D3DPOOL_DEFAULT]/1024/1024;
+		float vb_managed	= (float)HW.stats_manager.memory_usage_summary[enum_stats_buffer_type_vertex][D3DPOOL_MANAGED]/1024/1024;
+		float vb_system		= (float)HW.stats_manager.memory_usage_summary[enum_stats_buffer_type_vertex][D3DPOOL_SYSTEMMEM]/1024/1024;
+		Msg		("vertex buffer      \t \t %f \t %f \t %f ",	vb_video, vb_managed, vb_system);
+
+		float ib_video		= (float)HW.stats_manager.memory_usage_summary[enum_stats_buffer_type_index][D3DPOOL_DEFAULT]/1024/1024; 
+		float ib_managed	= (float)HW.stats_manager.memory_usage_summary[enum_stats_buffer_type_index][D3DPOOL_MANAGED]/1024/1024; 
+		float ib_system		= (float)HW.stats_manager.memory_usage_summary[enum_stats_buffer_type_index][D3DPOOL_SYSTEMMEM]/1024/1024; 
+		Msg		("index buffer      \t \t %f \t %f \t %f ",	ib_video, ib_managed, ib_system);
+		
+		float textures_managed = (float)(m_base+m_lmaps)/1024/1024;
+		Msg		("textures          \t \t %f \t %f \t %f ",	0.f, textures_managed, 0.f);
+
+		float rt_video		= (float)HW.stats_manager.memory_usage_summary[enum_stats_buffer_type_rtarget][D3DPOOL_DEFAULT]/1024/1024;
+		float rt_managed	= (float)HW.stats_manager.memory_usage_summary[enum_stats_buffer_type_rtarget][D3DPOOL_MANAGED]/1024/1024;
+		float rt_system		= (float)HW.stats_manager.memory_usage_summary[enum_stats_buffer_type_rtarget][D3DPOOL_SYSTEMMEM]/1024/1024;
+		Msg		("R-Targets         \t \t %f \t %f \t %f ",	rt_video, rt_managed, rt_system);									
+
+		Msg		("\nTotal             \t \t %f \t %f \t %f ",	vb_video+ib_video+rt_video,
+																textures_managed + vb_managed+ib_managed+rt_managed,
+																vb_system+ib_system+rt_system);
+	}
+
+};
+
 #if RENDER!=R_R1
 #include "r__pixel_calculator.h"
 class CCC_BuildSSA : public IConsole_Command
@@ -351,7 +467,7 @@ public:
 	CCC_BuildSSA(LPCSTR N) : IConsole_Command(N)  { bEmptyArgsHandled = TRUE; };
 	virtual void Execute(LPCSTR args) 
 	{
-#ifndef	USE_DX10
+#if !defined(USE_DX10) && !defined(USE_DX11)
 		//	TODO: DX10: Implement pixel calculator
 		r_pixel_calculator	c;
 		c.run				();
@@ -483,11 +599,11 @@ public:
 	}
 	virtual void	Status	(TStatus& S)
 	{	
-		sprintf	(S,"%f,%f,%f",value->x,value->y,value->z);
+		xr_sprintf	(S,"%f,%f,%f",value->x,value->y,value->z);
 	}
 	virtual void	Info	(TInfo& I)
 	{	
-		sprintf(I,"vector3 in range [%f,%f,%f]-[%f,%f,%f]",min.x,min.y,min.z,max.x,max.y,max.z);
+		xr_sprintf(I,"vector3 in range [%f,%f,%f]-[%f,%f,%f]",min.x,min.y,min.z,max.x,max.y,max.z);
 	}
 
 };
@@ -498,11 +614,12 @@ public:
 	CCC_DumpResources(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = TRUE; };
 	virtual void Execute(LPCSTR args) {
 		RImplementation.Models->dump();
+		dxRenderDeviceRender::Instance().Resources->Dump(false);
 	}
 };
 
 //	Allow real-time fog config reload
-#if	RENDER == R_R3
+#if	(RENDER == R_R3) || (RENDER == R_R4)
 #ifdef	DEBUG
 
 #include "../xrRenderDX10/3DFluid/dx103DFluidManager.h"
@@ -517,7 +634,7 @@ public:
 	}
 };
 #endif	//	DEBUG
-#endif	//	RENDER == R_R3
+#endif	//	(RENDER == R_R3) || (RENDER == R_R4)
 
 //-----------------------------------------------------------------------
 void		xrRender_initconsole	()
@@ -590,6 +707,12 @@ void		xrRender_initconsole	()
 	CMD3(CCC_Mask,		"r1_no_detail_textures",&ps_r2_ls_flags,			R1FLAG_NO_DETAIL_TEXTURES);
 
 	CMD4(CCC_Float,		"r1_fog_luminance",		&ps_r1_fog_luminance,		0.2f,	5.f	);
+
+	// Software Skinning
+	// 0 - disabled (renderer can override)
+	// 1 - enabled
+	// 2 - forced hardware skinning (renderer can not override)
+	CMD4(CCC_Integer,	"r1_software_skinning",	&ps_r1_SoftwareSkinning,	0,		2	);
 
 	// R2
 	CMD4(CCC_Float,		"r2_ssa_lod_a",			&ps_r2_ssaLOD_A,			16,		96		);
@@ -702,12 +825,15 @@ void		xrRender_initconsole	()
 	CMD3(CCC_Mask,		"r2_volumetric_lights",			&ps_r2_ls_flags,			R2FLAG_VOLUMETRIC_LIGHTS);
 //	CMD3(CCC_Mask,		"r2_sun_shafts",				&ps_r2_ls_flags,			R2FLAG_SUN_SHAFTS);
 	CMD3(CCC_Token,		"r2_sun_shafts",				&ps_r_sun_shafts,			qsun_shafts_token);
+	CMD3(CCC_SSAO_Mode,	"r2_ssao_mode",					&ps_r_ssao_mode,			qssao_mode_token);
 	CMD3(CCC_Token,		"r2_ssao",						&ps_r_ssao,					qssao_token);
 	CMD3(CCC_Mask,		"r2_ssao_blur",                 &ps_r2_ls_flags_ext,		R2FLAGEXT_SSAO_BLUR);//Need restart
 	CMD3(CCC_Mask,		"r2_ssao_opt_data",				&ps_r2_ls_flags_ext,		R2FLAGEXT_SSAO_OPT_DATA);//Need restart
 	CMD3(CCC_Mask,		"r2_ssao_half_data",			&ps_r2_ls_flags_ext,		R2FLAGEXT_SSAO_HALF_DATA);//Need restart
 	CMD3(CCC_Mask,		"r2_ssao_hbao",					&ps_r2_ls_flags_ext,		R2FLAGEXT_SSAO_HBAO);//Need restart
 	CMD3(CCC_Mask,		"r2_ssao_hdao",					&ps_r2_ls_flags_ext,		R2FLAGEXT_SSAO_HDAO);//Need restart
+	CMD3(CCC_Mask,		"r4_enable_tessellation",		&ps_r2_ls_flags_ext,		R2FLAGEXT_ENABLE_TESSELLATION);//Need restart
+	CMD3(CCC_Mask,		"r4_wireframe",					&ps_r2_ls_flags_ext,		R2FLAGEXT_WIREFRAME);//Need restart
 	CMD3(CCC_Mask,		"r2_steep_parallax",			&ps_r2_ls_flags,			R2FLAG_STEEP_PARALLAX);
 	CMD3(CCC_Mask,		"r2_detail_bump",				&ps_r2_ls_flags,			R2FLAG_DETAIL_BUMP);
 
@@ -730,11 +856,11 @@ void		xrRender_initconsole	()
 
 
 	//	Allow real-time fog config reload
-#if	RENDER == R_R3
+#if	(RENDER == R_R3) || (RENDER == R_R4)
 #ifdef	DEBUG
 	CMD1(CCC_Fog_Reload,"r3_fog_reload");
 #endif	//	DEBUG
-#endif	//	RENDER == R_R3
+#endif	//	(RENDER == R_R3) || (RENDER == R_R4)
 
 	CMD3(CCC_Mask,		"r3_dynamic_wet_surfaces",		&ps_r2_ls_flags,			R3FLAG_DYN_WET_SURF);
 	CMD4(CCC_Float,		"r3_dynamic_wet_surfaces_near",	&ps_r3_dyn_wet_surf_near,	10,	70		);
@@ -742,6 +868,8 @@ void		xrRender_initconsole	()
 	CMD4(CCC_Integer,	"r3_dynamic_wet_surfaces_sm_res",&ps_r3_dyn_wet_surf_sm_res,64,	2048	);
 
 	CMD3(CCC_Mask,		"r3_volumetric_smoke",			&ps_r2_ls_flags,			R3FLAG_VOLUMETRIC_SMOKE);
+	CMD1(CCC_memory_stats,	"render_memory_stats" );
+	
 
 //	CMD3(CCC_Mask,		"r2_sun_ignore_portals",		&ps_r2_ls_flags,			R2FLAG_SUN_IGNORE_PORTALS);
 }

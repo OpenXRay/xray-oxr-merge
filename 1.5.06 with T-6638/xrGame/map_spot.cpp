@@ -161,7 +161,7 @@ void CMiniMapSpot::Load(CUIXml* xml, LPCSTR path)
 	n = xml->NavigateToNode(buf,0);
 	if(n){
 		LPCSTR texture  = xml->Read(buf, 0, NULL);
-		CUITextureMaster::InitTexture	(texture, "hud\\default", &m_UIStaticItem);
+		CUITextureMaster::InitTexture	(texture, &m_UIStaticItem);
 		if(strchr(texture,'\\'))
 		{
 			float x					= xml->ReadAttribFlt(buf, 0, "x", base_rect.x1);
@@ -179,7 +179,7 @@ void CMiniMapSpot::Load(CUIXml* xml, LPCSTR path)
 	n = xml->NavigateToNode(buf,0);
 	if(n){
 		LPCSTR texture  = xml->Read(buf, 0, NULL);
-		CUITextureMaster::InitTexture	(texture, "hud\\default", &m_UIStaticItem);
+		CUITextureMaster::InitTexture	(texture, &m_UIStaticItem);
 		if(strchr(texture,'\\'))
 		{
 			float x					= xml->ReadAttribFlt(buf, 0, "x", base_rect.x1);
@@ -196,7 +196,7 @@ void CMiniMapSpot::Load(CUIXml* xml, LPCSTR path)
 	n = xml->NavigateToNode(buf,0);
 	if(n){
 		LPCSTR texture  = xml->Read(buf, 0, NULL);
-		CUITextureMaster::InitTexture	(texture, "hud\\default", &m_UIStaticItem);
+		CUITextureMaster::InitTexture	(texture, &m_UIStaticItem);
 		if(strchr(texture,'\\'))
 		{
 			float x					= xml->ReadAttribFlt(buf, 0, "x", base_rect.x1);
@@ -222,14 +222,14 @@ void CMiniMapSpot::Draw()
 
 		if(d>1.8f){
 			GetUIStaticItem().SetShader			(m_icon_below);
-			GetUIStaticItem().SetTextureRect	(m_tex_rect_below.x1,m_tex_rect_below.y1,m_tex_rect_below.width(),m_tex_rect_below.height());
+			GetUIStaticItem().SetTextureRect	(m_tex_rect_below);
 		}else
 		if(d<-1.8f){
 			GetUIStaticItem().SetShader			(m_icon_above);
-			GetUIStaticItem().SetTextureRect	(m_tex_rect_above.x1,m_tex_rect_above.y1,m_tex_rect_above.width(),m_tex_rect_above.height());
+			GetUIStaticItem().SetTextureRect	(m_tex_rect_above);
 		}else{
 			GetUIStaticItem().SetShader			(m_icon_normal);
-			GetUIStaticItem().SetTextureRect	(m_tex_rect_normal.x1,m_tex_rect_normal.y1,m_tex_rect_normal.width(),m_tex_rect_normal.height());
+			GetUIStaticItem().SetTextureRect	(m_tex_rect_normal);
 		}
 	};
 

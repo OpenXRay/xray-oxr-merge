@@ -217,6 +217,7 @@ void CCustomOutfit::ApplySkinModel(CActor* pActor, bool bDress, bool bHUDOnly)
 					NewVisual._set(SkinName);
 				}
 			}
+
 			if (!NewVisual.size())
 				NewVisual = m_ActorVisual;
 

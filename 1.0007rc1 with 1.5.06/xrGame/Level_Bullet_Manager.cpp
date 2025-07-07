@@ -97,33 +97,32 @@ CBulletManager::~CBulletManager()
 	m_Events.clear			();
 }
 
-#define BULLET_MANAGER_SECTION "bullet_manager"
-
 void CBulletManager::Load		()
 {
-	m_fTracerWidth			= pSettings->r_float(BULLET_MANAGER_SECTION, "tracer_width");
-	m_fTracerLengthMax		= pSettings->r_float(BULLET_MANAGER_SECTION, "tracer_length_max");
-	m_fTracerLengthMin		= pSettings->r_float(BULLET_MANAGER_SECTION, "tracer_length_min");
+	m_fTracerWidth			= pSettings->r_float("bullet_manager", "tracer_width");
+	m_fTracerLengthMax		= pSettings->r_float("bullet_manager", "tracer_length_max");
+	m_fTracerLengthMin		= pSettings->r_float("bullet_manager", "tracer_length_min");
 
-	m_fGravityConst			= pSettings->r_float(BULLET_MANAGER_SECTION, "gravity_const");
-	m_fAirResistanceK		= pSettings->r_float(BULLET_MANAGER_SECTION, "air_resistance_k");
+	m_fGravityConst			= pSettings->r_float("bullet_manager", "gravity_const");
+	m_fAirResistanceK		= pSettings->r_float("bullet_manager", "air_resistance_k");
 
-	m_dwStepTime			= pSettings->r_u32	(BULLET_MANAGER_SECTION, "time_step");
-	m_fMinBulletSpeed		= pSettings->r_float(BULLET_MANAGER_SECTION, "min_bullet_speed");
-	m_fCollisionEnergyMin	= pSettings->r_float(BULLET_MANAGER_SECTION, "collision_energy_min");
-	m_fCollisionEnergyMax	= pSettings->r_float(BULLET_MANAGER_SECTION, "collision_energy_max");
+	m_dwStepTime			= pSettings->r_u32	("bullet_manager", "time_step");
+	m_fMinBulletSpeed		= pSettings->r_float("bullet_manager", "min_bullet_speed");
+	m_fCollisionEnergyMin	= pSettings->r_float("bullet_manager", "collision_energy_min");
+	m_fCollisionEnergyMax	= pSettings->r_float("bullet_manager", "collision_energy_max");
 
-	m_fHPMaxDist			= pSettings->r_float(BULLET_MANAGER_SECTION, "hit_probability_max_dist");
+	m_fHPMaxDist			= pSettings->r_float("bullet_manager", "hit_probability_max_dist");
 
-	LPCSTR whine_sounds		= pSettings->r_string(BULLET_MANAGER_SECTION, "whine_sounds");
+	LPCSTR whine_sounds		= pSettings->r_string("bullet_manager", "whine_sounds");
 	int cnt					= _GetItemCount(whine_sounds);
 	xr_string tmp;
-	for (int k=0; k<cnt; ++k){
+	for (int k=0; k<cnt; ++k)
+	{
 		m_WhineSounds.push_back	(ref_sound());
 		m_WhineSounds.back().create(_GetItem(whine_sounds,k,tmp),st_Effect,sg_SourceType);
 	}
 
-	LPCSTR explode_particles= pSettings->r_string(BULLET_MANAGER_SECTION, "explode_particles");
+	LPCSTR explode_particles= pSettings->r_string("bullet_manager", "explode_particles");
 	cnt						= _GetItemCount(explode_particles);
 	for (int k=0; k<cnt; ++k)
 		m_ExplodeParticles.push_back	(_GetItem(explode_particles,k,tmp));
@@ -131,13 +130,13 @@ void CBulletManager::Load		()
 
 void CBulletManager::PlayExplodePS		(const Fmatrix& xf)
 {
-	if (!m_ExplodeParticles.empty()){
-		const shared_str& ps_name		= m_ExplodeParticles[Random.randI(0, m_ExplodeParticles.size())];
-
-		CParticlesObject* ps = CParticlesObject::Create(*ps_name,TRUE);
-		ps->UpdateParent(xf,zero_vel);
-		GamePersistent().ps_needtoplay.push_back(ps);
-	}
+	if (m_ExplodeParticles.empty())
+		return;
+	
+	shared_str const& ps_name		= m_ExplodeParticles[Random.randI(0, m_ExplodeParticles.size())];
+	CParticlesObject* const ps = CParticlesObject::Create(*ps_name,TRUE);
+	ps->UpdateParent(xf,zero_vel);
+	GamePersistent().ps_needtoplay.push_back(ps);
 }
 
 void CBulletManager::PlayWhineSound(SBullet* bullet, CObject* object, const Fvector& pos)
@@ -178,7 +177,7 @@ void CBulletManager::AddBullet(const Fvector& position,
 	bullet.Init			(position, direction, starting_speed, power, impulse, sender_id, sendersweapon_id, e_hit_type, maximum_distance, cartridge, SendHit);
 	bullet.frame_num	= Device.dwFrame;
 	bullet.flags.aim_bullet	=	AimBullet;
-	if (SendHit && GameID() != GAME_SINGLE)
+	if (SendHit && !IsGameTypeSingle())
 		Game().m_WeaponUsageStatistic->OnBullet_Fire(&bullet, cartridge);
 	m_Lock.Leave	();
 }
@@ -243,7 +242,7 @@ bool CBulletManager::CalcBullet (collide::rq_results & rq_storage, xr_vector<ISp
 
 	bullet->flags.ricochet_was		= 0;
 
-	collide::ray_defs RD			(bullet->pos, bullet->dir, range, CDB::OPT_CULL, collide::rqtBoth);
+	collide::ray_defs RD			(bullet->bullet_pos, bullet->dir, range, CDB::OPT_CULL, collide::rqtBoth);
 	BOOL result						= FALSE;
 	VERIFY							(!fis_zero(RD.dir.square_magnitude()));
 	result							= Level().ObjectSpace.RayQuery(rq_storage, RD, firetrace_callback, &bullet_data, test_callback, NULL);
@@ -258,7 +257,7 @@ bool CBulletManager::CalcBullet (collide::rq_results & rq_storage, xr_vector<ISp
 
 	if(!bullet->flags.ricochet_was)	{
 		//изменить положение пули
-		bullet->pos.mad(bullet->pos, cur_dir, range);
+		bullet->bullet_pos.mad(bullet->bullet_pos, cur_dir, range);
 		bullet->fly_dist += range;
 
 		if(bullet->fly_dist>=bullet->max_dist)
@@ -266,15 +265,15 @@ bool CBulletManager::CalcBullet (collide::rq_results & rq_storage, xr_vector<ISp
 
 		Fbox level_box = Level().ObjectSpace.GetBoundingVolume();
 		
-/*		if(!level_box.contains(bullet->pos))
+/*		if(!level_box.contains(bullet->bullet_pos))
 			return false;
 */
-		if(!((bullet->pos.x>=level_box.x1) && 
-			 (bullet->pos.x<=level_box.x2) && 
-			 (bullet->pos.y>=level_box.y1) && 
-//			 (bullet->pos.y<=level_box.y2) && 
-			 (bullet->pos.z>=level_box.z1) && 
-			 (bullet->pos.z<=level_box.z2))	)
+		if(!((bullet->bullet_pos.x>=level_box.x1) && 
+			 (bullet->bullet_pos.x<=level_box.x2) && 
+			 (bullet->bullet_pos.y>=level_box.y1) && 
+//			 (bullet->bullet_pos.y<=level_box.y2) && 
+			 (bullet->bullet_pos.z>=level_box.z1) && 
+			 (bullet->bullet_pos.z<=level_box.z2))	)
 			 return false;
 
 		//изменить скорость и направление ее полета
@@ -362,18 +361,22 @@ void CBulletManager::Render	()
 
 	for(BulletVecIt it = m_BulletsRendered.begin(); it!=m_BulletsRendered.end(); it++){
 		SBullet* bullet					= &(*it);
-		if(!bullet->flags.allow_tracer)	continue;
-		if (!bullet->flags.skipped_frame)  continue;
+		if(!bullet->flags.allow_tracer)
+			continue;
+
+		if (!bullet->flags.skipped_frame)
+		  continue;
 
 		float length	= bullet->speed*float(m_dwStepTime)/1000.f;//dist.magnitude();
 
-		if(length<m_fTracerLengthMin) continue;
+		if(length<m_fTracerLengthMin)
+			continue;
 
 		if(length>m_fTracerLengthMax)
 			length			= m_fTracerLengthMax;
 
 		float width			= m_fTracerWidth;
-		float dist2segSqr = SqrDistancePointToSegment(Device.vCameraPosition, bullet->pos, Fvector().mul(bullet->dir, length));
+		float dist2segSqr = SqrDistancePointToSegment(Device.vCameraPosition, bullet->bullet_pos, Fvector().mul(bullet->dir, length));
 		//---------------------------------------------
 		float MaxDistSqr = 1.0f;
 		float MinDistSqr = 0.09f;
@@ -381,32 +384,16 @@ void CBulletManager::Render	()
 		{
 			if (dist2segSqr < MinDistSqr) dist2segSqr = MinDistSqr;
 
-			width *= _sqrt(dist2segSqr/MaxDistSqr);//*MaxDistWidth/0.08f;			
+			width *= _sqrt(dist2segSqr/MaxDistSqr);			
 		}
-		if (Device.vCameraPosition.distance_to_sqr(bullet->pos)<(length*length))
+		if (Device.vCameraPosition.distance_to_sqr(bullet->bullet_pos)<(length*length))
 		{
-			length = Device.vCameraPosition.distance_to(bullet->pos) - 0.3f;
+			length = Device.vCameraPosition.distance_to(bullet->bullet_pos) - 0.3f;
 		}
-		/*
-		//---------------------------------------------
-		Fvector vT, v0, v1;
-		vT.mad(Device.vCameraPosition, Device.vCameraDirection, _sqrt(dist2segSqr));
-		v0.mad(vT, Device.vCameraTop, width*.5f);
-		v1.mad(vT, Device.vCameraTop, -width*.5f);
-		Fvector v0r, v1r;
-		Device.mFullTransform.transform(v0r, v0);
-		Device.mFullTransform.transform(v1r, v1);
-		float ViewWidth = v1r.distance_to(v0r);
-*/
-//		float dist = _sqrt(dist2segSqr);
-//		Msg("dist - [%f]; ViewWidth - %f, [%f]", dist, ViewWidth, ViewWidth*float(Device.dwHeight));
-//		Msg("dist - [%f]", dist);
-		//---------------------------------------------
-
 
 		Fvector center;
-		center.mad				(bullet->pos, bullet->dir,  -length*.5f);
-		tracers.Render			(verts, bullet->pos, center, bullet->dir, length, width, bullet->m_u8ColorID);
+		center.mad				(bullet->bullet_pos, bullet->dir,  -length*.5f);
+		tracers.Render			(verts, bullet->bullet_pos, center, bullet->dir, length, width, bullet->m_u8ColorID);
 	}
 
 	u32 vCount					= (u32)(verts-start);
@@ -445,7 +432,7 @@ void CBulletManager::CommitEvents			()	// @ the start of frame
 			}break;
 		case EVENT_REMOVE:
 			{
-				if (E.bullet.flags.allow_sendhit && GameID() != GAME_SINGLE)
+				if (E.bullet.flags.allow_sendhit && GameID() != eGameIDSingle)
 					Game().m_WeaponUsageStatistic->OnBullet_Remove(&E.bullet);
 				m_Bullets[E.tgt_material] = m_Bullets.back();
 				m_Bullets.pop_back();
@@ -457,6 +444,14 @@ void CBulletManager::CommitEvents			()	// @ the start of frame
 
 void CBulletManager::RegisterEvent			(EventType Type, BOOL _dynamic, SBullet* bullet, const Fvector& end_point, collide::rq_result& R, u16 tgt_material)
 {
+#if 0//def DEBUG
+	if (m_Events.size() > 1000) {
+		static bool breakpoint = true;
+		if (breakpoint)
+			__asm int 3;
+	}
+#endif // #ifdef DEBUG
+
 	m_Events.push_back	(_event())		;
 	_event&	E		= m_Events.back()	;
 	E.Type			= Type				;
@@ -477,7 +472,7 @@ void CBulletManager::RegisterEvent			(EventType Type, BOOL _dynamic, SBullet* bu
 				//	bullet->targetID = R.O->ID();
 
 				E.Repeated = (R.O->ID() == E.bullet.targetID);
-				if (GameID() == GAME_SINGLE)
+				if (GameID() == eGameIDSingle)
 				{
 					bullet->targetID = R.O->ID();
 				}

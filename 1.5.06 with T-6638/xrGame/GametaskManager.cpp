@@ -192,7 +192,9 @@ void CGameTaskManager::UpdateTasks						()
 		{
 			CMapLocation* ml = t->LinkedMapLocation();
 			if(ml && !ml->PointerEnabled())
+			{
 				ml->EnablePointer();
+			}
 		}
 	}
 	if(	m_flags.test(eChanged) )

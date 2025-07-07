@@ -4,7 +4,7 @@
 #include "control_sequencer.h"
 #include "control_run_attack.h"
 #include "control_threaten.h"
-#include "../../PhysicsShell.h"
+#include "../../../xrphysics/PhysicsShell.h"
 #include "../../detail_path_manager.h"
 #include "../../level.h"
 #include "control_animation_base.h"
@@ -262,7 +262,8 @@ void CControlManagerCustom::jump(CObject *obj, const SControlJumpData &ta)
 	if (!m_man->check_start_conditions(ControlCom::eControlJump)) 
 		return;
 
-	if (m_object->GetScriptControl()) return;
+	if (m_object->GetScriptControl()) 
+		return;
 
 	m_man->capture		(this, ControlCom::eControlJump);
 
@@ -329,13 +330,13 @@ void CControlManagerCustom::load_jump_data(LPCSTR s1, LPCSTR s2, LPCSTR s3, LPCS
 }
 
 
-
 void CControlManagerCustom::jump(const SControlJumpData &ta)
 {
 	if (!m_man->check_start_conditions(ControlCom::eControlJump)) 
 		return;
 
-	if (m_object->GetScriptControl()) return;
+	if (m_object->GetScriptControl())
+		return;
 
 	m_man->capture		(this, ControlCom::eControlJump);
 

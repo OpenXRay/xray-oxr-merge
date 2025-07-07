@@ -258,14 +258,14 @@ CSE_ALifeGraphPoint::CSE_ALifeGraphPoint	(LPCSTR caSection) : CSE_Abstract(caSec
 
 #ifdef XRSE_FACTORY_EXPORTS
 	fp_data.inc					();
-#endif // XRSE_FACTORY_EXPORTS
+#endif
 }
 
 CSE_ALifeGraphPoint::~CSE_ALifeGraphPoint	()
 {
 #ifdef XRSE_FACTORY_EXPORTS
     fp_data.dec					();
-#endif // XRSE_FACTORY_EXPORTS
+#endif
 }
 
 void CSE_ALifeGraphPoint::STATE_Read		(NET_Packet	&tNetPacket, u16 size)

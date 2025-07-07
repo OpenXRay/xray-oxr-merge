@@ -108,7 +108,7 @@ CMapLocation* CMapManager::AddMapLocation(const shared_str& spot_type, u16 id)
 		Locations().push_back( SLocationKey(key.spot_id, key.object_id) );
 		Locations().back().location = l;
 		if (IsGameTypeSingle()&& g_actor)
-			Actor()->callback(GameObject::eMapLocationAdded)(*spot_type, id);
+		Actor()->callback(GameObject::eMapLocationAdded)(spot_type.c_str(), id);
 	
 		return l;
 	}else

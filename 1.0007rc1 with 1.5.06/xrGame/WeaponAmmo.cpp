@@ -49,6 +49,7 @@ void CCartridge::Load(LPCSTR section, u8 LocalAmmoType)
 	fWallmarkSize			= pSettings->r_float(section, "wm_size");
 
 	m_flags.set				(cfCanBeUnlimited | cfRicochet, TRUE);
+
 	if(pSettings->line_exist(section,"can_be_unlimited"))
 		m_flags.set(cfCanBeUnlimited, pSettings->r_bool(section, "can_be_unlimited"));
 
@@ -170,8 +171,8 @@ bool CWeaponAmmo::Get(CCartridge &cartridge)
 	cartridge.bullet_material_idx = GMLib.GetMaterialIdx(WEAPON_MATERIAL_NAME);
 	cartridge.m_InvShortName = NameShort();
 	--m_boxCurr;
-	if(m_pCurrentInventory)
-		m_pCurrentInventory->InvalidateState();
+	if(m_pInventory)
+		m_pInventory->InvalidateState();
 	return true;
 }
 

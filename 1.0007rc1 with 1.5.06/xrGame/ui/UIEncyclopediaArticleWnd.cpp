@@ -4,6 +4,7 @@
 #include "../encyclopedia_article.h"
 #include "UIXmlInit.h"
 #include "../string_table.h"
+#include "../../Include/xrRender/UIShader.h"
 
 CUIEncyclopediaArticleWnd::CUIEncyclopediaArticleWnd	()
 :m_Article(NULL)
@@ -17,8 +18,7 @@ CUIEncyclopediaArticleWnd::~CUIEncyclopediaArticleWnd	()
 void CUIEncyclopediaArticleWnd::Init(LPCSTR xml_name, LPCSTR start_from)
 {
 	CUIXml uiXml;
-	bool xml_result = uiXml.Init(CONFIG_PATH, UI_PATH, xml_name);
-	R_ASSERT3(xml_result, "xml file not found", xml_name);
+	uiXml.Load				(CONFIG_PATH, UI_PATH, xml_name);
 
 	CUIXmlInit				xml_init;
 
@@ -40,14 +40,15 @@ void CUIEncyclopediaArticleWnd::Init(LPCSTR xml_name, LPCSTR start_from)
 
 void CUIEncyclopediaArticleWnd::SetArticle(CEncyclopediaArticle* article)
 {
-	if( article->data()->image.TextureAvailable() ){
+	if( article->data()->image.GetShader() && article->data()->image.GetShader()->inited())
+	{
 		m_UIImage->SetShader			(article->data()->image.GetShader());
 		m_UIImage->SetOriginalRect		(article->data()->image.GetStaticItem()->GetOriginalRect());
 		m_UIImage->SetWndSize			(article->data()->image.GetWndSize());
 
 		float img_x						= (GetWidth()-m_UIImage->GetWidth())/2.0f;
 		img_x							= _max(0.0f, img_x);
-		m_UIImage->SetWndPos			(img_x ,m_UIImage->GetWndPos().y);
+		m_UIImage->SetWndPos			(Fvector2().set(img_x ,m_UIImage->GetWndPos().y) );
 	};
 	m_UIText->SetText					(*CStringTable().translate(article->data()->text.c_str()));
 	m_UIText->AdjustHeightToText		();
@@ -57,7 +58,7 @@ void CUIEncyclopediaArticleWnd::SetArticle(CEncyclopediaArticle* article)
 
 void CUIEncyclopediaArticleWnd::AdjustLauout()
 {
-	m_UIText->SetWndPos					(m_UIText->GetWndPos().x, m_UIImage->GetWndPos().y + m_UIImage->GetHeight());
+	m_UIText->SetWndPos					(Fvector2().set(m_UIText->GetWndPos().x, m_UIImage->GetWndPos().y + m_UIImage->GetHeight()));
 	SetHeight							(m_UIImage->GetWndPos().y + m_UIImage->GetHeight()+m_UIText->GetHeight());
 }
 

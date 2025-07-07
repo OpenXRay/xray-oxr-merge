@@ -46,11 +46,12 @@ void CLevel::IR_OnMouseWheel( int direction )
 	if(	g_bDisableAllInput	) return;
 
 	if (CurrentGameUI()->IR_UIOnMouseWheel(direction)) return;
-	if( Device.Paused()		) return;
+	if( Device.Paused()
+#ifdef DEBUG
+		&& !psActorFlags.test(AF_NO_CLIP) 
+#endif //DEBUG
+		) return;
 
-	if (game && Game().IR_OnMouseWheel(direction) ) return;
-
-	if( HUD().GetUI()->MainInputReceiver() )return;
 	if (CURRENT_ENTITY())
 	{
 		IInputReceiver*		IR	= smart_cast<IInputReceiver*>	(smart_cast<CGameObject*>(CURRENT_ENTITY()));
@@ -71,7 +72,11 @@ void CLevel::IR_OnMouseMove( int dx, int dy )
 {
 	if(g_bDisableAllInput)							return;
 	if (CurrentGameUI()->IR_UIOnMouseMove(dx,dy))		return;
-	if (Device.Paused() && !IsDemoPlay() )	return;
+	if (Device.Paused() && !IsDemoPlay() 
+#ifdef DEBUG
+		&& !psActorFlags.test(AF_NO_CLIP) 
+#endif //DEBUG
+		)	return;
 	if (CURRENT_ENTITY())
 	{
 		IInputReceiver*		IR	= smart_cast<IInputReceiver*>	(smart_cast<CGameObject*>(CURRENT_ENTITY()));
@@ -111,7 +116,14 @@ void CLevel::IR_OnKeyboardPress	(int key)
 		#endif // INGAME_EDITOR
 
 		if (!g_block_pause && (IsGameTypeSingle() || IsDemoPlay()))
+		{
+#ifdef DEBUG
+			if(psActorFlags.test(AF_NO_CLIP))
+				Device.Pause(!Device.Paused(), TRUE, TRUE, "li_pause_key_no_clip");
+			else
+#endif //DEBUG
 			Device.Pause(!Device.Paused(), TRUE, TRUE, "li_pause_key");
+		}
 		return;
 	}
 
@@ -129,21 +141,16 @@ void CLevel::IR_OnKeyboardPress	(int key)
 		return;
 		break;
 
-	case kQUIT: {
-		if(b_ui_exist && HUD().GetUI()->MainInputReceiver() )
+	case kQUIT: 
 		{
-				if(HUD().GetUI()->MainInputReceiver()->IR_OnKeyboardPress(key))	return;//special case for mp and main_menu
-				HUD().GetUI()->StartStopMenu( HUD().GetUI()->MainInputReceiver(), true);
+			if(b_ui_exist && CurrentGameUI()->TopInputReceiver() )
+			{
+					if(CurrentGameUI()->IR_UIOnKeyboardPress(key))	return;//special case for mp and main_menu
+					CurrentGameUI()->TopInputReceiver()->HideDialog();
 		}else
 		{
 			Console->Execute("main_menu");
-		}
-		return;
-		}break;
-	case kALIFE_CMD: {
-			luabind::functor<void>	functor;
-			R_ASSERT2				(ai().script_engine().functor("sim_combat.start_attack",functor),"failed to get sim_combat.start_attack functor");
-			functor					();
+			}return;
 		}break;
 	};
 
@@ -151,9 +158,13 @@ void CLevel::IR_OnKeyboardPress	(int key)
 
 	if ( b_ui_exist && CurrentGameUI()->IR_UIOnKeyboardPress(key)) return;
 
-	if ( Device.Paused() && !IsDemoPlay() )	return;
+	if ( Device.Paused() && !IsDemoPlay() 
+#ifdef DEBUG
+		&& !psActorFlags.test(AF_NO_CLIP) 
+#endif //DEBUG
+		)	return;
 
-	if ( game && Game().IR_OnKeyboardPress(key) )	return;
+	if ( game && game->OnKeyboardPress(get_binded_action(key)) )	return;
 
 	if(_curr == kQUICK_SAVE && IsGameTypeSingle())
 	{
@@ -441,8 +452,12 @@ void CLevel::IR_OnKeyboardRelease(int key)
 {
 	if (!bReady || g_bDisableAllInput	) return;
 	if ( CurrentGameUI() && CurrentGameUI()->IR_UIOnKeyboardRelease(key)) return;
-	if (Device.Paused()		) return;
-	if (game && Game().OnKeyboardRelease(get_binded_action(key)) ) return;
+	if (game && game->OnKeyboardRelease(get_binded_action(key)) )		return;
+	if (Device.Paused() 
+#ifdef DEBUG
+		&& !psActorFlags.test(AF_NO_CLIP)
+#endif //DEBUG
+		)				return;
 
 	if (CURRENT_ENTITY())
 	{
@@ -484,11 +499,12 @@ void CLevel::IR_OnKeyboardHold(int key)
 
 #endif // DEBUG
 
-	bool b_ui_exist = (pHUD && pHUD->GetUI());
-
-	if (b_ui_exist && pHUD->GetUI()->IR_OnKeyboardHold(key)) return;
-	if ( b_ui_exist && HUD().GetUI()->MainInputReceiver() )return;
-	if ( Device.Paused() && !Level().IsDemoPlay()) return;
+	if (CurrentGameUI() && CurrentGameUI()->IR_UIOnKeyboardHold(key)) return;
+	if (Device.Paused() && !Level().IsDemoPlay() 
+#ifdef DEBUG
+		&& !psActorFlags.test(AF_NO_CLIP)
+#endif //DEBUG
+		) return;
 	if (CURRENT_ENTITY())		{
 		IInputReceiver*		IR	= smart_cast<IInputReceiver*>	(smart_cast<CGameObject*>(CURRENT_ENTITY()));
 		if (IR)				IR->IR_OnKeyboardHold				(get_binded_action(key));

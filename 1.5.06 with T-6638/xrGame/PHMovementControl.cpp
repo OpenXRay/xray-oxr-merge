@@ -1271,8 +1271,8 @@ void CPHMovementControl::ApplyHit(const Fvector& dir,const float P,ALife::EHitTy
 			case ALife::eHitTypeChemicalBurn:										;break;//not stop
 			case ALife::eHitTypeExplosion:											;//stop
 			case ALife::eHitTypeFireWound:											;//stop
-			case ALife::eHitTypeWound_2:											;//stop		//knife's alternative fire
-			case ALife::eHitTypePhysicStrike:	SetVelocity(Fvector().set(0,0,0))	;break;//stop
+			case ALife::eHitTypeWound_2:											;break;//stop		//knife's alternative fire
+//			case ALife::eHitTypePhysicStrike:	SetVelocity(Fvector().set(0,0,0))	;break;//stop
 			default:																NODEFAULT	;
 		}
 	}
@@ -1322,7 +1322,7 @@ BOOL CPHMovementControl::BorderTraceCallback(collide::rq_result& result, LPVOID 
 	if(result.O){
 		return true;
 	}else{
-		//ﮫ󷨲? 򰥳㮫?� 蠳筠򼠥㮠젲尨્
+		//получить треугольник и узнать его материал
 		T				= Level().ObjectSpace.GetStaticTris()+result.element;
 		mtl_idx			= T->material;
 	}

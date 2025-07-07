@@ -127,20 +127,31 @@ CBulletManager::~CBulletManager()
 
 void CBulletManager::Load		()
 {
-	m_fTracerWidth			= pSettings->r_float("bullet_manager", "tracer_width");
-	m_fTracerLengthMax		= pSettings->r_float("bullet_manager", "tracer_length_max");
-	m_fTracerLengthMin		= pSettings->r_float("bullet_manager", "tracer_length_min");
+	char const * bullet_manager_sect = "bullet_manager";
+	if (!IsGameTypeSingle())
+	{
+		bullet_manager_sect = "mp_bullet_manager";
+	}
+	m_fTracerWidth			= pSettings->r_float(bullet_manager_sect, "tracer_width");
+	m_fTracerLengthMax		= pSettings->r_float(bullet_manager_sect, "tracer_length_max");
+	m_fTracerLengthMin		= pSettings->r_float(bullet_manager_sect, "tracer_length_min");
 
-	m_fGravityConst			= pSettings->r_float("bullet_manager", "gravity_const");
-	m_fAirResistanceK		= pSettings->r_float("bullet_manager", "air_resistance_k");
+	m_fGravityConst			= pSettings->r_float(bullet_manager_sect, "gravity_const");
+	m_fAirResistanceK		= pSettings->r_float(bullet_manager_sect, "air_resistance_k");
 
-	m_fMinBulletSpeed		= pSettings->r_float("bullet_manager", "min_bullet_speed");
-	m_fCollisionEnergyMin	= pSettings->r_float("bullet_manager", "collision_energy_min");
-	m_fCollisionEnergyMax	= pSettings->r_float("bullet_manager", "collision_energy_max");
+	m_fMinBulletSpeed		= pSettings->r_float(bullet_manager_sect, "min_bullet_speed");
+	m_fCollisionEnergyMin	= pSettings->r_float(bullet_manager_sect, "collision_energy_min");
+	m_fCollisionEnergyMax	= pSettings->r_float(bullet_manager_sect, "collision_energy_max");
 
-	m_fHPMaxDist			= pSettings->r_float("bullet_manager", "hit_probability_max_dist");
+	m_fHPMaxDist			= pSettings->r_float(bullet_manager_sect, "hit_probability_max_dist");
 
-	LPCSTR whine_sounds		= pSettings->r_string("bullet_manager", "whine_sounds");
+	if (pSettings->line_exist(bullet_manager_sect, "bullet_velocity_time_factor"))
+	{
+		g_bullet_time_factor	= pSettings->r_float(bullet_manager_sect, "bullet_velocity_time_factor");
+	}
+
+
+	LPCSTR whine_sounds		= pSettings->r_string(bullet_manager_sect, "whine_sounds");
 	int cnt					= _GetItemCount(whine_sounds);
 	xr_string tmp;
 	for (int k=0; k<cnt; ++k)
@@ -149,7 +160,7 @@ void CBulletManager::Load		()
 		m_WhineSounds.back().create(_GetItem(whine_sounds,k,tmp),st_Effect,sg_SourceType);
 	}
 
-	LPCSTR explode_particles= pSettings->r_string("bullet_manager", "explode_particles");
+	LPCSTR explode_particles= pSettings->r_string(bullet_manager_sect, "explode_particles");
 	cnt						= _GetItemCount(explode_particles);
 	for (int k=0; k<cnt; ++k)
 		m_ExplodeParticles.push_back	(_GetItem(explode_particles,k,tmp));
@@ -207,15 +218,18 @@ void CBulletManager::AddBullet(const Fvector& position,
 	bullet.Init					(position, direction, starting_speed, power, /*power_critical,*/ impulse, sender_id, sendersweapon_id, e_hit_type, maximum_distance, cartridge, air_resistance_factor, SendHit);
 //	bullet.frame_num			= Device.dwFrame;
 	bullet.flags.aim_bullet		= AimBullet;
-	if (SendHit && !IsGameTypeSingle())
-		Game().m_WeaponUsageStatistic->OnBullet_Fire(&bullet, cartridge);
-
-//.	m_Lock.Leave				();
+	if (!IsGameTypeSingle())
+	{
+		if (SendHit)
+			Game().m_WeaponUsageStatistic->OnBullet_Fire(&bullet, cartridge);
+		game_cl_mp*	tmp_cl_game = smart_cast<game_cl_mp*>(&Game());
+		if (tmp_cl_game->get_reward_generator())
+			tmp_cl_game->get_reward_generator()->OnBullet_Fire(sender_id, sendersweapon_id, position, direction); 
+	}
 }
 
 void CBulletManager::UpdateWorkload()
 {
-//.	m_Lock.Enter				();
 //	VERIFY						( m_thread_id == GetCurrentThreadId() );
 
 	rq_storage.r_clear			();
@@ -239,8 +253,6 @@ void CBulletManager::UpdateWorkload()
 		VERIFY					(j > 0);
 		RegisterEvent			(EVENT_REMOVE, FALSE, &*i, Fvector().set(0, 0, 0), dummy, j - 1);
 	}
-
-//.	m_Lock.Leave				();
 }
 
 static Fvector parabolic_velocity			(
@@ -297,6 +309,7 @@ static Fvector trajectory_velocity			(
 			air_resistance,
 			parabolic_time
 		);
+
 	VERIFY						(!fis_zero(air_resistance_epsilon) || fis_zero(_sqr(parabolic_velocity.x) + _sqr(parabolic_velocity.z), EPS_L) );
 	return						(
 		parabolic_velocity.mad(
@@ -364,7 +377,7 @@ static Fvector trajectory_position			(
 
 	float const parabolic_time	= _max( 0.f, 1.f/air_resistance - air_resistance_epsilon);
 	float const	fall_down_time	= time - parabolic_time;
-	Fvector parabolic_position	= 
+	Fvector const parabolic_position	= 
 		::parabolic_position(
 			start_position,
 			start_velocity,
@@ -372,7 +385,7 @@ static Fvector trajectory_position			(
 			air_resistance,
 			parabolic_time
 		);
-	Fvector parabolic_velocity	= 
+	Fvector const parabolic_velocity	= 
 		::parabolic_velocity(
 			start_velocity,
 			gravity,

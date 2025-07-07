@@ -12,7 +12,6 @@ class CPolterTele;
 
 //////////////////////////////////////////////////////////////////////////
 
-
 class CPoltergeist :	public CBaseMonster ,
 						public CTelekinesis,
 						public CEnergyHolder {

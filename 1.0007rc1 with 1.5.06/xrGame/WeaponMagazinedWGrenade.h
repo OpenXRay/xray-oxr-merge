@@ -11,7 +11,7 @@ class CWeaponMagazinedWGrenade : public CWeaponMagazined,
 {
 	typedef CWeaponMagazined inherited;
 public:
-					CWeaponMagazinedWGrenade	(LPCSTR name="AK74",ESoundTypes eSoundType=SOUND_TYPE_WEAPON_SUBMACHINEGUN);
+					CWeaponMagazinedWGrenade	(ESoundTypes eSoundType=SOUND_TYPE_WEAPON_SUBMACHINEGUN);
 	virtual			~CWeaponMagazinedWGrenade	();
 
 	virtual void	Load				(LPCSTR section);

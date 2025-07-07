@@ -122,7 +122,6 @@ CActor::CActor() : CEntityAlive()
 	m_pSleepEffector		= NULL;
 	m_pSleepEffectorPP		= NULL;
 
-
 	r_torso.yaw				= 0;
 	r_torso.pitch			= 0;
 	r_torso.roll			= 0;
@@ -144,8 +143,6 @@ CActor::CActor() : CEntityAlive()
 
 	m_pPhysicsShell			=	NULL;
 
-
-
 	m_holder				=	NULL;
 	m_holderID				=	u16(-1);
 
@@ -166,7 +163,7 @@ CActor::CActor() : CEntityAlive()
 
 	m_pActorEffector		= NULL;
 
-	m_bZoomAimingMode		= false;
+	SetZoomAimingMode		(false);
 
 	m_sDefaultObjAction		= NULL;
 
@@ -187,7 +184,7 @@ CActor::CActor() : CEntityAlive()
 	//-----------------------------------------------------------------------------------
 	m_memory				= g_dedicated_server ? 0 : xr_new<CActorMemory>(this);
 	m_bOutBorder			= false;
-	hit_probability			= 1.f;
+	m_hit_probability			= 1.f;
 	m_feel_touch_characters = 0;
 	//-----------------------------------------------------------------------------------
 	m_dwILastUpdateTime		= 0;
@@ -262,7 +259,7 @@ void CActor::Load	(LPCSTR section )
 	CInventoryOwner::Load		(section);
 	m_location_manager->Load	(section);
 
-	if (GameID() == GAME_SINGLE)
+	if (GameID() == eGameIDSingle)
 		OnDifficultyChanged		();
 	//////////////////////////////////////////////////////////////////////////
 	ISpatial*		self			=	smart_cast<ISpatial*> (this);
@@ -903,9 +900,7 @@ void CActor::UpdateCL	()
 	SetZoomAimingMode		(false);
 	CWeapon* pWeapon = smart_cast<CWeapon*>(inventory().ActiveItem());	
 
-	Device.Statistic->TEST1.Begin		();
 	cam_Update(float(Device.dwTimeDelta)/1000.0f, currentFOV());
-	Device.Statistic->TEST1.End		();
 
 	if(Level().CurrentEntity() && this->ID()==Level().CurrentEntity()->ID() )
 	{
@@ -986,16 +981,9 @@ void CActor::shedule_Update	(u32 DT)
 	{
 		m_sDefaultObjAction				= NULL;
 		inherited::shedule_Update		(DT);
-
-/*		if (OnServer())
-		{
-			Check_Weapon_ShowHideState();
-		};	
-*/
 		return;
 	}
 
-	// 
 	clamp					(DT,0u,100u);
 	float	dt	 			=  float(DT)/1000.f;
 
@@ -1121,6 +1109,7 @@ void CActor::shedule_Update	(u32 DT)
 			m_HeavyBreathSnd.stop		();
 		}
 
+		// -------------------------------
 		float bs = conditions().BleedingSpeed();
 		if(bs>0.6f)
 		{
@@ -1163,7 +1152,7 @@ void CActor::shedule_Update	(u32 DT)
 		m_pVehicleWeLookingAt			= smart_cast<CHolderCustom*>(game_object);
 		CEntityAlive* pEntityAlive		= smart_cast<CEntityAlive*>(game_object);
 		
-		if (GameID() == GAME_SINGLE )
+		if (GameID() == eGameIDSingle )
 		{
 			if (m_pUsableObject && m_pUsableObject->tip_text())
 			{
@@ -1250,7 +1239,8 @@ void CActor::g_PerformDrop	( )
 extern	BOOL	g_ShowAnimationInfo		;
 #endif // DEBUG
 // HUD
-void CActor::OnHUDDraw	(CCustomHUD* /**hud/**/)
+
+void CActor::OnHUDDraw	(CCustomHUD*)
 {
 	CHudItem* pHudItem = smart_cast<CHudItem*>(inventory().ActiveItem());
 	if (pHudItem && pHudItem->GetHUDmode())
@@ -1271,9 +1261,9 @@ void CActor::OnHUDDraw	(CCustomHUD* /**hud/**/)
 		HUD().Font().pFontStat->OutNext	("Vel Actual:    [%3.2f]",m_PhysicMovementControl->GetVelocityActual());
 		switch (m_PhysicMovementControl->Environment())
 		{
-		case CPHMovementControl::peOnGround:	strcpy(buf,"ground");			break;
-		case CPHMovementControl::peInAir:		strcpy(buf,"air");				break;
-		case CPHMovementControl::peAtWall:		strcpy(buf,"wall");				break;
+		case CPHMovementControl::peOnGround:	strcpy_s(buf,"ground");			break;
+		case CPHMovementControl::peInAir:		strcpy_s(buf,"air");			break;
+		case CPHMovementControl::peAtWall:		strcpy_s(buf,"wall");			break;
 		}
 		HUD().Font().pFontStat->OutNext	(buf);
 
@@ -1299,9 +1289,9 @@ void CActor::RenderIndicator			(Fvector dpos, float r1, float r2, ref_shader Ind
 	FVF::LIT* pv					= pv_start;
 	// base rect
 
-	CBoneInstance& BI = smart_cast<CKinematics*>(Visual())->LL_GetBoneInstance(u16(m_head));
+	CBoneInstance& BI = smart_cast<IKinematics*>(Visual())->LL_GetBoneInstance(u16(m_head));
 	Fmatrix M;
-	smart_cast<CKinematics*>(Visual())->CalculateBones	();
+	smart_cast<IKinematics*>(Visual())->CalculateBones	();
 	M.mul						(XFORM(),BI.mTransform);
 
 	Fvector pos = M.c; pos.add(dpos);
@@ -1341,9 +1331,9 @@ void CActor::RenderText				(LPCSTR Text, Fvector dpos, float* pdup, u32 color)
 {
 	if (!g_Alive()) return;
 	
-	CBoneInstance& BI = smart_cast<CKinematics*>(Visual())->LL_GetBoneInstance(u16(m_head));
+	CBoneInstance& BI = smart_cast<IKinematics*>(Visual())->LL_GetBoneInstance(u16(m_head));
 	Fmatrix M;
-	smart_cast<CKinematics*>(Visual())->CalculateBones	();
+	smart_cast<IKinematics*>(Visual())->CalculateBones	();
 	M.mul						(XFORM(),BI.mTransform);
 	//------------------------------------------------
 	Fvector v0, v1;
@@ -1395,9 +1385,11 @@ void CActor::SetPhPosition(const Fmatrix &transform)
 
 void CActor::ForceTransform(const Fmatrix& m)
 {
-	if(!g_Alive())				return;
+	if(!g_Alive())
+		return;
 	XFORM().set					(m);
-	if(character_physics_support()->movement()->CharacterExist()) character_physics_support()->movement()->EnableCharacter	();
+	if( character_physics_support()->movement()->CharacterExist() )
+		character_physics_support()->movement()->EnableCharacter	();
 	character_physics_support()->set_movement_position( m.c );
 	character_physics_support()->movement()->SetVelocity		(0,0,0);
 }
@@ -1414,7 +1406,7 @@ float CActor::Radius()const
 
 bool		CActor::use_bolts				() const
 {
-	if (GameID() != GAME_SINGLE) return false;
+	if (!IsGameTypeSingle()) return false;
 	return CInventoryOwner::use_bolts();
 };
 
@@ -1448,7 +1440,7 @@ void CActor::OnItemDrop			(CInventoryItem *inventory_item)
 	CInventoryOwner::OnItemDrop(inventory_item);
 
 	CArtefact* artefact = smart_cast<CArtefact*>(inventory_item);
-	if(artefact && artefact->m_eItemPlace == eItemPlaceBelt)
+	if(artefact && artefact->m_eItemCurrPlace == eItemPlaceBelt)
 		MoveArtefactBelt(artefact, false);
 }
 
@@ -1542,6 +1534,7 @@ float	CActor::HitArtefactsOnBelt		(float hit_power, ALife::EHitType hit_type)
 {
 	float res_hit_power_k		= 1.0f;
 	float _af_count				= 0.0f;
+
 	for(TIItemContainer::iterator it = inventory().m_belt.begin(); 
 		inventory().m_belt.end() != it; ++it) 
 	{
@@ -1666,8 +1659,6 @@ bool CActor::use_center_to_aim			() const
 	return							(!(mstate_real&mcCrouch));
 }
 
-
-
 bool CActor::can_attach			(const CInventoryItem *inventory_item) const
 {
 	const CAttachableItem	*item = smart_cast<const CAttachableItem*>(inventory_item);
@@ -1695,7 +1686,7 @@ void CActor::OnDifficultyChanged	()
 	conditions().LoadImmunities		(tmp,pSettings);
 	// hit probability
 	strconcat						(sizeof(tmp),tmp,"hit_probability_",diff_name);
-	hit_probability					= pSettings->r_float(*cNameSect(),tmp);
+	m_hit_probability					= pSettings->r_float(*cNameSect(),tmp);
 }
 
 CVisualMemoryManager	*CActor::visual_memory	() const

@@ -409,7 +409,6 @@ bool CMonsterHome::at_home()
 	return at_home(m_object->Position());
 }
 
-
 bool CMonsterHome::at_home(const Fvector &pos)
 {
 	return	at_home(pos, m_radius_max);

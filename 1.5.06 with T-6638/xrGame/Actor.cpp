@@ -831,7 +831,12 @@ void CActor::g_Physics			(Fvector& _accel, float jump, float dt)
 	{
 		SwitchOutBorder(new_border_state);
 	}
-	character_physics_support()->movement()->GetPosition		(Position());
+#ifdef DEBUG
+		if(!psActorFlags.test(AF_NO_CLIP))
+			character_physics_support()->movement()->GetPosition		(Position());
+#else
+		character_physics_support()->movement()->GetPosition		(Position());
+#endif
 	character_physics_support()->movement()->bSleep				=false;
 	}
 
@@ -1171,12 +1176,12 @@ void CActor::shedule_Update	(u32 DT)
 		}	
 		mstate_old = mstate_real;
 	}
-
+/*
 	if (this == Level().CurrentViewEntity())
 	{
 		UpdateMotionIcon		(mstate_real);
 	};
-
+*/
 	NET_Jump = 0;
 
 

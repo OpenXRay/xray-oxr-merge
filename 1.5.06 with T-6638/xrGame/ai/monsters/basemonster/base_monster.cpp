@@ -51,7 +51,13 @@
 #include "debug_text_tree.h"
 #endif
 
-CBaseMonster::CBaseMonster()
+#pragma warning (disable:4355)
+#pragma warning (push)
+
+CBaseMonster::CBaseMonster() :	m_psy_aura(this, "psy"), 
+								m_fire_aura(this, "fire"), 
+								m_radiation_aura(this, "radiation"), 
+								m_base_aura(this, "base")
 {
 	m_pPhysics_support=xr_new<CCharacterPhysicsSupport>(CCharacterPhysicsSupport::etBitting,this);
 	
@@ -99,10 +105,21 @@ CBaseMonster::CBaseMonster()
 	m_last_grouping_behaviour_update_tick  = 0;
 	m_feel_enemy_who_just_hit_max_distance = 0;
 	m_feel_enemy_max_distance			   = 0;
+
+	m_anti_aim								=	NULL;
+	m_head_bone_name						=	"bip01_head";
+
+	m_first_tick_enemy_inaccessible			=	0;
+	m_last_tick_enemy_inaccessible			=	0;
+	m_first_tick_object_not_at_home			=	0;
 }
+
+#pragma warning (pop)
 
 CBaseMonster::~CBaseMonster()
 {
+	xr_delete(m_anti_aim);
+	xr_delete(m_steer_manager);
 	xr_delete(m_pPhysics_support);
 	xr_delete(m_corpse_cover_evaluator);
 	xr_delete(m_enemy_cover_evaluator);
@@ -118,8 +135,6 @@ CBaseMonster::~CBaseMonster()
 	xr_delete(m_anomaly_detector);
 	xr_delete(CoverMan);
 	xr_delete(Home);
-
-	xr_delete(m_steer_manager);
 }
 
 void CBaseMonster::update_pos_by_grouping_behaviour ()
@@ -194,8 +209,129 @@ void CBaseMonster::update_pos_by_grouping_behaviour ()
 	ai_location().level_vertex(new_vertex);
 }
 
+bool   accessible_epsilon (CBaseMonster * const object, Fvector const pos, float epsilon)
+{
+	Fvector const offsets[]			=	{	Fvector().set( 0.f,			0.f,	0.f),
+											Fvector().set(- epsilon, 	0.f,  	0.f),
+											Fvector().set(+ epsilon, 	0.f,  	0.f),
+											Fvector().set( 0.f,			0.f, 	- epsilon),
+											Fvector().set( 0.f,			0.f, 	+ epsilon)	};
+	
+	for ( u32 i=0; i<sizeof(offsets)/sizeof(offsets[0]); ++i )
+	{
+		if ( object->movement().restrictions().accessible(pos + offsets[i]) )
+			return						true;
+	}
+
+	return								false;
+}
+
+static
+bool enemy_inaccessible (CBaseMonster * const object)
+{
+	CEntityAlive const * enemy		=	object->EnemyMan.get_enemy();
+	if ( !enemy )
+		return							false;
+
+	Fvector const enemy_pos			=	enemy->Position();
+	Fvector const enemy_vert_pos	=	ai().level_graph().vertex_position(enemy->ai_location().level_vertex_id());
+	
+	float const xz_dist_to_vertex	=	enemy_vert_pos.distance_to_xz(enemy_pos);
+	float const y_dist_to_vertex	=	_abs(enemy_vert_pos.y - enemy_pos.y);
+
+	if ( xz_dist_to_vertex > 0.5f && y_dist_to_vertex > 3.f )
+		return							true;
+
+	if ( xz_dist_to_vertex > 1.2f )
+		return							true;
+
+	if ( !object->Home->at_home(enemy_pos) )
+		return							true;
+
+	if ( !accessible_epsilon(object, enemy_pos, 1.5f) )
+		return							true;
+
+	if ( !ai().level_graph().valid_vertex_position(enemy_pos) )
+		return							true;
+	
+	if ( !ai().level_graph().valid_vertex_id(enemy->ai_location().level_vertex_id()) )
+		return							true;
+	
+	return								false;
+}
+
+bool CBaseMonster::enemy_accessible ()
+{
+	if ( !m_first_tick_enemy_inaccessible )
+		return							true;
+
+	if ( EnemyMan.get_enemy() )
+	{
+		u32 const enemy_vertex		=	EnemyMan.get_enemy()->ai_location().level_vertex_id();
+		if ( ai_location().level_vertex_id() == enemy_vertex )
+			return						false;
+	}
+
+	if ( Device.dwTimeGlobal < m_first_tick_enemy_inaccessible + 3000 )
+		return							true;
+
+	return								false;
+}
+
+bool CBaseMonster::at_home ()
+{
+	return										!m_first_tick_object_not_at_home ||
+												(Device.dwTimeGlobal < m_first_tick_object_not_at_home + 4000);
+}
+
+void CBaseMonster::update_enemy_accessible_and_at_home_info	()
+{
+	if ( !Home->at_home() )
+	{
+		if ( !m_first_tick_object_not_at_home )
+			m_first_tick_object_not_at_home	=	Device.dwTimeGlobal;
+	}
+	else
+		m_first_tick_object_not_at_home		=	0;
+
+	if ( !EnemyMan.get_enemy() )
+	{
+		m_first_tick_enemy_inaccessible		=	0;
+		m_last_tick_enemy_inaccessible		=	0;
+		return;
+	}
+
+	if ( ::enemy_inaccessible(this) )
+	{
+		if ( !m_first_tick_enemy_inaccessible )
+			m_first_tick_enemy_inaccessible	=	Device.dwTimeGlobal;
+
+		m_last_tick_enemy_inaccessible		=	Device.dwTimeGlobal;
+	}
+	else
+	{
+		if ( m_last_tick_enemy_inaccessible && Device.dwTimeGlobal - m_last_tick_enemy_inaccessible > 3000 )
+		{
+			m_first_tick_enemy_inaccessible	=	0;
+			m_last_tick_enemy_inaccessible	=	0;
+		}
+	}
+}
+
 void CBaseMonster::UpdateCL()
 {
+#ifdef DEBUG
+	if ( Level().CurrentEntity() == this )
+	{
+		DBG().get_text_tree().clear();
+		add_debug_info(DBG().get_text_tree());
+	}
+	if ( is_paused () )
+	{
+		return;
+	}
+#endif
+
 	if ( EatedCorpse && !CorpseMemory.is_valid_corpse(EatedCorpse) )
 	{
 		EatedCorpse = NULL;
@@ -205,7 +341,8 @@ void CBaseMonster::UpdateCL()
 	
 	if (g_Alive()) 
 	{
-		CStepManager::update();
+		update_enemy_accessible_and_at_home_info();
+		CStepManager::update(false);
 
 		update_pos_by_grouping_behaviour();
 	}
@@ -213,21 +350,32 @@ void CBaseMonster::UpdateCL()
 	control().update_frame();
 
 	m_pPhysics_support->in_UpdateCL();
-
-#ifdef DEBUG
-	if ( Level().CurrentEntity() == this ) 
-	{
-		// Lain: added
-		DBG().get_text_tree().clear();
-		add_debug_info(DBG().get_text_tree());
-	}
-
-#endif
 }
 
 void CBaseMonster::shedule_Update(u32 dt)
 {
+#ifdef DEBUG
+	if ( is_paused () )
+	{
+		dbg_update_cl	= Device.dwFrame;
+		return;
+	}
+#endif
+
 	inherited::shedule_Update	(dt);
+
+	update_eyes_visibility		();
+
+	if ( m_anti_aim )
+	{
+		m_anti_aim->update_schedule();
+	}
+
+	m_psy_aura.update_schedule();
+	m_fire_aura.update_schedule();
+	m_base_aura.update_schedule();
+	m_radiation_aura.update_schedule();
+
 	control().update_schedule	();
 
 	Morale.update_schedule		(dt);
@@ -251,6 +399,16 @@ void CBaseMonster::Die(CObject* who)
 {
 	if (StateMan) StateMan->critical_finalize();
 
+	m_psy_aura.on_monster_death();
+	m_radiation_aura.on_monster_death();
+	m_fire_aura.on_monster_death();
+	m_base_aura.on_monster_death();
+
+	if ( m_anti_aim )
+	{
+		m_anti_aim->on_monster_death ();
+	}
+
 	inherited::Die(who);
 
 	if (is_special_killer(who))
@@ -269,11 +427,10 @@ void CBaseMonster::Die(CObject* who)
 	if (m_controlled)			m_controlled->on_die();
 }
 
-
-//void CBaseMonster::Hit(float P,Fvector &dir,CObject*who,s16 element,Fvector p_in_object_space,float impulse, ALife::EHitType hit_type)
 void	CBaseMonster::Hit							(SHit* pHDS)
 {
-	if (ignore_collision_hit && (pHDS->hit_type == ALife::eHitTypeStrike)) return;
+	if (ignore_collision_hit && (pHDS->hit_type == ALife::eHitTypeStrike))
+		return;
 	
 	if (invulnerable())
 		return;
@@ -281,10 +438,28 @@ void	CBaseMonster::Hit							(SHit* pHDS)
 	if (g_Alive())
 		if (!critically_wounded()) 
 			update_critical_wounded(pHDS->boneID,pHDS->power);
-	
 
+	if(pHDS->hit_type == ALife::eHitTypeFireWound)
+	{
+		float &hit_power = pHDS->power;
+		float ap = pHDS->armor_piercing;
+		// пуля пробила шкуру
+		if(!fis_zero(m_fSkinArmor, EPS) && ap > m_fSkinArmor)
+		{
+			float d_hit_power = (ap - m_fSkinArmor) / ap;
+			if(d_hit_power < m_fHitFracMonster)
+				d_hit_power = m_fHitFracMonster;
 
-//	inherited::Hit(P,dir,who,element,p_in_object_space,impulse,hit_type);
+			hit_power *= d_hit_power;
+			VERIFY(hit_power>=0.0f);
+		}
+		// пуля НЕ пробила шкуру
+		else
+		{
+			hit_power *= m_fHitFracMonster;
+			pHDS->add_wound = false; 	//раны нет
+		}
+	}
 	inherited::Hit(pHDS);
 }
 
@@ -441,7 +616,9 @@ void CBaseMonster::TranslateActionToPathParams()
 	u32 vel_mask = 0;
 	u32 des_mask = 0;
 
-	switch (anim().m_tAction) {
+	EAction action	=	anim().m_tAction;
+	switch (action)
+	{
 	case ACT_STAND_IDLE: 
 	case ACT_SIT_IDLE:	 
 	case ACT_LIE_IDLE:
@@ -451,8 +628,23 @@ void CBaseMonster::TranslateActionToPathParams()
 		//jump
 	//case ACT_JUMP:
 	case ACT_LOOK_AROUND:
-	case ACT_ATTACK:
 		bEnablePath = false;
+		break;
+	case ACT_ATTACK:
+		if ( !m_attack_on_move_params.enabled )
+		{
+			bEnablePath = false;
+		}
+		else
+		{
+			if (m_bDamaged) {
+				vel_mask = MonsterMovement::eVelocityParamsRunDamaged;
+				des_mask = MonsterMovement::eVelocityParameterRunDamaged;
+			} else {
+				vel_mask = MonsterMovement::eVelocityParamsRun;
+				des_mask = MonsterMovement::eVelocityParameterRunNormal;
+			}
+		}
 		break;
 
 	case ACT_HOME_WALK_GROWL:
@@ -658,7 +850,8 @@ bool CBaseMonster::check_start_conditions(ControlCom::EControlType type)
 	{
 		EMonsterState state = StateMan->get_state_type();
 
-		if ( state != eStateAttack_Run )
+		if ( !is_state(state, eStateAttack_Run) && 
+			 !is_state(state, eStateAttack_RunAttack) ) 
 			return false;
 	}
 	 if ( type == ControlCom::eControlMeleeJump )
@@ -666,7 +859,8 @@ bool CBaseMonster::check_start_conditions(ControlCom::EControlType type)
 		EMonsterState state = StateMan->get_state_type();
 
 		if (!is_state(state, eStateAttack_Run) &&
-			!is_state(state, eStateAttack_Melee))
+			!is_state(state, eStateAttack_Melee) &&
+			!is_state(state, eStateAttack_RunAttack) ) 
 			return false;
 	}
 
@@ -748,3 +942,152 @@ bool   CBaseMonster::check_eated_corpse_draggable()
 
 	return false;	
 }
+
+//-------------------------------------------------------------------
+// CBaseMonster's  Atack on Move
+//-------------------------------------------------------------------
+
+bool   CBaseMonster::can_attack_on_move()
+{
+	return override_if_debug("aom_enabled", m_attack_on_move_params.enabled);
+}
+
+float   CBaseMonster::get_attack_on_move_max_go_close_time()
+{
+	return override_if_debug("aom_max_go_close_time", m_attack_on_move_params.max_go_close_time);
+}
+
+float   CBaseMonster::get_attack_on_move_far_radius()
+{
+	float radius	=	override_if_debug("aom_far_radius", m_attack_on_move_params.far_radius);
+	clamp				(radius, 0.f, 100.f);
+	return				radius;
+}
+
+float   CBaseMonster::get_attack_on_move_attack_radius()
+{
+	return override_if_debug("aom_attack_radius", m_attack_on_move_params.attack_radius);
+}
+
+float   CBaseMonster::get_attack_on_move_update_side_period()
+{
+	return override_if_debug("aom_update_side_period", m_attack_on_move_params.update_side_period);
+}
+
+float   CBaseMonster::get_attack_on_move_prediction_factor()
+{
+	return override_if_debug("aom_prediction_factor", m_attack_on_move_params.prediction_factor);
+}
+
+float   CBaseMonster::get_attack_on_move_prepare_radius()
+{
+	return override_if_debug("aom_prepare_radius", m_attack_on_move_params.prepare_radius);
+}
+
+float   CBaseMonster::get_attack_on_move_prepare_time()
+{
+	return override_if_debug("aom_prepare_time", m_attack_on_move_params.prepare_time);
+}
+
+float   CBaseMonster::get_psy_influence ()
+{
+	return m_psy_aura.calculate();
+}
+
+float   CBaseMonster::get_radiation_influence ()
+{
+	return m_radiation_aura.calculate();
+}
+
+float   CBaseMonster::get_fire_influence ()
+{
+	return m_fire_aura.calculate();
+}
+
+void   CBaseMonster::play_detector_sound()
+{
+	m_psy_aura.play_detector_sound();
+	m_radiation_aura.play_detector_sound();
+	m_fire_aura.play_detector_sound();
+}
+
+bool CBaseMonster::is_jumping()
+{
+	return m_com_manager.is_jumping();
+}
+
+void CBaseMonster::update_eyes_visibility ()
+{
+	if ( !m_left_eye_bone_name )
+	{
+		return;
+	}
+
+	IKinematics* const skeleton	=	smart_cast<IKinematics*>(Visual());
+	if ( !skeleton )
+	{
+		return;
+	}
+
+	u16 const left_eye_bone_id	=	skeleton->LL_BoneID(m_left_eye_bone_name);
+	u16 const right_eye_bone_id	=	skeleton->LL_BoneID(m_right_eye_bone_name);
+
+	R_ASSERT						(left_eye_bone_id != u16(-1) && right_eye_bone_id != u16(-1));
+
+	bool eyes_visible			=	!g_Alive() || get_screen_space_coverage_diagonal() > 0.05f;
+
+	bool const was_visible		=	!!skeleton->LL_GetBoneVisible	(left_eye_bone_id);
+	skeleton->LL_SetBoneVisible		(left_eye_bone_id, eyes_visible, true);
+	skeleton->LL_SetBoneVisible		(right_eye_bone_id, eyes_visible, true);
+
+	if ( !was_visible && eyes_visible )
+	{
+		skeleton->CalculateBones_Invalidate();
+		skeleton->CalculateBones		();
+	}
+}
+
+float CBaseMonster::get_screen_space_coverage_diagonal()
+{
+	Fbox		b		= Visual()->getVisData().box;
+
+	Fmatrix				xform;
+	xform.mul			(Device.mFullTransform,XFORM());
+	Fvector2	mn		={flt_max,flt_max},mx={flt_min,flt_min};
+
+	for (u32 k=0; k<8; ++k)
+	{
+		Fvector p;
+		b.getpoint		(k,p);
+		xform.transform	(p);
+		mn.x			= _min(mn.x,p.x);
+		mn.y			= _min(mn.y,p.y);
+		mx.x			= _max(mx.x,p.x);
+		mx.y			= _max(mx.y,p.y);
+	}
+
+	float const width	=	mx.x - mn.x;
+	float const height	=	mx.y - mn.y;
+
+	float const	average_diagonal	=	_sqrt(width * height);
+	return				average_diagonal;
+}
+
+#ifdef DEBUG
+
+bool   CBaseMonster::is_paused () const
+{
+	bool monsters_result		=	false;	
+	ai_dbg::get_var					("monsters_paused", monsters_result);
+
+	u32 const id				=	ID();
+	char id_paused_var_name			[128];
+	xr_sprintf						(id_paused_var_name, sizeof(id_paused_var_name), "%d_paused", id);
+
+	bool monster_result			=	false;
+
+	return							ai_dbg::get_var (id_paused_var_name, monster_result) ?
+									monster_result : monsters_result;
+}
+
+#endif // DEBUG

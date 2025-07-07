@@ -4,11 +4,11 @@
 #include "ParticlesObject.h"
 #include "actor.h"
 
-CWeaponPistol::CWeaponPistol(LPCSTR name) : CWeaponCustomPistol(name)
+CWeaponPistol::CWeaponPistol()
 {
 	m_eSoundClose		= ESoundTypes(SOUND_TYPE_WEAPON_RECHARGING /*| eSoundType*/);
 	m_opened = false;
-	m_bPending = false;
+	SetPending			(FALSE);
 }
 
 CWeaponPistol::~CWeaponPistol(void)
@@ -102,7 +102,8 @@ void CWeaponPistol::PlayAnimShow	()
 void CWeaponPistol::PlayAnimIdle	()
 {
 	VERIFY(GetState()==eIdle);
-	if(m_opened){ 
+	if(m_opened)
+	{ 
 		CWeaponPistol::WWPMotions& m = wwpm_current();
 		m_pHUD->animPlay(random_anim(m.mhud_empty), TRUE, NULL, GetState());
 	}else{

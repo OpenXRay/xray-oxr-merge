@@ -370,7 +370,7 @@ void CControlJump::grounding()
 	{
 		stop						();
 	}
-	else 
+	else
 	{ 
 		SControlPathBuilderData		*ctrl_path = (SControlPathBuilderData*)m_man->data(this, ControlCom::eControlPath); 
 		VERIFY						(ctrl_path);
@@ -444,8 +444,8 @@ void CControlJump::on_event(ControlCom::EEventType type, ControlCom::IEventData 
 		SControlAnimationData		*ctrl_data = (SControlAnimationData*)m_man->data(this, ControlCom::eControlAnimation); 
 		VERIFY						(ctrl_data);
 		
-		if ((m_anim_state_current == eStateGlide) && (m_anim_state_prev == eStateGlide)) {
-
+		if ((m_anim_state_current == eStateGlide) && (m_anim_state_prev == eStateGlide))
+		{
 			//---------------------------------------------------------------------------------
 			// start jump here
 			//---------------------------------------------------------------------------------
@@ -675,7 +675,6 @@ bool CControlJump::can_jump(Fvector const& target, bool const aggressive_jump)
 
 	return true;
 }
-
 
 Fvector CControlJump::predict_position(CObject *obj, const Fvector &pos)
 {

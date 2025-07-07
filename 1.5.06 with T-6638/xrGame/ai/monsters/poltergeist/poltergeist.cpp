@@ -179,7 +179,7 @@ void CPoltergeist::UpdateCL()
 {
 	inherited::UpdateCL();
 
-	def_lerp(m_height, target_height, HEIGHT_CHANGE_VELOCITY, client_update_fdelta());
+	def_lerp(m_height, target_height, m_height_change_velocity, client_update_fdelta());
 	
 	ability()->update_frame	();
 }
@@ -256,8 +256,6 @@ void CPoltergeist::Hit(SHit* pHDS)
 	inherited::Hit(pHDS);
 }
 
-
-
 void CPoltergeist::UpdateHeight()
 {
 	if (!state_invisible) return;
@@ -265,8 +263,8 @@ void CPoltergeist::UpdateHeight()
 	u32 cur_time = Device.dwTimeGlobal;
 	
 	if (time_height_updated < cur_time)	{
-		time_height_updated = cur_time + Random.randI(HEIGHT_CHANGE_MIN_TIME,HEIGHT_CHANGE_MAX_TIME);
-		target_height		= Random.randF(HEIGHT_MIN, HEIGHT_MAX);		
+		time_height_updated = cur_time + Random.randI(m_height_change_min_time,m_height_change_max_time);
+		target_height		= Random.randF(m_height_min, m_height_max);		
 	}
 }
 

@@ -85,7 +85,7 @@ protected:
 	virtual void	state_MagEmpty	(float dt);
 	virtual void	state_Misfire	(float dt);
 public:
-					CWeaponMagazined	(LPCSTR name="AK74",ESoundTypes eSoundType=SOUND_TYPE_WEAPON_SUBMACHINEGUN);
+					CWeaponMagazined	(ESoundTypes eSoundType=SOUND_TYPE_WEAPON_SUBMACHINEGUN);
 	virtual			~CWeaponMagazined	();
 
 	virtual void	Load			(LPCSTR section);

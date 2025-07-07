@@ -567,7 +567,7 @@ bool CActor::CanMove()
 	{
 		if(mstate_wishful&mcAnyMove)
 		{
-			CurrentGameUI()->AddInfoMessage("cant_walk");
+			CurrentGameUI()->AddCustomStatic("cant_walk", true);
 		}
 		return false;
 	}else
@@ -575,7 +575,7 @@ bool CActor::CanMove()
 	{
 		if(mstate_wishful&mcAnyMove)
 		{
-			CurrentGameUI()->AddInfoMessage("cant_walk_weight");
+			CurrentGameUI()->AddCustomStatic("cant_walk_weight", true);
 		}
 		return false;
 	
@@ -629,14 +629,12 @@ float CActor::get_additional_weight() const
 		res				+= outfit->m_additional_weight;
 	}
 
-	if ( !m_ArtefactsOnBelt.empty() )
+	for(TIItemContainer::const_iterator it = inventory().m_belt.begin(); 
+		inventory().m_belt.end() != it; ++it) 
 	{
-		xr_vector<const CArtefact*>::const_iterator it		= m_ArtefactsOnBelt.begin();
-		xr_vector<const CArtefact*>::const_iterator it_e	= m_ArtefactsOnBelt.end();
-		for ( ; it != it_e ; ++it )
-		{
-			res			+= (*it)->AdditionalInventoryWeight();
-		}
+		CArtefact*	artefact = smart_cast<CArtefact*>(*it);
+		if(artefact)
+			res			+= artefact->AdditionalInventoryWeight();
 	}
 
 	return res;

@@ -8,9 +8,11 @@
 
 namespace Feel {
 
-	Vision::Vision():pure_relcase(&Vision::feel_vision_relcase)
+	Vision::Vision() :
+		pure_relcase( &Vision::feel_vision_relcase )
 	{	
 	}
+
 	Vision::~Vision()
 	{	
 	}

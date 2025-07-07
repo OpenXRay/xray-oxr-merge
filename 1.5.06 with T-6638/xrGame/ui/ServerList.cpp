@@ -476,13 +476,32 @@ void CServerList::InitFromXml(CUIXml& xml_doc, LPCSTR path)
 
 void CServerList::ConnectToSelected()
 {
+	gamespy_gp::login_manager const * lmngr = MainMenu()->GetLoginMngr();
+	R_ASSERT(lmngr);
+	gamespy_gp::profile const * tmp_profile = lmngr->get_current_profile(); 
+	R_ASSERT2(tmp_profile, "need first to log in");
+	if (tmp_profile->online())
+	{
+		if (!MainMenu()->ValidateCDKey())
+			return;
+
+		if (!xr_strcmp(tmp_profile->unique_nick(), "@unregistered"))
+		{
+			if (m_connect_cb)
+				m_connect_cb(ece_unique_nick_not_registred, "mp_gp_unique_nick_not_registred");
+			return;
+		}
+		if (!xr_strcmp(tmp_profile->unique_nick(), "@expired"))
+		{
+			if (m_connect_cb)
+				m_connect_cb(ece_unique_nick_expired, "mp_gp_unique_nick_has_expired");
+			return;
+		}
+	}
+	
 	int sel = m_list[LST_SERVER].GetSelectedItem();
 	if (-1 == sel)
 		return;
-
-	//-----------------------------------------
-	if (!MainMenu()->ValidateCDKey()) return;	
-	//-----------------------------------------
 
 	CUIListItemServer* item = smart_cast<CUIListItemServer*>(m_list[LST_SERVER].GetItem(sel));
 	if (!browser().CheckDirectConnection(item->GetInfo()->info.Index))

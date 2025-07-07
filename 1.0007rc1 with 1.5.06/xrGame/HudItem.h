@@ -14,7 +14,8 @@ class CInventoryItem;
 #include "actor_defs.h"
 #include "weaponHUD.h"
 
-class CHudItem {
+class CHudItem
+{
 protected: //чтоб нельзя было вызвать на прямую
 	CHudItem(void);
 	virtual ~CHudItem(void);

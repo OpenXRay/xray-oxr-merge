@@ -5,9 +5,9 @@
 #include "UIFrameLineWnd.h"
 #include "UI3tButton.h"
 #include "UITextureMaster.h"
-#include "../../xr_input.h"
+#include "../../xrEngine/xr_input.h"
 
-#define DEF_CONTROL_HEIGHT		21
+#define DEF_CONTROL_HEIGHT		21.0f
 #define FRAME_LINE_TEXTURE		"ui_slider_e"
 #define FRAME_LINE_TEXTURE_D	"ui_slider_d"
 #define SLIDER_TEXTURE			"ui_slider_button"
@@ -32,37 +32,67 @@ CUITrackBar::CUITrackBar()
 	AttachChild						(m_pSlider);		
 	m_pSlider->SetAutoDelete		(true);
 //.	m_pSlider->SetOwner				(this);
+	m_b_mouse_capturer				= false;
 }
 
 bool CUITrackBar::OnMouse(float x, float y, EUIMessages mouse_action)
 {
 	CUIWindow::OnMouse(x, y, mouse_action);
 
-	if (m_bCursorOverWindow)
+	switch (mouse_action)
 	{
-		if (pInput->iGetAsyncBtnState(0))
-			UpdatePosRelativeToMouse();
-	}
+	case WINDOW_MOUSE_MOVE:
+		{
+			if(m_bCursorOverWindow && m_b_mouse_capturer)
+			{
+				if (pInput->iGetAsyncBtnState(0))
+					UpdatePosRelativeToMouse();
+			}
+		}break;
+	case WINDOW_LBUTTON_DOWN:
+		{
+			m_b_mouse_capturer = m_bCursorOverWindow;
+			if(m_b_mouse_capturer)
+				UpdatePosRelativeToMouse();
+		}break;
+
+	case WINDOW_LBUTTON_UP:
+		{
+			m_b_mouse_capturer = false;
+		}
+	};
 	return true;
 }
 
-void CUITrackBar::Init(float x, float y, float width, float height){
+void CUITrackBar::InitTrackBar(Fvector2 pos, Fvector2 size)
+{
 	string128			buf;
 	float				item_height;
 	float				item_width;
-	CUIWindow::Init		(x, y, width, DEF_CONTROL_HEIGHT);
+	CUIWindow::SetWndPos(pos);
+	
+	CUIWindow::SetWndSize(Fvector2().set(size.x, DEF_CONTROL_HEIGHT) );
 
 
 	item_height			= CUITextureMaster::GetTextureHeight(strconcat(sizeof(buf),buf,FRAME_LINE_TEXTURE,"_b"));
-	m_pFrameLine->Init	(0, (height - item_height)/2, width, item_height);
-	m_pFrameLine->InitTexture(FRAME_LINE_TEXTURE);
-	m_pFrameLine_d->Init(0,(height - item_height)/2, width, item_height);
-	m_pFrameLine_d->InitTexture(FRAME_LINE_TEXTURE_D);
+	m_pFrameLine->SetWndPos( Fvector2().set(0.0f, (size.y - item_height)/2) );
+	m_pFrameLine->SetWndSize( Fvector2().set(size.x, item_height) );
+
+	m_pFrameLine->InitTexture(FRAME_LINE_TEXTURE,"hud\\default");
+
+	m_pFrameLine_d->SetWndPos( Fvector2().set(0.0f,(size.y - item_height)/2.0f));
+	m_pFrameLine_d->SetWndSize( Fvector2().set(size.x, item_height));
+	m_pFrameLine_d->InitTexture(FRAME_LINE_TEXTURE_D,"hud\\default");
 
 	strconcat			(sizeof(buf),buf,SLIDER_TEXTURE,"_e");
 	item_width			= CUITextureMaster::GetTextureWidth(buf);
     item_height			= CUITextureMaster::GetTextureHeight(buf);
-	m_pSlider->Init		(0, (height - item_height)/2, item_width, item_height);
+
+	if(UI()->is_16_9_mode())
+item_width/=1.2f;
+
+m_pSlider->InitButton(		Fvector2().set(0.0f, (size.y - item_height)/2.0f), //pos
+							Fvector2().set(item_width, item_height) );			//size
 	m_pSlider->InitTexture(SLIDER_TEXTURE);
 }	
 
@@ -76,10 +106,20 @@ void CUITrackBar::SetCurrentValue()
 	UpdatePos			();
 }
 
-//. #include "../HUDmanager.h"
 void CUITrackBar::Draw()
 {
 	CUIWindow::Draw();
+}
+
+void CUITrackBar::Update()
+{
+	CUIWindow::Update();
+
+	if(m_b_mouse_capturer)
+	{
+		if(!pInput->iGetAsyncBtnState(0))
+			m_b_mouse_capturer = false;
+	}
 }
 
 void CUITrackBar::SaveValue()
@@ -233,7 +273,7 @@ void CUITrackBar::UpdatePos()
 	SaveValue					();
 }
 
-void CUITrackBar::OnMessage(const char* message)
+void CUITrackBar::OnMessage(LPCSTR message)
 {
 	if (0 == xr_strcmp(message,"set_default_value"))
 	{

@@ -352,12 +352,12 @@ int CScriptStorage::vscript_log		(ScriptStorage::ELuaMessageType tLuaMessageType
 		default : NODEFAULT;
 	}
 	
-	strcpy_s	(S2,S);
+	strcpy_s(S2,S);
 	S1		= S2 + xr_strlen(S);
 	int		l_iResult = vsprintf(S1,caFormat,marker);
 	Msg		("%s",S2);
 	
-	strcpy_s	(S2,SS);
+	strcpy_s(S2,SS);
 	S1		= S2 + xr_strlen(SS);
 	vsprintf(S1,caFormat,marker);
 	strcat	(S2,"\r\n");
@@ -569,10 +569,11 @@ bool CScriptStorage::namespace_loaded(LPCSTR N, bool remove_from_stack)
 	lua_pushstring 			(lua(),"_G"); 
 	lua_rawget 				(lua(),LUA_GLOBALSINDEX); 
 	string256				S2;
-	strcpy_s					(S2,N);
+	strcpy_s				(S2,N);
 	LPSTR					S = S2;
 	for (;;) { 
-		if (!xr_strlen(S)) {
+		if (!xr_strlen(S))
+		{
 			VERIFY			(lua_gettop(lua()) >= 1);
 			lua_pop			(lua(), 1); 
 			VERIFY			(start == lua_gettop(lua()));
@@ -651,7 +652,7 @@ bool CScriptStorage::object	(LPCSTR namespace_name, LPCSTR identifier, int type)
 luabind::object CScriptStorage::name_space(LPCSTR namespace_name)
 {
 	string256			S1;
-	strcpy_s				(S1,namespace_name);
+	strcpy_s			(S1,namespace_name);
 	LPSTR				S = S1;
 	luabind::object		lua_namespace = luabind::get_globals(lua());
 	for (;;) {

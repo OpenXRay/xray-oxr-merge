@@ -186,7 +186,6 @@ void CUIComboBox::ShowList(bool bShow)
 		m_eState				= LIST_EXPANDED;
 
 		GetParent()->SetCapture	(this, true);
-//.		Device.seqRender.Add		(this, 3);
 	}
 	else
 	{
@@ -216,7 +215,6 @@ void CUIComboBox::Update()
 			Device.seqRender.Add		(this, 3);
 		}
 	}
-
 }
 
 void CUIComboBox::OnFocusLost()

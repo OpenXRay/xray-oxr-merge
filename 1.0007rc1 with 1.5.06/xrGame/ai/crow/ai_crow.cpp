@@ -130,7 +130,7 @@ BOOL CAI_Crow::net_Spawn		(CSE_Abstract* DC)
 	setEnabled	(TRUE);
 
 	// animations
-	CKinematicsAnimated*	M		= smart_cast<CKinematicsAnimated*>(Visual()); R_ASSERT(M);
+	IKinematicsAnimated*	M		= smart_cast<IKinematicsAnimated*>(Visual()); R_ASSERT(M);
 	m_Anims.m_death.Load		(M,"norm_death");
 	m_Anims.m_death_dead.Load	(M,"norm_death_dead");
 	m_Anims.m_death_idle.Load	(M,"norm_death_idle");
@@ -306,8 +306,8 @@ void CAI_Crow::shedule_Update		(u32 DT)
 		// At random times, change the direction (goal) of the plane
 		if(fGoalChangeTime<=0)	{
 			fGoalChangeTime += fGoalChangeDelta+fGoalChangeDelta*Random.randF(-0.5f,0.5f);
-			Fvector vP;
-			vP.set(Device.vCameraPosition.x,Device.vCameraPosition.y+fMinHeight,Device.vCameraPosition.z);
+			Fvector			vP = Actor()->Position();
+			vP.y			+= +fMinHeight;
 			vGoalDir.x		= vP.x+vVarGoal.x*Random.randF(-0.5f,0.5f); 
 			vGoalDir.y		= vP.y+vVarGoal.y*Random.randF(-0.5f,0.5f);
 			vGoalDir.z		= vP.z+vVarGoal.z*Random.randF(-0.5f,0.5f);

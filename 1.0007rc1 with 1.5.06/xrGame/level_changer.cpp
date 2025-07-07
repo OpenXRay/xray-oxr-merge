@@ -178,7 +178,8 @@ void CLevelChanger::update_actor_invitation()
 			CUIGameSP* pGameSP = smart_cast<CUIGameSP*>(HUD().GetUI()->UIGame());
 			Fvector p,r;
 			bool b = get_reject_pos(p,r);
-			if(pGameSP)pGameSP->ChangeLevel(m_game_vertex_id,m_level_vertex_id,m_position,m_angles,p,r,b);
+			if(pGameSP)
+				pGameSP->ChangeLevel(m_game_vertex_id,m_level_vertex_id,m_position,m_angles,p,r,b);
 			m_entrance_time		= Device.fTimeGlobal;
 		}
 	}

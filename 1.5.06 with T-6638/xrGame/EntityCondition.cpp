@@ -320,35 +320,23 @@ void CEntityCondition::UpdateCondition()
 float CEntityCondition::HitOutfitEffect(float hit_power, ALife::EHitType hit_type, s16 element, float ap, bool& add_wound)
 {
     CInventoryOwner* pInvOwner		= smart_cast<CInventoryOwner*>(m_object);
-	if(!pInvOwner)					return hit_power;
+	if(!pInvOwner)
+		return hit_power;
 
-	CCustomOutfit* pOutfit			= (CCustomOutfit*)pInvOwner->inventory().m_slots[OUTFIT_SLOT].m_pIItem;
-	if(!pOutfit)					return hit_power;
-
-	//VERIFY( m_object != (CEntityAlive*)Actor() );
+	CCustomOutfit* pOutfit = (CCustomOutfit*)pInvOwner->inventory().ItemFromSlot(OUTFIT_SLOT);
+	CHelmet* pHelmet = (CHelmet*)pInvOwner->inventory().ItemFromSlot(HELMET_SLOT);
+	if(!pOutfit && !pHelmet)
+		return hit_power;
 
 	float new_hit_power				= hit_power;
+	if(pOutfit)
+		new_hit_power = pOutfit->HitThroughArmor(hit_power, element, ap, add_wound, hit_type);
 
-	if ( hit_type == ALife::eHitTypeFireWound )
-	{
-		new_hit_power				= pOutfit->HitThroughArmor( hit_power, element, ap, add_wound );
-	}
-	else
-	{
-		float one					= 0.1f;	// == void CRadioactiveZone::Affect(SZoneObjectInfo* O)
-		if ( hit_type == ALife::eHitTypeWound || hit_type == ALife::eHitTypeWound_2 || hit_type == ALife::eHitTypeExplosion )
-		{
-			one = 1.0f;
-		}
+	if(pHelmet)
+		new_hit_power = pHelmet->HitThroughArmor(new_hit_power, element, ap, add_wound, hit_type);
 
-		float protect				= pOutfit->GetHitTypeProtection(hit_type,element);
-		new_hit_power				-= protect * one;
-		if( new_hit_power < 0.0f ) { new_hit_power = 0.0f; }
-		
-		//увеличить изношенность костюма
-		pOutfit->Hit				(new_hit_power, hit_type);
-	}
-	if( bDebug )	Msg( "new_hit_power = %.3f  hit_type = %s  ap = %.3f", new_hit_power, ALife::g_cafHitType2String(hit_type), ap );
+	if( bDebug )
+		Msg( "new_hit_power = %.3f  hit_type = %s  ap = %.3f", new_hit_power, ALife::g_cafHitType2String(hit_type), ap );
 
 	return							new_hit_power;
 }
@@ -358,10 +346,10 @@ float CEntityCondition::HitPowerEffect(float power_loss)
 	CInventoryOwner* pInvOwner		 = smart_cast<CInventoryOwner*>(m_object);
 	if(!pInvOwner)					 return power_loss;
 
-	CCustomOutfit* pOutfit			= (CCustomOutfit*)pInvOwner->inventory().m_slots[OUTFIT_SLOT].m_pIItem;
-	if(!pOutfit)					return power_loss;
+	CCustomOutfit* pOutfit			= pInvOwner->GetOutfit();
+	if(!pOutfit)					return power_loss*0.5f;
 
-	float new_power_loss			= power_loss*pOutfit->GetPowerLoss();
+	float new_power_loss			= power_loss*pOutfit->m_fPowerLoss;
 
 	return							new_power_loss;
 }

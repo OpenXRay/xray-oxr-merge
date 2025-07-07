@@ -50,10 +50,10 @@ LPCSTR af_immunity_section_names[] = // ALife::EInfluenceType
 LPCSTR af_restore_section_names[] = // ALife::EConditionRestoreType
 {
 	"health_restore_speed",			// eHealthRestoreSpeed=0
-	"radiation_restore_speed",		// eRadiationRestoreSpeed=1
-	"satiety_restore_speed",		// eSatietyRestoreSpeed=2
-	"power_restore_speed",			// ePowerRestoreSpeed=3
-	"bleeding_restore_speed",		// eBleedingRestoreSpeed=4
+	"satiety_restore_speed",		// eSatietyRestoreSpeed=1
+	"power_restore_speed",			// ePowerRestoreSpeed=2
+	"bleeding_restore_speed",		// eBleedingRestoreSpeed=3
+	"radiation_restore_speed",		// eRadiationRestoreSpeed=4
 };
 
 LPCSTR af_immunity_caption[] =  // ALife::EInfluenceType
@@ -73,10 +73,10 @@ LPCSTR af_immunity_caption[] =  // ALife::EInfluenceType
 LPCSTR af_restore_caption[] =  // ALife::EConditionRestoreType
 {
 	"ui_inv_health",
-	"ui_inv_radiation",
 	"ui_inv_satiety",
 	"ui_inv_power",
 	"ui_inv_bleeding",
+	"ui_inv_radiation",
 };
 
 /*
@@ -137,7 +137,7 @@ void CUIArtefactParams::InitFromXml( CUIXml& xml )
 		m_additional_weight->Init( xml, "additional_weight" );
 		m_additional_weight->SetAutoDelete(false);
 
-		LPCSTR name = CStringTable().translate( "ui_inv_outfit_additional_weight" ).c_str();
+		LPCSTR name = CStringTable().translate( "ui_inv_weight" ).c_str();
 		m_additional_weight->SetCaption( name );
 
 		//xml.SetLocalRoot( base_node );
@@ -154,7 +154,7 @@ bool CUIArtefactParams::Check(const shared_str& af_section)
 void CUIArtefactParams::SetInfo( shared_str const& af_section )
 {
 	DetachAll();
-	float h = 0.0f;
+	AttachChild( m_Prop_line );
 
 	CActor* actor = smart_cast<CActor*>( Level().CurrentViewEntity() );
 	if ( !actor )
@@ -164,6 +164,7 @@ void CUIArtefactParams::SetInfo( shared_str const& af_section )
 
 	float val = 0.0f, max_val = 1.0f;
 	Fvector2 pos;
+	float h = m_Prop_line->GetWndPos().y+m_Prop_line->GetWndSize().y;
 
 	for ( u32 i = 0; i < ALife::infl_max_count; ++i )
 	{
@@ -185,6 +186,21 @@ void CUIArtefactParams::SetInfo( shared_str const& af_section )
 		AttachChild( m_immunity_item[i] );
 	}
 
+	{
+		val	= pSettings->r_float( af_section, "additional_inventory_weight" );
+		if ( !fis_zero(val) )
+		{
+			m_additional_weight->SetValue( val );
+
+			pos.set( m_additional_weight->GetWndPos() );
+			pos.y = h;
+			m_additional_weight->SetWndPos( pos );
+
+			h += m_additional_weight->GetWndSize().y;
+			AttachChild( m_additional_weight );
+		}
+	}
+
 	for ( u32 i = 0; i < ALife::eRestoreTypeMax; ++i )
 	{
 		val	= pSettings->r_float( af_section, af_restore_section_names[i] );
@@ -202,21 +218,6 @@ void CUIArtefactParams::SetInfo( shared_str const& af_section )
 		AttachChild( m_restore_item[i] );
 	}
 	
-	{
-		val	= pSettings->r_float( af_section, "additional_inventory_weight" );
-		if ( !fis_zero(val) )
-		{
-			m_additional_weight->SetValue( val );
-
-			pos.set( m_additional_weight->GetWndPos() );
-			pos.y = h;
-			m_additional_weight->SetWndPos( pos );
-
-			h += m_additional_weight->GetWndSize().y;
-			AttachChild( m_additional_weight );
-		}
-	}
-
 	SetHeight( h );
 }
 

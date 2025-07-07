@@ -8,7 +8,7 @@
 
 namespace Feel {
 
-	Vision::Vision( CObject const* owner ) : 
+	Vision::Vision( CObject const* owner ) :
 		pure_relcase( &Vision::feel_vision_relcase ),
 		m_owner(owner)
 	{	

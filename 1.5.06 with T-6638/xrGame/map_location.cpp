@@ -507,13 +507,13 @@ void CMapLocation::UpdateSpotPointer(CUICustomMap* map, CMapSpotPointer* sp )
 		if (IsGameTypeSingle())
 		{
 			float dist_to_target = Level().CurrentEntity()->Position().distance_to(ttt);
-			CGameTask*	T = Level().GameTaskManager().HasGameTask(this, true);
-			if(T && T->GetTaskType()==eTaskTypeStoryline)
+			CGameTask*	task = Level().GameTaskManager().HasGameTask(this, true);
+			if(task && task->GetTaskType()==eTaskTypeStoryline)
 			{
 				map->SetPointerDistance	(dist_to_target);
 			}
 
-			u32 clr = sp->GetColor();
+			u32 clr = sp->GetTextureColor();
 			u32 a	= 0xff;
 			if(dist_to_target>=0.0f && dist_to_target<10.0f)
 				a=255;
@@ -526,7 +526,7 @@ void CMapLocation::UpdateSpotPointer(CUICustomMap* map, CMapSpotPointer* sp )
 			else
 				a=100;
 
-			sp->SetColor( subst_alpha(clr,a));
+			sp->SetTextureColor( subst_alpha(clr,a));
 		}
 	}
 }
@@ -730,7 +730,9 @@ bool CRelationMapLocation::Update()
 		CSE_ALifeCreatureAbstract*		pCreature = smart_cast<CSE_ALifeCreatureAbstract*>(m_owner_se_object);
 		if(pCreature) //maybe trader ?
 			bAlive = pCreature->g_Alive		();
-	}else{
+	}
+	else
+	{
 		CInventoryOwner*			pEnt = NULL;
 		CInventoryOwner*			pAct = NULL;
 

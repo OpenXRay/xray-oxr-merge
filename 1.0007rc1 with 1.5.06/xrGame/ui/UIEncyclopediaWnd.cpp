@@ -20,7 +20,7 @@
 #include "../encyclopedia_article.h"
 #include "../alife_registry_wrappers.h"
 #include "../actor.h"
-#include "../object_broker.h"
+#include "object_broker.h"
 
 #define				ENCYCLOPEDIA_DIALOG_XML		"encyclopedia.xml"
 
@@ -38,8 +38,7 @@ CUIEncyclopediaWnd::~CUIEncyclopediaWnd()
 void CUIEncyclopediaWnd::Init()
 {
 	CUIXml		uiXml;
-	bool xml_result = uiXml.Init(CONFIG_PATH, UI_PATH, ENCYCLOPEDIA_DIALOG_XML);
-	R_ASSERT3(xml_result, "xml file not found", ENCYCLOPEDIA_DIALOG_XML);
+	uiXml.Load			(CONFIG_PATH, UI_PATH, ENCYCLOPEDIA_DIALOG_XML);
 
 	CUIXmlInit	xml_init;
 

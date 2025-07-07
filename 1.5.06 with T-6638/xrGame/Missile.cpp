@@ -74,8 +74,6 @@ void CMissile::Load(LPCSTR section)
 	
 	m_vThrowPoint		= pSettings->r_fvector3(section,"throw_point");
 	m_vThrowDir			= pSettings->r_fvector3(section,"throw_dir");
-	m_vHudThrowPoint	= pSettings->r_fvector3(*hud_sect,"throw_point");
-	m_vHudThrowDir		= pSettings->r_fvector3(*hud_sect,"throw_dir");
 
 	m_ef_weapon_type	= READ_IF_EXISTS(pSettings,r_u32,section,"ef_weapon_type",u32(-1));
 }
@@ -743,10 +741,10 @@ void	 CMissile::ExitContactCallback(bool& do_colide,bool bo1,dContact& c,SGameMt
 																				do_colide=false;
 }
 
-void CMissile::GetBriefInfo(xr_string& str_name, xr_string& icon_sect_name, xr_string& str_count, string16& fire_mode)
+bool CMissile::GetBriefInfo( II_BriefInfo& info )
 {
-	str_name		= NameShort();
-	str_count		= "";
-	icon_sect_name	= "";
+	info.clear();
+	info.name._set( m_nameShort );
+	return true;
 }
 

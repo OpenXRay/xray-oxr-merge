@@ -87,14 +87,20 @@ void CStateMonsterAttackAbstract::execute()
 {
 	bool	can_attack_on_move		=	object->can_attack_on_move();
 
-	if		(check_home_point())		select_state(eStateAttack_MoveToHomePoint);
-	else if (check_steal_state())		select_state(eStateAttack_Steal);
-	else if (check_camp_state()) 		select_state(eStateAttackCamp);
-	else if (check_find_enemy_state()) 	select_state(eStateAttack_FindEnemy);
-	else if (check_run_away_state()) 	select_state(eStateAttack_RunAway);
-	else if (!can_attack_on_move && 
-			 check_run_attack_state())	select_state(eStateAttack_RunAttack);
-	else if ( can_attack_on_move )			select_state(eStateAttack_Attack_On_Run);
+	if	(check_home_point())
+		select_state(eStateAttack_MoveToHomePoint);
+	else if (check_steal_state())
+		select_state(eStateAttack_Steal);
+	else if (check_camp_state())
+	 	select_state(eStateAttackCamp);
+	else if (check_find_enemy_state())
+	 	select_state(eStateAttack_FindEnemy);
+	else if (check_run_away_state())
+	 	select_state(eStateAttack_RunAway);
+	else if (!can_attack_on_move && check_run_attack_state())
+		select_state(eStateAttack_RunAttack);
+	else if ( can_attack_on_move )
+				select_state(eStateAttack_Attack_On_Run);
 	else
 	{
 		// определить тип атаки
@@ -105,7 +111,7 @@ void CStateMonsterAttackAbstract::execute()
 			{
 				b_melee		=	true;
 			}
-		} 
+		}
 		else if ( get_state(eStateAttack_Melee)->check_start_conditions() ) 
 		{
 			b_melee			=	true;
@@ -135,10 +141,10 @@ TEMPLATE_SPECIALIZATION
 bool CStateMonsterAttackAbstract::check_steal_state()
 {
 	if (prev_substate == u32(-1)) {
-		if (get_state(eStateAttack_Steal)->check_start_conditions())	
+		if (get_state(eStateAttack_Steal)->check_start_conditions())
 			return true;
 	} else if (prev_substate == eStateAttack_Steal) {
-		if (!get_state(eStateAttack_Steal)->check_completion())		
+		if (!get_state(eStateAttack_Steal)->check_completion())
 			return true;
 	}
 	return false;
@@ -148,10 +154,10 @@ TEMPLATE_SPECIALIZATION
 bool CStateMonsterAttackAbstract::check_camp_state()
 {
 	if (prev_substate == u32(-1)) {
-		if (get_state(eStateAttackCamp)->check_start_conditions())	
+		if (get_state(eStateAttackCamp)->check_start_conditions())
 			return true;
 	} else if (prev_substate == eStateAttackCamp) {
-		if (!get_state(eStateAttackCamp)->check_completion())		
+		if (!get_state(eStateAttackCamp)->check_completion())
 			return true;
 	}
 	return false;

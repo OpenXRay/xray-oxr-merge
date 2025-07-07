@@ -81,11 +81,10 @@ public:
 			xr_sprintf			(temp, "%s_class_%d", prefix, i);
 			if(pSettings->line_exist(sect,temp))
 			{
-				LPCSTR z_Class			= pSettings->r_string(sect,temp);
-				CLASS_ID item_cls		= TEXT2CLSID(pSettings->r_string(z_Class,"class"));
+				shared_str item_sect	= pSettings->r_string(sect,temp);
 
-				m_TypesMap.insert		(std::make_pair(item_cls,ITEM_TYPE()));
-				ITEM_TYPE& item_type	= m_TypesMap[item_cls];
+				m_TypesMap.insert		(std::make_pair(item_sect, ITEM_TYPE()));
+				ITEM_TYPE& item_type	= m_TypesMap[item_sect];
 
 				xr_sprintf				(temp, "%s_freq_%d", prefix, i);
 				item_type.freq			= pSettings->r_fvector2(sect,temp);
@@ -100,13 +99,7 @@ public:
 		} while(true);
 	}
 };
-/*
-class CZoneList  :public CDetectList<CCustomZone>
-{
-protected:
-	virtual BOOL 	feel_touch_contact	(CObject* O);
-};
-*/
+
 class CAfList  :public CDetectList<CArtefact>
 {
 protected:
@@ -170,3 +163,12 @@ protected:
 
 	CAfList			m_artefacts;
 };
+
+class CZoneList  :public CDetectList<CCustomZone>
+{
+protected:
+	virtual BOOL 	feel_touch_contact	(CObject* O);
+public:
+					CZoneList();
+	virtual			~CZoneList();
+}; // class CZoneList

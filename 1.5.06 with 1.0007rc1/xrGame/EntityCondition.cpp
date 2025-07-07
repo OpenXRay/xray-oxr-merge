@@ -114,7 +114,6 @@ void CEntityCondition::reinit	()
 
 	m_fEntityMorale			=  m_fEntityMoraleMax = 1.f;
 
-	//health()				= MAX_HEALTH;
 	SetHealth				( MAX_HEALTH );
 	m_fPower				= MAX_POWER;
 	m_fRadiation			= 0;
@@ -266,7 +265,6 @@ void CEntityCondition::UpdateCondition()
 
 	UpdateEntityMorale			();
 
-	//health()					+= m_fDeltaHealth;
 	SetHealth					( GetHealth() + m_fDeltaHealth );
 	m_fPower					+= m_fDeltaPower;
 	m_fPsyHealth				+= m_fDeltaPsyHealth;
@@ -297,8 +295,6 @@ float CEntityCondition::HitOutfitEffect( float hit_power, ALife::EHitType hit_ty
 
 	CCustomOutfit* pOutfit			= (CCustomOutfit*)pInvOwner->inventory().m_slots[OUTFIT_SLOT].m_pIItem;
 	if(!pOutfit)					return hit_power;
-
-	//VERIFY( m_object != (CEntityAlive*)Actor() );
 
 	float new_hit_power				= hit_power;
 
@@ -448,7 +444,6 @@ CWound* CEntityCondition::ConditionHit(SHit* pHDS)
 		return NULL;
 	}
 }
-
 
 float CEntityCondition::BleedingSpeed()
 {

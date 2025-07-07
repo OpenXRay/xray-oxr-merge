@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include <dinput.h>
-#include "../xr_ioconsole.h"
-#include "../xr_input.h"
-#include "../xr_ioc_cmd.h"
+#include "../xrEngine/xr_ioconsole.h"
+#include "../xrEngine/xr_input.h"
+#include "../xrEngine/xr_ioc_cmd.h"
 #include "xr_level_controller.h"
 #include "string_table.h"
 
@@ -28,8 +28,6 @@ _action  actions[]		= {
 	{ "llookout",			kL_LOOKOUT				,_both},	
 	{ "rlookout",			kR_LOOKOUT				,_both},	
 																
-	{ "turn_engine",		kENGINE					,_sp},		
-																
 	{ "cam_1",				kCAM_1					,_both},	
 	{ "cam_2",				kCAM_2					,_both},	
 	{ "cam_3",				kCAM_3					,_both},	
@@ -39,13 +37,15 @@ _action  actions[]		= {
 															
 	{ "torch",				kTORCH					,_both},	
 	{ "night_vision",		kNIGHT_VISION			,_both},	
+	{ "show_detector",		kDETECTOR				,_sp},		
+
 	{ "wpn_1",				kWPN_1					,_both},	
 	{ "wpn_2",				kWPN_2					,_both},	
 	{ "wpn_3",				kWPN_3					,_both},	
 	{ "wpn_4",				kWPN_4					,_both},	
 	{ "wpn_5",				kWPN_5					,_both},	
 	{ "wpn_6",				kWPN_6					,_both},	
-	{ "artefact",			kARTEFACT				,_mp},		
+	{ "artefact",			kARTEFACT				,_both/*_mp*/},		
 	{ "wpn_next",			kWPN_NEXT				,_both},	
 	{ "wpn_fire",			kWPN_FIRE				,_both},	
 	{ "wpn_zoom",			kWPN_ZOOM				,_both},	
@@ -97,6 +97,8 @@ _action  actions[]		= {
 	{ "use_medkit",			kUSE_MEDKIT				,_sp},		
 	{ "quick_save",			kQUICK_SAVE				,_sp},		
 	{ "quick_load",			kQUICK_LOAD				,_sp},		
+	{ "alife_command",		kALIFE_CMD				,_sp},		
+	
 																
 	{ NULL, 				kLASTACTION				,_both}		
 };															
@@ -205,7 +207,7 @@ void remap_keys()
 	{
 		buff[0]				= 0;
 		_keyboard&	kb		= keyboards[idx];
-		bool res			= pInput->get_dik_name(kb.dik, buff, 128 );
+		bool res			= pInput->get_dik_name(kb.dik, buff, sizeof(buff) );
 		if(res)
 			kb.key_local_name	= buff;
 		else

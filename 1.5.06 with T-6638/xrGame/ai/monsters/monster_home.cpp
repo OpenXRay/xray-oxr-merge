@@ -397,7 +397,8 @@ bool CMonsterHome::at_mid_home(const Fvector &pos)
 		const CPatrolPath::CVertex *vertex = m_path->vertex(i);
 		float dist = pos.distance_to(ai().level_graph().vertex_position(vertex->data().level_vertex_id()));
 
-		if (dist < m_radius_middle) return true;
+		if (dist < m_radius_middle)
+			return true;
 	}
 
 	return false;

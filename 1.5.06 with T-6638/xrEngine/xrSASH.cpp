@@ -586,16 +586,21 @@ void xrSASH::DescribeOption( char* pszOptionName, const oaOptionDependency &Depe
 	else if (pFloat)
 	{
 		Option.DataType = OA_TYPE_FLOAT;
-		Option.MinValue.Float = pFloat->GetMin();
-		Option.MaxValue.Float = pFloat->GetMax();
-		Option.NumSteps = (int)((pFloat->GetMax() - pFloat->GetMin()) / 0.1f);
+		float mn,mx;
+
+		pFloat->GetBounds		(mn, mx);
+		Option.MinValue.Float	= mn;
+		Option.MaxValue.Float	= mx;
+		Option.NumSteps			= (int)((mx - mn) / 0.1f);
 		oaAddOption(&Option);
 	}
 	else if (pInt)
 	{
 		Option.DataType = OA_TYPE_INT;
-		Option.MinValue.Int = pInt->GetMin();
-		Option.MaxValue.Int = pInt->GetMax();
+		int mn, mx;
+		pInt->GetBounds			(mn, mx);
+		Option.MinValue.Int		= mn;
+		Option.MaxValue.Int		= mx;
 		oaAddOption(&Option);
 	}
 	else

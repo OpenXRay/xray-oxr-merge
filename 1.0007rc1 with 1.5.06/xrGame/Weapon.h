@@ -28,7 +28,7 @@ private:
 	typedef CHudItemObject inherited;
 
 public:
-							CWeapon				(LPCSTR name);
+							CWeapon				();
 	virtual					~CWeapon			();
 
 	// Generic
@@ -473,6 +473,7 @@ protected:
 	// therefore we should hold them by ourself :-((
 	float					m_addon_holder_range_modifier;
 	float					m_addon_holder_fov_modifier;
+
 public:
 	virtual	void			modify_holder_params		(float &range, float &fov) const;
 	virtual bool			use_crosshair				()	const {return true;}

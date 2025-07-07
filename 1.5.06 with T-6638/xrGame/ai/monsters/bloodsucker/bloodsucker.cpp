@@ -35,12 +35,12 @@ namespace detail
 namespace bloodsucker
 {
 	// default hit settings
-	const float default_critical_hit_chance = 0.25f;
-	const float default_hit_camera_effector_angle = 0;
-	const float default_critical_hit_camera_effector_angle = 3.1415f / 6;
+	float const default_critical_hit_chance = 0.25f;
+	float const default_hit_camera_effector_angle = 0;
+	float const default_critical_hit_camera_effector_angle = 3.1415f / 6;
 
-	const float default_camera_effector_move_angular_speed = 1.5f;
-	const u32   default_invisibility_activate_delay = 4000;
+	float const default_camera_effector_move_angular_speed = 1.5f;
+	u32   const default_invisibility_activate_delay = 4000;
 } // namespace bloodsucker
 } // namespace detail
 

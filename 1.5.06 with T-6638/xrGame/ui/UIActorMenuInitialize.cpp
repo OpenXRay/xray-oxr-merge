@@ -172,8 +172,8 @@ void CUIActorMenu::Construct()
 	m_message_box_ok->SetText			( "" );
 
 	m_UIPropertiesBox					= xr_new<CUIPropertiesBox>();
-	AttachChild							(m_UIPropertiesBox);
 	m_UIPropertiesBox->InitPropertiesBox(Fvector2().set(0,0),Fvector2().set(300,300));
+	AttachChild							(m_UIPropertiesBox);
 	m_UIPropertiesBox->Hide				();
 	m_UIPropertiesBox->SetWindowName	( "property_box" );
 

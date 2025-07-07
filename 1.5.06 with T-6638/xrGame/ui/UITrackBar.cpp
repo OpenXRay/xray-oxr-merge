@@ -1,16 +1,11 @@
 #include "StdAfx.h"
 
 #include "UITrackBar.h"
-//.#include "UITrackButton.h"
-#include "UIFrameLineWnd.h"
 #include "UI3tButton.h"
 #include "UITextureMaster.h"
 #include "../../xrEngine/xr_input.h"
 
-#define DEF_CONTROL_HEIGHT		21.0f
-#define FRAME_LINE_TEXTURE		"ui_slider_e"
-#define FRAME_LINE_TEXTURE_D	"ui_slider_d"
-#define SLIDER_TEXTURE			"ui_slider_button"
+#define DEF_CONTROL_HEIGHT		16.0f
 
 CUITrackBar::CUITrackBar()
 	: m_f_min(0),
@@ -21,13 +16,6 @@ CUITrackBar::CUITrackBar()
 	m_b_is_float(true),
 	m_b_invert(false)
 {	
-	m_pFrameLine					= xr_new<CUIFrameLineWnd>();	
-	AttachChild						(m_pFrameLine);	
-	m_pFrameLine->SetAutoDelete		(true);
-	m_pFrameLine_d					= xr_new<CUIFrameLineWnd>(); 
-	m_pFrameLine_d->SetVisible		(false);
-	AttachChild						(m_pFrameLine_d); 
-	m_pFrameLine_d->SetAutoDelete	(true);
 	m_pSlider						= xr_new<CUI3tButton>();			
 	AttachChild						(m_pSlider);		
 	m_pSlider->SetAutoDelete		(true);
@@ -59,45 +47,71 @@ bool CUITrackBar::OnMouseAction(float x, float y, EUIMessages mouse_action)
 		{
 			m_b_mouse_capturer = false;
 		}
+		break;
+	case WINDOW_MOUSE_WHEEL_UP:
+		{
+			if(m_b_is_float)
+			{
+				m_f_val -= GetInvert()?-m_f_step:m_f_step;
+				clamp(m_f_val, m_f_min, m_f_max);
+			}
+			else
+			{
+				m_i_val -= GetInvert()?-m_i_step:m_i_step;
+				clamp(m_i_val, m_i_min, m_i_max);
+			}
+			GetMessageTarget()->SendMessage(this, BUTTON_CLICKED, NULL);
+			UpdatePos			();
+			OnChangedOptValue	();
+		}
+		break;
+	case WINDOW_MOUSE_WHEEL_DOWN:
+		{
+			if(m_b_is_float)
+			{
+				m_f_val += GetInvert()?-m_f_step:m_f_step;
+				clamp(m_f_val, m_f_min, m_f_max);
+			}
+			else
+			{
+				m_i_val += GetInvert()?-m_i_step:m_i_step;
+				clamp(m_i_val, m_i_min, m_i_max);
+			}
+			GetMessageTarget()->SendMessage(this, BUTTON_CLICKED, NULL);
+			UpdatePos();
+			OnChangedOptValue	();
+		}
+		break;
 	};
 	return true;
 }
 
 void CUITrackBar::InitTrackBar(Fvector2 pos, Fvector2 size)
 {
-	string128			buf;
 	float				item_height;
 	float				item_width;
-	CUIWindow::SetWndPos(pos);
 	
-	CUIWindow::SetWndSize(Fvector2().set(size.x, DEF_CONTROL_HEIGHT) );
+	InitIB				(pos, size);
 
+	InitState			(S_Enabled, "ui_inGame2_opt_slider_bar");
+	InitState			(S_Disabled, "ui_inGame2_opt_slider_bar");
 
-	item_height			= CUITextureMaster::GetTextureHeight(strconcat(sizeof(buf),buf,FRAME_LINE_TEXTURE,"_b"));
-	m_pFrameLine->SetWndPos( Fvector2().set(0.0f, (size.y - item_height)/2) );
-	m_pFrameLine->SetWndSize( Fvector2().set(size.x, item_height) );
+	item_width			= CUITextureMaster::GetTextureWidth("ui_inGame2_opt_slider_box_e");
+    item_height			= CUITextureMaster::GetTextureHeight("ui_inGame2_opt_slider_box_e");
 
-	m_pFrameLine->InitTexture(FRAME_LINE_TEXTURE,"hud\\default");
+	item_width			*= UI().get_current_kx();
 
-	m_pFrameLine_d->SetWndPos( Fvector2().set(0.0f,(size.y - item_height)/2.0f));
-	m_pFrameLine_d->SetWndSize( Fvector2().set(size.x, item_height));
-	m_pFrameLine_d->InitTexture(FRAME_LINE_TEXTURE_D,"hud\\default");
-
-	strconcat			(sizeof(buf),buf,SLIDER_TEXTURE,"_e");
-	item_width			= CUITextureMaster::GetTextureWidth(buf);
-    item_height			= CUITextureMaster::GetTextureHeight(buf);
-
-	if(UI()->is_16_9_mode())
-		item_width	/= 1.2f;
-
-	m_pSlider->InitButton(	Fvector2().set(0.0f, (size.y - item_height)/2.0f), //pos
+	m_pSlider->InitButton(	Fvector2().set(0.0f, 0.0f) /*(size.y - item_height)/2.0f)*/,
 							Fvector2().set(item_width, item_height) );			//size
-	m_pSlider->InitTexture(SLIDER_TEXTURE);
+	m_pSlider->InitTexture("ui_inGame2_opt_slider_box");
+	
+	SetCurrentState(S_Enabled);
 }	
 
 void CUITrackBar::Draw()
 {
-	CUIWindow::Draw();
+	CUI_IB_FrameLineWnd::Draw	();
+	m_pSlider->Draw				();
 }
 
 void CUITrackBar::Update()
@@ -174,9 +188,8 @@ void CUITrackBar::SetStep(float step)
 void CUITrackBar::Enable(bool status)
 {
 	m_bIsEnabled				= status;
-	m_pFrameLine->SetVisible	(status);
-	m_pSlider->Enable			(status);
-	m_pFrameLine_d->SetVisible	(!status);
+	SetCurrentState				(m_bIsEnabled?S_Enabled:S_Disabled);
+	m_pSlider->Enable			(m_bIsEnabled);
 }
 
 void CUITrackBar::UpdatePosRelativeToMouse()

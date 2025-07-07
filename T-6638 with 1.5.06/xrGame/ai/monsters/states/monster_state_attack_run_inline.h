@@ -75,7 +75,7 @@ bool CStateMonsterAttackRunAbstract::check_completion()
 	float m_fDistMin	= object->MeleeChecker.get_min_distance		();
 	float dist			= object->MeleeChecker.distance_to_enemy	(object->EnemyMan.get_enemy());
 
-	if (dist < m_fDistMin)	
+	if (dist < m_fDistMin)
 		return true;
 
 	return false;

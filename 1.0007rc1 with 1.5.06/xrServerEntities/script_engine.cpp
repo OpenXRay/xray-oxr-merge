@@ -108,6 +108,7 @@ void CScriptEngine::setup_callbacks		()
 #if !XRAY_EXCEPTIONS
 		luabind::set_error_callback		(CScriptEngine::lua_error);
 #endif
+
 #ifndef MASTER_GOLD
 		luabind::set_pcall_callback		(CScriptEngine::lua_pcall_failed);
 #endif // MASTER_GOLD

@@ -1,10 +1,11 @@
 #pragma once
 #include "../state.h"
 
-template<typename _Object>
-class	CStateBurerAttack : public CState<_Object> {
-	typedef CState<_Object> inherited;
-	typedef CState<_Object> *state_ptr;
+template<typename Object>
+class	CStateBurerAttack : public CState<Object>
+{
+	typedef CState<Object> inherited;
+	typedef CState<Object> *state_ptr;
 
 	bool				m_force_gravi;
 public:

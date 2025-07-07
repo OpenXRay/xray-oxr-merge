@@ -168,7 +168,7 @@ bool CStateMonsterAttackMoveToHomePointAbstract::check_start_conditions()
 TEMPLATE_SPECIALIZATION
 bool CStateMonsterAttackMoveToHomePointAbstract::check_completion()
 {
-	if ( !object->at_home() ) 
+	if ( !object->at_home() )
 		return									false;
 
 	if ( object->run_home_point_when_enemy_inaccessible() )

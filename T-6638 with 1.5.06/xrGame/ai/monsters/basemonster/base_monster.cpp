@@ -427,10 +427,9 @@ void CBaseMonster::Die(CObject* who)
 	if (m_controlled)			m_controlled->on_die();
 }
 
-
 void CBaseMonster::Hit(SHit* pHDS)
 {
-	if(ignore_collision_hit && (pHDS->hit_type == ALife::eHitTypeStrike)) 
+	if(ignore_collision_hit && (pHDS->hit_type == ALife::eHitTypeStrike))
 		return;
 	
 	if(invulnerable())
@@ -439,7 +438,7 @@ void CBaseMonster::Hit(SHit* pHDS)
 	if(g_Alive())
 		if(!critically_wounded()) 
 			update_critical_wounded(pHDS->boneID,pHDS->power);
-	
+
 	if(pHDS->hit_type == ALife::eHitTypeFireWound)
 	{
 		float &hit_power = pHDS->power;
@@ -618,7 +617,7 @@ void CBaseMonster::TranslateActionToPathParams()
 	u32 des_mask = 0;
 
 	EAction action	=	anim().m_tAction;
-	switch (action) 
+	switch (action)
 	{
 	case ACT_STAND_IDLE: 
 	case ACT_SIT_IDLE:	 

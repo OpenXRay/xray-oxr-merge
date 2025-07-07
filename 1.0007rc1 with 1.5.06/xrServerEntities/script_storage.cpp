@@ -12,6 +12,11 @@
 #include <stdarg.h>
 #include "doug_lea_memory_allocator.h"
 
+#ifndef DEBUG
+#	include "opt.lua.h"
+#	include "opt_inline.lua.h"
+#endif // #ifndef DEBUG
+
 LPCSTR	file_header_old = "\
 local function script_name() \
 return \"%s\" \
@@ -209,12 +214,12 @@ int CScriptStorage::vscript_log		(ScriptStorage::ELuaMessageType tLuaMessageType
 		default : NODEFAULT;
 	}
 	
-	strcpy	(S2,S);
+	strcpy_s(S2,S);
 	S1		= S2 + xr_strlen(S);
 	int		l_iResult = vsprintf(S1,caFormat,marker);
 	Msg		("%s",S2);
 	
-	strcpy	(S2,SS);
+	strcpy_s(S2,SS);
 	S1		= S2 + xr_strlen(SS);
 	vsprintf(S1,caFormat,marker);
 	strcat	(S2,"\r\n");
@@ -316,10 +321,11 @@ bool CScriptStorage::load_buffer	(lua_State *L, LPCSTR caBuffer, size_t tSize, L
 
 		if (!parse_namespace(caNameSpaceName,a,b))
 			return		(false);
+
 		sprintf_s			(insert,header,caNameSpaceName,a,b);
 		u32				str_len = xr_strlen(insert);
 		LPSTR			script = xr_alloc<char>(str_len + tSize);
-		strcpy			(script,insert);
+		strcpy_s		(script, str_len + tSize, insert);
 		CopyMemory	(script + str_len,caBuffer,u32(tSize));
 //		try 
 		{
@@ -419,11 +425,13 @@ bool CScriptStorage::namespace_loaded(LPCSTR N, bool remove_from_stack)
 	lua_pushstring 			(lua(),"_G"); 
 	lua_rawget 				(lua(),LUA_GLOBALSINDEX); 
 	string256				S2;
-	strcpy					(S2,N);
+	strcpy_s				(S2,N);
 	LPSTR					S = S2;
 	for (;;) { 
 		if (!xr_strlen(S))
-			return			(false); 
+		{
+			return			(false);
+		}
 		LPSTR				S1 = strchr(S,'.'); 
 		if (S1)
 			*S1				= 0; 
@@ -467,6 +475,7 @@ bool CScriptStorage::object	(LPCSTR identifier, int type)
 	int						start = lua_gettop(lua());
 	lua_pushnil				(lua()); 
 	while (lua_next(lua(), -2)) { 
+
 		if ((lua_type(lua(), -1) == type) && !xr_strcmp(identifier,lua_tostring(lua(), -2))) { 
 			VERIFY			(lua_gettop(lua()) >= 3);
 			lua_pop			(lua(), 3); 
@@ -496,7 +505,7 @@ bool CScriptStorage::object	(LPCSTR namespace_name, LPCSTR identifier, int type)
 luabind::object CScriptStorage::name_space(LPCSTR namespace_name)
 {
 	string256			S1;
-	strcpy				(S1,namespace_name);
+	strcpy_s			(S1,namespace_name);
 	LPSTR				S = S1;
 	luabind::object		lua_namespace = luabind::get_globals(lua());
 	for (;;) {

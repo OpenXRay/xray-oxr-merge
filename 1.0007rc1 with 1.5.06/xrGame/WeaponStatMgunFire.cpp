@@ -44,10 +44,12 @@ void CWeaponStatMgun::UpdateFire()
 		return;
 	}
 
-	if(fTime<=0){
+	if(fTime<=0)
+	{
 		OnShot();
 		fTime += fTimeToFire;
-	}else{
+	}else
+	{
 		angle_lerp		(m_dAngle.x,0.f,5.f,Device.fTimeDelta);
 		angle_lerp		(m_dAngle.y,0.f,5.f,Device.fTimeDelta);
 	}
@@ -83,9 +85,18 @@ void CWeaponStatMgun::AddShotEffector				()
 	if(OwnerActor())
 	{
 		CCameraShotEffector* S	= smart_cast<CCameraShotEffector*>(OwnerActor()->Cameras().GetCamEffector(eCEShot)); 
-		if (!S)	S				= (CCameraShotEffector*)OwnerActor()->Cameras().AddCamEffector(xr_new<CCameraShotEffector> (camMaxAngle,camRelaxSpeed, 0.25f, 0.01f, 0.7f));
+		CameraRecoil		camera_recoil;
+		//( camMaxAngle,camRelaxSpeed, 0.25f, 0.01f, 0.7f )
+		camera_recoil.MaxAngleVert		= camMaxAngle;
+		camera_recoil.RelaxSpeed		= camRelaxSpeed;
+		camera_recoil.MaxAngleHorz		= 0.25f;
+		camera_recoil.StepAngleHorz		= ::Random.randF(-1.0f, 1.0f) * 0.01f;
+		camera_recoil.DispersionFrac	= 0.7f;
+
+		if (!S)	S			= (CCameraShotEffector*)OwnerActor()->Cameras().AddCamEffector(xr_new<CCameraShotEffector>(camera_recoil) );
 		R_ASSERT				(S);
-		S->Shot					(0.01f);
+		S->Initialize		(camera_recoil);
+		S->Shot2			(0.01f);
 	}
 }
 

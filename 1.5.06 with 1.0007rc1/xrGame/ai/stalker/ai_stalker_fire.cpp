@@ -235,7 +235,7 @@ void CAI_Stalker::Hit			(SHit* pHDS)
 		{
 			hit_power *= m_boneHitProtection->m_fHitFrac;
 			HDS.add_wound = false;
-		}// if >=
+		}
 
 		if ( wounded() ) //уже лежит => добивание
 		{
@@ -289,7 +289,6 @@ void CAI_Stalker::Hit			(SHit* pHDS)
 				float					power_factor = m_power_fx_factor * HDS.damage() / 100.f;
 				clamp					(power_factor,0.f,1.f);
 
-				//IKinematicsAnimated		*tpKinematics = smart_cast<IKinematicsAnimated*>(Visual());
 				IKinematics *tpKinematics = smart_cast<IKinematics*>(Visual());
 	#ifdef DEBUG
 				tpKinematics->LL_GetBoneInstance	(HDS.bone());

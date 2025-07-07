@@ -4,10 +4,8 @@
 #include "../../xrEngine/xr_ioconsole.h"
 
 CUIOptionsManager::CUIOptionsManager()
+:m_restart_flags(0)
 {
-	m_b_vid_restart = false;
-	m_b_vid_restart = false;
-	m_b_system_restart = false;
 }
 
 void CUIOptionsManager::RegisterItem(CUIOptionsItem* item, const shared_str& group)
@@ -55,14 +53,14 @@ void CUIOptionsManager::SendMessage2Group(const shared_str& group, const char* m
 		(*it).second[i]->OnMessage(message);
 }
 
-void CUIOptionsManager::SeveBackupValues(const shared_str& group)
+void CUIOptionsManager::SaveBackupValues(const shared_str& group)
 {
 	groups_it it = m_groups.find(group);
 
 	R_ASSERT3(m_groups.end() != it, "invalid group name",group.c_str());
 
 	for (u32 i = 0; i < (*it).second.size(); i++){
-		(*it).second[i]->SeveBackUpValue();
+		(*it).second[i]->SaveBackUpOptValue();
 	}
 }
 
@@ -73,7 +71,7 @@ void CUIOptionsManager::SetCurrentValues(const shared_str& group)
 	R_ASSERT3(m_groups.end() != it, "invalid group name",group.c_str());
 
 	for (u32 i = 0; i < (*it).second.size(); i++)
-		(*it).second[i]->SetCurrentValue();
+		(*it).second[i]->SetCurrentOptValue();
 }
 
 void CUIOptionsManager::SaveValues(const shared_str& group)
@@ -118,29 +116,29 @@ void CUIOptionsManager::UndoGroup(const shared_str& group)
 void CUIOptionsManager::OptionsPostAccept()
 {
 
-	if (m_b_vid_restart)
+	if (m_restart_flags&e_vid_restart)
 		Console->Execute("vid_restart");
 
-	if (m_b_snd_restart)
+	if (m_restart_flags&e_snd_restart)
 		Console->Execute("snd_restart");
 
-	m_b_vid_restart = false;
-	m_b_snd_restart = false;
+	m_restart_flags	&= ~e_vid_restart;
+	m_restart_flags	&= ~e_snd_restart;
 }
 
 void CUIOptionsManager::DoVidRestart()
 {
-	m_b_vid_restart = true;
+	m_restart_flags	|= e_vid_restart;
 }
 
 void CUIOptionsManager::DoSndRestart()
 {
-    m_b_snd_restart = true;
+	m_restart_flags	|= e_snd_restart;
 }
 
 void CUIOptionsManager::DoSystemRestart()
 {
-    m_b_system_restart = true;
+	m_restart_flags	|= e_system_restart;
 }
 
 

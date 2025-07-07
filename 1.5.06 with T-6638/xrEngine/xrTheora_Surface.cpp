@@ -58,13 +58,18 @@ BOOL CTheoraSurface::Update(u32 _time)
 	VERIFY				(Valid());
 	BOOL redraw			= FALSE;
 
-	if (playing){
+	if (playing)
+	{
 		tm_play			= _time-tm_start;
-		if (tm_play>=tm_total){ 
-			if (looped){	
+		if (tm_play>=tm_total)
+		{ 
+			if (looped)
+			{	
 				tm_start = tm_start+tm_total;
 				Reset	();
-			}else{	
+			}
+			else
+			{	
 				Stop	();
 				return	FALSE;
 			}
@@ -72,6 +77,7 @@ BOOL CTheoraSurface::Update(u32 _time)
 		if (m_rgb)		redraw|=m_rgb->Decode	(tm_play);
 		if (m_alpha)	redraw|=m_alpha->Decode	(tm_play);
 	}
+
 	return redraw;
 } 
 
@@ -82,10 +88,10 @@ BOOL CTheoraSurface::Load(const char* fname)
 	BOOL res			= m_rgb->Load(fname);
 	if (res){
 		string_path		alpha,ext;
-		strcpy_s			(alpha,fname);
+		xr_strcpy		(alpha,fname);
 		pstr pext		= strext(alpha);
 		if (pext){	
-			strcpy_s		(ext,pext);
+			xr_strcpy	(ext,pext);
 			*pext		= 0;
 		}
 		strconcat		(sizeof(alpha),alpha,alpha,"#alpha",ext);

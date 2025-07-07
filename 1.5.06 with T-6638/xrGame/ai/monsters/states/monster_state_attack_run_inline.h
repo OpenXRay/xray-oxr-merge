@@ -31,7 +31,6 @@ void CStateMonsterAttackRunAbstract::execute()
 	object->set_state_sound					(MonsterSound::eMonsterSoundAggressive);
 	object->path().extrapolate_path			(true);
 
-	
 	// обработать squad инфо	
 	object->path().set_use_dest_orient		(false);
 
@@ -62,14 +61,14 @@ void CStateMonsterAttackRunAbstract::critical_finalize()
 	object->path().extrapolate_path	(false);
 }
 
-
 TEMPLATE_SPECIALIZATION
 bool CStateMonsterAttackRunAbstract::check_completion()
 {
 	float m_fDistMin	= object->MeleeChecker.get_min_distance		();
 	float dist			= object->MeleeChecker.distance_to_enemy	(object->EnemyMan.get_enemy());
 
-	if (dist < m_fDistMin)	return true;
+	if (dist < m_fDistMin)
+		return true;
 
 	return false;
 }

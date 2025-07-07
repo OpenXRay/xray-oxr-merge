@@ -307,7 +307,6 @@ void CSE_ALifeInventoryItem::add_upgrade( const shared_str& upgrade_id )
 	FATAL( make_string( "Can`t add existent upgrade (%s)!", upgrade_id.c_str() ).c_str() );
 }
 
-
 ////////////////////////////////////////////////////////////////////////////
 // CSE_ALifeItem
 ////////////////////////////////////////////////////////////////////////////
@@ -616,7 +615,6 @@ u16	 CSE_ALifeItemWeapon::get_ammo_magsize	()
 	else
 		return					0;
 }
-
 
 BOOL CSE_ALifeItemWeapon::Net_Relevant()
 {

@@ -17,16 +17,16 @@
 #include "../../game_level_cross_table.h"
 #include "../../game_graph.h"
 #include "../../inventory.h"
-#include "../../artifact.h"
+#include "../../artefact.h"
 #include "../../phmovementcontrol.h"
-#include "../../xrserver_objects_alife_monsters.h"
+#include "../../../xrServerEntities/xrserver_objects_alife_monsters.h"
 #include "../../cover_evaluators.h"
 #include "../../xrserver.h"
 #include "../../xr_level_controller.h"
 #include "../../hudmanager.h"
 #include "../../clsid_game.h"
-#include "../../../skeletoncustom.h"
-#include "../../character_info.h"
+#include "../../../Include/xrRender/Kinematics.h"
+#include "../../../xrServerEntities/character_info.h"
 #include "../../actor.h"
 #include "../../relation_registry.h"
 #include "../../stalker_animation_manager.h"
@@ -40,9 +40,9 @@
 #include "../../memory_manager.h"
 #include "../../sight_manager.h"
 #include "../../ai_object_location.h"
-#include "../../stalker_movement_manager.h"
+#include "../../stalker_movement_manager_smart_cover.h"
 #include "../../entitycondition.h"
-#include "../../script_engine.h"
+#include "../../../xrServerEntities/script_engine.h"
 #include "ai_stalker_impl.h"
 #include "../../sound_player.h"
 #include "../../stalker_sound_data.h"
@@ -52,13 +52,16 @@
 #include "../../effectorshot.h"
 #include "../../visual_memory_manager.h"
 #include "../../enemy_manager.h"
-#include "../../alife_human_brain.h"
+#include "../../../xrServerEntities/alife_human_brain.h"
 #include "../../profiler.h"
 #include "../../BoneProtections.h"
 #include "../../stalker_animation_names.h"
 #include "../../stalker_decision_space.h"
 #include "../../agent_member_manager.h"
 #include "../../location_manager.h"
+#include "smart_cover_animation_selector.h"
+#include "smart_cover_animation_planner.h"
+#include "smart_cover_planner_target_selector.h"
 
 #ifdef DEBUG
 #	include "../../alife_simulator.h"
@@ -211,6 +214,7 @@ void CAI_Stalker::LoadSounds		(LPCSTR section)
 	sound().add						(pSettings->r_string(section,"sound_kill_wounded"),					100, SOUND_TYPE_MONSTER_TALKING,	5, u32(eStalkerSoundMaskKillWounded),				eStalkerSoundKillWounded,				head_bone_name, xr_new<CStalkerSoundData>(this));
 	sound().add						(pSettings->r_string(section,"sound_enemy_critically_wounded"),		100, SOUND_TYPE_MONSTER_TALKING,	4, u32(eStalkerSoundMaskEnemyCriticallyWounded),	eStalkerSoundEnemyCriticallyWounded,	head_bone_name, xr_new<CStalkerSoundData>(this));
 	sound().add						(pSettings->r_string(section,"sound_enemy_killed_or_wounded"),		100, SOUND_TYPE_MONSTER_TALKING,	4, u32(eStalkerSoundMaskEnemyKilledOrWounded),		eStalkerSoundEnemyKilledOrWounded,		head_bone_name, xr_new<CStalkerSoundData>(this));
+	sound().add						(pSettings->r_string(section,"sound_throw_grenade"),					100, SOUND_TYPE_MONSTER_TALKING,	5, u32(eStalkerSoundMaskKillWounded),				eStalkerSoundThrowGrenade,			head_bone_name, xr_new<CStalkerSoundData>(this));
 }
 
 void CAI_Stalker::reload			(LPCSTR section)
@@ -385,7 +389,7 @@ BOOL CAI_Stalker::net_Spawn			(CSE_Abstract* DC)
 		sound().set_sound_mask(u32(eStalkerSoundMaskDie));
 
 	//загрузить иммунитеты из модельки сталкера
-	CKinematics* pKinematics = smart_cast<CKinematics*>(Visual()); VERIFY(pKinematics);
+	IKinematics* pKinematics = smart_cast<IKinematics*>(Visual()); VERIFY(pKinematics);
 	CInifile* ini = pKinematics->LL_UserData();
 	if(ini)
 	{
@@ -1063,7 +1067,7 @@ void CAI_Stalker::fill_bones_body_parts	(LPCSTR bone_id, const ECriticalWoundTyp
 	LPCSTR					body_part_section_id = pSettings->r_string(body_parts_section_id,bone_id);
 	VERIFY					(body_part_section_id);
 
-	CKinematics				*kinematics	= smart_cast<CKinematics*>(Visual());
+	IKinematics				*kinematics	= smart_cast<IKinematics*>(Visual());
 	VERIFY					(kinematics);
 
 	CInifile::Sect			&body_part_section = pSettings->r_section(body_part_section_id);

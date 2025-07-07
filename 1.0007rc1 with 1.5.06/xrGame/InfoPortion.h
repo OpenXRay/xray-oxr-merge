@@ -58,9 +58,6 @@ public:
 	//если info с таким id раньше не использовался
 	//он будет загружен из файла
 	virtual void Load	(shared_str info_str_id);
-//	virtual void Load	(INFO_INDEX info_index);
-
-//	const LOCATIONS_VECTOR&							MapLocations()	const {return info_data()->m_MapLocations;}
 	const ARTICLE_ID_VECTOR&						Articles	()	const {return info_data()->m_Articles;}
 	const ARTICLE_ID_VECTOR&						ArticlesDisable	()	const {return info_data()->m_ArticlesDisable;}
 	const TASK_ID_VECTOR&							GameTasks	()	const {return info_data()->m_GameTasks;}

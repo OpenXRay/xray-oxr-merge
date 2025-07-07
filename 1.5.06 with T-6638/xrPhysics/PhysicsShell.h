@@ -52,9 +52,10 @@ public:
 	virtual		void			Activate								(const Fmatrix& form,bool disable=false)																				= 0;
 	virtual	const	Fmatrix		&XFORM									()const																													{ return mXFORM; }
 	virtual		void			get_xform								( Fmatrix& form ) const	{ form.set( XFORM() ); }
-	virtual		void			InterpolateGlobalTransform				(Fmatrix* m)																											= 0;
+	virtual		void	_BCL	InterpolateGlobalTransform				(Fmatrix* m)																											= 0;
 //	virtual		void			GetGlobalTransformDynamic				(Fmatrix* m) const																										= 0;
 	virtual		void			InterpolateGlobalPosition				(Fvector* v)																											= 0;
+
 	virtual		void			net_Import								(NET_Packet& P)																											= 0;
 	virtual		void			net_Export								(NET_Packet& P)																											= 0;
 	virtual		void			GetGlobalPositionDynamic				(Fvector* v)																											= 0;
@@ -78,7 +79,7 @@ public:
 	virtual		void			applyImpulse							(const Fvector& dir, float val)																							= 0;
 	virtual		void			setTorque								(const Fvector& torque)																									= 0;
 	virtual		void			setForce								(const Fvector& force)																									= 0;
-	virtual		void			applyGravityAccel						(const Fvector& accel)																									= 0;
+	virtual		void	_BCL	applyGravityAccel						(const Fvector& accel)																									= 0;
 	virtual		void			SetAirResistance						(float linear=default_k_l, float angular=default_k_w)																	= 0;
 	virtual		void			GetAirResistance						(float	&linear, float &angular)																						= 0;
 	virtual		void			set_DynamicLimits						(float l_limit=default_l_limit,float w_limit=default_w_limit)															= 0;
@@ -90,7 +91,7 @@ public:
 	virtual		void			remove_ObjectContactCallback			(ObjectContactCallbackFun* callback)																					= 0;
 	virtual		void			set_CallbackData						(void * cd)																												= 0;
 	virtual		void			*get_CallbackData						()																														= 0;
-	virtual		void			set_PhysicsRefObject					(CPhysicsShellHolder* ref_object)																						= 0;
+	virtual		void			set_PhysicsRefObject					(IPhysicsShellHolder* ref_object)																						= 0;
 //	virtual		void			get_LinearVel							(Fvector& velocity) const																								= 0;
 //	virtual		void			get_AngularVel							(Fvector& velocity)	const																								= 0;
 	virtual		void			set_LinearVel							(const Fvector& velocity)																								= 0;
@@ -113,7 +114,7 @@ public:
 
 // ABSTRACT:
 // Element is fully Rigid and consists of one or more forms, such as sphere, box, cylinder, etc.
-class	CPhysicsElement		: 
+class	XRPHYSICS_API	CPhysicsElement	: 
 	public CPhysicsBase,
 	public IPhysicsElement
 {
@@ -122,7 +123,7 @@ public:
 				u16								m_SelfID																						;
 	virtual		CPhysicsShell					*PhysicsShell							()																													= 0;		
 	virtual		void							set_ContactCallback						(ContactCallbackFun	*callback)																						= 0;
-	virtual		CPhysicsShellHolder				*PhysicsRefObject						()																													= 0;
+	virtual		IPhysicsShellHolder				*PhysicsRefObject						()																													= 0;
 	virtual		void							add_Sphere								(const Fsphere&		V)																								= 0;
 	virtual		void							add_Box									(const Fobb&		V)																								= 0;
 	virtual		void							add_Cylinder							(const Fcylinder&	V)																								= 0;
@@ -133,7 +134,9 @@ public:
 	virtual		void							add_geom								( CODEGeom* g )																										= 0;
 	virtual		void							remove_geom								( CODEGeom* g )																										= 0;
 	virtual	const IPhysicsGeometry*				geometry								( u16 i )const																										= 0;
-
+#ifdef	DEBUG
+	virtual		CPhysicsElement*				parent_element							()																													= 0;
+#endif
 	virtual		bool							has_geoms								()																													= 0;
 	virtual		void							add_Mass								(const SBoneShape& shape,const Fmatrix& offset,const Fvector& mass_center,float mass,CPHFracture* fracture=NULL)	= 0;
 	virtual		void							set_ParentElement						(CPhysicsElement* p)																								= 0;
@@ -221,6 +224,7 @@ public:
 	virtual		void					SetAxisDir					(const Fvector& orientation,const int axis_num)									=0;
 	virtual		void 					SetAxisDirVsFirstElement	(const Fvector& orientation,const int axis_num)									=0;
 	virtual		void 					SetAxisDirVsSecondElement	(const Fvector& orientation,const int axis_num)									=0;
+	
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	virtual		void 					SetAnchor					(const float x,const float y,const float z)										=0;
 	virtual		void 					SetAnchorVsFirstElement		(const float x,const float y,const float z)										=0;
@@ -229,6 +233,7 @@ public:
 	virtual		void 					SetAxisDir					(const float x,const float y,const float z,const int axis_num)					=0;
 	virtual		void 					SetAxisDirVsFirstElement	(const float x,const float y,const float z,const int axis_num)					=0;
 	virtual		void 					SetAxisDirVsSecondElement	(const float x,const float y,const float z,const int axis_num)					=0;
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	virtual		void 					SetLimits					(const float low,const float high,const int axis_num)							=0;
 	virtual		void 					SetLimitsVsFirstElement		(const float low,const float high,const int axis_num)							=0;

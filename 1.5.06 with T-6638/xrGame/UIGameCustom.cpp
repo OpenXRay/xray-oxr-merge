@@ -137,16 +137,16 @@ SDrawStaticStruct* CUIGameCustom::AddCustomStatic			(LPCSTR id, bool bSingleInst
 SDrawStaticStruct* CUIGameCustom::GetCustomStatic		(LPCSTR id)
 {
 	st_vec::iterator it = std::find(m_custom_statics.begin(),m_custom_statics.end(), id);
-	if(it!=m_custom_statics.end()){
+	if(it!=m_custom_statics.end())
 		return &(*it);
-	}
 	return NULL;
 }
 
 void CUIGameCustom::RemoveCustomStatic		(LPCSTR id)
 {
 	st_vec::iterator it = std::find(m_custom_statics.begin(),m_custom_statics.end(), id);
-	if(it!=m_custom_statics.end()){
+	if(it!=m_custom_statics.end())
+	{
 		xr_delete((*it).m_static);
 		m_custom_statics.erase(it);
 	}

@@ -12,6 +12,7 @@ BOOL			g_bSheduleInProgress	= FALSE	;
 //-------------------------------------------------------------------------------------
 void CSheduler::Initialize		()
 {
+	m_current_step_obj	= NULL;
 	m_processing_now	= false;
 }
 
@@ -138,6 +139,15 @@ bool CSheduler::internal_Unregister	(ISheduled* O, BOOL RT, bool warn_on_not_fou
 			}
 		}
 	}
+	if (m_current_step_obj == O)
+	{
+#ifdef DEBUG_SCHEDULER
+		Msg					("SCHEDULER: internal unregister (self unregistering) [%x][%s]",O,"false");
+#endif // DEBUG_SCHEDULER
+
+		m_current_step_obj = NULL;
+		return true;
+	}
 
 #ifdef DEBUG
 	if (warn_on_not_found)
@@ -205,6 +215,11 @@ bool CSheduler::Registered		(ISheduled *object) const
 		}
 	}
 
+	if (!count && (m_current_step_obj == object))
+	{
+		VERIFY2(m_processing_now, "trying to unregister self unregistering object while not processing now");
+		count = 1;
+	}
 	VERIFY						(!count || (count == 1));
 	return						(count == 1);
 }
@@ -314,7 +329,7 @@ void CSheduler::ProcessStep			()
 #ifdef DEBUG
 		T.Object->dbg_startframe	= Device.dwFrame;
 		eTimer.Start				();
-		LPCSTR		_obj_name		= T.Object->shedule_Name().c_str();
+//		LPCSTR		_obj_name		= T.Object->shedule_Name().c_str();
 #endif // DEBUG
 
 		// Calc next update interval
@@ -325,16 +340,27 @@ void CSheduler::ProcessStep			()
 		clamp	(dwUpdate,u32(_max(dwMin,u32(20))),dwMax);
 
 
+
+		m_current_step_obj = T.Object;
 //			try {
 			T.Object->shedule_Update	(clampr(Elapsed,u32(1),u32(_max(u32(T.Object->shedule.t_max),u32(1000)))) );
+			if (!m_current_step_obj)
+			{
+#ifdef DEBUG_SCHEDULER
+				Msg						("SCHEDULER: process unregister (self unregistering) [%s][%x][%s]",*T.scheduled_name,T.Object,"false");
+#endif // DEBUG_SCHEDULER
+				continue;
+			}
 //			} catch (...) {
 #ifdef DEBUG
 //				Msg		("! xrSheduler: object '%s' raised an exception", _obj_name);
 //				throw	;
 #endif // DEBUG
 //			}
+		m_current_step_obj = NULL;
+
 #ifdef DEBUG
-		u32	execTime				= eTimer.GetElapsed_ms		();
+//		u32	execTime				= eTimer.GetElapsed_ms		();
 #endif // DEBUG
 
 		// Fill item structure
@@ -352,16 +378,17 @@ void CSheduler::ProcessStep			()
 		if (delta_ms> 3*dwUpdate)	{
 			//Msg	("! xrSheduler: failed to shedule object [%s] (%dms)",	_obj_name, delta_ms	);
 		}
-		if (execTime> 15)			{
-			Msg	("* xrSheduler: too much time consumed by object [%s] (%dms)",	_obj_name, execTime	);
-		}
+//		if (execTime> 15)			{
+//			Msg	("* xrSheduler: too much time consumed by object [%s] (%dms)",	_obj_name, execTime	);
+//		}
 #endif // DEBUG
 
 		// 
 		if ((i % 3) != (3 - 1))
 			continue;
 
-		if (CPU::QPC() > cycles_limit)		{
+		if (Device.dwPrecacheFrame==0 && CPU::QPC() > cycles_limit)		
+		{
 			// we have maxed out the load - increase heap
 			psShedulerTarget		+= (psShedulerReaction * 3);
 			break;

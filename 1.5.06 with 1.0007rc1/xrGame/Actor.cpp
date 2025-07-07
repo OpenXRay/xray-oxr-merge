@@ -1354,8 +1354,8 @@ void CActor::OnHUDDraw	(CCustomHUD*)
 		switch (m_PhysicMovementControl->Environment())
 		{
 		case CPHMovementControl::peOnGround:	strcpy_s(buf,"ground");			break;
-		case CPHMovementControl::peInAir:		strcpy_s(buf,"air");				break;
-		case CPHMovementControl::peAtWall:		strcpy_s(buf,"wall");				break;
+		case CPHMovementControl::peInAir:		strcpy_s(buf,"air");			break;
+		case CPHMovementControl::peAtWall:		strcpy_s(buf,"wall");			break;
 		}
 		HUD().Font().pFontStat->OutNext	(buf);
 
@@ -1484,11 +1484,11 @@ void CActor::SetPhPosition(const Fmatrix &transform)
 void CActor::ForceTransform(const Fmatrix& m)
 {
 	if( !g_Alive() )
-				return;
+		return;
 	VERIFY(_valid(m));
 	XFORM().set( m );
 	if( character_physics_support()->movement()->CharacterExist() )
-			character_physics_support()->movement()->EnableCharacter();
+		character_physics_support()->movement()->EnableCharacter();
 	character_physics_support()->set_movement_position( m.c );
 	character_physics_support()->movement()->SetVelocity( 0, 0, 0 );
 	const float block_damage_time_seconds = 2.f;
@@ -1560,8 +1560,6 @@ void CActor::OnItemDrop(CInventoryItem *inventory_item)
 	{
 		outfit->ApplySkinModel	(this, false, false);
 	}
-
-	
 }
 
 

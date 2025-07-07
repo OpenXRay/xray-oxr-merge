@@ -699,15 +699,49 @@ luabind::object CScriptStorage::name_space(LPCSTR namespace_name)
 	}
 }
 
+#include <boost/noncopyable.hpp>
+
+struct raii_guard : private boost::noncopyable
+{
+	int m_error_code;
+	LPCSTR const& m_error_description;
+	raii_guard	(int error_code, LPCSTR const& m_description) : m_error_code(error_code), m_error_description(m_description) {}
+	~raii_guard	()
+	{
+#ifdef DEBUG
+		bool lua_studio_connected = !!ai().script_engine().debugger();
+		if (!lua_studio_connected)
+#endif //#ifdef DEBUG
+		{
+#ifdef DEBUG
+			static bool const break_on_assert	= !!strstr(Core.Params,"-break_on_assert");
+#else // #ifdef DEBUG
+			static bool const break_on_assert	= true;
+#endif // #ifdef DEBUG
+			if ( !m_error_code  )
+				return;
+
+			if ( break_on_assert )
+				R_ASSERT2		( !m_error_code, m_error_description );
+			else
+				Msg				( "! SCRIPT ERROR: %s", m_error_description );
+		}
+	}
+}; // struct raii_guard
+
 bool CScriptStorage::print_output(lua_State *L, LPCSTR caScriptFileName, int iErorCode)
 {
 	if (iErorCode)
 		print_error		(L,iErorCode);
 
+	LPCSTR				S = "see call_stack for details!";
+
+	raii_guard			guard(iErorCode, S);
+
 	if (!lua_isstring(L,-1))
 		return			(false);
 
-	LPCSTR				S = lua_tostring(L,-1);
+	S = lua_tostring(L,-1);
 	if (!xr_strcmp(S,"cannot resume dead coroutine")) {
 		VERIFY2	("Please do not return any values from main!!!",caScriptFileName);
 #ifdef USE_DEBUGGER

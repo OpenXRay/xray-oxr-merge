@@ -50,7 +50,8 @@ void CUIFrameWindow::Draw()
 	inherited::Draw();
 }
 
-void CUIFrameWindow::Update(){
+void CUIFrameWindow::Update()
+{
 	CUIWindow::Update();
 	m_UIWndFrame.Update();
 }

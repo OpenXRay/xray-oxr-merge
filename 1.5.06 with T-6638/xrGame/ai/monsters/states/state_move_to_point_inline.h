@@ -95,12 +95,20 @@ void CStateMonsterMoveToPointExAbstract::execute()
 TEMPLATE_SPECIALIZATION
 bool CStateMonsterMoveToPointExAbstract::check_completion()
 {	
-	if (data.action.time_out !=0) {
-		if (time_state_started + data.action.time_out < Device.dwTimeGlobal) return true;
+	if (data.action.time_out !=0)
+	{
+		if (time_state_started + data.action.time_out < Device.dwTimeGlobal)
+			return true;
 	} 
 
-	bool real_path_end = ((fis_zero(data.completion_dist)) ? (data.point.distance_to_xz(object->Position()) < ai().level_graph().header().cell_size()) : true);
-	if (object->control().path_builder().is_path_end(data.completion_dist) && real_path_end) return true;
+	Fvector const self_pos		=	object->Position();
+	float const dist_to_target	=	data.point.distance_to_xz(self_pos);
+	bool const real_path_end	=	fis_zero(data.completion_dist) ?
+									dist_to_target < ai().level_graph().header().cell_size()
+									: true;
+
+	if (object->control().path_builder().is_path_end(data.completion_dist) && real_path_end)
+		return true;
 
 	return false;
 }

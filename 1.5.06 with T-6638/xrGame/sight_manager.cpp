@@ -154,11 +154,11 @@ void CSightManager::Exec_Look		(float time_delta)
 		Msg							( "%6d [%s] after  body[%f]->[%f], head[%f]->[%f]", Device.dwTimeGlobal, object().cName().c_str(), body.current.yaw, body.target.yaw, head.current.yaw, head.target.yaw );
 #endif // #ifdef DEBUG
 
-	m_object->angle_lerp_bounds		(body.current.yaw, body.target.yaw, body_speed, time_delta);
-	m_object->angle_lerp_bounds		(body.current.pitch, body.target.pitch, body_speed, time_delta);
+	m_object->angle_lerp_bounds		(body.current.yaw, body.target.yaw, select_speed( angle_difference(body.current.yaw, body.target.yaw), body_speed, g_ai_aim_min_speed, g_ai_aim_min_angle, g_ai_aim_max_angle ), time_delta);
+	m_object->angle_lerp_bounds		(body.current.pitch, body.target.pitch, select_speed( angle_difference(body.current.pitch, body.target.pitch), body_speed, g_ai_aim_min_speed, g_ai_aim_min_angle, g_ai_aim_max_angle ), time_delta);
 
-	m_object->angle_lerp_bounds		(head.current.yaw, head.target.yaw, head_speed, time_delta);
-	m_object->angle_lerp_bounds		(head.current.pitch, head.target.pitch, head_speed, time_delta);
+	m_object->angle_lerp_bounds		(head.current.yaw, head.target.yaw, select_speed( angle_difference(head.current.yaw, head.target.yaw), head_speed, g_ai_aim_min_speed, g_ai_aim_min_angle, g_ai_aim_max_angle ), time_delta);
+	m_object->angle_lerp_bounds		(head.current.pitch, head.target.pitch, select_speed( angle_difference(head.current.pitch, head.target.pitch), head_speed, g_ai_aim_min_speed, g_ai_aim_min_angle, g_ai_aim_max_angle ), time_delta);
 
 #ifdef DEBUG
 	if ( g_ai_dbg_sight )
@@ -411,7 +411,7 @@ Fvector	CSightManager::aiming_position				() const
 		case eSightTypeFireObject : {
 			switch (current_action().state_fire_object()) {
 				case 0 : {
-					result		= object_position();
+					result		= current_action().vector3d();//object_position();
 					VERIFY2	(
 						result.magnitude() < 100000.f,
 						make_string(

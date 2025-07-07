@@ -89,14 +89,17 @@ void CCoverManager::compute_static_cover	()
 	m_temp.resize			(ai().level_graph().header().vertex_count());
 
 	CLevelGraph const		&graph = ai().level_graph();
-	for (u32 i=0, n = ai().level_graph().header().vertex_count(); i<n; ++i) {
+	for (u32 i=0, n = ai().level_graph().header().vertex_count(); i<n; ++i)
+	{
 		CLevelGraph::CVertex const &vertex = *graph.vertex(i);
-		if (vertex.high_cover(0) + vertex.high_cover(1) + vertex.high_cover(2) + vertex.high_cover(3)) {
+		if (vertex.high_cover(0) + vertex.high_cover(1) + vertex.high_cover(2) + vertex.high_cover(3))
+		{
 			m_temp[i]		= edge_vertex(i);
 			continue;
 		}
 
-		if (vertex.low_cover(0) + vertex.low_cover(1) + vertex.low_cover(2) + vertex.low_cover(3)) {
+		if (vertex.low_cover(0) + vertex.low_cover(1) + vertex.low_cover(2) + vertex.low_cover(3))
+		{
 			m_temp[i]		= edge_vertex(i);
 			continue;
 		}

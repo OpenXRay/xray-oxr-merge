@@ -5,10 +5,10 @@
 #include "UIListBoxItem.h"
 #include "UIXmlInit.h"
 
-#define OFFSET_X (5)
-#define OFFSET_Y (5)
-#define FRAME_BORDER_WIDTH	20
-#define FRAME_BORDER_HEIGHT	22
+#define OFFSET_X (5.0f)
+#define OFFSET_Y (5.0f)
+//#define FRAME_BORDER_WIDTH	20.0f
+//#define FRAME_BORDER_HEIGHT	22.0f
 
 #define ITEM_HEIGHT (GetFont()->CurrentHeight()+2.0f)
 
@@ -23,14 +23,15 @@ CUIPropertiesBox::~CUIPropertiesBox()
 }
 
 
-void CUIPropertiesBox::Init(float x, float y, float width, float height)
+void CUIPropertiesBox::InitPropertiesBox(Fvector2 pos, Fvector2 size)
 {
-	inherited::Init			(x,y, width, height);
+	inherited::SetWndPos		(pos);
+	inherited::SetWndSize		(size);
 
 	AttachChild				(&m_UIListWnd);
 
 	CUIXml					xml_doc;
-	xml_doc.Init			(CONFIG_PATH, UI_PATH, "inventory_new.xml");
+	xml_doc.Load			(CONFIG_PATH, UI_PATH, "inventory_new.xml");
 
 	LPCSTR t = xml_doc.Read	("properties_box:texture", 0, "");
 	R_ASSERT				(t);
@@ -38,7 +39,8 @@ void CUIPropertiesBox::Init(float x, float y, float width, float height)
 
 	CUIXmlInit::InitListBox	(xml_doc, "properties_box:list", 0, &m_UIListWnd);
 
-	m_UIListWnd.Init		(OFFSET_X, OFFSET_Y, width - OFFSET_X*2, height - OFFSET_Y*2);
+	m_UIListWnd.SetWndPos	(Fvector2().set(OFFSET_X, OFFSET_Y));
+	m_UIListWnd.SetWndSize	(Fvector2().set(size.x-OFFSET_X*2, size.y-OFFSET_Y*2) );
 }
 
 void CUIPropertiesBox::SendMessage(CUIWindow *pWnd, s16 msg, void *pData)
@@ -129,6 +131,10 @@ bool CUIPropertiesBox::OnMouse(float x, float y, EUIMessages mouse_action)
 	{
 		Hide();
 		return true;
+	}
+	if ( mouse_action == WINDOW_RBUTTON_DOWN && !cursor_on_box )
+	{
+		Hide();
 	}
 
 	return inherited::OnMouse(x, y, mouse_action);

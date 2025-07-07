@@ -8,15 +8,12 @@ CUIFrameLineWnd::CUIFrameLineWnd()
 	AttachChild(&UITitleText);
 }
 
-//////////////////////////////////////////////////////////////////////////
-
-void CUIFrameLineWnd::Init(float x, float y, float width, float height){
+void CUIFrameLineWnd::Init(float x, float y, float width, float height)
+{
 	inherited::Init(x,y, width, height);
 	UITitleText.Init(0,0, width, 50);
 	inherited::Init(x,y, width, height);
 }
-
-//////////////////////////////////////////////////////////////////////////
 
 void CUIFrameLineWnd::Init(LPCSTR base_name, float x, float y, float width, float height, bool horizontal)
 {
@@ -28,14 +25,12 @@ void CUIFrameLineWnd::Init(LPCSTR base_name, float x, float y, float width, floa
 		UITitleText.Init(0,0, 50, height);	
 }
 
-//////////////////////////////////////////////////////////////////////////
-
-void CUIFrameLineWnd::InitTexture(LPCSTR tex_name, bool horizontal){
+void CUIFrameLineWnd::InitTexture(LPCSTR tex_name, bool horizontal)
+{
+	bHorizontal = horizontal;
 
 	Frect			rect;
 	GetAbsoluteRect	(rect);
-
-	bHorizontal = horizontal;
 
 	if (horizontal)
 	{
@@ -51,8 +46,6 @@ void CUIFrameLineWnd::InitTexture(LPCSTR tex_name, bool horizontal){
 	m_bTextureAvailable = true;
 }
 
-//////////////////////////////////////////////////////////////////////////
-
 void CUIFrameLineWnd::Draw()
 {
 	if (m_bTextureAvailable)
@@ -66,16 +59,12 @@ void CUIFrameLineWnd::Draw()
 	}	
 }
 
-//////////////////////////////////////////////////////////////////////////
-
 void CUIFrameLineWnd::SetWidth(float width)
 {
 	inherited::SetWidth(width);
 	if (bHorizontal)
 		UIFrameLine.SetSize(width);
 }
-
-//////////////////////////////////////////////////////////////////////////
 
 void CUIFrameLineWnd::SetHeight(float height)
 {
@@ -88,14 +77,10 @@ float CUIFrameLineWnd::GetTextureHeight(){
 	return UIFrameLine.elements[0].GetRect().height();
 }
 
-//////////////////////////////////////////////////////////////////////////
-
 void CUIFrameLineWnd::SetOrientation(bool horizontal)
 {
 	UIFrameLine.SetOrientation(horizontal);
 }
-
-//////////////////////////////////////////////////////////////////////////
 
 void CUIFrameLineWnd::SetColor(u32 cl)
 {

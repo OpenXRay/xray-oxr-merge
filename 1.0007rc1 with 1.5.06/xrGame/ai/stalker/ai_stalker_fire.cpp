@@ -15,7 +15,7 @@
 #include "../../stalker_decision_space.h"
 #include "../../script_game_object.h"
 #include "../../customzone.h"
-#include "../../../skeletonanimated.h"
+#include "../../../Include/xrRender/KinematicsAnimated.h"
 #include "../../agent_manager.h"
 #include "../../stalker_animation_manager.h"
 #include "../../stalker_planner.h"
@@ -24,7 +24,7 @@
 #include "../../hit_memory_manager.h"
 #include "../../enemy_manager.h"
 #include "../../item_manager.h"
-#include "../../stalker_movement_manager.h"
+#include "../../stalker_movement_manager_smart_cover.h"
 #include "../../entitycondition.h"
 #include "../../sound_player.h"
 #include "../../cover_point.h"
@@ -193,27 +193,37 @@ void			CAI_Stalker::Hit					(SHit* pHDS)
 	//хит может меняться в зависимости от ранга (новички получают больше хита, чем ветераны)
 	SHit							HDS = *pHDS;
 	HDS.power						*= m_fRankImmunity;
-	if (m_boneHitProtection && HDS.hit_type == ALife::eHitTypeFireWound){
-		float						BoneArmour = m_boneHitProtection->getBoneArmour(HDS.bone());	
-		float						NewHitPower = HDS.damage() - BoneArmour;
-		if (NewHitPower < HDS.power*m_boneHitProtection->m_fHitFrac) HDS.power = HDS.power*m_boneHitProtection->m_fHitFrac;
+	if (m_boneHitProtection && HDS.hit_type == ALife::eHitTypeFireWound)
+	{
+		float						BoneArmor = m_boneHitProtection->getBoneArmor(HDS.bone());	
+		float						NewHitPower = HDS.damage() - BoneArmor;
+
+		if (NewHitPower < HDS.power*m_boneHitProtection->m_fHitFrac)
+			HDS.power = HDS.power*m_boneHitProtection->m_fHitFrac;
 		else
 			HDS.power				= NewHitPower;
 
-		if (wounded())
-			HDS.power				= 1000.f;
+		if ( wounded() ) //уже лежит => добивание
+		{
+			HDS.power = 1000.f;
+		}
 	}
 
-	if (g_Alive()) {
+	if (g_Alive())
+	{
 		bool						already_critically_wounded = critically_wounded();
 
-		if (!already_critically_wounded) {
+		if (!already_critically_wounded)
+		{
 			const CCoverPoint		*cover = agent_manager().member().member(this).cover();
-			if (cover && pHDS->initiator() && (pHDS->initiator()->ID() != ID()) && !fis_zero(pHDS->damage()) && brain().affect_cover())
+			if (cover && HDS.initiator() &&
+				(HDS.initiator()->ID() != ID()) && !fis_zero(HDS.damage()) && brain().affect_cover())
+			{
 				agent_manager().location().add	(xr_new<CDangerCoverLocation>(cover,Device.dwTimeGlobal,DANGER_INTERVAL,DANGER_DISTANCE));
+			}
 		}
 
-		const CEntityAlive	*entity_alive = smart_cast<const CEntityAlive*>(pHDS->initiator());
+		const CEntityAlive	*entity_alive = smart_cast<const CEntityAlive*>(HDS.initiator());
 		if (entity_alive && !wounded()) {
 			if (is_relation_enemy(entity_alive))
 				sound().play		(eStalkerSoundInjuring);
@@ -233,7 +243,7 @@ void			CAI_Stalker::Hit					(SHit* pHDS)
 			if	(
 				!became_critically_wounded &&
 				animation().script_animations().empty() &&
-				(pHDS->bone() != BI_NONE)
+				(HDS.bone() != BI_NONE)
 			)
 			{
 				Fvector					D;
@@ -241,18 +251,18 @@ void			CAI_Stalker::Hit					(SHit* pHDS)
 				D.getHP					(yaw,pitch);
 
 	#pragma todo("Dima to Dima : forward-back bone impulse direction has been determined incorrectly!")
-				float					power_factor = m_power_fx_factor*pHDS->damage()/100.f;
+				float					power_factor = m_power_fx_factor * HDS.damage() / 100.f;
 				clamp					(power_factor,0.f,1.f);
 
-				CKinematicsAnimated		*tpKinematics = smart_cast<CKinematicsAnimated*>(Visual());
+				IKinematics *tpKinematics = smart_cast<IKinematics*>(Visual());
 	#ifdef DEBUG
-				tpKinematics->LL_GetBoneInstance	(pHDS->bone());
-				if (pHDS->bone() >= tpKinematics->LL_BoneCount()) {
-					Msg					("tpKinematics has no bone_id %d",pHDS->bone());
-					pHDS->_dump			();
+				tpKinematics->LL_GetBoneInstance	(HDS.bone());
+				if (HDS.bone() >= tpKinematics->LL_BoneCount()) {
+					Msg					("tpKinematics has no bone_id %d",HDS.bone());
+					HDS._dump			();
 				}
 	#endif
-//				int						fx_index = iFloor(tpKinematics->LL_GetBoneInstance(pHDS->bone()).get_param(1) + (angle_difference(movement().m_body.current.yaw,-yaw) <= PI_DIV_2 ? 0 : 1));
+//				int						fx_index = iFloor(tpKinematics->LL_GetBoneInstance(HDS.bone()).get_param(1) + (angle_difference(movement().m_body.current.yaw,-yaw) <= PI_DIV_2 ? 0 : 1));
 //				if (fx_index != -1)
 //					animation().play_fx	(power_factor,fx_index);
 			}
@@ -883,6 +893,9 @@ bool CAI_Stalker::critical_wound_external_conditions_suitable()
 	if (!active_weapon)
 		return						(false);
 
+	if (movement().in_smart_cover())
+		return						(false);
+
 	switch (active_weapon->animation_slot()) {
 		case 1: // pistols
 		case 2: // automatic weapon
@@ -953,6 +966,10 @@ bool CAI_Stalker::can_cry_enemy_is_wounded		() const
 		case StalkerDecisionSpace::eWorldOperatorSearchEnemy:
 		case StalkerDecisionSpace::eWorldOperatorKillEnemyIfNotVisible:
 		case StalkerDecisionSpace::eWorldOperatorKillEnemyIfCriticallyWounded:
+		case StalkerDecisionSpace::eWorldOperatorThrowGrenade:
+		case StalkerDecisionSpace::eWorldOperatorGetDistance:
+		case StalkerDecisionSpace::eWorldOperatorLowCover:
+		case StalkerDecisionSpace::eWorldOperatorInSmartCover:
 			return					(true);
 		case StalkerDecisionSpace::eWorldOperatorGetItemToKill:
 		case StalkerDecisionSpace::eWorldOperatorRetreatFromEnemy:

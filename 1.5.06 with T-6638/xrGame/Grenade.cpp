@@ -244,14 +244,19 @@ void CGrenade::PutNextToSlot()
 
 		VERIFY								(pNext != this);
 
-		if(pNext && m_pInventory->Slot(pNext) )
+		if(pNext && m_pInventory->Slot(pNext->BaseSlot(),pNext) )
 		{
-
 			pNext->u_EventGen				(P, GEG_PLAYER_ITEM2SLOT, pNext->H_Parent()->ID());
 			P.w_u16							(pNext->ID());
+			P.w_u16							(pNext->BaseSlot());
 			pNext->u_EventSend				(P);
-//			if(IsGameTypeSingle())			
-				m_pInventory->SetActiveSlot			(pNext->GetSlot());
+			m_pInventory->SetActiveSlot		(pNext->BaseSlot());
+		}else
+		{
+			CActor* pActor = smart_cast<CActor*>( m_pInventory->GetOwner());
+			
+			if(pActor)
+				pActor->OnPrevWeaponSlot();
 		}
 
 		m_thrown				= false;
@@ -334,7 +339,7 @@ ALife::_TIME_ID	 CGrenade::TimePassedAfterIndependant()	const
 BOOL CGrenade::UsedAI_Locations		()
 {
 #pragma todo("Dima to Yura : It crashes, because on net_Spawn object doesn't use AI locations, but on net_Destroy it does use them")
-	return TRUE;//m_dwDestroyTime == 0xffffffff;
+	return inherited::UsedAI_Locations( );//m_dwDestroyTime == 0xffffffff;
 }
 
 void CGrenade::net_Relcase(CObject* O )
@@ -374,12 +379,18 @@ void CGrenade::DeactivateItem()
 	inherited::DeactivateItem();
 }
 
-void CGrenade::GetBriefInfo(xr_string& str_name, xr_string& icon_sect_name, xr_string& str_count, string16& fire_mode)
+bool CGrenade::GetBriefInfo( II_BriefInfo& info )
 {
-	str_name				= NameShort();
-	u32 ThisGrenadeCount	= m_pInventory->dwfGetSameItemCount( *cNameSect(), true );
+	VERIFY( m_pInventory );
+	info.clear();
+
+	info.name._set( m_nameShort );
+	info.icon._set( cNameSect() );
+
+	u32 ThisGrenadeCount	= m_pInventory->dwfGetSameItemCount( cNameSect().c_str(), true );
+
 	string16				stmp;
 	xr_sprintf				( stmp, "%d", ThisGrenadeCount );
-	str_count				= stmp;
-	icon_sect_name			= *cNameSect();
+	info.cur_ammo._set( stmp );
+	return true;
 }

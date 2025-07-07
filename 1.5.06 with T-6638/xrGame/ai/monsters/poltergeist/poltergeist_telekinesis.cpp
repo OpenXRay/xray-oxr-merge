@@ -16,7 +16,6 @@ void CPolterTele::load(LPCSTR section)
 {
 	inherited::load(section);
 
-
 	m_pmt_radius						= READ_IF_EXISTS(pSettings,r_float,section,	"Tele_Find_Radius",					10.f);
 	m_pmt_object_min_mass				= READ_IF_EXISTS(pSettings,r_float,section,	"Tele_Object_Min_Mass",				40.f);
 	m_pmt_object_max_mass				= READ_IF_EXISTS(pSettings,r_float,section,	"Tele_Object_Max_Mass",				500.f);
@@ -33,7 +32,6 @@ void CPolterTele::load(LPCSTR section)
 
 	::Sound->create						(m_sound_tele_hold,		pSettings->r_string(section,"sound_tele_hold"),	st_Effect,SOUND_TYPE_WORLD);
 	::Sound->create						(m_sound_tele_throw,	pSettings->r_string(section,"sound_tele_throw"),st_Effect,SOUND_TYPE_WORLD);
-
 
 	m_state								= eWait;
 	m_time								= 0;
@@ -160,7 +158,6 @@ bool CPolterTele::trace_object(CObject *obj, const Fvector &target)
 	return false;
 }
 
-
 void CPolterTele::tele_find_objects(xr_vector<CObject*> &objects, const Fvector &pos) 
 {
 	m_nearest.clear_not_free		();
@@ -188,7 +185,6 @@ void CPolterTele::tele_find_objects(xr_vector<CObject*> &objects, const Fvector 
 			objects.push_back(obj);
 	}
 }
-
 
 bool CPolterTele::tele_raise_objects()
 {

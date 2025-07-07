@@ -181,7 +181,9 @@ void CBurer::UpdateGraviObject()
 		return;
 	}
 
-	if (m_gravi_object.from_pos.distance_to(m_gravi_object.cur_pos) > (m_gravi_object.from_pos.distance_to(m_gravi_object.target_pos)))
+	if ( m_gravi_object.from_pos.distance_to(m_gravi_object.cur_pos)
+				>
+		m_gravi_object.from_pos.distance_to(m_gravi_object.target_pos) )
 	{
 		m_gravi_object.deactivate();
 		return;

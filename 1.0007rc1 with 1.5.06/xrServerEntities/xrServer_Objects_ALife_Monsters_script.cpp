@@ -70,3 +70,15 @@ void CSE_ALifeAnomalousZone::script_register(lua_State *L)
 #endif
 	];
 }
+
+void CSE_ALifeMonsterRat::script_register(lua_State *L)
+{
+	module(L)[
+		luabind_class_monster2(
+			CSE_ALifeMonsterRat,
+			"cse_alife_monster_rat",
+			CSE_ALifeMonsterAbstract,
+			CSE_ALifeInventoryItem
+		)
+	];
+}

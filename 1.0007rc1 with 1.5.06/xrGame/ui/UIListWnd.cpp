@@ -31,8 +31,6 @@ CUIListWnd::CUIListWnd()
 	
 }
 
-//////////////////////////////////////////////////////////////////////////
-
 CUIListWnd::~CUIListWnd()
 {
 	while(!m_ItemList.empty())
@@ -42,14 +40,10 @@ CUIListWnd::~CUIListWnd()
 	xr_delete			(m_ActiveBackgroundFrame);
 }
 
-//////////////////////////////////////////////////////////////////////////
-
 void CUIListWnd::Init(float x, float y, float width, float height)
 {
 	Init(x, y, width, height, m_iItemHeight);
 }
-
-//////////////////////////////////////////////////////////////////////////
 
 void CUIListWnd::Init(float x, float y, float width, float height, float item_height)
 {

@@ -1228,7 +1228,6 @@ HRESULT	CRender::shader_compile			(
 		defines[def_it].Definition	=	def;
 		def_it						++	;
 
-
 	   if( o.dx10_msaa_opt )
 	   {
 		   defines[def_it].Name		=	"MSAA_OPTIMIZATION";

@@ -226,7 +226,6 @@ void CBulletManager::AddBullet(const Fvector& position,
 		if (tmp_cl_game->get_reward_generator())
 			tmp_cl_game->get_reward_generator()->OnBullet_Fire(sender_id, sendersweapon_id, position, direction); 
 	}
-	
 }
 
 void CBulletManager::UpdateWorkload()
