@@ -97,7 +97,6 @@ void SBullet::Init(const Fvector& position,
 	density_mode			= 0;
 }
 
-
 CBulletManager::CBulletManager()
 #if 0//def PROFILE_CRITICAL_SECTIONS
 	: m_Lock(MUTEX_PROFILE_ID(CBulletManager))

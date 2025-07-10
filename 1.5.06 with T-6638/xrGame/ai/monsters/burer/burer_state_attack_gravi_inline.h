@@ -28,48 +28,37 @@ void CStateBurerAttackGraviAbstract::initialize()
 TEMPLATE_SPECIALIZATION
 void CStateBurerAttackGraviAbstract::execute()
 {
-	switch (m_action) {
-		/************************/
+	switch (m_action)
+	{
 		case ACTION_GRAVI_STARTED:
-			/************************/
-
 			ExecuteGraviStart();
 			m_action = ACTION_GRAVI_CONTINUE;
 
 			break;
-			/************************/
+
 		case ACTION_GRAVI_CONTINUE:
-			/************************/
-
 			ExecuteGraviContinue();
-
 			break;
 
-			/************************/
 		case ACTION_GRAVI_FIRE:
-			/************************/
-
 			ExecuteGraviFire();
 			m_action = ACTION_WAIT_TRIPLE_END;
-
 			break;
-			/***************************/
+
 		case ACTION_WAIT_TRIPLE_END:
-			/***************************/
-			if (!object->com_man().ta_is_active()) {
+			if (!object->com_man().ta_is_active())
+			{
 				m_action = ACTION_COMPLETED; 
 			}
 
-			/*********************/
 		case ACTION_COMPLETED:
-			/*********************/
-
 			break;
 	}
 
 	object->anim().m_tAction	= ACT_STAND_IDLE;	
 	object->dir().face_target	(object->EnemyMan.get_enemy(), 500);
 }
+
 TEMPLATE_SPECIALIZATION
 void CStateBurerAttackGraviAbstract::finalize()
 {
@@ -108,7 +97,7 @@ bool CStateBurerAttackGraviAbstract::check_start_conditions()
 TEMPLATE_SPECIALIZATION
 bool CStateBurerAttackGraviAbstract::check_completion()
 {
-	return (m_action == ACTION_COMPLETED);
+	return m_action == ACTION_COMPLETED;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -146,8 +135,10 @@ void CStateBurerAttackGraviAbstract::ExecuteGraviFire()
 
 	Fvector from_pos;
 	Fvector target_pos;
-	from_pos	= object->Position();	from_pos.y		+= 0.5f;
-	target_pos	= object->EnemyMan.get_enemy()->Position();	target_pos.y	+= 0.5f;
+	from_pos	= object->Position();
+	from_pos.y		+= 0.5f;
+	target_pos	= object->EnemyMan.get_enemy()->Position();
+	target_pos.y	+= 0.5f;
 
 	object->m_gravi_object.activate(object->EnemyMan.get_enemy(), from_pos, target_pos);
 

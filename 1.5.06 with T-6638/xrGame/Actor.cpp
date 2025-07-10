@@ -198,6 +198,9 @@ CActor::CActor() : CEntityAlive(),current_ik_cam_shift(0)
 
 	m_location_manager		= xr_new<CLocationManager>(this);
 	m_block_sprint_counter	= 0;
+
+	m_disabled_hitmarks		= false;
+	m_inventory_disabled	= false;
 }
 
 
@@ -541,7 +544,8 @@ void	CActor::Hit(SHit* pHDS)
 	//---------------------------------------------------------------
 	if(		(Level().CurrentViewEntity()==this) && 
 			!g_dedicated_server && 
-			(HDS.hit_type == ALife::eHitTypeFireWound) )	{
+			(HDS.hit_type == ALife::eHitTypeFireWound) )
+	{
 		CObject* pLastHitter			= Level().Objects.net_Find(m_iLastHitterID);
 		CObject* pLastHittingWeapon		= Level().Objects.net_Find(m_iLastHittingWeaponID);
 		HitSector						(pLastHitter, pLastHittingWeapon);
@@ -549,11 +553,14 @@ void	CActor::Hit(SHit* pHDS)
 
 	if( (mstate_real&mcSprint) && Level().CurrentControlEntity() == this && conditions().DisableSprint(pHDS) )
 	{
-		mstate_wishful	&=~mcSprint;
+		{
+			mstate_wishful	&=~mcSprint;
+		}
 	}
+
 	if(!g_dedicated_server)
 	{
-		HitMark			(HDS.damage(), HDS.dir, HDS.who, HDS.bone(), HDS.p_in_bone_space, HDS.impulse, HDS.hit_type);
+			HitMark			(HDS.damage(), HDS.dir, HDS.who, HDS.bone(), HDS.p_in_bone_space, HDS.impulse, HDS.hit_type);
 	}
 
 	if(IsGameTypeSingle())	
@@ -713,18 +720,24 @@ void CActor::Die	(CObject* who)
 
 	if (OnServer())
 	{	
-		xr_vector<CInventorySlot>::iterator I = inventory().m_slots.begin();
-		xr_vector<CInventorySlot>::iterator E = inventory().m_slots.end();
+		u16 I = inventory().FirstSlot();
+		u16 E = inventory().LastSlot();
 
-
-		for (u32 slot_idx=0 ; I != E; ++I,++slot_idx)
+		for (; I <= E; ++I)
 		{
-			if (slot_idx == inventory().GetActiveSlot()) 
+			PIItem item_in_slot = inventory().ItemFromSlot(I);
+			if (I == inventory().GetActiveSlot()) 
 			{
-				if((*I).m_pIItem)
+				if(item_in_slot)
 				{
 					if (IsGameTypeSingle())
-						(*I).m_pIItem->SetDropManual(TRUE);
+						{
+CGrenade*grenade=smart_cast<CGrenade*>(item_in_slot);
+if(grenade)
+grenade->DropGrenade();
+else
+item_in_slot->SetDropManual(TRUE);
+}
 					else
 					{
 						//This logic we do on a server site
@@ -739,11 +752,11 @@ void CActor::Die	(CObject* who)
 			}
 			else
 			{
-				CCustomOutfit *pOutfit = smart_cast<CCustomOutfit *> ((*I).m_pIItem);
+				CCustomOutfit *pOutfit = smart_cast<CCustomOutfit *> (item_in_slot);
 				if (pOutfit) continue;
 			};
-			if((*I).m_pIItem) 
-				inventory().Ruck((*I).m_pIItem);
+			if(item_in_slot) 
+				inventory().Ruck(item_in_slot);
 		};
 
 
@@ -1335,7 +1348,8 @@ void CActor::renderable_Render	()
 {
 	VERIFY(_valid(XFORM()));
 	inherited::renderable_Render			();
-	if (!HUDview()){
+	if(1/*!HUDview()*/)
+	{
 		CInventoryOwner::renderable_Render	();
 	}
 	VERIFY(_valid(XFORM()));
@@ -1608,7 +1622,7 @@ void CActor::OnItemDrop(CInventoryItem *inventory_item, bool just_before_destroy
 		MoveArtefactBelt(artefact, false);
 
 	CCustomOutfit* outfit		= smart_cast<CCustomOutfit*>(inventory_item);
-	if(outfit && inventory_item->m_eItemCurrPlace==eItemPlaceSlot)
+	if(outfit && inventory_item->m_ItemCurrPlace.type==eItemPlaceSlot)
 	{
 		outfit->ApplySkinModel	(this, false, false);
 	}
@@ -1710,10 +1724,14 @@ void CActor::UpdateArtefactsOnBeltAndOutfit()
 	}
 	else
 	{
-		CTorch* pTorch = smart_cast<CTorch*>( inventory().ItemFromSlot(TORCH_SLOT) );
-		if ( pTorch && pTorch->GetNightVisionStatus() )
+		CHelmet* pHelmet				= smart_cast<CHelmet*>(inventory().ItemFromSlot(HELMET_SLOT));
+		if(!pHelmet)
 		{
-			pTorch->SwitchNightVision(false);
+			CTorch* pTorch = smart_cast<CTorch*>( inventory().ItemFromSlot(TORCH_SLOT) );
+			if ( pTorch && pTorch->GetNightVisionStatus() )
+			{
+				pTorch->SwitchNightVision(false);
+			}
 		}
 	}
 }

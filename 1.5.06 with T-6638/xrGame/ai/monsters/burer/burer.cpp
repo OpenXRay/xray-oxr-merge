@@ -55,8 +55,13 @@ void CBurer::reload(LPCSTR section)
 	inherited::reload	(section);
 
 	// add specific sounds
-	sound().add			(pSettings->r_string(section,"sound_gravi_attack"),	DEFAULT_SAMPLE_COUNT,	SOUND_TYPE_MONSTER_ATTACKING,	MonsterSound::eHighPriority + 2,	u32(MonsterSound::eBaseChannel),	eMonsterSoundGraviAttack, "bip01_head");
-	sound().add			(pSettings->r_string(section,"sound_tele_attack"),	DEFAULT_SAMPLE_COUNT,	SOUND_TYPE_MONSTER_ATTACKING,	MonsterSound::eHighPriority + 3,	u32(MonsterSound::eBaseChannel),	eMonsterSoundTeleAttack, "bip01_head");
+	sound().add			(pSettings->r_string(section,"sound_gravi_attack"),	DEFAULT_SAMPLE_COUNT,
+						SOUND_TYPE_MONSTER_ATTACKING,	MonsterSound::eHighPriority + 2,
+						u32(MonsterSound::eBaseChannel),	eMonsterSoundGraviAttack, "bip01_head");
+
+	sound().add			(pSettings->r_string(section,"sound_tele_attack"),	DEFAULT_SAMPLE_COUNT,
+						SOUND_TYPE_MONSTER_ATTACKING,	MonsterSound::eHighPriority + 3,
+						u32(MonsterSound::eBaseChannel),	eMonsterSoundTeleAttack, "bip01_head");
 
 	// add triple animations
 	com_man().ta_fill_data(anim_triple_gravi,	"stand_gravi_0",	"stand_gravi_1",	"stand_gravi_2",	TA_EXECUTE_ONCE, TA_DONT_SKIP_PREPARE, ControlCom::eCapturePath | ControlCom::eCaptureMovement);
@@ -83,13 +88,13 @@ void CBurer::Load(LPCSTR section)
 	::Sound->create(sound_tele_hold,	pSettings->r_string(section,"sound_tele_hold"),	st_Effect,SOUND_TYPE_WORLD);
 	::Sound->create(sound_tele_throw,	pSettings->r_string(section,"sound_tele_throw"),st_Effect,SOUND_TYPE_WORLD);
 
-	m_gravi_speed					= pSettings->r_u32(section,"Gravi_Speed");
-	m_gravi_step					= pSettings->r_u32(section,"Gravi_Step");
-	m_gravi_time_to_hold			= pSettings->r_u32(section,"Gravi_Time_To_Hold");
-	m_gravi_radius					= pSettings->r_float(section,"Gravi_Radius");
-	m_gravi_impulse_to_objects		= pSettings->r_float(section,"Gravi_Impulse_To_Objects");
-	m_gravi_impulse_to_enemy		= pSettings->r_float(section,"Gravi_Impulse_To_Enemy");
-	m_gravi_hit_power				= pSettings->r_float(section,"Gravi_Hit_Power");
+	m_gravi.speed					= pSettings->r_u32(section,"Gravi_Speed");
+	m_gravi.step					= pSettings->r_u32(section,"Gravi_Step");
+	m_gravi.time_to_hold			= pSettings->r_u32(section,"Gravi_Time_To_Hold");
+	m_gravi.radius					= pSettings->r_float(section,"Gravi_Radius");
+	m_gravi.impulse_to_objects		= pSettings->r_float(section,"Gravi_Impulse_To_Objects");
+	m_gravi.impulse_to_enemy		= pSettings->r_float(section,"Gravi_Impulse_To_Enemy");
+	m_gravi.hit_power				= pSettings->r_float(section,"Gravi_Hit_Power");
 	
 	m_tele_max_handled_objects		= pSettings->r_u32(section,"Tele_Max_Handled_Objects");
 	m_tele_time_to_hold				= pSettings->r_u32(section,"Tele_Time_To_Hold");

@@ -330,13 +330,13 @@ void CControlManagerCustom::load_jump_data(LPCSTR s1, LPCSTR s2, LPCSTR s3, LPCS
 }
 
 
-void CControlManagerCustom::jump(const SControlJumpData &ta)
+bool CControlManagerCustom::jump(const SControlJumpData &ta)
 {
 	if (!m_man->check_start_conditions(ControlCom::eControlJump)) 
-		return;
+		return	false;
 
 	if (m_object->GetScriptControl())
-		return;
+		return	false;
 
 	m_man->capture		(this, ControlCom::eControlJump);
 
@@ -355,6 +355,7 @@ void CControlManagerCustom::jump(const SControlJumpData &ta)
 	ctrl_data->force_factor							= -1.f;
 
 	m_man->activate		(ControlCom::eControlJump);
+	return											true;
 }
 
 void CControlManagerCustom::jump(const Fvector &position)

@@ -3,14 +3,17 @@
 #include "PhysicsShell.h"
 #include "PhysicsShellHolder.h"
 #include "game_cl_base.h"
-#include "../skeletonanimated.h"
+
+#include "../Include/xrRender/Kinematics.h"
+#include "../Include/xrRender/KinematicsAnimated.h"
+
 #include "inventory.h"
 #include "level.h"
 #include "ai_object_location.h"
 #include "xrServer_Objects_ALife_Monsters.h"
 #include "phworld.h"
 #include "restriction_space.h"
-#include "../IGame_Persistent.h"
+#include "../xrEngine/IGame_Persistent.h"
 
 #define	FASTMODE_DISTANCE (50.f)	//distance to camera from sphere, when zone switches to fast update sequence
 
@@ -58,7 +61,7 @@ struct SArtefactActivation{
 };
 
 
-CArtefact::CArtefact(void) 
+CArtefact::CArtefact() 
 {
 	shedule.t_min				= 20;
 	shedule.t_max				= 50;
@@ -68,7 +71,7 @@ CArtefact::CArtefact(void)
 }
 
 
-CArtefact::~CArtefact(void) 
+CArtefact::~CArtefact() 
 {}
 
 void CArtefact::Load(LPCSTR section) 
@@ -87,17 +90,17 @@ void CArtefact::Load(LPCSTR section)
 	}
 
 
+	m_fHealthRestoreSpeed = pSettings->r_float		(section,"health_restore_speed"		);
+	m_fRadiationRestoreSpeed = pSettings->r_float	(section,"radiation_restore_speed"	);
+	m_fSatietyRestoreSpeed = pSettings->r_float		(section,"satiety_restore_speed"	);
+	m_fPowerRestoreSpeed = pSettings->r_float		(section,"power_restore_speed"		);
+	m_fBleedingRestoreSpeed = pSettings->r_float	(section,"bleeding_restore_speed"	);
+
+	if(pSettings->section_exist(pSettings->r_string(section,"hit_absorbation_sect")))
 	{
-		m_fHealthRestoreSpeed = pSettings->r_float		(section,"health_restore_speed"		);
-		m_fRadiationRestoreSpeed = pSettings->r_float	(section,"radiation_restore_speed"	);
-		m_fSatietyRestoreSpeed = pSettings->r_float		(section,"satiety_restore_speed"	);
-		m_fPowerRestoreSpeed = pSettings->r_float		(section,"power_restore_speed"		);
-		m_fBleedingRestoreSpeed = pSettings->r_float	(section,"bleeding_restore_speed"	);
-		if(pSettings->section_exist(/**cNameSect(), */pSettings->r_string(section,"hit_absorbation_sect")))
-			m_ArtefactHitImmunities.LoadImmunities(pSettings->r_string(section,"hit_absorbation_sect"),pSettings);
+		m_ArtefactHitImmunities.LoadImmunities(pSettings->r_string(section,"hit_absorbation_sect"),pSettings);
 	}
 	m_bCanSpawnZone = !!pSettings->line_exist("artefact_spawn_zones", section);
-
 
 	animGet				(m_anim_idle,					pSettings->r_string(*hud_sect,"anim_idle"));
 	animGet				(m_anim_idle_sprint,			pSettings->r_string(*hud_sect,"anim_idle_sprint"));
@@ -109,8 +112,9 @@ void CArtefact::Load(LPCSTR section)
 BOOL CArtefact::net_Spawn(CSE_Abstract* DC) 
 {
 	BOOL result = inherited::net_Spawn(DC);
-	if (*m_sParticlesName) 
-	{Fvector dir;
+	if (m_sParticlesName.c_str()) 
+	{
+		Fvector dir;
 		dir.set(0,1,0);
 		CParticlesPlayer::StartParticles(m_sParticlesName,dir,ID(),-1, false);
 	}
@@ -120,11 +124,10 @@ BOOL CArtefact::net_Spawn(CSE_Abstract* DC)
 	m_pTrailLight->set_shadow(true);
 
 	StartLights();
-	/////////////////////////////////////////
 	m_CarringBoneID = u16(-1);
-	/////////////////////////////////////////
-	CKinematicsAnimated	*K=smart_cast<CKinematicsAnimated*>(Visual());
-	if(K)K->PlayCycle("idle");
+	IKinematicsAnimated	*K=smart_cast<IKinematicsAnimated*>(Visual());
+	if(K)
+		K->PlayCycle("idle");
 	
 	o_fastmode					= FALSE	;		// start initially with fast-mode enabled
 	o_render_frame				= 0		;
@@ -135,10 +138,6 @@ BOOL CArtefact::net_Spawn(CSE_Abstract* DC)
 
 void CArtefact::net_Destroy() 
 {
-/*
-	if (*m_sParticlesName) 
-		CParticlesPlayer::StopParticles(m_sParticlesName, BI_NONE, true);
-*/
 	inherited::net_Destroy		();
 
 	StopLights					();
@@ -152,16 +151,16 @@ void CArtefact::OnH_A_Chield()
 	inherited::OnH_A_Chield		();
 
 	StopLights();
-	if (GameID() == GAME_SINGLE)
+	if (IsGameTypeSingle())
 	{
-		if (*m_sParticlesName) 
+		if (m_sParticlesName.c_str()) 
 		{	
 			CParticlesPlayer::StopParticles(m_sParticlesName, BI_NONE, true);
 		}
 	}
 	else
 	{
-		CKinematics* K	= smart_cast<CKinematics*>(H_Parent()->Visual());
+		IKinematics* K	= smart_cast<IKinematics*>(H_Parent()->Visual());
 		if (K)
 			m_CarringBoneID			= K->LL_BoneID("bip01_head");
 		else
@@ -175,7 +174,7 @@ void CArtefact::OnH_B_Independent(bool just_before_destroy)
 	inherited::OnH_B_Independent(just_before_destroy);
 
 	StartLights();
-	if (*m_sParticlesName) 
+	if (m_sParticlesName.c_str()) 
 	{
 		Fvector dir;
 		dir.set(0,1,0);
@@ -206,7 +205,8 @@ void CArtefact::UpdateWorkload		(u32 dt)
 
 	// 
 	UpdateLights					();
-	if(m_activationObj)	{
+	if(m_activationObj)
+	{
 		CPHUpdateObject::Activate			();
 		m_activationObj->UpdateActivation	();
 		return	;
@@ -236,7 +236,6 @@ void CArtefact::shedule_Update		(u32 dt)
 
 void CArtefact::create_physic_shell	()
 {
-	///create_box2sphere_physic_shell	();
 	m_pPhysicsShell=P_build_Shell(this,false);
 	m_pPhysicsShell->Deactivate();
 }
@@ -300,6 +299,7 @@ void CArtefact::Show()
 {
 	SwitchState(eShowing);
 }
+
 #include "inventoryOwner.h"
 #include "Entity_alive.h"
 void CArtefact::UpdateXForm()
@@ -320,7 +320,7 @@ void CArtefact::UpdateXForm()
 			return;
 
 		VERIFY				(E);
-		CKinematics*		V		= smart_cast<CKinematics*>	(E->Visual());
+		IKinematics*		V		= smart_cast<IKinematics*>	(E->Visual());
 		VERIFY				(V);
 
 		// Get matrices
@@ -409,8 +409,6 @@ void CArtefact::OnAnimationEnd		(u32 state)
 	case eHiding:
 		{
 			SwitchState(eHidden);
-//.			if(m_pCurrentInventory->GetNextActiveSlot()!=NO_ACTIVE_SLOT)
-//.				m_pCurrentInventory->Activate(m_pCurrentInventory->GetPrevActiveSlot());
 		}break;
 	case eShowing:
 		{
@@ -418,7 +416,8 @@ void CArtefact::OnAnimationEnd		(u32 state)
 		}break;
 	case eActivating:
 		{
-			if(Local()){
+			if(Local())
+			{
 				SwitchState		(eHiding);
 				NET_Packet		P;
 				u_EventGen		(P, GEG_PLAYER_ACTIVATEARTEFACT, H_Parent()->ID());
@@ -428,8 +427,6 @@ void CArtefact::OnAnimationEnd		(u32 state)
 		}break;
 	};
 }
-
-
 
 u16	CArtefact::bone_count_to_synchronize	() const
 {
@@ -447,10 +444,10 @@ SArtefactActivation::SArtefactActivation(CArtefact* af,u32 owner_id)
 	m_light->set_shadow(true);
 	m_owner_id		= owner_id;
 }
+
 SArtefactActivation::~SArtefactActivation()
 {
 	m_light.destroy();
-
 }
 
 void SArtefactActivation::Load()
@@ -532,8 +529,9 @@ void SArtefactActivation::ChangeEffects()
 	if(m_snd._feedback())
 		m_snd.stop();
 	
-	if(state_def.m_snd.size()){
-		m_snd.create			(*state_def.m_snd,st_Effect,sg_SourceType);
+	if(state_def.m_snd.size())
+	{
+		m_snd.create			(state_def.m_snd.c_str(),st_Effect,sg_SourceType);
 		m_snd.play_at_pos		(m_af,	m_af->Position());
 	};
 
@@ -542,7 +540,8 @@ void SArtefactActivation::ChangeEffects()
 								state_def.m_light_color.g,
 								state_def.m_light_color.b);
 	
-	if(state_def.m_particle.size()){
+	if(state_def.m_particle.size())
+	{
 		Fvector dir;
 		dir.set(0,1,0);
 
@@ -551,9 +550,10 @@ void SArtefactActivation::ChangeEffects()
 												m_af->ID(),
 												iFloor(state_def.m_time*1000) );
 	};
-	if(state_def.m_animation.size()){
-		CKinematicsAnimated	*K=smart_cast<CKinematicsAnimated*>(m_af->Visual());
-		if(K)K->PlayCycle(*state_def.m_animation);
+	if(state_def.m_animation.size())
+	{
+		IKinematicsAnimated	*K=smart_cast<IKinematicsAnimated*>(m_af->Visual());
+		if(K)K->PlayCycle(state_def.m_animation.c_str());
 	}
 
 }
@@ -620,6 +620,7 @@ shared_str clear_brackets(LPCSTR src)
 	return									shared_str(_original);
 
 }
+
 void SArtefactActivation::SStateDef::Load(LPCSTR section, LPCSTR name)
 {
 	LPCSTR str = pSettings->r_string(section,name);
@@ -640,5 +641,4 @@ void SArtefactActivation::SStateDef::Load(LPCSTR section, LPCSTR name)
 
 	m_particle		= clear_brackets(	_GetItem(str,6,tmp) );
 	m_animation		= clear_brackets(	_GetItem(str,7,tmp) );
-
 }

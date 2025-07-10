@@ -59,6 +59,7 @@ void CAI_Dog::Load(LPCSTR section)
 	anim().AddAnim(eAnimSitIdle,		"sit_idle_",			-1, &velocity_none,		PS_SIT);
 	anim().AddAnim(eAnimAttack,			"stand_attack_",		-1, &velocity_turn,		PS_STAND);
 	anim().AddAnim(eAnimWalkFwd,		"stand_walk_fwd_",		-1, &velocity_walk,		PS_STAND);
+
 	anim().AddAnim(eAnimWalkDamaged,	"stand_walk_dmg_",		-1, &velocity_walk_dmg,	PS_STAND);
 	anim().AddAnim(eAnimRun,			"stand_run_",			-1,	&velocity_run,		PS_STAND);
 	anim().AddAnim(eAnimRunDamaged,		"stand_run_dmg_",		-1, &velocity_run_dmg,	PS_STAND);
@@ -110,7 +111,6 @@ void CAI_Dog::Load(LPCSTR section)
 #ifdef DEBUG	
 	anim().accel_chain_test		();
 #endif
-
 }
 
 void CAI_Dog::reinit()
@@ -141,7 +141,7 @@ void CAI_Dog::CheckSpecParams(u32 spec_params)
 #ifdef _DEBUG
 void CAI_Dog::debug_on_key(int key)
 {
-	CKinematicsAnimated *skel = smart_cast<CKinematicsAnimated *>(Visual());
+	IKinematicsAnimated *skel = smart_cast<IKinematicsAnimated *>(Visual());
 
 	switch (key){
 	case DIK_1:

@@ -10,8 +10,12 @@
 void AddEffector		(CActor* A, int type, const shared_str& sect_name)
 {
 	if(pSettings->line_exist(sect_name,"pp_eff_name")){
-		bool bCyclic						= !!pSettings->r_bool(sect_name,"pp_eff_cyclic");
 		CPostprocessAnimator* pp_anm		= xr_new<CPostprocessAnimator>();
+
+		bool bCyclic						= !!pSettings->r_bool(sect_name,"pp_eff_cyclic");
+
+		pp_anm->bOverlap					= !!pSettings->r_bool(sect_name,"pp_eff_overlap");
+
 		pp_anm->SetType						((EEffectorPPType)type);
 		pp_anm->SetCyclic					(bCyclic);
 
@@ -44,6 +48,7 @@ void AddEffector		(CActor* A, int type, const shared_str& sect_name, CEffectorCo
 		CPostprocessAnimatorControlled* pp_anm	= xr_new<CPostprocessAnimatorControlled>(ec);
 		pp_anm->SetType						((EEffectorPPType)type);
 		pp_anm->SetCyclic					(bCyclic);
+		pp_anm->bOverlap					= !!pSettings->r_bool(sect_name,"pp_eff_overlap");
 		LPCSTR fn = pSettings->r_string		(sect_name,"pp_eff_name");
 		pp_anm->Load						(fn);
 		A->Cameras().AddPPEffector			(pp_anm);
@@ -73,6 +78,7 @@ void AddEffector		(CActor* A, int type, const shared_str& sect_name, GET_KOEFF_F
 		CPostprocessAnimatorLerp* pp_anm	= xr_new<CPostprocessAnimatorLerp>();
 		pp_anm->SetType						((EEffectorPPType)type);
 		pp_anm->SetCyclic					(bCyclic);
+		pp_anm->bOverlap					= !!pSettings->r_bool(sect_name,"pp_eff_overlap");
 		LPCSTR fn = pSettings->r_string		(sect_name,"pp_eff_name");
 		pp_anm->SetFactorFunc				(k_func);
 		pp_anm->Load						(fn);
@@ -106,6 +112,7 @@ void AddEffector(CActor* A, int type, const shared_str& sect_name, float factor)
 		pp_anm->SetType						((EEffectorPPType)type);
 		pp_anm->SetCyclic					(bCyclic);
 		pp_anm->SetPower					(factor);
+		pp_anm->bOverlap					= !!pSettings->r_bool(sect_name,"pp_eff_overlap");
 		LPCSTR fn = pSettings->r_string		(sect_name,"pp_eff_name");
 		pp_anm->Load						(fn);
 		A->Cameras().AddPPEffector			(pp_anm);
@@ -147,6 +154,7 @@ CAnimatorCamEffector::CAnimatorCamEffector()
 	m_bCyclic				= true;
 	m_objectAnimator		= xr_new<CObjectAnimator>();
 	m_bAbsolutePositioning	= false;
+	m_fov					= -1.0f;
 }
 
 CAnimatorCamEffector::~CAnimatorCamEffector()
@@ -193,6 +201,9 @@ BOOL CAnimatorCamEffector::ProcessCam(SCamEffectorInfo& info)
 		info.n						= m.j;
 		info.p						= m.c;
 	};
+	if(m_fov>0.0f)
+		info.fFov				= m_fov;
+
 	return						TRUE;
 }
 
@@ -231,6 +242,9 @@ BOOL CAnimatorCamLerpEffector::ProcessCam(SCamEffectorInfo& info)
 	info.d						= res.k;
 	info.n						= res.j;
 	info.p						= res.c;
+
+	if(m_fov>0.0f)
+		info.fFov				= m_fov;
 
 	return TRUE;
 }
@@ -336,7 +350,11 @@ void SndShockEffector::Update()
 #define DELTA_ANGLE_Z	0.5f * PI / 180
 #define ANGLE_SPEED		1.5f	
 
-CControllerPsyHitCamEffector::CControllerPsyHitCamEffector(ECamEffectorType type, const Fvector &src_pos, const Fvector &target_pos, float time)
+const float	_base_fov		= 170.f;
+const float	_max_fov_add	= 160.f;
+
+CControllerPsyHitCamEffector::CControllerPsyHitCamEffector(ECamEffectorType type, const Fvector &src_pos,
+														   const Fvector &target_pos, float time)
 	:inherited(eCEControllerPsyHit, flt_max)
 {
 	m_time_total			= time;
@@ -350,10 +368,6 @@ CControllerPsyHitCamEffector::CControllerPsyHitCamEffector(ECamEffectorType type
 	m_distance				= m_direction.magnitude();
 	m_direction.normalize	();
 }
-
-const float	_base_fov		= 170.f;
-const float	_max_fov_add	= 160.f;
-
 
 BOOL CControllerPsyHitCamEffector::ProcessCam(SCamEffectorInfo& info)
 {

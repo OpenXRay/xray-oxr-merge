@@ -19,7 +19,6 @@
 #include "bloodsucker_state_capture_jump.h"
 #include "bloodsucker_attack_state.h"
 
-
 CStateManagerBloodsucker::CStateManagerBloodsucker(CAI_Bloodsucker *monster) : inherited(monster)
 {
 	add_state(eStateCustom,				xr_new<CStateCaptureJumpBloodsucker<CAI_Bloodsucker> >		(monster));
@@ -78,13 +77,13 @@ void CStateManagerBloodsucker::execute ()
 	
 	if ( !object->is_drag_anim_jump() && !object->is_animated() )
 	{
-		if ( enemy ) 
+		if ( enemy )
 		{
 			 if ( check_state(eStateCustom_Vampire) ) 
 			 {
 				state_id = eStateCustom_Vampire;
-			 } 
-			 else 
+			 }
+			 else
 			 {
 				switch ( object->EnemyMan.get_danger_type() )
 				{
@@ -92,16 +91,16 @@ void CStateManagerBloodsucker::execute ()
 					case eWeak:	  state_id = eStateAttack; break;
 				}
 			}
-		} 
-		else if ( object->HitMemory.is_hit() ) 
+		}
+		else if ( object->HitMemory.is_hit() )
 		{
 			state_id = eStateHitted;
-		} 
+		}
 		else if ( object->hear_interesting_sound )
 		{
 			state_id = eStateHearInterestingSound;
-		} 
-		else 
+		}
+		else
 		{
 			if ( can_eat() ) state_id = eStateEat;
 			else			 state_id = eStateRest;
@@ -118,7 +117,7 @@ void CStateManagerBloodsucker::execute ()
 // 		} 
 // 		else
 // 		// check if stop interesting sound state
-// 		if ( (prev_substate == eStateHearInterestingSound) && (state_id != eStateHearInterestingSound) ) 
+// 		if ( (prev_substate == eStateHearInterestingSound) && (state_id != eStateHearInterestingSound) )
 // 		{
 // 			object->stop_invisible_predator();
 // 		}

@@ -249,6 +249,8 @@ void CCustomDetector::UpdateCL()
 {
 	inherited::UpdateCL();
 
+	if(H_Parent()!=Level().CurrentEntity() )			return;
+
 	UpdateVisibility		();
 	if( !IsWorking() )		return;
 	UpfateWork				();

@@ -442,7 +442,8 @@ void	CActor::Hit							(SHit* pHDS)
 	
 	}
 #ifdef DEBUG
-	if(ph_dbg_draw_mask.test(phDbgCharacterControl)) {
+	if(ph_dbg_draw_mask.test(phDbgCharacterControl))
+	{
 		DBG_OpenCashedDraw();
 		Fvector to;to.add(Position(),Fvector().mul(HDS.dir,HDS.phys_impulse()));
 		DBG_DrawLine(Position(),to,D3DCOLOR_XRGB(124,124,0));
@@ -517,7 +518,7 @@ void	CActor::Hit							(SHit* pHDS)
 	m_hit_slowmo = conditions().HitSlowmo(pHDS);
 
 	//---------------------------------------------------------------
-	if(Level().CurrentViewEntity() == this && !g_dedicated_server && (HDS.hit_type == ALife::eHitTypeFireWound) )
+	if(Level().CurrentViewEntity() == this && !g_dedicated_server && HDS.hit_type == ALife::eHitTypeFireWound )
 	{
 		CObject* pLastHitter			= Level().Objects.net_Find(m_iLastHitterID);
 		CObject* pLastHittingWeapon		= Level().Objects.net_Find(m_iLastHittingWeaponID);
@@ -533,7 +534,7 @@ void	CActor::Hit							(SHit* pHDS)
 		HitMark			(HDS.damage(), HDS.dir, HDS.who, HDS.bone(), HDS.p_in_bone_space, HDS.impulse, HDS.hit_type);
 	}
 
-	if(IsGameTypeSingle())	
+	if(IsGameTypeSingle())
 	{
 		float hit_power				= HitArtefactsOnBelt(HDS.damage(), HDS.hit_type);
 
@@ -542,7 +543,8 @@ void	CActor::Hit							(SHit* pHDS)
 			HDS.power				= 0.0f;
 			inherited::Hit			(&HDS);
 			return;
-		}else 
+		}
+		else 
 		{
 			HDS.power				= hit_power;
 			HDS.add_wound			= true;
@@ -565,7 +567,7 @@ void	CActor::Hit							(SHit* pHDS)
 			if (res < -0.707)
 			{
 				game_PlayerState* ps = Game().GetPlayerByGameID(ID());
-				
+		
 				if (!ps || !ps->testFlag(GAME_PLAYER_FLAG_INVINCIBLE))						
 					m_bWasBackStabbed = true;
 			}
@@ -573,9 +575,9 @@ void	CActor::Hit							(SHit* pHDS)
 		
 		float hit_power				= 0.0f;
 
-		if (m_bWasBackStabbed) 
+		if (m_bWasBackStabbed)
 			hit_power				= (HDS.damage() == 0) ? 0 : 100000.0f;
-		else 
+		else
 			hit_power				= HitArtefactsOnBelt(HDS.damage(), HDS.hit_type);
 
 		HDS.power					= hit_power;
@@ -846,12 +848,13 @@ float CActor::currentFOV()
 	CWeapon* pWeapon = smart_cast<CWeapon*>(inventory().ActiveItem());	
 
 	if (eacFirstEye == cam_active && pWeapon &&
-		pWeapon->IsZoomed() && 
+		pWeapon->IsZoomed() &&
 		( !pWeapon->ZoomTexture() || (!pWeapon->IsRotatingToZoom() && pWeapon->ZoomTexture()) )
 		 )
 	{
 		return pWeapon->GetZoomFactor() * (0.75f);
-	}else
+	}
+	else
 	{
 		return g_fov;
 	}
@@ -1678,24 +1681,6 @@ float	CActor::HitArtefactsOnBelt(float hit_power, ALife::EHitType hit_type)
 	clamp(hit_power, 0.0f, flt_max);
 
 	return hit_power;
-
-/*
-	float res_hit_power_k		= 1.0f;
-	float _af_count				= 0.0f;
-
-	for(TIItemContainer::iterator it = inventory().m_belt.begin(); 
-		inventory().m_belt.end() != it; ++it) 
-	{
-		CArtefact*	artefact = smart_cast<CArtefact*>(*it);
-		if(artefact){
-			res_hit_power_k	+= artefact->m_ArtefactHitImmunities.AffectHit(1.0f, hit_type);
-			_af_count		+= 1.0f;
-		}
-	}
-	res_hit_power_k			-= _af_count;
-
-	return					res_hit_power_k * hit_power;
-*/
 }
 
 float CActor::GetProtection_ArtefactsOnBelt( ALife::EHitType hit_type )

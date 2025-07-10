@@ -262,7 +262,6 @@ void CAI_Crow::Die				(CObject* who)
 
 	const CGameObject *who_object = smart_cast<const CGameObject*>(who);
 	callback(GameObject::eDeath)(lua_game_object(), who_object ? who_object->lua_game_object() : 0);
-	
 };
 void CAI_Crow::UpdateWorkload	(float fdt)
 {
@@ -417,7 +416,7 @@ void CAI_Crow::HitImpulse	(float	/**amount/**/,		Fvector& /**vWorldDir/**/, Fvec
 //---------------------------------------------------------------------
 void CAI_Crow::CreateSkeleton()
 {
-	m_pPhysicsShell=P_build_Shell(this,false,(BONE_P_MAP*)0);//P_build_SimpleShell(this,0.3f,false);
+	m_pPhysicsShell=P_build_Shell(this,false,(BONE_P_MAP*)0);
 	m_pPhysicsShell->SetMaterial(smart_cast<IKinematics*>(Visual())->LL_GetData(smart_cast<IKinematics*>(Visual())->LL_GetBoneRoot()).game_mtl_idx);
 }
 

@@ -221,22 +221,22 @@ void CAI_Stalker::Hit(SHit* pHDS)
 	{
 		float BoneArmor = m_boneHitProtection->getBoneArmor( HDS.bone() );
 		float ap        = HDS.armor_piercing;
-
-		if ( ap > EPS && ap > BoneArmor )
+		if ( !fis_zero(BoneArmor, EPS) )
 		{
-			float d_ap = ap - BoneArmor;
-			hit_power *= ( d_ap / ap );
-
-			if ( hit_power < m_boneHitProtection->m_fHitFrac )
+			if ( ap > BoneArmor )
 			{
-				hit_power = m_boneHitProtection->m_fHitFrac;
-			}
-			if ( hit_power < 0.0f )	{	hit_power = 0.0f;	}
+				float d_hit_power = (ap - BoneArmor) / ap;
+				if(d_hit_power < m_boneHitProtection->m_fHitFracNpc)
+					d_hit_power = m_boneHitProtection->m_fHitFracNpc;
+
+				hit_power *= d_hit_power;
+				VERIFY(hit_power>=0.0f);
 		}
 		else
 		{
-			hit_power *= m_boneHitProtection->m_fHitFrac;
+				hit_power *= m_boneHitProtection->m_fHitFracNpc;
 			HDS.add_wound = false;
+		}
 		}
 
 		if ( wounded() ) //уже лежит => добивание

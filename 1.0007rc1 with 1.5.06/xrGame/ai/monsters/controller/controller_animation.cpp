@@ -50,8 +50,13 @@ void CControllerAnimation::on_stop_control	(ControlCom::EControlType type)
 
 void CControllerAnimation::on_event(ControlCom::EEventType type, ControlCom::IEventData *data)
 {
-	switch (type) {
-	case ControlCom::eventAnimationEnd:			select_animation();			break;
+	switch (type)
+	{
+	case ControlCom::eventAnimationEnd:
+	{
+		select_animation();
+		break;
+	}
 	case ControlCom::eventTorsoAnimationEnd:	
 		m_wait_torso_anim_end	= false;
 		select_torso_animation	();
@@ -92,7 +97,7 @@ void CControllerAnimation::update_frame()
 
 void CControllerAnimation::load()
 {
-	CKinematicsAnimated *skeleton = smart_cast<CKinematicsAnimated*>(m_object->Visual());
+	IKinematicsAnimated *skeleton = smart_cast<IKinematicsAnimated*>(m_object->Visual());
 	
 	m_legs[eLegsStand]					= skeleton->ID_Cycle_Safe("new_idle_0");
 	m_legs[eLegsSteal]					= skeleton->ID_Cycle_Safe("new_cr_idle_0");

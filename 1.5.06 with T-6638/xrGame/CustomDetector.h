@@ -5,7 +5,7 @@
 #include "customzone.h"
 #include "artefact.h"
 #include "ai_sounds.h"
-#include "ui/ArtefactDetectorUI.h"
+//#include "ui/ArtefactDetectorUI.h"
 
 class CCustomZone;
 class CInventoryOwner;
@@ -108,6 +108,8 @@ public:
 					CAfList		():m_af_rank(0){}
 	int				m_af_rank;
 };
+
+class CUIArtefactDetectorBase;
 
 class CCustomDetector :		public CHudItemObject
 {

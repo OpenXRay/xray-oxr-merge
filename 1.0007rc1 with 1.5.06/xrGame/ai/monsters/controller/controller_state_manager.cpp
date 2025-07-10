@@ -37,7 +37,9 @@ CStateManagerController::CStateManagerController(CController *obj) : inherited(o
 
 	//add_state(
 	//	eStateAttack, 
-	//	xr_new<CStateControllerAttack<CController> > (obj,
+// 		xr_new<CStateControllerAttack<CController> > 
+// 		(
+// 		 obj, 
 	//		xr_new<CStateMonsterAttackRun<CController> >(obj), 
 	//		xr_new<CStateMonsterAttackMelee<CController> >(obj)
 	//	)
@@ -67,8 +69,10 @@ void CStateManagerController::execute()
 		
 	const CEntityAlive* enemy	= object->EnemyMan.get_enemy();
 
-	if (enemy) {
-		switch (object->EnemyMan.get_danger_type()) {
+	if (enemy)
+	{
+		switch (object->EnemyMan.get_danger_type())
+		{
 			case eStrong:	state_id = eStatePanic; break;
 			case eWeak:		state_id = eStateAttack; break;
 		}

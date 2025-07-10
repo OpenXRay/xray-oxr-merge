@@ -205,7 +205,6 @@ CActor::CActor() : CEntityAlive(),current_ik_cam_shift(0)
 
 	m_disabled_hitmarks		= false;
 	m_inventory_disabled	= false;
-
 }
 
 
@@ -564,6 +563,7 @@ void	CActor::Hit(SHit* pHDS)
 			mstate_wishful	&=~mcSprint;
 		}
 	}
+
 	if(!g_dedicated_server && !m_disabled_hitmarks)
 	{
 		bool b_fireWound = (pHDS->hit_type==ALife::eHitTypeFireWound || pHDS->hit_type==ALife::eHitTypeWound_2);
@@ -748,7 +748,8 @@ void CActor::Die	(CObject* who)
 							grenade->DropGrenade();
 						else
 							item_in_slot->SetDropManual(TRUE);
-					}else
+					}
+					else
 					{
 						//This logic we do on a server site
 						/*

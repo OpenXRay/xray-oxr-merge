@@ -34,6 +34,7 @@ void SBullet::Init(const Fvector& position,
 				   const Fvector& direction,
 				   float starting_speed,
 				   float power,
+				   float power_critical,
 				   float impulse,
 				   u16	sender_id,
 				   u16 sendersweapon_id,
@@ -43,17 +44,18 @@ void SBullet::Init(const Fvector& position,
 				   bool SendHit)
 {
 	flags._storage		= 0;
-	pos 				= position;
+	bullet_pos 				= position;
 	speed = max_speed	= starting_speed;
-	VERIFY				(speed>0);
+	VERIFY					(speed > 0.f);
 
 	VERIFY(direction.magnitude()>0);
 	dir.normalize		(direction);
 
-	hit_power			= power		* cartridge.m_kHit;
-	hit_impulse			= impulse	* cartridge.m_kImpulse;
+	hit_param.power			= power          * cartridge.param_s.kHit;
+	hit_param.power_critical= power_critical * cartridge.param_s.kCritical;
+	hit_param.impulse		= impulse        * cartridge.param_s.kImpulse;
 
-	max_dist			= maximum_distance * cartridge.m_kDist;
+	max_dist			= maximum_distance * cartridge.param_s.kDist;
 	fly_dist			= 0;
 
 	parent_id			= sender_id;
@@ -61,11 +63,11 @@ void SBullet::Init(const Fvector& position,
 	weapon_id			= sendersweapon_id;
 	hit_type			= e_hit_type;
 
-	pierce				= cartridge.m_kPierce;
-	ap					= cartridge.m_kAP;
-	air_resistance		= cartridge.m_kAirRes;
-	wallmark_size		= cartridge.fWallmarkSize;
-	m_u8ColorID			= cartridge.m_u8ColorID;
+	pierce				= cartridge.param_s.kPierce;
+	armor_piercing		= cartridge.param_s.kAP;
+	air_resistance		= cartridge.param_s.kAirRes;
+	wallmark_size		= cartridge.param_s.fWallmarkSize;
+	m_u8ColorID			= cartridge.param_s.u8ColorID;
 
 	bullet_material_idx = cartridge.bullet_material_idx;
 	VERIFY			(u16(-1)!=bullet_material_idx);
@@ -76,10 +78,8 @@ void SBullet::Init(const Fvector& position,
 	flags.skipped_frame					= 0;
 
 	targetID			= 0;	
+	density_mode			= 0;
 }
-
-//////////////////////////////////////////////////////////
-//
 
 CBulletManager::CBulletManager()
 #ifdef PROFILE_CRITICAL_SECTIONS
@@ -159,6 +159,7 @@ void CBulletManager::AddBullet(const Fvector& position,
 							   const Fvector& direction,
 							   float starting_speed,
 							   float power,
+							   float power_critical,
 							   float impulse,
 							   u16	sender_id,
 							   u16 sendersweapon_id,
@@ -174,7 +175,7 @@ void CBulletManager::AddBullet(const Fvector& position,
 //	u32 OwnerID = sender_id;
 	m_Bullets.push_back(SBullet());
 	SBullet& bullet		= m_Bullets.back();
-	bullet.Init			(position, direction, starting_speed, power, impulse, sender_id, sendersweapon_id, e_hit_type, maximum_distance, cartridge, SendHit);
+	bullet.Init			(position, direction, starting_speed, power, power_critical, impulse, sender_id, sendersweapon_id, e_hit_type, maximum_distance, cartridge, SendHit);
 	bullet.frame_num	= Device.dwFrame;
 	bullet.flags.aim_bullet	=	AimBullet;
 	if (SendHit && !IsGameTypeSingle())

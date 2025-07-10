@@ -71,11 +71,11 @@ void CStateManagerController::execute()
 	const CEntityAlive* enemy	= object->EnemyMan.get_enemy();
 
 	// Lain: changed logic
-	if (enemy) {
-
+	if (enemy)
+	{
 		if ( object->EnemyMan.get_danger_type() == eStrong )
 		{
-			state_id = eStatePanic; 
+			state_id = eStatePanic;
 		}
 		else
 		{

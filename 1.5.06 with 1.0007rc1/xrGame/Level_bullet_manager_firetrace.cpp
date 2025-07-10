@@ -140,14 +140,6 @@ BOOL CBulletManager::test_callback(const collide::ray_defs& rd, CObject* object,
 	return bRes;
 }
 
-//callback функция 
-//	result.O;		// 0-static else CObject*
-//	result.range;	// range from start to element 
-//	result.element;	// if (O) "num tri" else "num bone"
-//	params;			// user defined abstract data
-//	Device.Statistic.TEST0.End();
-//return TRUE-продолжить трассировку / FALSE-закончить трассировку
-
 void CBulletManager::FireShotmark (SBullet* bullet, const Fvector& vDir, const Fvector &vEnd, collide::rq_result& R, u16 target_material, const Fvector& vNormal, bool ShowMark)
 {
 	SGameMtlPair* mtl_pair	= GMLib.GetMaterialPair(bullet->bullet_material_idx, target_material);

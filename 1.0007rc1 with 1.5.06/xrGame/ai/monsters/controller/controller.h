@@ -1,7 +1,7 @@
 #pragma once
 #include "../BaseMonster/base_monster.h"
 #include "../anim_triple.h"
-#include "../../../script_export_space.h"
+#include "../../../../xrServerEntities/script_export_space.h"
 
 class CControllerAnimation;
 class CControllerDirection;
@@ -132,10 +132,11 @@ public:
 
 			void	tube_fire					();
 			bool	can_tube_fire				();
-			u32		m_time_last_tube;
 			
 			float	m_psy_hit_damage;
 			float	m_tube_damage;
+
+			u32		m_time_last_tube;
 
 			void	set_psy_fire_delay_zero		();
 			void	set_psy_fire_delay_default	();

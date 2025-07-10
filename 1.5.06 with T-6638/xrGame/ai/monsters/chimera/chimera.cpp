@@ -90,7 +90,7 @@ void CChimera::Load(LPCSTR section)
 	anim().LinkAction(ACT_SIT_IDLE,		eAnimLieIdle);
 	anim().LinkAction(ACT_LIE_IDLE,		eAnimLieIdle);
 	anim().LinkAction(ACT_WALK_FWD,		eAnimWalkFwd);
-	anim().LinkAction(ACT_WALK_BKWD,		eAnimDragCorpse);
+	anim().LinkAction(ACT_WALK_BKWD,	eAnimDragCorpse);
 	anim().LinkAction(ACT_RUN,			eAnimRun);
 	anim().LinkAction(ACT_EAT,			eAnimEat);
 	anim().LinkAction(ACT_SLEEP,			eAnimSleep);
@@ -103,8 +103,6 @@ void CChimera::Load(LPCSTR section)
 #ifdef DEBUG	
 	anim().accel_chain_test		();
 #endif
-
-	//*****************************************************************************
 
 	m_fsVelocityWalkUpper.Load	(section, "Velocity_Walk_Upper");
 }
@@ -128,35 +126,10 @@ void CChimera::SetTurnAnimation(bool turn_left)
 		(turn_left) ? anim().SetCurAnim(eAnimStandTurnLeft)		: anim().SetCurAnim(eAnimStandTurnRight);
 }
 
-void CChimera::CheckSpecParams(u32 spec_params)
-{
-	if ((spec_params & ASP_THREATEN) == ASP_THREATEN) {
-		if (b_upper_state)
-			anim().SetCurAnim(eAnimUpperThreaten);
-		else 
-			anim().SetCurAnim(eAnimThreaten);
-	}
-
-	if ((spec_params & ASP_ATTACK_RUN) == ASP_ATTACK_RUN) {
-		anim().SetCurAnim(eAnimAttackRun);
-	}
-
-	if (b_upper_state) {
-		switch (anim().GetCurAnim()) {
-			case eAnimAttack:			anim().SetCurAnim(eAnimUpperAttack);			break;
-			case eAnimRun:
-			case eAnimWalkFwd:			anim().SetCurAnim(eAnimUpperWalkFwd);		break;
-			case eAnimStandTurnLeft:	anim().SetCurAnim(eAnimUpperStandTurnLeft);	break;
-			case eAnimStandTurnRight:	anim().SetCurAnim(eAnimUpperStandTurnRight); break;
-			case eAnimThreaten:			anim().SetCurAnim(eAnimUpperThreaten);		break;
-			case eAnimStandIdle:		anim().SetCurAnim(eAnimUpperStandIdle);		break;
-		}
-	}
-}
-
 EAction CChimera::CustomVelocityIndex2Action(u32 velocity_index) 
 {
-	switch (velocity_index) {
+	switch (velocity_index)
+	{
 		case MonsterMovement::eChimeraVelocityParameterUpperWalkFwd: return ACT_WALK_FWD;
 	}
 	
@@ -231,6 +204,36 @@ void CChimera::TranslateActionToPathParams()
 		path().enable_path			();	
 	} else {
 		path().disable_path			();
+	}
+}
+
+void CChimera::CheckSpecParams(u32 spec_params)
+{
+	if ((spec_params & ASP_THREATEN) == ASP_THREATEN)
+	{
+		if (b_upper_state)
+			anim().SetCurAnim(eAnimUpperThreaten);
+		else 
+			anim().SetCurAnim(eAnimThreaten);
+	}
+
+	if ((spec_params & ASP_ATTACK_RUN) == ASP_ATTACK_RUN)
+	{
+		anim().SetCurAnim(eAnimAttackRun);
+	}
+
+	if (b_upper_state)
+	{
+		switch (anim().GetCurAnim())
+		{
+			case eAnimAttack:			anim().SetCurAnim(eAnimUpperAttack);			break;
+			case eAnimRun:
+			case eAnimWalkFwd:			anim().SetCurAnim(eAnimUpperWalkFwd);		break;
+			case eAnimStandTurnLeft:	anim().SetCurAnim(eAnimUpperStandTurnLeft);	break;
+			case eAnimStandTurnRight:	anim().SetCurAnim(eAnimUpperStandTurnRight); break;
+			case eAnimThreaten:			anim().SetCurAnim(eAnimUpperThreaten);		break;
+			case eAnimStandIdle:		anim().SetCurAnim(eAnimUpperStandIdle);		break;
+		}
 	}
 }
 

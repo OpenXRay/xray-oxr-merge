@@ -346,7 +346,6 @@ void CActor::Load	(LPCSTR section )
 	//загрузить параметры смещения firepoint
 	m_vMissileOffset	= pSettings->r_fvector3(section,"missile_throw_offset");
 
-	//Weapons				= xr_new<CWeaponList> (this);
 
 if(!g_dedicated_server)
 {
@@ -415,9 +414,9 @@ if(!g_dedicated_server)
 
 }
 
-void CActor::PHHit(float P,Fvector &dir, CObject *who,s16 element,Fvector p_in_object_space, float impulse, ALife::EHitType hit_type /* = ALife::eHitTypeWound */)
+void CActor::PHHit(SHit &H)
 {
-	m_pPhysics_support->in_Hit(P,dir,who,element,p_in_object_space,impulse,hit_type,!g_Alive());
+	m_pPhysics_support->in_Hit( H, false );
 }
 
 struct playing_pred
@@ -436,12 +435,12 @@ void	CActor::Hit							(SHit* pHDS)
 	if( HDS.hit_type<ALife::eHitTypeBurn || HDS.hit_type >= ALife::eHitTypeMax )
 	{
 		string256	err;
-		sprintf_s		(err, "Unknown/unregistered hit type [%d]", HDS.hit_type);
+		sprintf		(err, "Unknown/unregistered hit type [%d]", HDS.hit_type);
 		R_ASSERT2	(0, err );
 	
 	}
 #ifdef DEBUG
-	if(ph_dbg_draw_mask.test(phDbgCharacterControl)) 
+	if(ph_dbg_draw_mask.test(phDbgCharacterControl))
 	{
 		DBG_OpenCashedDraw();
 		Fvector to;to.add(Position(),Fvector().mul(HDS.dir,HDS.phys_impulse()));
@@ -548,16 +547,14 @@ void	CActor::Hit							(SHit* pHDS)
 		{
 			float hit_power	= HitArtefactsOnBelt(HDS.damage(), HDS.hit_type);
 
-			if (GodMode())//psActorFlags.test(AF_GODMODE))
+			if (GodMode())
 			{
 				HDS.power = 0.0f;
-//				inherited::Hit(0.f,dir,who,element,position_in_bone_space,impulse, hit_type);
 				inherited::Hit(&HDS);
 				return;
 			}
 			else 
 			{
-				//inherited::Hit		(hit_power,dir,who,element,position_in_bone_space, impulse, hit_type);
 				HDS.power = hit_power;
 				inherited::Hit(&HDS);
 			};
@@ -580,15 +577,18 @@ void	CActor::Hit							(SHit* pHDS)
 				if (res < -0.707)
 				{
 					game_PlayerState* ps = Game().GetPlayerByGameID(ID());
+
 					if (!ps || !ps->testFlag(GAME_PLAYER_FLAG_INVINCIBLE))						
 						m_bWasBackStabbed = true;
 				}
 			};
 			
-			float hit_power = 0;
+			float hit_power = 0.0f;
 
-			if (m_bWasBackStabbed) hit_power = (HDS.damage() == 0) ? 0 : 100000.0f;
-			else hit_power	= HitArtefactsOnBelt(HDS.damage(), HDS.hit_type);
+			if (m_bWasBackStabbed)
+				hit_power = (HDS.damage() == 0) ? 0 : 100000.0f;
+			else
+				hit_power	= HitArtefactsOnBelt(HDS.damage(), HDS.hit_type);
 
 			HDS.power			= hit_power;
 			inherited::Hit		(&HDS);
@@ -842,7 +842,8 @@ void CActor::g_Physics(Fvector& _accel, float jump, float dt)
 			//				Hit	(m_PhysicMovementControl->gcontact_HealthLost,hdir,di->DamageInitiator(),m_PhysicMovementControl->ContactBone(),di->HitPos(),0.f,ALife::eHitTypeStrike);//s16(6 + 2*::Random.randI(0,2))
 			if (Level().CurrentControlEntity() == this)
 			{
-				SHit HDS = SHit(character_physics_support()->movement()->gcontact_HealthLost,hdir,di->DamageInitiator(),character_physics_support()->movement()->ContactBone(),di->HitPos(),0.f,di->HitType());
+				SHit HDS = SHit(character_physics_support()->movement()->gcontact_HealthLost,hdir,di->DamageInitiator(),
+					character_physics_support()->movement()->ContactBone(),di->HitPos(),0.f,di->HitType());
 //				Hit(&HDS);
 
 				NET_Packet	l_P;
@@ -863,11 +864,16 @@ float CActor::currentFOV()
 	CWeapon* pWeapon = smart_cast<CWeapon*>(inventory().ActiveItem());	
 
 	if (eacFirstEye == cam_active && pWeapon &&
-		pWeapon->IsZoomed() && (!pWeapon->ZoomTexture() ||
-		(!pWeapon->IsRotatingToZoom() && pWeapon->ZoomTexture())))
+		pWeapon->IsZoomed() &&
+		( !pWeapon->ZoomTexture() || (!pWeapon->IsRotatingToZoom() && pWeapon->ZoomTexture()) )
+		 )
+	{
 		return pWeapon->GetZoomFactor() * (0.75f);
+	}
 	else
+	{
 		return g_fov;
+	}
 }
 
 void CActor::UpdateCL	()
@@ -1205,10 +1211,12 @@ void CActor::shedule_Update	(u32 DT)
 #include "debug_renderer.h"
 void CActor::renderable_Render	()
 {
+	VERIFY(_valid(XFORM()));
 	inherited::renderable_Render			();
 	if (!HUDview()){
 		CInventoryOwner::renderable_Render	();
 	}
+	VERIFY(_valid(XFORM()));
 }
 
 BOOL CActor::renderable_ShadowGenerate	() 
@@ -1280,14 +1288,12 @@ void CActor::OnHUDDraw	(CCustomHUD*)
 #endif
 }
 
-void CActor::RenderIndicator			(Fvector dpos, float r1, float r2, ref_shader IndShader)
+void CActor::RenderIndicator			(Fvector dpos, float r1, float r2, const ui_shader &IndShader)
 {
 	if (!g_Alive()) return;
 
-	u32			dwOffset = 0,dwCount = 0;
-	FVF::LIT* pv_start				= (FVF::LIT*)RCache.Vertex.Lock(4,hFriendlyIndicator->vb_stride,dwOffset);
-	FVF::LIT* pv					= pv_start;
-	// base rect
+
+	UIRender->StartPrimitive(4, IUIRender::ptTriStrip, IUIRender::pttLIT);
 
 	CBoneInstance& BI = smart_cast<IKinematics*>(Visual())->LL_GetBoneInstance(u16(m_head));
 	Fmatrix M;
@@ -1310,18 +1316,26 @@ void CActor::RenderIndicator			(Fvector dpos, float r1, float r2, ref_shader Ind
 	b.add           (Vt,Vr);
 	c.invert        (a);
 	d.invert        (b);
-	pv->set         (d.x+pos.x,d.y+pos.y,d.z+pos.z, 0xffffffff, 0.f,1.f);        pv++;
-	pv->set         (a.x+pos.x,a.y+pos.y,a.z+pos.z, 0xffffffff, 0.f,0.f);        pv++;
-	pv->set         (c.x+pos.x,c.y+pos.y,c.z+pos.z, 0xffffffff, 1.f,1.f);        pv++;
-	pv->set         (b.x+pos.x,b.y+pos.y,b.z+pos.z, 0xffffffff, 1.f,0.f);        pv++;
-	// render	
-	dwCount 				= u32(pv-pv_start);
-	RCache.Vertex.Unlock	(dwCount,hFriendlyIndicator->vb_stride);
 
-	RCache.set_xform_world		(Fidentity);
-	RCache.set_Shader			(IndShader);
-	RCache.set_Geometry			(hFriendlyIndicator);
-	RCache.Render	   			(D3DPT_TRIANGLESTRIP,dwOffset,0, dwCount, 0, 2);
+	UIRender->PushPoint(d.x+pos.x,d.y+pos.y,d.z+pos.z, 0xffffffff, 0.f,1.f);
+	UIRender->PushPoint(a.x+pos.x,a.y+pos.y,a.z+pos.z, 0xffffffff, 0.f,0.f);
+	UIRender->PushPoint(c.x+pos.x,c.y+pos.y,c.z+pos.z, 0xffffffff, 1.f,1.f);
+	UIRender->PushPoint(b.x+pos.x,b.y+pos.y,b.z+pos.z, 0xffffffff, 1.f,0.f);
+	//pv->set         (d.x+pos.x,d.y+pos.y,d.z+pos.z, 0xffffffff, 0.f,1.f);        pv++;
+	//pv->set         (a.x+pos.x,a.y+pos.y,a.z+pos.z, 0xffffffff, 0.f,0.f);        pv++;
+	//pv->set         (c.x+pos.x,c.y+pos.y,c.z+pos.z, 0xffffffff, 1.f,1.f);        pv++;
+	//pv->set         (b.x+pos.x,b.y+pos.y,b.z+pos.z, 0xffffffff, 1.f,0.f);        pv++;
+	// render	
+	//dwCount 				= u32(pv-pv_start);
+	//RCache.Vertex.Unlock	(dwCount,hFriendlyIndicator->vb_stride);
+
+	UIRender->CacheSetXformWorld(Fidentity);
+	//RCache.set_xform_world		(Fidentity);
+	UIRender->SetShader(*IndShader);
+	//RCache.set_Shader			(IndShader);
+	//RCache.set_Geometry			(hFriendlyIndicator);
+	//RCache.Render	   			(D3DPT_TRIANGLESTRIP,dwOffset,0, dwCount, 0, 2);
+	UIRender->FlushPrimitive();
 };
 
 static float mid_size = 0.097f;
@@ -1387,6 +1401,7 @@ void CActor::ForceTransform(const Fmatrix& m)
 {
 	if(!g_Alive())
 		return;
+	VERIFY(_valid(m));
 	XFORM().set					(m);
 	if( character_physics_support()->movement()->CharacterExist() )
 		character_physics_support()->movement()->EnableCharacter	();
@@ -1535,20 +1550,21 @@ float	CActor::HitArtefactsOnBelt		(float hit_power, ALife::EHitType hit_type)
 	float res_hit_power_k		= 1.0f;
 	float _af_count				= 0.0f;
 
-	for(TIItemContainer::iterator it = inventory().m_belt.begin(); 
-		inventory().m_belt.end() != it; ++it) 
+	TIItemContainer::iterator it  = inventory().m_belt.begin(); 
+	TIItemContainer::iterator ite = inventory().m_belt.end() ;
+	for( ; it != ite; ++it )
 	{
 		CArtefact*	artefact = smart_cast<CArtefact*>(*it);
-		if(artefact){
+		if(artefact)
+		{
 			res_hit_power_k	+= artefact->m_ArtefactHitImmunities.AffectHit(1.0f, hit_type);
 			_af_count		+= 1.0f;
 		}
 	}
 	res_hit_power_k			-= _af_count;
 
-	return					res_hit_power_k * hit_power;
+	return res_hit_power_k * hit_power;
 }
-
 
 
 void	CActor::SetZoomRndSeed		(s32 Seed)

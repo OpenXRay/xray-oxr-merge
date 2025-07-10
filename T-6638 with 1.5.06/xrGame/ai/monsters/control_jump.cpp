@@ -287,7 +287,7 @@ bool CControlJump::in_auto_aim ()
 void CControlJump::update_frame()
 {
 	// check if all jump stages are ended
-	if ( m_velocity_bounced && m_man->path_builder().is_path_end(0.1f) ) 
+	if ( m_velocity_bounced && m_man->path_builder().is_path_end(0.1f) )
 	{
 		stop			();
 		return;

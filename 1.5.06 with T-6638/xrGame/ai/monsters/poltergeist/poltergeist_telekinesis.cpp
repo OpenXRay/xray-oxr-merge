@@ -43,8 +43,11 @@ void CPolterTele::update_schedule()
 {
 	inherited::update_schedule();
 
-	if (!m_object->g_Alive() || !Actor() || !Actor()->g_Alive()) return;
-	if (Actor()->Position().distance_to(m_object->Position()) > m_pmt_distance) return;
+	if (!m_object->g_Alive() || !Actor() || !Actor()->g_Alive())
+		return;
+
+	if (Actor()->Position().distance_to(m_object->Position()) > m_pmt_distance)
+		return;
 
 	switch (m_state) {
 	case eStartRaiseObjects:	
@@ -65,7 +68,8 @@ void CPolterTele::update_schedule()
 
 		break;
 	case eRaisingObjects:
-		if (m_time + m_pmt_time_to_hold > time()) break;
+		if (m_time + m_pmt_time_to_hold > time())
+			break;
 		
 		m_time				= time();
 		m_time_next		= 0;
@@ -91,7 +95,6 @@ void CPolterTele::update_schedule()
 		break;
 	}
 }
-
 
 //////////////////////////////////////////////////////////////////////////
 // Выбор подходящих объектов для телекинеза

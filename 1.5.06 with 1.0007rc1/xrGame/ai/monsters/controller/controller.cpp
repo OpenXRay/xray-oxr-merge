@@ -574,28 +574,20 @@ void CController::psy_fire()
 bool CController::can_psy_fire()
 {
 	if ( m_psy_fire_start_time + m_psy_fire_delay > time () )
-	{
 		return false;
-	}
 
 	if ( !EnemyMan.get_enemy() )
-	{
 		return false;
-	}
 
 	if ( !EnemyMan.see_enemy_now() )
-	{
 		return false;
-	}
 
 	float cur_yaw = custom_dir().get_head_orientation().current.yaw;
 	float dir_yaw = Fvector().sub(EnemyMan.get_enemy()->Position(), Position()).getH();
 	dir_yaw		  = angle_normalize(-dir_yaw);
 
 	if ( angle_difference(cur_yaw, dir_yaw) > _pmt_psy_attack_min_angle )
-	{
 		return false;
-	}
 
 	m_psy_fire_start_time		= time();
 	return true;
@@ -637,29 +629,19 @@ bool CController::can_tube_fire()
 	}
 
 	if ( !EnemyMan.get_enemy() )
-	{
 		return false;
-	}
 
 	if ( m_time_last_tube + m_tube_condition_min_delay > time() )
-	{
 		return false;
-	}
 
 	if ( EnemyMan.see_enemy_duration() < m_tube_condition_see_duration ) 
-	{
 		return false;
-	}
 
 	if ( !m_psy_hit->check_start_conditions() )
-	{
 		return false;
-	}
 
 	if ( EnemyMan.get_enemy()->Position().distance_to(Position()) < m_tube_condition_min_distance ) 
-	{
 		return false;
-	}
 
 	return true;
 }
@@ -699,8 +681,9 @@ void CController::TranslateActionToPathParams()
 	//}
 	//custom_anim().set_path_params();
 
-	if ((anim().m_tAction != ACT_RUN) && 
-		(anim().m_tAction != ACT_WALK_FWD)) {
+	if ((anim().m_tAction != ACT_RUN) &&
+		(anim().m_tAction != ACT_WALK_FWD))
+	{
 		inherited::TranslateActionToPathParams();
 		return;
 	}
@@ -733,7 +716,6 @@ void CController::set_mental_state(EMentalState state)
 	
 	m_custom_anim_base->on_switch_controller	();
 }
-
 
 #ifdef DEBUG
 CBaseMonster::SDebugInfo CController::show_debug_info()

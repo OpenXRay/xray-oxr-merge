@@ -359,7 +359,7 @@ bool CControlManagerCustom::jump(const SControlJumpData &ta)
 	ctrl_data->force_factor							= -1.f;
 
 	m_man->activate		(ControlCom::eControlJump);
-	return												true;
+	return											true;
 }
 
 void CControlManagerCustom::jump(const Fvector &position)

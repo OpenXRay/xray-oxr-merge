@@ -295,12 +295,11 @@ class 	IBoneData
 	
 };
 
-//static const Fobb	dummy ;//= Fobb().identity();
 // refs
 class CBone;
 DEFINE_VECTOR		    (CBone*,BoneVec,BoneIt);
 
-class ECORE_API CBone:
+class ECORE_API CBone :
 	public CBoneInstance,
 	public IBoneData
 {

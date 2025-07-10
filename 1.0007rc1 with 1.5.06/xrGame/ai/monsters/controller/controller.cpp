@@ -7,7 +7,7 @@
 #include "../ai_monster_effector.h"
 #include "../../../hudmanager.h"
 #include "../../../ui.h"
-#include "../../../../skeletonanimated.h"
+#include "../../../../Include/xrRender/KinematicsAnimated.h"
 #include "../../../level.h"
 #include "../../../sound_player.h"
 #include "../../../ai_monster_space.h"
@@ -36,7 +36,7 @@
 #include "../../../monster_community.h"
 #include "../../../character_community.h"
 #include "../../../InventoryOwner.h"
-#include "../../../character_info.h"
+#include "../../../../xrServerEntities/character_info.h"
 
 #include "controller_psy_hit.h"
 #include "../monster_cover_manager.h"
@@ -251,7 +251,6 @@ void CController::load_friend_community_overrides(LPCSTR section)
 		_GetItem	(src,i,st);
 		m_friend_community_overrides[i] = st;
 	}
-	
 }
 
 bool CController::is_community_friend_overrides(const CEntityAlive *entity_alive) const
@@ -419,7 +418,7 @@ void CController::UpdateCL()
 			float x2 = Device.dwWidth  / 2 + ((Device.dwWidth	/ 2) * percent);
 			float y2 = Device.dwHeight / 2 + ((Device.dwHeight	/ 2) * percent);
 
-			s->wnd()->SetWndRect				(x1,y1,x2-x1,y2-y1);
+			s->wnd()->SetWndRect				(Frect().set(x1,y1,x2-x1,y2-y1));
 		} else if (percent2 > 0){
 			HUD().GetUI()->UIGame()->RemoveCustomStatic("controller_fx");
 			SDrawStaticStruct* s = HUD().GetUI()->UIGame()->AddCustomStatic("controller_fx2", true);
@@ -429,7 +428,7 @@ void CController::UpdateCL()
 			float x2 = Device.dwWidth  / 2 + ((Device.dwWidth	/ 2) * percent2);
 			float y2 = Device.dwHeight / 2 + ((Device.dwHeight	/ 2) * percent2);
 
-			s->wnd()->SetWndRect				(x1,y1,x2-x1,y2-y1);
+			s->wnd()->SetWndRect				(Frect().set(x1,y1,x2-x1,y2-y1));
 		} else {
 			active_control_fx = false;
 			HUD().GetUI()->UIGame()->RemoveCustomStatic("controller_fx");
@@ -544,14 +543,21 @@ void CController::psy_fire()
 
 bool CController::can_psy_fire()
 {
-	if (m_psy_fire_start_time + m_psy_fire_delay > time ())			return false;
-	if (!EnemyMan.get_enemy())										return false;
-	if (!EnemyMan.see_enemy_now())									return false;
+	if (m_psy_fire_start_time + m_psy_fire_delay > time ())
+		return false;
+
+	if (!EnemyMan.get_enemy())
+		return false;
+
+	if (!EnemyMan.see_enemy_now())
+		return false;
 
 	float cur_yaw	= custom_dir().get_head_orientation().current.yaw;
 	float dir_yaw	= Fvector().sub(EnemyMan.get_enemy()->Position(), Position()).getH();
 	dir_yaw			= angle_normalize(-dir_yaw);
-	if (angle_difference(cur_yaw,dir_yaw) > _pmt_psy_attack_min_angle) return false;
+
+	if (angle_difference(cur_yaw,dir_yaw) > _pmt_psy_attack_min_angle)
+		return false;
 
 	m_psy_fire_start_time		= time();
 	return true;
@@ -585,22 +591,32 @@ void CController::tube_fire()
 	control().activate	(ControlCom::eComCustom1);
 }
 
-
 bool CController::can_tube_fire()
 {
-	if (m_tube_at_once) {
-		if (EnemyMan.get_enemy() && 
-			EnemyMan.see_enemy_now() && 
-			m_psy_hit->check_start_conditions()) return true;
+	if (m_tube_at_once)
+	{
+		if (EnemyMan.get_enemy() &&  EnemyMan.see_enemy_now() && m_psy_hit->check_start_conditions())
+		{
+				return true;
+		}
 
 		return false;
 	}
 
-	if (!EnemyMan.get_enemy()) return false;
-	if (m_time_last_tube + MIN_DELAY > time()) return false;
-	if (EnemyMan.see_enemy_duration() < SEE_ENEMY_DURATION) return false;
-	if (!m_psy_hit->check_start_conditions()) return false;
-	if (EnemyMan.get_enemy()->Position().distance_to(Position()) < 10.f) return false;
+	if (!EnemyMan.get_enemy())
+	 return false;
+
+	if (m_time_last_tube + MIN_DELAY > time())
+	 return false;
+
+	if (EnemyMan.see_enemy_duration() < SEE_ENEMY_DURATION)
+	 return false;
+
+	if (!m_psy_hit->check_start_conditions())
+	 return false;
+
+	if (EnemyMan.get_enemy()->Position().distance_to(Position()) < 10.f)
+	 return false;
 
 	return true;
 }
@@ -640,7 +656,9 @@ void CController::TranslateActionToPathParams()
 	//}
 	//custom_anim().set_path_params();
 
-	if ((anim().m_tAction != ACT_RUN) && (anim().m_tAction != ACT_WALK_FWD)) {
+	if ((anim().m_tAction != ACT_RUN) &&
+		(anim().m_tAction != ACT_WALK_FWD))
+	{
 		inherited::TranslateActionToPathParams();
 		return;
 	}
@@ -674,9 +692,6 @@ void CController::set_mental_state(EMentalState state)
 	m_custom_anim_base->on_switch_controller	();
 }
 
-
-
-
 #ifdef DEBUG
 CBaseMonster::SDebugInfo CController::show_debug_info()
 {
@@ -691,7 +706,8 @@ CBaseMonster::SDebugInfo CController::show_debug_info()
 	my_pos.y += 1.5f;
 		
 	
-	for (u32 i=0; i < m_controlled_objects.size(); i++) {
+	for (u32 i=0; i < m_controlled_objects.size(); i++)
+	{
 		Fvector enemy_pos	= m_controlled_objects[i]->Position();
 		
 		Fvector dir;

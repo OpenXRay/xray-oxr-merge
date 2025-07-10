@@ -111,8 +111,7 @@ bool CStateGroupAttackMoveToHomePointAbstract::check_completion()
 		return true;
 	}
 
-	if ( object->ai_location().level_vertex_id() == m_target_node 
-		                          && 
+	if ( object->ai_location().level_vertex_id() == m_target_node && 
         !object->control().path_builder().is_moving_on_path() )
 	{
 		return true;

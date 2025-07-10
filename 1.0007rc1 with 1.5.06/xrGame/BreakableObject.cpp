@@ -1,15 +1,13 @@
 #include "stdafx.h"
-#pragma hdrstop
-
 #include "BreakableObject.h"
 #include "xrserver_objects_alife.h"
 #include "PHStaticGeomShell.h"
 #include "PhysicsShell.h"
 #include "Physics.h"
-#include "../xr_collide_form.h"
+#include "../xrEngine/xr_collide_form.h"
 #include "../../xrNetServer/net_utils.h"
 #include "clsid_game.h"
-#include "../skeletoncustom.h"
+#include "../Include/xrRender/Kinematics.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -48,8 +46,8 @@ BOOL CBreakableObject::net_Spawn(CSE_Abstract* DC)
 	VERIFY(!collidable.model);
 	collidable.model = xr_new<CCF_Skeleton>(this);
 	// set bone id
-	R_ASSERT				(Visual()&&smart_cast<CKinematics*>(Visual()));
-//	CKinematics* K			= smart_cast<CKinematics*>(Visual());
+	R_ASSERT				(Visual()&&smart_cast<IKinematics*>(Visual()));
+//	IKinematics* K			= smart_cast<IKinematics*>(Visual());
 	fHealth					= obj->m_health;
 	processing_deactivate	();
 	setVisible				(TRUE);

@@ -65,7 +65,7 @@ void CBloodsuckerStateAttackAbstract::execute()
 	{
 		select_state(eStateAttack_MoveToHomePoint);
 	}
-	else if ( check_steal_state() ) 
+	else if ( check_steal_state() )
 	{
 		select_state(eStateAttack_Steal);
 	} 
@@ -108,7 +108,7 @@ void CBloodsuckerStateAttackAbstract::execute()
  		}
  		else
 		// установить целевое состояние
-		if ( b_melee ) 
+		if ( b_melee )
 		{  
 			// check if enemy is behind me for a long time
 			// [TODO] make specific state and replace run_away state (to avoid ratation jumps)
@@ -117,7 +117,7 @@ void CBloodsuckerStateAttackAbstract::execute()
 			//else 
 			select_state(eStateAttack_Melee);
 		}
-		else 
+		else
 		{
 			select_state(eStateAttack_Run);
 		}
@@ -158,8 +158,8 @@ void CBloodsuckerStateAttackAbstract::update_invisibility()
 			object->stop_invisible_predator	();
 			m_time_stop_invis = Device.dwTimeGlobal;		
 		}
-	} 
-	else 
+	}
+	else
 	{
 		if ( Device.dwTimeGlobal > m_time_stop_invis + object->get_invisibility_activate_delay() )
 		{
@@ -167,7 +167,7 @@ void CBloodsuckerStateAttackAbstract::update_invisibility()
 			if ( current_substate == eStateAttack_Hide )
 			{
 				object->start_invisible_predator();
-			} 
+			}
 			else if ( object->EnemyMan.get_enemy()->Position().distance_to(object->Position()) > 
 				      detail::bloodsucker::invisibility_dist2enemy )
 			{

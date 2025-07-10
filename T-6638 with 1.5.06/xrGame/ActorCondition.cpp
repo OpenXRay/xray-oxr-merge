@@ -322,7 +322,6 @@ void CActorCondition::AffectDamage_InjuriousMaterialAndMonstersInfluence()
 	{
 		return;
 	}
-
 	clamp( m_f_time_affected, tg - (one * 3), tg );
 
 	float psy_influence					=	0;
@@ -371,15 +370,14 @@ void CActorCondition::AffectDamage_InjuriousMaterialAndMonstersInfluence()
 
 			if ( damage > EPS )
 			{
-				SHit HDS = SHit(damage, 
-//.								0.0f, 
-								Fvector().set(0,1,0), 
-								NULL, 
-								BI_NONE, 
-								Fvector().set(0,0,0), 
-								0.0f, 
-								type, 
-								0.0f, 
+				SHit HDS = SHit(damage,
+								Fvector().set(0,1,0),
+								NULL,
+								BI_NONE,
+								Fvector().set(0,0,0),
+								0.0f,
+								type,
+								0.0f,
 								false);
 
 				HDS.GenHeader(GE_HIT, m_object->ID());
@@ -387,7 +385,7 @@ void CActorCondition::AffectDamage_InjuriousMaterialAndMonstersInfluence()
 				CGameObject::u_EventSend( np );
 			}
 
-		} // for
+		}
 
 	}//while
 }

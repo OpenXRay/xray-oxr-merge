@@ -129,7 +129,8 @@ void CAI_Stalker::g_fireParams(const CHudItem* pHudItem, Fvector& P, Fvector& D)
 		return;
 	}
 
-	if (!g_Alive()) {
+	if (!g_Alive())
+	{
 		P				= weapon->get_LastFP();
 		D				= weapon->get_LastFD();
 		VERIFY			(!fis_zero(D.square_magnitude()));

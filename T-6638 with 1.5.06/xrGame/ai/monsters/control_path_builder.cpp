@@ -138,7 +138,7 @@ bool CControlPathBuilder::build_special(const Fvector &target, u32 node, u32 vel
 		node = ai().level_graph().check_position_in_direction(object().ai_location().level_vertex_id(),object().Position(),target);
 		restrictions().remove_border();
 
-		if (!ai().level_graph().valid_vertex_id(node) || !accessible(node)) 
+		if (!ai().level_graph().valid_vertex_id(node) || !accessible(node))
 			return false;
 	}
 

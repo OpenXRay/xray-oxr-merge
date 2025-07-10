@@ -281,28 +281,30 @@ void CActorCondition::UpdateCondition()
 			m_death_effector->Stop();
 	}
 
-	AffectDamage_InjuriousMaterial();
-
-	/*if(m_fDeltaTime > 0.0f)
-	{
-		float inj_material_damage = GetInjuriousMaterialDamage();
-		if(inj_material_damage>0)
-		{
-			inj_material_damage	*= (m_fDeltaTime / Level().GetGameTimeFactor());
-			SHit	HDS = SHit(inj_material_damage,0.0f,Fvector().set(0,1,0),NULL,BI_NONE,Fvector().set(0,0,0), 0.f, ALife::eHitTypeRadiation);
-
-			HDS.GenHeader(GE_HIT, m_object->ID());
-
-			NET_Packet			np;
-			HDS.Write_Packet	(np);
-			
-			CGameObject::u_EventSend(np);
-			m_object->Hit(&HDS);
-		}
-	}*/
+	AffectDamage_InjuriousMaterialAndMonstersInfluence();
 }
 
-void CActorCondition::AffectDamage_InjuriousMaterial()
+void CActorCondition::UpdateBoosters()
+{
+	for(u8 i=0;i<eBoostMaxCount;i++)
+	{
+		BOOSTER_MAP::iterator it = m_booster_influences.find((EBoostParams)i);
+		if(it!=m_booster_influences.end())
+		{
+			it->second.fBoostTime -= m_fDeltaTime/(IsGameTypeSingle()?Level().GetGameTimeFactor():1.0f);
+			if(it->second.fBoostTime<=0.0f)
+			{
+				DisableBoostParameters(it->second);
+				m_booster_influences.erase(it);
+			}
+		}
+	}
+
+	if(m_object == Level().CurrentViewEntity())
+		CurrentGameUI()->UIMainIngameWnd->UpdateBoosterIndicators(m_booster_influences);
+}
+
+void CActorCondition::AffectDamage_InjuriousMaterialAndMonstersInfluence()
 {
 	float one = 0.1f;
 	float tg  = Device.fTimeGlobal;
@@ -328,11 +330,15 @@ void CActorCondition::AffectDamage_InjuriousMaterial()
 	{
 		m_f_time_affected += one;
 
-		SHit HDS = SHit( damage, 0.0f, Fvector().set(0,1,0), NULL, BI_NONE, Fvector().set(0,0,0), 0.0f, ALife::eHitTypeRadiation );
-///		Msg( "_____ damage = %.4f     frame=%d", damage, Device.dwFrame );
+		SHit HDS = SHit(damage,
+						Fvector().set(0,1,0),
+						NULL,
+						BI_NONE,
+						Fvector().set(0,0,0),
+						0.0f,
+						ALife::eHitTypeRadiation);
 
 		HDS.GenHeader(GE_HIT, m_object->ID());
-
 		HDS.Write_Packet( np );
 		CGameObject::u_EventSend( np );
 
@@ -385,15 +391,10 @@ void CActorCondition::UpdateSatiety()
 		return;
 	}
 
-	float k = 1.0f;
 	if(m_fSatiety>0)
 	{
-		m_fSatiety -=	m_fV_Satiety*
-						k*
-						m_fDeltaTime;
-	
+		m_fSatiety -=	m_fV_Satiety*m_fDeltaTime;
 		clamp			(m_fSatiety,		0.0f,		1.0f);
-
 	}
 		
 	//сытость увеличивает здоровье только если нет открытых ран

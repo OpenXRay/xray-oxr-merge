@@ -671,7 +671,6 @@ BOOL CActor::net_Spawn		(CSE_Abstract* DC)
 
 	if (IsGameTypeSingle())
 	{
-
 		Level().MapManager().AddMapLocation("actor_location",ID());
 		Level().MapManager().AddMapLocation("actor_location_p",ID());
 
@@ -1384,10 +1383,6 @@ void dbg_draw_piramid (Fvector pos, Fvector dir, float size, float xdir, u32 col
 		DRender->dbg_DrawTRI(t, p1, p2, p4, color);
 		DRender->dbg_DrawTRI(t, p2, p3, p4, color);
 		DRender->dbg_DrawTRI(t, p3, p0, p4, color);
-		//RCache.dbg_DrawTRI(t, p0, p1, p4, color);
-		//RCache.dbg_DrawTRI(t, p1, p2, p4, color);
-		//RCache.dbg_DrawTRI(t, p2, p3, p4, color);
-		//RCache.dbg_DrawTRI(t, p3, p0, p4, color);
 	}
 	else
 	{
@@ -1410,7 +1405,6 @@ void dbg_draw_piramid (Fvector pos, Fvector dir, float size, float xdir, u32 col
 
 void	CActor::OnRender_Network()
 {
-	//RCache.OnFrameEnd();
 	DRender->OnFrameEnd();
 
 	//-----------------------------------------------------------------------------------------------------

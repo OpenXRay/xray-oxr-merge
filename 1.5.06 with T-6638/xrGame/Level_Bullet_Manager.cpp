@@ -247,7 +247,7 @@ void CBulletManager::UpdateWorkload()
 	BulletVec::reverse_iterator	i = m_Bullets.rbegin();
 	BulletVec::reverse_iterator	e = m_Bullets.rend();
 	for (u16 j=u16(e - i); i != e; ++i, --j) {
-		if ( process_bullet( rq_storage, *i, time_delta ) )
+		if ( process_bullet( rq_storage, *i, u32(time_delta*g_bullet_time_factor)) )
 			continue;
 
 		VERIFY					(j > 0);

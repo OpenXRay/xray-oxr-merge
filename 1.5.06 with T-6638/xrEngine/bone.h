@@ -39,9 +39,11 @@ public:
 	IC	u32					callback_type()				{ return Callback_type; }	
 public:
 	void				construct		();
+	
 	void				set_callback	(u32 Type, BoneCallback C, void* Param, BOOL overwrite=FALSE);
-	void				set_callback_overwrite(BOOL v){ Callback_overwrite = v; }
 	void				reset_callback	();
+	void				set_callback_overwrite(BOOL v){ Callback_overwrite = v; }
+
 	void				set_param		(u32 idx, float data);
 	float				get_param		(u32 idx);
 

@@ -9,4 +9,5 @@ class CStateManagerBloodsucker : public CMonsterStateManager<CAI_Bloodsucker> {
 public:
 					CStateManagerBloodsucker	(CAI_Bloodsucker *monster); 
 	virtual void	execute						();
+	virtual void	remove_links				(CObject* object) { inherited::remove_links(object);}
 };

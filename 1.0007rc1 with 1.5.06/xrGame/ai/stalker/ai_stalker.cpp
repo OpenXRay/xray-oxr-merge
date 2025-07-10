@@ -24,7 +24,6 @@
 #include "../../xrserver.h"
 #include "../../xr_level_controller.h"
 #include "../../hudmanager.h"
-#include "../../clsid_game.h"
 #include "../../../Include/xrRender/Kinematics.h"
 #include "../../../xrServerEntities/character_info.h"
 #include "../../actor.h"
@@ -714,9 +713,9 @@ void CAI_Stalker::UpdateCL()
 	STOP_PROFILE
 }
 
-void CAI_Stalker ::PHHit				(float P,Fvector &dir, CObject *who,s16 element,Fvector p_in_object_space, float impulse, ALife::EHitType hit_type /*ALife::eHitTypeWound*/)
+void CAI_Stalker ::PHHit				(SHit &H )
 {
-	m_pPhysics_support->in_Hit(P,dir,who,element,p_in_object_space,impulse,hit_type,!g_Alive());
+	m_pPhysics_support->in_Hit( H, false );
 }
 
 CPHDestroyable*		CAI_Stalker::		ph_destroyable	()						
@@ -958,6 +957,7 @@ void CAI_Stalker::net_Relcase				(CObject*	 O)
 	inherited::net_Relcase				(O);
 
 	sight().remove_links				(O);
+	movement().remove_links				(O);
 
 	if (!g_Alive())
 		return;
@@ -968,7 +968,7 @@ void CAI_Stalker::net_Relcase				(CObject*	 O)
 
 CMovementManager *CAI_Stalker::create_movement_manager	()
 {
-	return	(m_movement_manager = xr_new<CStalkerMovementManager>(this));
+	return	(m_movement_manager = xr_new<stalker_movement_manager_smart_cover>(this));
 }
 
 CSound_UserDataVisitor *CAI_Stalker::create_sound_visitor		()
@@ -996,7 +996,7 @@ DLL_Pure *CAI_Stalker::_construct			()
 
 	
 	m_actor_relation_flags.zero			();
-	m_animation_manager					= xr_new<CStalkerAnimationManager>();
+	m_animation_manager					= xr_new<CStalkerAnimationManager>(this);
 	m_brain								= xr_new<CStalkerPlanner>();
 	m_sight_manager						= xr_new<CSightManager>(this);
 	m_weapon_shot_effector				= xr_new<CWeaponShotEffector>();
@@ -1024,7 +1024,7 @@ void CAI_Stalker::UpdateCamera			()
 			temp						= weapon_shot_effector_direction(temp);
 	}
 
-	g_pGameLevel->Cameras().Update		(eye_matrix.c,temp,eye_matrix.j,new_fov,.75f,new_range);
+	g_pGameLevel->Cameras().Update		(eye_matrix.c,temp,eye_matrix.j,new_fov,.75f,new_range,0);
 }
 
 bool CAI_Stalker::can_attach			(const CInventoryItem *inventory_item) const

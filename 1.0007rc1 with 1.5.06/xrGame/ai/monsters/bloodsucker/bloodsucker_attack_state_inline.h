@@ -50,43 +50,62 @@ void CBloodsuckerStateAttackAbstract::execute()
 {
 	bool selected = false;
 
-	if (check_home_point()) {
+	if (check_home_point())
+	{
 		select_state	(eStateAttack_MoveToHomePoint);
 		selected		= true;
-	} else if (check_hiding()) {
+	}
+	else if (check_hiding())
+	{
 		select_state	(eStateAttack_Hide);
 		selected		= true;
-	} else if (check_steal_state()) {
+	}
+	else if (check_steal_state())
+	{
 		select_state	(eStateAttack_Steal);
 		selected		= true;
-	} else if (check_camp_state()) {
+	}
+	else if (check_camp_state())
+	{
 		select_state	(eStateAttackCamp);
 		selected		= true;
-	} else if (check_find_enemy_state()) {
+	}
+	else if (check_find_enemy_state())
+	{
 		select_state	(eStateAttack_FindEnemy);
 		selected		= true;
-	} else if (check_run_attack_state()) {
+	}
+	else if (check_run_attack_state())
+	{
 		select_state	(eStateAttack_RunAttack);
 		selected		= true;
 	}
 
-	if (!selected) {
+	if (!selected)
+	{
 		// определить тип атаки
 		bool b_melee = false; 
 
-		if (prev_substate == eStateAttack_Melee) {
-			if (!get_state_current()->check_completion()) {
+		if (prev_substate == eStateAttack_Melee)
+		{
+			if (!get_state_current()->check_completion())
+			{
 				b_melee = true;
 			}
-		} else if (get_state(eStateAttack_Melee)->check_start_conditions()) {
+		}
+		else if (get_state(eStateAttack_Melee)->check_start_conditions())
+		{
 			b_melee = true;
 		}
 		
-		if (!b_melee && (prev_substate == eStateAttack_Melee)) {
+		if (!b_melee && (prev_substate == eStateAttack_Melee))
+		{
 			select_state	(eStateAttack_Hide);
-		} else
+		}
+		else
 		// установить целевое состояние
-		if (b_melee) {  
+		if (b_melee)
+		{  
 			// check if enemy is behind me for a long time
 			// [TODO] make specific state and replace run_away state (to avoid ratation jumps)
 			//if (check_behinder()) 
@@ -94,11 +113,18 @@ void CBloodsuckerStateAttackAbstract::execute()
 			//else 
 				select_state(eStateAttack_Melee);
 		}
-		else select_state(eStateAttack_Run);
+		else
+		{
+			select_state(eStateAttack_Run);
+		}
 	}
 
 	// clear behinder var if not melee state selected
-	if (current_substate != eStateAttack_Melee) m_time_start_check_behinder = 0;
+	if ( current_substate != eStateAttack_Melee )
+	{
+		m_time_start_check_behinder = 0;
+	}
+
 	update_invisibility				();
 	
 	get_state_current()->execute	();
@@ -106,7 +132,8 @@ void CBloodsuckerStateAttackAbstract::execute()
 
 	// Notify squad	
 	CMonsterSquad *squad	= monster_squad().get_squad(object);
-	if (squad) {
+	if (squad)
+	{
 		SMemberGoal			goal;
 
 		goal.type			= MG_AttackEnemy;
@@ -114,25 +141,28 @@ void CBloodsuckerStateAttackAbstract::execute()
 
 		squad->UpdateGoal	(object, goal);
 	}
-	//////////////////////////////////////////////////////////////////////////
 }
-
-
 
 TEMPLATE_SPECIALIZATION
 void CBloodsuckerStateAttackAbstract::update_invisibility()
 {
-	if (object->state_invisible) {
+	if (object->state_invisible)
+	{
 		// check conditions to stop invis
-		if (current_substate == eStateAttack_Melee) {
+		if (current_substate == eStateAttack_Melee)
+		{
 			object->stop_invisible_predator	();
 			m_time_stop_invis				= time();		
 		}
-	} else {
+	}
+	else
+	{
 		// check conditions to start invis
-		if (current_substate == eStateAttack_Hide) {
+		if (current_substate == eStateAttack_Hide)
+		{
 			object->start_invisible_predator();
-		} else 
+		}
+		else 
 		if ((current_substate == eStateAttack_Run) && (object->EnemyMan.get_enemy()->Position().distance_to(object->Position()) > INVIS_DIST_TO_ENEMY)) {
 			if (m_time_stop_invis + INVIS_ACTIVATE_DELAY < time()) 
 				object->start_invisible_predator();
@@ -177,7 +207,8 @@ void CBloodsuckerStateAttackAbstract::setup_substates()
 {
 	state_ptr state = get_state_current();
 
-	if (current_substate == eStateAttack_Hide) {
+	if (current_substate == eStateAttack_Hide)
+	{
 
 		SStateDataMoveToPointEx data;
 

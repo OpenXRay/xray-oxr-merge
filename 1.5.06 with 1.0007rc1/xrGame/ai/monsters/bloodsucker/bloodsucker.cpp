@@ -151,8 +151,7 @@ void CAI_Bloodsucker::Load(LPCSTR section)
 		anim().AddAnim(eAnimWalkDamaged,	"stand_walk_fwd_dmg_",	-1, &velocity_walk_dmg,	PS_STAND, 	"fx_run_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
 		anim().AddAnim(eAnimRun,			"stand_run_",			-1,	&velocity_run,		PS_STAND, 	"fx_run_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
 		anim().AddAnim(eAnimRunDamaged,		"stand_run_dmg_",		-1,	&velocity_run_dmg,	PS_STAND, 	"fx_run_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
-
-		
+	
 		anim().AddAnim(eAnimRunTurnLeft,	"stand_run_turn_left_",	-1, &velocity_run,		PS_STAND,	"fx_run_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
 		anim().AddAnim(eAnimRunTurnRight,	"stand_run_turn_right_",-1, &velocity_run,		PS_STAND,	"fx_run_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");
 		anim().AddAnim(eAnimScared,			"stand_scared_",		-1, &velocity_none,		PS_STAND,	"fx_run_f", "fx_stand_b", "fx_stand_l", "fx_stand_r");	
@@ -202,8 +201,6 @@ void CAI_Bloodsucker::Load(LPCSTR section)
 	anim().LinkAction(ACT_STEAL,		eAnimSteal);
 	anim().LinkAction(ACT_LOOK_AROUND,	eAnimLookAround); 
 
-
-
 	#ifdef DEBUG	
 		anim().accel_chain_test		();
 	#endif
@@ -251,7 +248,6 @@ void CAI_Bloodsucker::reinit()
 
 	com_man().ta_fill_data(anim_triple_vampire, "vampire_0", "vampire_1", "vampire_2", TA_EXECUTE_LOOPED, TA_DONT_SKIP_PREPARE, ControlCom::eCapturePath | ControlCom::eCaptureMovement);
 	
-
 	m_alien_control.reinit();
 	
 	state_invisible				= false;
@@ -453,7 +449,7 @@ void CAI_Bloodsucker::shedule_Update(u32 dt)
 {
 	inherited::shedule_Update(dt);
 	
-	if (!g_Alive())	
+	if (!g_Alive())
 	{
 		setVisible(TRUE);
 		if ( state_invisible )
@@ -487,19 +483,13 @@ void CAI_Bloodsucker::post_fsm_update()
 bool CAI_Bloodsucker::check_start_conditions(ControlCom::EControlType type)
 {
 	if ( type == ControlCom::eControlJump )
-	{
 		return false;
-	}
 
 	if ( !inherited::check_start_conditions(type) )
-	{
 		return false;
-	}
 
 	if ( type == ControlCom::eControlRunAttack )
-	{
 		return !state_invisible;
-	}
 
 	return true;
 }
@@ -637,7 +627,7 @@ void CAI_Bloodsucker::predator_unfreeze()
 
 void CAI_Bloodsucker::move_actor_cam (float angle)
 {
-	if ( Actor()->cam_Active() ) 
+	if ( Actor()->cam_Active() )
 	{
 		Actor()->cam_Active()->Move(Random.randI(2) ? kRIGHT : kLEFT, angle);
 		Actor()->cam_Active()->Move(Random.randI(2) ? kUP	 : kDOWN, angle);

@@ -198,12 +198,10 @@ void CArtefact::UpdateCL		()
 	
 	if (o_fastmode || m_activationObj)
 		UpdateWorkload			(Device.dwTimeDelta);	
-
 }
 
 void CArtefact::UpdateWorkload		(u32 dt) 
 {
-
 	VERIFY(!ph_world->Processing());
 	// particles - velocity
 	Fvector vel = {0, 0, 0};
@@ -216,7 +214,7 @@ void CArtefact::UpdateWorkload		(u32 dt)
 
 	// 
 	UpdateLights							();
-	if(m_activationObj)	
+	if(m_activationObj)
 	{
 		CPHUpdateObject::Activate			();
 		m_activationObj->UpdateActivation	();
@@ -621,6 +619,7 @@ void SArtefactActivation::SpawnAnomaly()
 		Msg("artefact [%s] spawned a zone [%s] at [%f]", *m_af->cName(), zone_sect, Device.fTimeGlobal);
 //. #endif
 }
+
 shared_str clear_brackets(LPCSTR src)
 {
 	if	(0==src)					return	shared_str(0);

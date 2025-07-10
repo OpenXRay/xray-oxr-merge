@@ -222,7 +222,8 @@ void CControlJump::select_next_anim_state()
 void CControlJump::update_frame()
 {
 	// check if all jump stages are ended
-	if (m_velocity_bounced && m_man->path_builder().is_path_end(0.f)) {
+	if (m_velocity_bounced && m_man->path_builder().is_path_end(0.f))
+	{
 		stop();
 		return;
 	}
@@ -244,7 +245,8 @@ void CControlJump::update_frame()
 	}
 	
 	// check if we landed
-	if (is_on_the_ground()) grounding();
+	if (is_on_the_ground())
+		grounding();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -518,46 +520,5 @@ bool CControlJump::can_jump(CObject *target)
 Fvector CControlJump::predict_position(CObject *obj, const Fvector &pos)
 {
 	return pos;
-
-	//CEntityAlive *entity_alive = smart_cast<CEntityAlive*>(obj);
-	//VERIFY(entity_alive);
-	//
-	//float velocity = entity_alive->movement_control()->GetVelocityActual();
-	//float jump_time = m_object->movement_control()->JumpMinVelTime(pos);
-	//float prediction_dist = jump_time * velocity;
-
-	//
-
-	//Fvector					dir;
-	//dir.set					(entity->movement_control()->GetVelocity());
-	//float speed				= dir.magnitude();
-	//dir.normalize_safe		();
-
-	//Fvector					prediction_pos;
-	////prediction_pos.mad		(pos, dir, prediction_dist);
-	//prediction_pos.mad		(pos, dir, speed * jump_time / 2);
-
-	//// проверить prediction_pos на дистанцию и угол
-	//float dist = m_object->Position().distance_to(prediction_pos);
-	//if ((dist < m_min_distance) || (dist > m_max_distance)) return pos;
-
-	//// получить вектор направления и его мир угол
-	//float		dir_yaw, dir_pitch;
-
-	//dir.sub		(prediction_pos, m_object->Position());
-	//dir.getHP	(dir_yaw, dir_pitch);
-
-	//// проверка на angle и на dist
-	//float yaw_current, yaw_target;
-	//m_object->control().direction().get_heading(yaw_current, yaw_target);
-	//if (angle_difference(yaw_current, -dir_yaw) > m_max_angle) return pos;
-	
-//#ifdef DEBUG
-//	DBG().level_info(this).clear	();
-//	DBG().level_info(this).add_item	(pos, 0.35f, D3DCOLOR_XRGB(0,0,255));
-//	DBG().level_info(this).add_item	(prediction_pos, 0.35f, D3DCOLOR_XRGB(255,0,0));
-//#endif
-//
-//	return prediction_pos;
 }
 

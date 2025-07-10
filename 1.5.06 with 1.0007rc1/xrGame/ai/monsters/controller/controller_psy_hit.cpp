@@ -149,7 +149,7 @@ bool CControllerPsyHit::check_conditions_final()
 	if (m_object->EnemyMan.get_enemy() != Actor())	return false;
 	if (!Actor()->g_Alive())						return false;
 	
-	if ( !m_blocked && !m_object->EnemyMan.see_enemy_now() ) 
+	if ( !m_blocked && !m_object->EnemyMan.see_enemy_now() )
 	{
 		using namespace detail;
 		const Fvector self_head = get_head_position(m_object);

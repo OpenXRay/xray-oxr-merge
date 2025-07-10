@@ -1,10 +1,9 @@
 #include "stdafx.h"
 #include "bloodsucker.h"
 #include "bloodsucker_state_manager.h"
-#include "../../../../skeletoncustom.h"
 #include "../../../actor.h"
 #include "../../../ActorEffector.h"
-#include "../../../../skeletonanimated.h"
+#include "../../../../Include/xrRender/KinematicsAnimated.h"
 #include "../../../level.h"
 #include "../../../material_manager.h"
 #include "bloodsucker_vampire_effector.h"
@@ -19,7 +18,7 @@
 #include "../control_rotation_jump.h"
 
 #include "../../../sound_player.h"
-#include "../../../../camerabase.h"
+#include "../../../../xrEngine/camerabase.h"
 #include "../../../xr_level_controller.h"
 #include "../../../ActorCondition.h"
 
@@ -28,7 +27,7 @@
 
 #ifdef DEBUG
 #include <dinput.h>
-#endif
+#endif // DEBUG
 
 
 
@@ -158,7 +157,6 @@ void CAI_Bloodsucker::reinit()
 {
 	inherited::reinit			();
 	CControlledActor::reinit	();
-
 	if(CCustomMonster::use_simplified_visual())	return;
 
 	Bones.Reset					();
@@ -192,7 +190,6 @@ void CAI_Bloodsucker::reload(LPCSTR section)
 	sound().add(pSettings->r_string(section,"Sound_Alien"),						DEFAULT_SAMPLE_COUNT,	SOUND_TYPE_MONSTER_ATTACKING, MonsterSound::eCriticalPriority,	u32(MonsterSound::eCaptureAllChannels),	eAlien,				"bip01_head");
 }
 
-
 void CAI_Bloodsucker::LoadVampirePPEffector(LPCSTR section)
 {
 	pp_vampire_effector.duality.h			= pSettings->r_float(section,"duality_h");
@@ -209,21 +206,19 @@ void CAI_Bloodsucker::LoadVampirePPEffector(LPCSTR section)
 	sscanf(pSettings->r_string(section,"color_add"),	"%f,%f,%f", &pp_vampire_effector.color_add.r,  &pp_vampire_effector.color_add.g,  &pp_vampire_effector.color_add.b);
 }
 
-
 void  CAI_Bloodsucker::BoneCallback(CBoneInstance *B)
 {
-	CAI_Bloodsucker*	this_class = static_cast<CAI_Bloodsucker*> (B->Callback_Param);
+	CAI_Bloodsucker*	this_class = static_cast<CAI_Bloodsucker*> (B->callback_param());
 
 	this_class->Bones.Update(B, Device.dwTimeGlobal);
 }
-
 
 void CAI_Bloodsucker::vfAssignBones()
 {
 	// Установка callback на кости
 
-	bone_spine =	&smart_cast<CKinematics*>(Visual())->LL_GetBoneInstance(smart_cast<CKinematics*>(Visual())->LL_BoneID("bip01_spine"));
-	bone_head =		&smart_cast<CKinematics*>(Visual())->LL_GetBoneInstance(smart_cast<CKinematics*>(Visual())->LL_BoneID("bip01_head"));
+	bone_spine =	&smart_cast<IKinematics*>(Visual())->LL_GetBoneInstance(smart_cast<IKinematics*>(Visual())->LL_BoneID("bip01_spine"));
+	bone_head =		&smart_cast<IKinematics*>(Visual())->LL_GetBoneInstance(smart_cast<IKinematics*>(Visual())->LL_BoneID("bip01_head"));
 	if(!PPhysicsShell())//нельзя ставить колбеки, если создан физ шел - у него стоят свои колбеки!!!
 	{
 		bone_spine->set_callback(bctCustom,BoneCallback,this);
@@ -323,7 +318,10 @@ void CAI_Bloodsucker::shedule_Update(u32 dt)
 {
 	inherited::shedule_Update(dt);
 	
-	if (!g_Alive())	setVisible(TRUE);
+	if (!g_Alive())
+	{
+		setVisible(TRUE);
+	}
 
 	if (m_alien_control.active())	sound().play(eAlien);
 }
@@ -349,10 +347,11 @@ void CAI_Bloodsucker::post_fsm_update()
 
 bool CAI_Bloodsucker::check_start_conditions(ControlCom::EControlType type)
 {
-	if (!inherited::check_start_conditions(type))	return false;
+	if (!inherited::check_start_conditions(type))
+		return false;
 
 	if (type == ControlCom::eControlRunAttack)
-		return (!state_invisible);
+		return !state_invisible;
 
 	return true;
 }
@@ -365,6 +364,7 @@ void CAI_Bloodsucker::set_alien_control(bool val)
 void CAI_Bloodsucker::predator_start()
 {
 	if (m_predator)					return;
+
 	cNameVisual_set					(m_visual_predator);
 	CDamageManager::reload(*cNameSect(),"damage",pSettings);
 
@@ -407,8 +407,8 @@ void CAI_Bloodsucker::move_actor_cam()
 {
 	float turn_angle = PI_DIV_3;
 	if (Actor()->cam_Active()) {
-		Actor()->cam_Active()->Move(Random.randI(2) ? kRIGHT : kLEFT, turn_angle);	//Random.randF(turn_angle)); 
-		Actor()->cam_Active()->Move(Random.randI(2) ? kUP	 : kDOWN, turn_angle);	//Random.randF(turn_angle)); 
+		Actor()->cam_Active()->Move(Random.randI(2) ? kRIGHT : kLEFT, turn_angle);
+		Actor()->cam_Active()->Move(Random.randI(2) ? kUP	 : kDOWN, turn_angle);
 	}
 }
 
@@ -450,8 +450,6 @@ void CAI_Bloodsucker::manual_deactivate()
 	setVisible		(TRUE);
 }
 
-
-
 #ifdef DEBUG
 CBaseMonster::SDebugInfo CAI_Bloodsucker::show_debug_info()
 {
@@ -464,6 +462,17 @@ CBaseMonster::SDebugInfo CAI_Bloodsucker::show_debug_info()
 	DBG().text(this).add_item("---------------------------------------", info.x, info.y+=info.delta_y, info.delimiter_color);
 
 	return CBaseMonster::SDebugInfo();
+}
+
+// Lain: added
+void   CAI_Bloodsucker::add_debug_info (debug::text_tree& root_s)
+{
+	typedef debug::text_tree TextTree;
+	TextTree& general_s = root_s.find_or_add("General");
+
+	TextTree& current_visual_s = general_s.add_line("Predator_Visual");
+	current_visual_s.add_line(m_visual_predator);
+	CBaseMonster::add_debug_info(root_s);
 }
 
 #ifdef _DEBUG
@@ -480,8 +489,8 @@ void CAI_Bloodsucker::debug_on_key(int key)
 		break;
 	}
 }
-#endif
+#endif //_DEBUG
 
 
-#endif
+#endif // DEBUG
 

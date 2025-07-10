@@ -3,7 +3,7 @@
 #include "BaseMonster/base_monster.h"
 #include "control_manager.h"
 #include "../../PHMovementControl.h"
-#include "../../../skeletonanimated.h"
+#include "../../../Include/xrRender/KinematicsAnimated.h"
 #include "../../detail_path_manager.h"
 #include "../../level.h"
 #include "control_animation_base.h"
@@ -302,8 +302,8 @@ void CControlJump::stop()
 // Get target point in world space
 Fvector CControlJump::get_target(CObject *obj)
 {
-	u16 bone_id			= smart_cast<CKinematics*>(obj->Visual())->LL_GetBoneRoot			();
-	CBoneInstance &bone = smart_cast<CKinematics*>(obj->Visual())->LL_GetBoneInstance		(bone_id);
+	u16 bone_id			= smart_cast<IKinematics*>(obj->Visual())->LL_GetBoneRoot			();
+	CBoneInstance &bone = smart_cast<IKinematics*>(obj->Visual())->LL_GetBoneInstance		(bone_id);
 
 	Fmatrix	global_transform;
 	global_transform.mul	(obj->XFORM(),bone.mTransform);
@@ -433,6 +433,7 @@ bool CControlJump::can_jump(CObject *target)
 	// проверка на angle
 	float yaw_current, yaw_target;
 	m_object->control().direction().get_heading(yaw_current, yaw_target);
+
 	if (angle_difference(yaw_current, dir_yaw) > m_max_angle) return false;
 	
 	// check if target on the same floor etc

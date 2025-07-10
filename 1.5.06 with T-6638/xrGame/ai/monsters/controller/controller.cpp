@@ -74,12 +74,10 @@ CController::CController()
 
 	m_aura				= xr_new<CControllerAura>(this);
 
-
 #ifdef _DEBUG	
 	P1.set(0.f,0.f,0.f);
 	P2.set(0.f,0.f,0.f);
 #endif
-
 }
 
 CController::~CController()
@@ -440,8 +438,8 @@ void CController::UpdateCL()
 
 		
 		if (percent < TEXTURE_SIZE_PERCENT ) {
-			HUD().GetUI()->UIGame()->RemoveCustomStatic("controller_fx2");
-			SDrawStaticStruct* s = HUD().GetUI()->UIGame()->AddCustomStatic("controller_fx", true);
+			CurrentGameUI()->RemoveCustomStatic("controller_fx2");
+			SDrawStaticStruct* s = CurrentGameUI()->AddCustomStatic("controller_fx", true);
 			
 			float x1 = Device.dwWidth  / 2 - ((Device.dwWidth	/ 2) * percent);
 			float y1 = Device.dwHeight / 2 - ((Device.dwHeight	/ 2) * percent);
@@ -450,8 +448,8 @@ void CController::UpdateCL()
 
 			s->wnd()->SetWndRect				(Frect().set(x1,y1,x2-x1,y2-y1));
 		} else if (percent2 > 0){
-			HUD().GetUI()->UIGame()->RemoveCustomStatic("controller_fx");
-			SDrawStaticStruct* s = HUD().GetUI()->UIGame()->AddCustomStatic("controller_fx2", true);
+			CurrentGameUI()->RemoveCustomStatic("controller_fx");
+			SDrawStaticStruct* s = CurrentGameUI()->AddCustomStatic("controller_fx2", true);
 			
 			float x1 = Device.dwWidth  / 2 - ((Device.dwWidth	/ 2) * percent2);
 			float y1 = Device.dwHeight / 2 - ((Device.dwHeight	/ 2) * percent2);
@@ -461,13 +459,12 @@ void CController::UpdateCL()
 			s->wnd()->SetWndRect				(Frect().set(x1,y1,x2-x1,y2-y1));
 		} else {
 			active_control_fx = false;
-			HUD().GetUI()->UIGame()->RemoveCustomStatic("controller_fx");
-			HUD().GetUI()->UIGame()->RemoveCustomStatic("controller_fx2");
+			CurrentGameUI()->RemoveCustomStatic("controller_fx");
+			CurrentGameUI()->RemoveCustomStatic("controller_fx2");
 		}
 	}
 
 	m_aura->update_frame();
-
 }
 
 void CController::shedule_Update(u32 dt)
@@ -637,29 +634,21 @@ bool CController::can_tube_fire()
 	}
 
 	if ( !EnemyMan.get_enemy() )
-	{
 		return false;
-	}
 
 	if ( m_time_last_tube + m_tube_condition_min_delay > time() )
 	{
 		return false;
 	}
 
-	if ( EnemyMan.see_enemy_duration() < m_tube_condition_see_duration ) 
-	{
+	if ( EnemyMan.see_enemy_duration() < m_tube_condition_see_duration )
 		return false;
-	}
 
 	if ( !m_psy_hit->check_start_conditions() )
-	{
 		return false;
-	}
 
 	if ( EnemyMan.get_enemy()->Position().distance_to(Position()) < m_tube_condition_min_distance ) 
-	{
 		return false;
-	}
 
 	return true;
 }

@@ -53,13 +53,15 @@
 
 using namespace StalkerSpace;
 
-const float DANGER_DISTANCE				= 3.f;
-const u32	DANGER_INTERVAL				= 120000;
+static float const DANGER_DISTANCE				= 3.f;
+static u32	const DANGER_INTERVAL				= 120000;
 
-const float PRECISE_DISTANCE			= 2.5f;
-const float FLOOR_DISTANCE				= 2.f;
-const float NEAR_DISTANCE				= 2.5f;
-const u32	FIRE_MAKE_SENSE_INTERVAL	= 10000;
+static float const PRECISE_DISTANCE			= 2.5f;
+static float const FLOOR_DISTANCE				= 2.f;
+static float const NEAR_DISTANCE				= 2.5f;
+static u32	const FIRE_MAKE_SENSE_INTERVAL	= 10000;
+
+static float const min_throw_distance		= 10.f;
 
 float CAI_Stalker::GetWeaponAccuracy	() const
 {
@@ -124,7 +126,8 @@ void CAI_Stalker::g_fireParams(const CHudItem* pHudItem, Fvector& P, Fvector& D)
 		return;
 	}
 
-	if (!g_Alive() || !animation().script_animations().empty()) {
+	if (!g_Alive() || !animation().script_animations().empty())
+	{
 		P				= weapon->get_LastFP();
 		D				= weapon->get_LastFD();
 		VERIFY			(!fis_zero(D.square_magnitude()));
@@ -147,8 +150,6 @@ void CAI_Stalker::g_fireParams(const CHudItem* pHudItem, Fvector& P, Fvector& D)
 				Center	(P);
 				P.mad	(D,.5f);
 				P.y		+= .50f;
-//				P		= weapon->get_LastFP();
-//				D		= weapon->get_LastFD();
 				VERIFY	(!fis_zero(D.square_magnitude()));
 			}
 			return;
@@ -158,6 +159,7 @@ void CAI_Stalker::g_fireParams(const CHudItem* pHudItem, Fvector& P, Fvector& D)
 			D			= eye_matrix.k;
 			if (weapon_shot_effector().IsActive())
 				D		= weapon_shot_effector_direction(D);
+
 			VERIFY		(!fis_zero(D.square_magnitude()));
 			return;
 		}

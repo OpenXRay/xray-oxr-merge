@@ -52,8 +52,6 @@ void   CChimera::Load (LPCSTR section)
 	
 	anim().AddAnim	(eAnimStandIdle,		"stand_idle_",			-1, &velocity_none,		PS_STAND);
 
-	//@
-
 	IKinematicsAnimated*	KA			=	smart_cast<IKinematicsAnimated*>(Visual());
 	MotionID idle_motion_id1			=	KA->LL_MotionID("stand_idle_0");
 	MotionID idle_motion_id2			=	KA->LL_MotionID("stand_idle_1");
@@ -118,7 +116,7 @@ void   CChimera::Load (LPCSTR section)
 
 EAction   CChimera::CustomVelocityIndex2Action (u32 velocity_index) 
 {
-	switch ( velocity_index ) 
+	switch ( velocity_index )
 	{
 		case MonsterMovement::eChimeraVelocityParameterJumpGround:	return ACT_RUN;
 		case MonsterMovement::eChimeraVelocityParameterPrepare:		return ACT_RUN;
@@ -159,7 +157,6 @@ void   CChimera::CheckSpecParams (u32 spec_params)
 void   CChimera::HitEntityInJump (const CEntity *pEntity)
 {
 	SAAParam &params					=	anim().AA_GetParams("jump_attack_1");
-	
 	HitEntity								(pEntity, params.hit_power, params.impulse, params.impulse_dir);
 }
 

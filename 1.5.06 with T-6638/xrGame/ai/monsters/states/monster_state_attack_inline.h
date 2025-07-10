@@ -3,6 +3,7 @@
 #include "monster_state_attack_melee.h"
 #include "monster_state_attack_run.h"
 #include "monster_state_attack_run_attack.h"
+#include "monster_state_attack_on_run.h"
 #include "state_hide_from_point.h"
 #include "monster_state_find_enemy.h"
 #include "monster_state_steal.h"
@@ -84,6 +85,8 @@ void CStateMonsterAttackAbstract::initialize()
 TEMPLATE_SPECIALIZATION
 void CStateMonsterAttackAbstract::execute()
 {
+	bool	can_attack_on_move		=	object->can_attack_on_move();
+
 	if (check_home_point())
 		select_state	(eStateAttack_MoveToHomePoint);
 	else if (check_steal_state())
@@ -94,9 +97,10 @@ void CStateMonsterAttackAbstract::execute()
 		select_state	(eStateAttack_FindEnemy);
 	else if (check_run_away_state())
 		select_state	(eStateAttack_RunAway);
-	else if (check_run_attack_state())
+	else if (!can_attack_on_move && check_run_attack_state())
 		select_state	(eStateAttack_RunAttack);
-
+	else if ( can_attack_on_move )
+				select_state(eStateAttack_Attack_On_Run);
 	else
 	{
 		// определить тип атаки

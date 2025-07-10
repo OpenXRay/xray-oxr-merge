@@ -8,8 +8,8 @@
 class poses_blending;
 class CBlend;
 
-class animation_movement_controller : 
-	public  IBlendDestroyCallback, 
+class animation_movement_controller :
+	public  IBlendDestroyCallback,
 	private boost::noncopyable
 {
 	Fmatrix&			m_pObjXForm;

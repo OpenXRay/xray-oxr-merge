@@ -50,9 +50,9 @@ void CControllerAnimation::on_stop_control	(ControlCom::EControlType type)
 
 void CControllerAnimation::on_event(ControlCom::EEventType type, ControlCom::IEventData *data)
 {
-	switch (type) 
+	switch (type)
 	{
-		case ControlCom::eventAnimationEnd:			
+		case ControlCom::eventAnimationEnd:
 		{
 			 select_animation(true);
 			 m_state_attack = false;
