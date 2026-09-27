@@ -162,8 +162,7 @@ void CBloodsuckerStateAttackAbstract::update_invisibility()
 		{
 			object->start_invisible_predator();
 		}
-		else 
-		if ((current_substate == eStateAttack_Run) && (object->EnemyMan.get_enemy()->Position().distance_to(object->Position()) > INVIS_DIST_TO_ENEMY)) {
+		else if ((current_substate == eStateAttack_Run) && (object->EnemyMan.get_enemy()->Position().distance_to(object->Position()) > INVIS_DIST_TO_ENEMY)) {
 			if (m_time_stop_invis + INVIS_ACTIVATE_DELAY < time()) 
 				object->start_invisible_predator();
 		}
@@ -209,7 +208,6 @@ void CBloodsuckerStateAttackAbstract::setup_substates()
 
 	if (current_substate == eStateAttack_Hide)
 	{
-
 		SStateDataMoveToPointEx data;
 
 		Fvector target_dir		= Random.randI(2) ? object->XFORM().i : Fvector().set(object->XFORM().i).invert();

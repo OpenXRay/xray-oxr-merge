@@ -81,8 +81,6 @@ static void __stdcall	build_callback	(Fvector* V, int Vcnt, CDB::TRI* T, int Tcn
 
 BOOL IGame_Level::Load			(u32 dwNum) 
 {
-	SECUROM_MARKER_PERFORMANCE_ON(10)
-
 	// Initialize level data
 	pApp->Level_Set				( dwNum );
 	string_path					temp;
@@ -137,8 +135,6 @@ BOOL IGame_Level::Load			(u32 dwNum)
 
 	Device.seqFrame.Add			(this);
 
-	SECUROM_MARKER_PERFORMANCE_OFF(10)
-
 	return TRUE;	
 }
 
@@ -152,14 +148,6 @@ void	IGame_Level::OnRender		( )
 #ifndef DEDICATED_SERVER
 //	if (_abs(Device.fTimeDelta)<EPS_S) return;
 
-	#ifdef _GPA_ENABLED	
-		TAL_ID rtID = TAL_MakeID( 1 , Core.dwFrame , 0);	
-		TAL_CreateID( rtID );
-		TAL_BeginNamedVirtualTaskWithID( "GameRenderFrame" , rtID );
-		TAL_Parami( "Frame#" , Device.dwFrame );
-		TAL_EndVirtualTask();
-	#endif // _GPA_ENABLED
-
 	// Level render, only when no client output required
 	if (!g_dedicated_server)	{
 		Render->Calculate			();
@@ -167,10 +155,6 @@ void	IGame_Level::OnRender		( )
 	} else {
 		Sleep						(psNET_DedicatedSleep);
 	}
-
-	#ifdef _GPA_ENABLED	
-		TAL_RetireID( rtID );
-	#endif // _GPA_ENABLED
 
 	// Font
 //	pApp->pFontSystem->SetSizeI(0.023f);

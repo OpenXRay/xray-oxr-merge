@@ -477,7 +477,6 @@ void		CPHSimpleCharacter::ApplyImpulse(const Fvector& dir,dReal P)
 
 void		CPHSimpleCharacter::ApplyForce(const Fvector& force)
 {
-	
 		ApplyForce(force.x,force.y,force.z);
 }
 
@@ -796,10 +795,7 @@ void CPHSimpleCharacter::PhTune(dReal step){
 		//}
 
 	BodyCutForce(m_body,5.f,0.f);
-//	
 
-
-//
 #ifdef DEBUG
 	if(debug_output().ph_dbg_draw_mask().test(phDbgCharacterControl))
 	{

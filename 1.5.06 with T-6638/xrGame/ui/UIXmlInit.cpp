@@ -114,11 +114,8 @@ bool CUIXmlInit::InitFrameWindow(CUIXml& xml_doc, LPCSTR path,
 {
 	R_ASSERT4(xml_doc.NavigateToNode(path,index), "XML node not found", path, xml_doc.m_xml_file_name);
 
-
-	InitWindow(xml_doc, path, index, pWnd);
 	InitTexture(xml_doc, path, index, pWnd);
-
-	pWnd->InitFrameWindow(pWnd->GetWndPos(),pWnd->GetWndSize());
+	InitWindow		(xml_doc, path, index, pWnd);
 	return true;
 }
 
@@ -1067,8 +1064,8 @@ bool CUIXmlInit::InitAnimatedStatic(CUIXml &xml_doc, const char *path, int index
 	u32 framesCount		= static_cast<u32>(xml_doc.ReadAttribInt(path, index, "frames", 0));
 	u32 animDuration	= static_cast<u32>(xml_doc.ReadAttribInt(path, index, "duration", 0));
 	u32 animCols		= static_cast<u32>(xml_doc.ReadAttribInt(path, index, "columns", 0));
-	u32 frameWidth		= static_cast<u32>(xml_doc.ReadAttribInt(path, index, "frame_width", 0));
-	u32 frameHeight		= static_cast<u32>(xml_doc.ReadAttribInt(path, index, "frame_height", 0));
+	float frameWidth	= xml_doc.ReadAttribFlt(path, index, "frame_width", 0);
+	float frameHeight	= xml_doc.ReadAttribFlt(path, index, "frame_height", 0);
 	bool cyclic			= !!xml_doc.ReadAttribInt(path, index, "cyclic", 0);
 	bool play			= !!xml_doc.ReadAttribInt(path, index, "autoplay", 0);
 

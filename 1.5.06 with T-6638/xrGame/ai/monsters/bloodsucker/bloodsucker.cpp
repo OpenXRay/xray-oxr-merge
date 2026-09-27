@@ -645,7 +645,7 @@ void CAI_Bloodsucker::move_actor_cam (float angle)
 	}
 }
 
-void CAI_Bloodsucker::HitEntity(const CEntity *pEntity, float fDamage, float impulse, Fvector &dir)
+void CAI_Bloodsucker::HitEntity(const CEntity *pEntity, float fDamage, float impulse, Fvector &dir, ALife::EHitType hit_type, bool draw_hit_marks)
 {
 	bool is_critical = rand()/(float)RAND_MAX <= m_critical_hit_chance;
 
@@ -667,7 +667,7 @@ void CAI_Bloodsucker::HitEntity(const CEntity *pEntity, float fDamage, float imp
 		}
 	}
 
-	inherited::HitEntity(pEntity, fDamage, impulse, dir);
+	inherited::HitEntity(pEntity, fDamage, impulse, dir, hit_type, draw_hit_marks);
 }
 
 bool CAI_Bloodsucker::in_solid_state ()

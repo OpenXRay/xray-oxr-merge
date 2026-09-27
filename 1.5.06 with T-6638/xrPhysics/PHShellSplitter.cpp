@@ -8,6 +8,7 @@
 #include "MathUtils.h"
 #include "../Include/xrRender/Kinematics.h"
 #include "PHCollideValidator.h"
+#include "ph_valid_ode.h"
 CPHShellSplitterHolder::CPHShellSplitterHolder(CPHShell* shell)
 {
 	m_pShell=shell;

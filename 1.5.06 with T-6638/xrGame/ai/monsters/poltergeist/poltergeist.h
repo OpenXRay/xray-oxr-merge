@@ -54,6 +54,7 @@ public:
 	virtual	void	on_activate			();
 	virtual	void	on_deactivate		();
 	virtual	void	Hit					(SHit* pHDS);
+	virtual	char*	get_monster_class_name () { return "poltergeist"; }
 
 
 	IC		CPolterSpecialAbility		*ability() {return (m_flame ? m_flame : m_tele);}

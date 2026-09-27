@@ -178,7 +178,7 @@ CLASS_ID game_GameState::getCLASS_ID(LPCSTR game_type_name, bool isServer)
 		R_ASSERT		(l_tpIniFile);
 
 		string256				I;
-		strcpy(I,l_tpIniFile->r_string("common","game_type_clsid_factory"));
+		strcpy_s(I,l_tpIniFile->r_string("common","game_type_clsid_factory"));
 
 		luabind::functor<LPCSTR>	result;
 		R_ASSERT					(ai().script_engine().functor(I,result));

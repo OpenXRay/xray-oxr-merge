@@ -1723,7 +1723,6 @@ void		CPHShell::	AnimatorOnFrame		()
 
 
 #ifdef DEBUG
-
 void		CPHShell::		dbg_draw_velocity				( float scale, u32 color )
 {
 		ELEMENT_I i, e;

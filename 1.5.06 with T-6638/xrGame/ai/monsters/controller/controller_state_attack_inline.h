@@ -183,12 +183,5 @@ void CStateControllerAttackAbstract::critical_finalize()
 	object->set_mental_state(CController::eStateIdle);
 }
 
-// Lain: added
-TEMPLATE_SPECIALIZATION
-void   CStateControllerAttackAbstract::remove_links (CObject* object)
-{
-	
-}
-
 #undef TEMPLATE_SPECIALIZATION
 #undef CStateControllerAttackAbstract

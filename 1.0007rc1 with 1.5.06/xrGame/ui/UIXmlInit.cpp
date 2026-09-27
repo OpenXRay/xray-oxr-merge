@@ -151,7 +151,7 @@ bool CUIXmlInit::InitOptionsItem(CUIXml& xml_doc, const char* paht, int index, C
 bool CUIXmlInit::InitStatic(CUIXml& xml_doc, LPCSTR path, 
 									int index, CUIStatic* pWnd)
 {
-	R_ASSERT3(xml_doc.NavigateToNode(path,index), "XML node not found", path);
+	R_ASSERT4(xml_doc.NavigateToNode(path,index), "XML node not found", path, xml_doc.m_xml_file_name);
 
 	InitWindow			(xml_doc, path, index, pWnd);
 	InitMultiText		(xml_doc, path, index, pWnd);

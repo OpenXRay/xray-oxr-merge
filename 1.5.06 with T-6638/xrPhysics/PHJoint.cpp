@@ -21,8 +21,10 @@
 const float hinge2_spring=20000.f;
 const float hinge2_damping=1000.f;
 
-IC dBodyID body_for_joint(CPhysicsElement* e)
+IC dBodyID body_for_joint(CPhysicsElement* ee)
 {
+	VERIFY(smart_cast<CPHElement *>(ee));
+	CPHElement * e = static_cast<CPHElement *> (ee);
 	 return e->isFixed() ? 0 : e->get_body();//return e->get_body();//
 }
 IC void SwapLimits(float &lo,float &hi)
@@ -465,7 +467,8 @@ void CPHJoint::SetAxisDirVsSecondElement(const float x,const float y,const float
 
 void CPHJoint::SetLimits(const float low, const float high, const int axis_num)
 {
-	if(!(pFirst_element&&pSecond_element))return;
+	if(!(pFirst_element&&pSecond_element))
+		return;
 
 	int ax=axis_num;
 	LimitAxisNum(ax);
@@ -496,7 +499,8 @@ void CPHJoint::SetLimits(const float low, const float high, const int axis_num)
 	axes[ax].zero=zer;
 	//m2.invert();
 	//axes[ax].zero_transform.set(m2);
-	if(bActive)SetLimitsActive(axis_num);
+	if(bActive)
+		SetLimitsActive(axis_num);
 }
 
 
@@ -855,9 +859,12 @@ float CPHJoint::GetAxisAngle(int axis_num)
 								case 0:	ret= dJointGetSliderPosition(m_joint);break;
 								case 1: ret= dJointGetAMotorAngle(m_joint1,0);break;
 							};break;
+						default: R_ASSERT2( false, "type not supported" ); break;
+	
 					}
 	return	ret;// body_for_joint(pFirst_element) ? ret : -
 }
+
 void CPHJoint::LimitAxisNum(int &axis_num)
 {
 	if(axis_num<-1) 
@@ -1182,7 +1189,8 @@ void CPHJoint::GetAxisDirDynamic(int num,Fvector& axis)
 			case full_control:			dJointGetAMotorAxis (m_joint1,num,result);
 				 break;
 			case slider:				dJointGetSliderAxis(m_joint,result);
-			
+				break;
+			default:					R_ASSERT2(false, "type not supported");
 		}
 	axis.set(result[0],result[1],result[2]);
 }
@@ -1201,6 +1209,9 @@ void CPHJoint::GetAnchorDynamic(Fvector& anchor)
 	case full_control:			dJointGetBallAnchor (m_joint,result);
 		break;
 	case slider:				R_ASSERT2(false,"position of slider joint is undefinite");
+		break;
+	default:				R_ASSERT2(false,"type not supported");
+		break;
 	}
 	anchor.set(result[0],result[1],result[2]);
 }
@@ -1278,4 +1289,13 @@ void CPHJoint::SetShell(CPHShell* p)
 void CPHJoint::ClearDestroyInfo()
 {
 	xr_delete(m_destroy_info);
+}
+
+bool CPHJoint::IsWheelJoint				()
+{
+	return dJointGetType(GetDJoint())==dJointTypeHinge2;
+}
+bool CPHJoint::IsHingeJoint				()
+{
+	return dJointGetType(GetDJoint())==dJointTypeHinge;
 }

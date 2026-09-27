@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch_script.h"
 #include "UIInventoryUtilities.h"
 #include "../WeaponAmmo.h"
 #include "../UIStaticItem.h"
@@ -12,8 +12,13 @@
 #include "../InventoryOwner.h"
 
 #include "../InfoPortion.h"
-#include "../game_base_space.h"
+#include "game_base_space.h"
 #include "../actor.h"
+
+#include "../ai_space.h"
+#include "../../xrServerEntities/script_engine.h"
+
+#include "../Include/xrRender/UIShader.h"
 
 #define BUY_MENU_TEXTURE "ui\\ui_mp_buy_menu"
 #define EQUIPMENT_ICONS  "ui\\ui_icon_equipment"
@@ -26,10 +31,26 @@ const LPCSTR ratingField			= "rating_names";
 const LPCSTR reputationgField		= "reputation_names";
 const LPCSTR goodwillField			= "goodwill_names";
 
-ref_shader	g_BuyMenuShader			= NULL;
-ref_shader	g_EquipmentIconsShader	= NULL;
-ref_shader	g_MPCharIconsShader		= NULL;
-ref_shader	g_tmpWMShader			= NULL;
+const LPCSTR st_months[12]= // StringTable for GetDateAsString()
+{
+	"month_january",
+	"month_february",
+	"month_march",
+	"month_april",
+	"month_may",
+	"month_june",
+	"month_july",
+	"month_august",
+	"month_september",
+	"month_october",
+	"month_november",
+	"month_december"
+};
+
+ui_shader	*g_BuyMenuShader			= NULL;
+ui_shader	*g_EquipmentIconsShader		= NULL;
+ui_shader	*g_MPCharIconsShader		= NULL;
+ui_shader	*g_tmpWMShader				= NULL;
 static CUIStatic*	GetUIStatic				();
 
 typedef				std::pair<CHARACTER_RANK_VALUE, shared_str>	CharInfoStringID;
@@ -41,24 +62,31 @@ CharInfoStrings		*charInfoGoodwillStrings	= NULL;
 
 void InventoryUtilities::CreateShaders()
 {
-	g_tmpWMShader.create("effects\\wallmark",  "wm\\wm_grenade");
+	g_tmpWMShader = xr_new<ui_shader>();
+	(*g_tmpWMShader)->create("effects\\wallmark",  "wm\\wm_grenade");
+	//g_tmpWMShader.create("effects\\wallmark",  "wm\\wm_grenade");
 }
 
 void InventoryUtilities::DestroyShaders()
 {
-	g_BuyMenuShader.destroy			();
-	g_EquipmentIconsShader.destroy	();
-	g_MPCharIconsShader.destroy		();
-	g_tmpWMShader.destroy			();
+	xr_delete(g_BuyMenuShader);
+	g_BuyMenuShader = 0;
+
+	xr_delete(g_EquipmentIconsShader);
+	g_EquipmentIconsShader = 0;
+
+	xr_delete(g_MPCharIconsShader);
+	g_MPCharIconsShader = 0;
+
+	xr_delete(g_tmpWMShader);
+	g_tmpWMShader = 0;
 }
 
 bool InventoryUtilities::GreaterRoomInRuck(PIItem item1, PIItem item2)
 {
 	Ivector2 r1,r2;
-	r1.x			= item1->GetGridWidth();
-	r1.y			= item1->GetGridHeight();
-	r2.x			= item2->GetGridWidth();
-	r2.y			= item2->GetGridHeight();
+	r1				= item1->GetInvGridRect().rb;
+	r2				= item2->GetInvGridRect().rb;
 
 	if(r1.x > r2.x)			return true;
 	
@@ -101,21 +129,20 @@ bool InventoryUtilities::FreeRoom_inBelt	(TIItemContainer& item_list, PIItem _it
 	for(xr_vector<PIItem>::iterator it = item_list.begin(); (item_list.end() != it) && found_place; ++it) 
 	{
 		PIItem pItem = *it;
-		int iWidth	= pItem->GetGridWidth(); 
-		int iHeight = pItem->GetGridHeight();
+		Ivector2 iWH = pItem->GetInvGridRect().rb; 
 		//проверить можно ли разместить элемент,
 		//проверяем последовательно каждую клеточку
 		found_place = false;
 	
-		for(i=0; (i<height - iHeight +1) && !found_place; ++i)
+		for(i=0; (i<height - iWH.y +1) && !found_place; ++i)
 		{
-			for(j=0; (j<width - iWidth +1) && !found_place; ++j)
+			for(j=0; (j<width - iWH.x +1) && !found_place; ++j)
 			{
 				can_place = true;
 
-				for(k=0; (k<iHeight) && can_place; ++k)
+				for(k=0; (k<iWH.y) && can_place; ++k)
 				{
-					for(m=0; (m<iHeight) && can_place; ++m)
+					for(m=0; (m<iWH.x) && can_place; ++m)
 					{
 						if(ruck_room[(i+k)*width + (j+m)])
 								can_place =  false;
@@ -135,9 +162,9 @@ bool InventoryUtilities::FreeRoom_inBelt	(TIItemContainer& item_list, PIItem _it
 		//разместить элемент на найденном месте
 		if(found_place)
 		{
-			for(k=0; k<iHeight; ++k)
+			for(k=0; k<iWH.y; ++k)
 			{
-				for(m=0; m<iWidth; ++m)
+				for(m=0; m<iWH.x; ++m)
 				{
 					ruck_room[(place_row+k)*width + place_col+m] = true;
 				}
@@ -154,34 +181,37 @@ bool InventoryUtilities::FreeRoom_inBelt	(TIItemContainer& item_list, PIItem _it
 	return true;
 }
 
-ref_shader& InventoryUtilities::GetBuyMenuShader()
+const ui_shader& InventoryUtilities::GetBuyMenuShader()
 {	
 	if(!g_BuyMenuShader)
 	{
-		g_BuyMenuShader.create("hud\\default", BUY_MENU_TEXTURE);
+		g_BuyMenuShader = xr_new<ui_shader>();
+		(*g_BuyMenuShader)->create("hud\\default", BUY_MENU_TEXTURE);
 	}
 
-	return g_BuyMenuShader;
+	return *g_BuyMenuShader;
 }
 
-ref_shader& InventoryUtilities::GetEquipmentIconsShader()
+const ui_shader& InventoryUtilities::GetEquipmentIconsShader()
 {	
 	if(!g_EquipmentIconsShader)
 	{
-		g_EquipmentIconsShader.create("hud\\default", EQUIPMENT_ICONS);
+		g_EquipmentIconsShader = xr_new<ui_shader>();
+		(*g_EquipmentIconsShader)->create("hud\\default", EQUIPMENT_ICONS);
 	}
 
-	return g_EquipmentIconsShader;
+	return *g_EquipmentIconsShader;
 }
 
-ref_shader&	InventoryUtilities::GetMPCharIconsShader()
+const ui_shader&	InventoryUtilities::GetMPCharIconsShader()
 {
 	if(!g_MPCharIconsShader)
 	{
-		g_MPCharIconsShader.create("hud\\default",  MP_CHAR_ICONS);
+		g_MPCharIconsShader = xr_new<ui_shader>();
+		(*g_MPCharIconsShader)->create("hud\\default",  MP_CHAR_ICONS);
 	}
 
-	return g_MPCharIconsShader;
+	return *g_MPCharIconsShader;
 }
 
 
@@ -199,11 +229,25 @@ const shared_str InventoryUtilities::GetGameTimeAsString(ETimePrecision timePrec
 	return GetTimeAsString(Level().GetGameTime(), timePrec, timeSeparator);
 }
 
+const shared_str InventoryUtilities::GetTimeAndDateAsString(ALife::_TIME_ID time)
+{
+	string256 buf;
+	LPCSTR time_str = GetTimeAsString( time, etpTimeToMinutes ).c_str();
+	LPCSTR date_str = GetDateAsString( time, edpDateToDay ).c_str();
+	strconcat( sizeof(buf), buf, time_str, ", ", date_str );
+	return buf;
+}
+
+const shared_str InventoryUtilities::Get_GameTimeAndDate_AsString()
+{
+	return GetTimeAndDateAsString( Level().GetGameTime() );
+}
+
 //////////////////////////////////////////////////////////////////////////
 
-const shared_str InventoryUtilities::GetTimeAsString(ALife::_TIME_ID time, ETimePrecision timePrec, char timeSeparator)
+const shared_str InventoryUtilities::GetTimeAsString(ALife::_TIME_ID time, ETimePrecision timePrec, char timeSeparator, bool full_mode )
 {
-	string64 bufTime;
+	string32 bufTime;
 
 	ZeroMemory(bufTime, sizeof(bufTime));
 
@@ -218,10 +262,22 @@ const shared_str InventoryUtilities::GetTimeAsString(ALife::_TIME_ID time, ETime
 		sprintf_s(bufTime, "%02i", hours);
 		break;
 	case etpTimeToMinutes:
+		if ( full_mode || hours > 0 ) {
 		sprintf_s(bufTime, "%02i%c%02i", hours, timeSeparator, mins);
 		break;
+		}
+		sprintf_s(bufTime, "0%c%02i", timeSeparator, mins);
+		break;
 	case etpTimeToSeconds:
+		if ( full_mode || hours > 0 ) {
 		sprintf_s(bufTime, "%02i%c%02i%c%02i", hours, timeSeparator, mins, timeSeparator, secs);
+		break;
+		}
+		if ( mins > 0 ) {
+			sprintf_s(bufTime, "%02i%c%02i", mins, timeSeparator, secs);
+			break;
+		}
+		sprintf_s(bufTime, "0%c%02i", timeSeparator, secs);
 		break;
 	case etpTimeToMilisecs:
 		sprintf_s(bufTime, "%02i%c%02i%c%02i%c%02i", hours, timeSeparator, mins, timeSeparator, secs, timeSeparator, milisecs);
@@ -241,13 +297,15 @@ const shared_str InventoryUtilities::GetTimeAsString(ALife::_TIME_ID time, ETime
 
 const shared_str InventoryUtilities::GetDateAsString(ALife::_TIME_ID date, EDatePrecision datePrec, char dateSeparator)
 {
-	string32 bufDate;
+	string64 bufDate;
 
 	ZeroMemory(bufDate, sizeof(bufDate));
 
 	u32 year = 0, month = 0, day = 0, hours = 0, mins = 0, secs = 0, milisecs = 0;
 
 	split_time(date, year, month, day, hours, mins, secs, milisecs);
+	VERIFY( 1 <= month && month <= 12 );
+	LPCSTR month_str = CStringTable().translate( st_months[month-1] ).c_str();
 
 	// Date
 	switch (datePrec)
@@ -256,10 +314,10 @@ const shared_str InventoryUtilities::GetDateAsString(ALife::_TIME_ID date, EDate
 		sprintf_s(bufDate, "%04i", year);
 		break;
 	case edpDateToMonth:
-		sprintf_s(bufDate, "%02i%c%04i", month, dateSeparator, year);
+		sprintf_s(bufDate, "%s%c% 04i", month_str, dateSeparator, year);
 		break;
 	case edpDateToDay:
-		sprintf_s(bufDate, "%02i%c%02i%c%04i", day, dateSeparator, month, dateSeparator, year);
+		sprintf_s(bufDate, "%s%d%c%04i", month_str, day,  dateSeparator, year);
 		break;
 	default:
 		R_ASSERT(!"Unknown type of date precision");
@@ -453,12 +511,31 @@ LPCSTR InventoryUtilities::GetGoodwillAsText(CHARACTER_GOODWILL goodwill)
 // (для tutorial)
 void InventoryUtilities::SendInfoToActor(LPCSTR info_id)
 {
-	if (GameID() != GAME_SINGLE) return;
+	if (GameID() != eGameIDSingle) return;
 	
 	CActor* actor = smart_cast<CActor*>(Level().CurrentEntity());
 	if(actor)
 	{
 		actor->TransferInfo(info_id, true);
+	}
+}
+
+void InventoryUtilities::SendInfoToLuaScripts(shared_str info)
+{
+	if (GameID() != eGameIDSingle) return;
+	if ( info == shared_str("ui_talk_show") )
+	{
+		int mode = 10; // now Menu is Talk Dialog (show)
+		luabind::functor<void>	funct;
+		R_ASSERT( ai().script_engine().functor( "pda.actor_menu_mode", funct ) );
+		funct( mode );
+	}
+	if ( info == shared_str("ui_talk_hide") )
+	{
+		int mode = 11; // Talk Dialog hide
+		luabind::functor<void>	funct;
+		R_ASSERT( ai().script_engine().functor( "pda.actor_menu_mode", funct ) );
+		funct( mode );
 	}
 }
 

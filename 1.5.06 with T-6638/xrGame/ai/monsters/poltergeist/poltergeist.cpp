@@ -93,7 +93,7 @@ void CPoltergeist::Load(LPCSTR section)
 	anim().LinkAction(ACT_STEAL,		eAnimWalkFwd);
 	anim().LinkAction(ACT_LOOK_AROUND,	eAnimLookAround);
 
-#ifdef DEBUG	
+#ifdef DEBUG
 	anim().accel_chain_test		();
 #endif
 
@@ -135,7 +135,6 @@ void CPoltergeist::reinit()
 	// start hidden
 	state_invisible						= true;	
 	setVisible							(false);
-	
 	m_current_position = Position		();
 	character_physics_support()->movement()->DestroyCharacter();
 	

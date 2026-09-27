@@ -168,7 +168,7 @@ void CBloodsuckerStateAttackAbstract::update_invisibility()
 			{
 				object->start_invisible_predator();
 			}
-			else if ( object->EnemyMan.get_enemy()->Position().distance_to(object->Position()) > 
+			else if ( object->EnemyMan.get_enemy()->Position().distance_to(object->Position()) >
 				      detail::bloodsucker::invisibility_dist2enemy )
 			{
 				object->start_invisible_predator();

@@ -31,7 +31,6 @@ IGame_Level::~IGame_Level	()
 	if(strstr(Core.Params,"-nes_texture_storing") )
 		//Device.Resources->StoreNecessaryTextures();
 		Device.m_pRender->ResourcesStoreNecessaryTextures();
-//.	DEL_INSTANCE				( pHUD			);
 	xr_delete					( pLevel		);
 
 	// Render-level unload
@@ -83,11 +82,8 @@ BOOL IGame_Level::Load			(u32 dwNum)
 
 
 	// HUD + Environment
-//.	pHUD						= (CCustomHUD*)NEW_INSTANCE	(CLSID_HUDMANAGER);
-	if(g_hud)
-		pHUD					= g_hud;
-	else
-		pHUD					= (CCustomHUD*)NEW_INSTANCE	(CLSID_HUDMANAGER);
+	if(!g_hud)
+		g_hud					= (CCustomHUD*)NEW_INSTANCE	(CLSID_HUDMANAGER);
 
 	// Render-level Load
 	Render->level_Load			(LL_Stream);
@@ -141,7 +137,7 @@ void	IGame_Level::OnFrame		( )
 	// Update all objects
 	VERIFY						(bReady);
 	Objects.Update				( false );
-	pHUD->OnFrame				( );
+	g_hud->OnFrame				();
 
 	// Ambience
 	if (Sounds_Random.size() && (Device.dwTimeGlobal > Sounds_Random_dwNextTime))
@@ -170,10 +166,10 @@ void CServerInfo::AddItem( shared_str& name_, LPCSTR value_, u32 color_ )
 	SItem_ServerInfo it;
 	//	shared_str s_name = CStringTable().translate( name_ );
 
-	//	strcpy_s( it.name, s_name.c_str() );
-	strcpy_s( it.name, name_.c_str() );
-	strcat_s( it.name, " = " );
-	strcat_s( it.name, value_ );
+	//	xr_strcpy( it.name, s_name.c_str() );
+	xr_strcpy( it.name, name_.c_str() );
+	xr_strcat( it.name, " = " );
+	xr_strcat( it.name, value_ );
 	it.color = color_;
 
 	if ( data.size() < max_item )

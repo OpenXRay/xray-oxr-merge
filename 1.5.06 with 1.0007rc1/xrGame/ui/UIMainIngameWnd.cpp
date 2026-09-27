@@ -210,7 +210,8 @@ void CUIMainIngameWnd::Init()
 
 	uiXml.SetLocalRoot						(uiXml.GetRoot());
 	
-//	AttachChild								(&UICarPanel);	xml_init.InitWindow		(uiXml, "car_panel", 0, &UICarPanel);
+//	AttachChild								(&UICarPanel);
+//	xml_init.InitWindow		(uiXml, "car_panel", 0, &UICarPanel);
 
 	AttachChild								(&UIMotionIcon);
 	UIMotionIcon.Init						();
@@ -279,20 +280,16 @@ void CUIMainIngameWnd::Update()
 	CActor* m_pActor = smart_cast<CActor*>(Level().CurrentViewEntity());
 
 	if ( m_pMPChatWnd )
-	{
 		m_pMPChatWnd->Update();
-	}
 	if ( m_pMPLogWnd )
-	{
 		m_pMPLogWnd->Update();
-	}
 
 	if ( !m_pActor )
 	{
 		m_pItem				= NULL;
 //		m_pWeapon			= NULL;
 		m_pGrenade			= NULL;
-//y		CUIWindow::Update	();
+//		CUIWindow::Update	();
 		return;
 	}
 
@@ -315,18 +312,12 @@ void CUIMainIngameWnd::Update()
 	}
 	bool b_God = ( GodMode() || ( !lookat_player ) )? true : lookat_player->testFlag(GAME_PLAYER_FLAG_INVINCIBLE);
 	if ( b_God )
-	{
 		SetWarningIconColor( ewiInvincible, 0xffffffff );
-	}
 	else
-	{
 		SetWarningIconColor( ewiInvincible, 0x00ffffff );
-	}
 	
 	if ( IsGameTypeSingle() )
-	{
 		return;
-	}
 
 	// ewiArtefact
 	if ( GameID() == eGameIDArtefactHunt )
@@ -374,31 +365,32 @@ void CUIMainIngameWnd::Update()
 		switch (i)
 		{
 			//radiation
-			/*			case ewiRadiation:
+		/*
+		case ewiRadiation:
 			value = m_pActor->conditions().GetRadiation();
 			break;
 			case ewiWound:
 			value = m_pActor->conditions().BleedingSpeed();
 			break;
-			*/		
+		*/		
 		case ewiWeaponJammed:
+		{
+			PIItem item = m_pActor->inventory().ActiveItem();
+			if ( item )
 			{
-				PIItem item = m_pActor->inventory().ActiveItem();
-				if ( item )
-				{
-					CWeapon* pWeapon = smart_cast<CWeapon*>( item );
-					if ( pWeapon )
-					{
-						value = _max( 0.0f, 1.0f - pWeapon->GetConditionToShow() );
-					}
-				}
-				break;
+				CWeapon* pWeapon = smart_cast<CWeapon*>( item );
+				if ( pWeapon )
+					value = _max( 0.0f, 1.0f - pWeapon->GetConditionToShow() );
 			}
-		/*case ewiStarvation:
+			break;
+		}
+		/*
+		case ewiStarvation:
 			value =  _max( 0.0f, 1.0f - m_pActor->conditions().GetSatiety() );
 			break;
 		*/
-		/*case ewiPsyHealth:
+		/*
+		case ewiPsyHealth:
 			value = 1 - m_pActor->conditions().GetPsyHealth();
 			break;
 		*/
@@ -441,7 +433,7 @@ bool CUIMainIngameWnd::OnKeyboardPress(int dik)
 {
 #ifdef DEBUG
 	test_key(dik);
-#endif // #ifdef DEBUG
+#endif
 /*
 	if(Level().IR_GetKeyState(DIK_LSHIFT) || Level().IR_GetKeyState(DIK_RSHIFT))
 	{
@@ -520,9 +512,7 @@ void CUIMainIngameWnd::SetWarningIconColorUI(CUIStatic* s, const u32 cl)
 	bool bIsShown = s->IsShown();
 
 	if ( bOn )
-	{
 		s->SetColor( cl );
-	}
 
 	if ( bOn && !bIsShown )
 	{
@@ -556,7 +546,6 @@ void CUIMainIngameWnd::SetWarningIconColor(EWarningIcons icon, const u32 cl)
 	case ewiWound:
 		SetWarningIconColorUI	(&UIWoundIcon, cl);
 		if (bMagicFlag) break;
-
 	case ewiStarvation:
 		SetWarningIconColorUI	(&UIStarvationIcon, cl);
 		if (bMagicFlag) break;	

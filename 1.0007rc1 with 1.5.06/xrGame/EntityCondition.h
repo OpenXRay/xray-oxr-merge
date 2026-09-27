@@ -156,7 +156,6 @@ protected:
 	float				m_fPowerHitPart;
 
 
-
 	//потеря здоровья от последнего хита
 	float				m_fHealthLost;
 

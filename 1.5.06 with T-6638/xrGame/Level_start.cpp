@@ -107,7 +107,7 @@ bool CLevel::net_start1				()
 	// Start client and server if need it
 	if (m_caServerOptions.size())
 	{
-		g_pGamePersistent->LoadTitle		("st_server_starting");
+//		g_pGamePersistent->LoadTitle("st_server_starting");
 
 		typedef IGame_Persistent::params params;
 		params							&p = g_pGamePersistent->m_game_params;
@@ -115,13 +115,19 @@ bool CLevel::net_start1				()
 		if (!xr_strcmp(p.m_game_type,"single"))
 			Server					= xr_new<xrServer>();
 		else
+		{
+			g_allow_heap_min		= false;
 			Server					= xr_new<xrGameSpyServer>();
+		}
 		
 		if (xr_strcmp(p.m_alife,"alife"))
 		{
 			shared_str l_ver			= game_sv_GameState::parse_level_version(m_caServerOptions);
 			
 			map_data.m_name				= game_sv_GameState::parse_level_name(m_caServerOptions);
+
+			if (!g_dedicated_server)
+				g_pGamePersistent->LoadTitle(true, map_data.m_name);
 
 			int							id = pApp->Level_ID(map_data.m_name.c_str(), l_ver.c_str(), true);
 
@@ -131,6 +137,10 @@ bool CLevel::net_start1				()
 				return true;
 			}
 		}
+	}
+	else
+	{
+		g_allow_heap_min = false;
 	}
 	return true;
 }

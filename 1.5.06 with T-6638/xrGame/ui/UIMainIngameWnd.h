@@ -34,14 +34,14 @@ public:
 
 protected:
 	
-	CUIStatic			UIStaticDiskIO;
+	CUIStatic*			UIStaticDiskIO;
 //	CUIStatic			UIStaticHealth;
 //	CUIStatic			UIStaticArmor;
-	CUIStatic			UIStaticQuickHelp;
+	CUIStatic*			UIStaticQuickHelp;
 //	CUIProgressBar		UIHealthBar;
 //	CUIProgressBar		UIArmorBar;
 //	CUICarPanel			UICarPanel;
-	CUIMotionIcon		UIMotionIcon;
+	CUIMotionIcon*		UIMotionIcon;
 	CUIZoneMap*			UIZoneMap;
 
 	//иконка, показывающая количество активных PDA

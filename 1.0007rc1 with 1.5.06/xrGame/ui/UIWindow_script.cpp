@@ -106,7 +106,9 @@ void CUIWindow::script_register(lua_State *L)
 		.def("SetWndRect",				(void (CUIWindow::*)(float,float,float,float))   &CUIWindow::SetWndRect_script)
 		.def("Init",					(void (CUIWindow::*)(float,float,float,float))   &CUIWindow::Init)
 		.def("Init",					(void (CUIWindow::*)(Frect*))			 &CUIWindow::Init)
+		.def("SetWndPos",				(void (CUIWindow::*)(Fvector2)) &CUIWindow::SetWndPos_script)
 		.def("SetWndPos",				(void (CUIWindow::*)(float,float)) &CUIWindow::SetWndPos)
+		.def("SetWndSize",				(void (CUIWindow::*)(Fvector2)) &CUIWindow::SetWndSize_script)
 		.def("SetWndSize",				(void (CUIWindow::*)(float,float)) &CUIWindow::SetWndSize)
 		.def("GetWidth",				&CUIWindow::GetWidth)
 		.def("SetWidth",				&CUIWindow::SetWidth)
@@ -174,11 +176,6 @@ void CUIWindow::script_register(lua_State *L)
 		.def("GetCurrentScrollPos",		&CUIScrollView::GetCurrentScrollPos)
 		.def("SetScrollPos",			&CUIScrollView::SetScrollPos),
 
-
-//		.def("",						&CUIFrameLineWnd::)
-//		.def("",						&CUIFrameLineWnd::)
-//		.def("",						&CUIFrameLineWnd::)
-
 		class_<enum_exporter<EUIMessages> >("ui_events")
 			.enum_("events")
 			[
@@ -243,6 +240,7 @@ void CUIWindow::script_register(lua_State *L)
 				value("MESSAGE_BOX_YES_CLICKED",		int(MESSAGE_BOX_YES_CLICKED)),
 				value("MESSAGE_BOX_NO_CLICKED",			int(MESSAGE_BOX_NO_CLICKED)),
 				value("MESSAGE_BOX_CANCEL_CLICKED",		int(MESSAGE_BOX_CANCEL_CLICKED)),
+				value("MESSAGE_BOX_COPY_CLICKED",		int(MESSAGE_BOX_COPY_CLICKED)),
 				value("MESSAGE_BOX_QUIT_GAME_CLICKED",	int(MESSAGE_BOX_QUIT_GAME_CLICKED)),
 				value("MESSAGE_BOX_QUIT_WIN_CLICKED",	int(MESSAGE_BOX_QUIT_WIN_CLICKED)),
 
@@ -250,6 +248,7 @@ void CUIWindow::script_register(lua_State *L)
 				value("EDIT_TEXT_COMMIT",				int(EDIT_TEXT_COMMIT)),
 	// CUITalkDialogWnd
 				value("TALK_DIALOG_TRADE_BUTTON_CLICKED",	int(TALK_DIALOG_TRADE_BUTTON_CLICKED)),
+				value("TALK_DIALOG_UPGRADE_BUTTON_CLICKED",	int(TALK_DIALOG_UPGRADE_BUTTON_CLICKED)),
 				value("TALK_DIALOG_QUESTION_CLICKED",		int(TALK_DIALOG_QUESTION_CLICKED)),
 
 

@@ -806,7 +806,7 @@ void game_cl_mp::OnSwitchPhase			(u32 old_phase, u32 new_phase)
 		}break;
 	default:
 		{
-			if (Level().pHUD && CurrentGameUI())
+			if (g_hud && CurrentGameUI())
 				CurrentGameUI()->ShowGameIndicators(false);
 			HideMessageMenus();
 		}break;
@@ -1111,14 +1111,9 @@ void	game_cl_mp::OnPlayerChangeName		(NET_Packet& P)
 
 	u16 ObjID = P.r_u16();
 	s16 Team = P.r_s16();
-	shared_str	old_name;
-	shared_str	new_name;
-	string256 OldName, NewName;
-	P.r_stringZ(old_name);
-	P.r_stringZ(new_name);
-	
-	modify_player_name(old_name.c_str(), OldName);
-	modify_player_name(new_name.c_str(), NewName);
+	string1024 OldName, NewName;
+	P.r_stringZ(OldName);
+	P.r_stringZ(NewName);
 
 	string1024 resStr;
 	xr_sprintf(resStr, "%s\"%s\" %s%s %s\"%s\"", Color_Teams[Team], OldName, Color_Main, *st.translate("mp_is_now"),Color_Teams[Team], NewName);

@@ -59,13 +59,20 @@ namespace bloodsucker
 TEMPLATE_SPECIALIZATION
 void CBloodsuckerStateAttackAbstract::execute()
 {
-	if ( check_home_point() )				select_state(eStateAttack_MoveToHomePoint);
-	else if ( check_vampire() )				select_state(eStateVampire_Execute);
-	else if ( check_steal_state() )			select_state(eStateAttack_Steal);
-	else if ( check_camp_state() )			select_state(eStateAttackCamp);
-	else if ( check_find_enemy_state() )	select_state(eStateAttack_FindEnemy);
-	else if ( check_hiding() )				select_state(eStateAttack_Hide);
-	else if ( check_run_attack_state() )	select_state(eStateAttack_RunAttack);
+	if ( check_home_point() )
+					select_state(eStateAttack_MoveToHomePoint);
+	else if ( check_vampire() )
+		select_state(eStateVampire_Execute);
+	else if ( check_steal_state() )
+		select_state(eStateAttack_Steal);
+	else if ( check_camp_state() )
+		select_state(eStateAttackCamp);
+	else if ( check_find_enemy_state() )
+		select_state(eStateAttack_FindEnemy);
+	else if ( check_hiding() )
+		select_state(eStateAttack_Hide);
+	else if ( check_run_attack_state() )
+		select_state(eStateAttack_RunAttack);
 	else
 	{
 		// определить тип атаки

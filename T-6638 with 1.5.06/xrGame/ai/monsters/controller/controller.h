@@ -11,7 +11,7 @@ class CControllerPsyHit;
 class CControllerAura;
 
 class CController : public CBaseMonster,
-					public CControlledActor 
+					public CControlledActor
 {
 	typedef		CBaseMonster	inherited;
 
@@ -165,7 +165,6 @@ public:
 
 private:
 	float				m_stamina_hit;
-
 
 #ifdef DEBUG
 	virtual CBaseMonster::SDebugInfo show_debug_info();

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../inventory_item.h"
-#include "../character_info_defs.h"
+#include "character_info_defs.h"
 
 class CUIStatic;
 
@@ -33,11 +33,11 @@ bool FreeRoom_inBelt	(TIItemContainer& item_list, PIItem item, int width, int he
 
 
 // get shader for BuyWeaponWnd
-ref_shader&	GetBuyMenuShader();
+const ui_shader&	GetBuyMenuShader();
 //получить shader на иконки инвенторя
-ref_shader& GetEquipmentIconsShader();
+const ui_shader& GetEquipmentIconsShader();
 // shader на иконки персонажей в мультиплеере
-ref_shader&	GetMPCharIconsShader();
+const ui_shader&	GetMPCharIconsShader();
 //удаляем все шейдеры
 void DestroyShaders();
 void CreateShaders();
@@ -65,7 +65,10 @@ enum EDatePrecision
 const shared_str GetGameDateAsString(EDatePrecision datePrec, char dateSeparator = '/');
 const shared_str GetGameTimeAsString(ETimePrecision timePrec, char timeSeparator = ':');
 const shared_str GetDateAsString(ALife::_TIME_ID time, EDatePrecision datePrec, char dateSeparator = '/');
-const shared_str GetTimeAsString(ALife::_TIME_ID time, ETimePrecision timePrec, char timeSeparator = ':');
+const shared_str GetTimeAsString(ALife::_TIME_ID time, ETimePrecision timePrec, char timeSeparator = ':', bool full_mode = true);
+const shared_str GetTimeAndDateAsString(ALife::_TIME_ID time);
+const shared_str Get_GameTimeAndDate_AsString();
+
 LPCSTR GetTimePeriodAsString	(LPSTR _buff, u32 buff_sz, ALife::_TIME_ID _from, ALife::_TIME_ID _to);
 // Отобразить вес, который несет актер
 void UpdateWeight(CUIStatic &wnd, bool withPrefix = false);
@@ -78,6 +81,7 @@ LPCSTR	GetGoodwillAsText			(CHARACTER_GOODWILL			goodwill);
 void	ClearCharacterInfoStrings	();
 
 void	SendInfoToActor				(LPCSTR info_id);
+void	SendInfoToLuaScripts		(shared_str info);
 u32		GetGoodwillColor			(CHARACTER_GOODWILL gw);
 u32		GetRelationColor			(ALife::ERelationType r);
 u32		GetReputationColor			(CHARACTER_REPUTATION_VALUE rv);

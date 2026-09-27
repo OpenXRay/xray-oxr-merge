@@ -983,7 +983,7 @@ void CActor::UpdateCL	()
 
 		if(Level().CurrentEntity() && this->ID()==Level().CurrentEntity()->ID() )
 		{
-			float fire_disp_full = pWeapon->GetFireDispersion(true);
+			float fire_disp_full = pWeapon->GetFireDispersion(true, true);
 			m_fdisp_controller.SetDispertion(fire_disp_full);
 			
 			fire_disp_full = m_fdisp_controller.GetCurrentDispertion();
@@ -1020,7 +1020,7 @@ void CActor::UpdateCL	()
 	UpdateDefferedMessages();
 
 	if (g_Alive()) 
-		CStepManager::update();
+		CStepManager::update(this==Level().CurrentViewEntity());
 
 	spatial.type |=STYPE_REACTTOSOUND;
 

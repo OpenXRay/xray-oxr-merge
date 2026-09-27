@@ -3,7 +3,8 @@
 class CBaseMonster;
 class CPatrolPath;
 
-class CMonsterHome {
+class CMonsterHome
+{
 	CBaseMonster		*m_object;
 	const CPatrolPath	*m_path;
 
@@ -13,10 +14,10 @@ class CMonsterHome {
 	bool				m_aggressive;
 
 public:
-				CMonsterHome		(CBaseMonster *obj) {m_object = obj;}
+	CMonsterHome	            (CBaseMonster *obj) : m_object(obj) {}
 
 		void	load				(LPCSTR line);
-		void	setup				(LPCSTR path_name, float min_radius, float max_radius, bool aggressive = false);
+	void	setup				(LPCSTR path_name, float min_radius, float max_radius, bool aggressive = false, float middle_radius = 0.f);
 		void	remove_home			();
 
 		u32		get_place			();

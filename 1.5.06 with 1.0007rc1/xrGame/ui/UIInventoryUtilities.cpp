@@ -1,4 +1,3 @@
-
 #include "pch_script.h"
 #include "UIInventoryUtilities.h"
 #include "../WeaponAmmo.h"
@@ -22,6 +21,7 @@
 #include "../Include/xrRender/UIShader.h"
 
 #define BUY_MENU_TEXTURE "ui\\ui_mp_buy_menu"
+#define EQUIPMENT_ICONS  "ui\\ui_icon_equipment"
 #define CHAR_ICONS		 "ui\\ui_icons_npc"
 #define MAP_ICONS		 "ui\\ui_icons_map"
 #define MP_CHAR_ICONS	 "ui\\ui_models_multiplayer"
@@ -197,7 +197,7 @@ const ui_shader& InventoryUtilities::GetEquipmentIconsShader()
 	if(!g_EquipmentIconsShader)
 	{
 		g_EquipmentIconsShader = xr_new<ui_shader>();
-		(*g_EquipmentIconsShader)->create("hud\\default", "ui\\ui_icon_equipment");
+		(*g_EquipmentIconsShader)->create("hud\\default", EQUIPMENT_ICONS);
 	}
 
 	return *g_EquipmentIconsShader;

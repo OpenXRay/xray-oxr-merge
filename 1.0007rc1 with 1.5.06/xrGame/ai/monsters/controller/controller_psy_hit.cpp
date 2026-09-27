@@ -135,6 +135,8 @@ void CControllerPsyHit::death_glide_start()
 		m_man->deactivate	(this);
 		return;
 	}
+	
+	HUD().SetRenderable(false);
 
 	// Start effector
 	CEffectorCam* ce = Actor()->Cameras().GetCamEffector(eCEControllerPsyHit);
@@ -198,6 +200,7 @@ void CControllerPsyHit::death_glide_end()
 
 	//m_object->Hit_Psy		(Actor(), monster->m_tube_damage);
 	m_object->Hit_Wound		(Actor(), monster->m_tube_damage,Fvector().set(0.0f,1.0f,0.0f),0.0f);
+	HUD().SetRenderable(true);
 
 }
 
@@ -251,6 +254,7 @@ void CControllerPsyHit::hit()
 void CControllerPsyHit::on_death()
 {
 	if (!is_active()) return;
+	HUD().SetRenderable(true);
 	
 	// Stop camera effector
 	CEffectorCam* ce = Actor()->Cameras().GetCamEffector(eCEControllerPsyHit);

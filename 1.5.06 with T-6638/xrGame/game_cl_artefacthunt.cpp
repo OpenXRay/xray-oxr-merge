@@ -13,7 +13,7 @@
 #include "ui/UIPdaWnd.h"
 #include "ui/UIMapDesc.h"
 #include "ui/UIMessageBoxEx.h"
-#include "ui/UIProgressShape.h"
+#include "ui/UIStatic.h"
 #include "xr_level_controller.h"
 #include "Artefact.h"
 #include "map_location.h"
@@ -299,9 +299,8 @@ CUIGameCustom* game_cl_ArtefactHunt::createGameUI()
 	CLASS_ID clsid			= CLSID_GAME_UI_ARTEFACTHUNT;
 	m_game_ui	= smart_cast<CUIGameAHunt*> ( NEW_INSTANCE ( clsid ) );
 	R_ASSERT(m_game_ui);
+	m_game_ui->Load			();
 	m_game_ui->SetClGame(this);
-	m_game_ui->Init();
-
 	LoadMessagesMenu(MESSAGE_MENUS);
 	return m_game_ui;
 }
@@ -363,9 +362,8 @@ void game_cl_ArtefactHunt::shedule_Update			(u32 dt)
 		return;
 
 	//out game information
-	m_game_ui->SetBuyMsgCaption		("");
-	m_game_ui->SetTodoCaption		("");
-	m_game_ui->SetPressBuyMsgCaption	("");	
+	m_game_ui->SetBuyMsgCaption			(NULL);
+	m_game_ui->SetPressBuyMsgCaption	(NULL);	
 
 	switch (m_phase)
 	{
@@ -402,14 +400,14 @@ void game_cl_ArtefactHunt::shedule_Update			(u32 dt)
 					if (m_game_ui)
 					{
 						if (local_player->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD))
-							m_game_ui->SetPressJumpMsgCaption(*st.translate("mp_press_fire2spectator"));
+							m_game_ui->SetPressJumpMsgCaption("mp_press_fire2spectator");
 						else
-							m_game_ui->SetPressJumpMsgCaption("");
+							m_game_ui->SetPressJumpMsgCaption(NULL);
 					};
 				}
 				else
 				{					
-					if(m_game_ui) m_game_ui->SetBuyMsgCaption("");
+					if(m_game_ui) m_game_ui->SetBuyMsgCaption(NULL);
 					if (m_bTeamSelected && m_bSkinSelected)
 					{
 						if (iReinforcementTime != 0)
@@ -417,25 +415,25 @@ void game_cl_ArtefactHunt::shedule_Update			(u32 dt)
 							if (!m_game_ui->m_pBuySpawnMsgBox->IsShown() &&
 								(local_player->money_for_round+m_iSpawn_Cost)>=0)
 							{
-								if (m_game_ui) m_game_ui->SetPressJumpMsgCaption(*st.translate("mp_press_jump2pay_spaw"));
+								if (m_game_ui) m_game_ui->SetPressJumpMsgCaption("mp_press_jump2pay_spaw");
 							}
 							else
 							{
-								if (m_game_ui) m_game_ui->SetPressJumpMsgCaption("");
+								if (m_game_ui) m_game_ui->SetPressJumpMsgCaption(NULL);
 							}
 						}
 						else
 						{
-							if (m_game_ui) m_game_ui->SetPressJumpMsgCaption(*st.translate("mp_press_jump2spawn"));
+							if (m_game_ui) m_game_ui->SetPressJumpMsgCaption("mp_press_jump2spawn");
 						};
 					}
 					else
 					{
 						if (!m_bTeamSelected)
-							if (m_game_ui) m_game_ui->SetPressJumpMsgCaption(*st.translate("mp_press_jump2select_team"));
+							if (m_game_ui) m_game_ui->SetPressJumpMsgCaption("mp_press_jump2select_team");
 							else
 								if (!m_bSkinSelected)
-									if (m_game_ui) m_game_ui->SetPressJumpMsgCaption(*st.translate("mp_press_jump2select_skin"));
+									if (m_game_ui) m_game_ui->SetPressJumpMsgCaption("mp_press_jump2select_skin");
 					}
 				};				
 			}
@@ -452,10 +450,10 @@ void game_cl_ArtefactHunt::shedule_Update			(u32 dt)
 					if (s32(CurTime) > dReinforcementTime) dTime = 0;
 					else dTime = iCeil(float(dReinforcementTime - CurTime) / 1000);
 							
-					m_game_ui->m_pReinforcementInidcator->SetPos(dTime, iReinforcementTime);
+					string128 _buff;
+					m_game_ui->m_pReinforcementInidcator->SetText(itoa(dTime,_buff,10));
 				}else
-					m_game_ui->m_pReinforcementInidcator->SetPos(0, 1);
-
+					m_game_ui->m_pReinforcementInidcator->SetText("0");
 
 				s16 lt = local_player->team;
 				if (lt>=0)

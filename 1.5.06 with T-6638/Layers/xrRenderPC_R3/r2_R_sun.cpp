@@ -185,7 +185,7 @@ Frustum::Frustum(const D3DXMATRIX* matrix)
 }
 
 //////////////////////////////////////////////////////////////////////////
-Fvector3		wform	(Fmatrix& m, Fvector3& v)
+Fvector3		wform	(Fmatrix& m, Fvector3 const& v)
 {
 	Fvector4	r;
 	r.x			= v.x*m._11 + v.y*m._21 + v.z*m._31 + m._41;

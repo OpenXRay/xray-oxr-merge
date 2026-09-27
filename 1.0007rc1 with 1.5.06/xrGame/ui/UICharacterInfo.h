@@ -4,8 +4,8 @@
 #pragma once
 
 #include "uiwindow.h"
-#include "../alife_space.h"
-#include "../character_info_defs.h"
+#include "../../xrServerEntities/alife_space.h"
+#include "character_info_defs.h"
 
 class CUIStatic;
 class CCharacterInfo;
@@ -27,21 +27,33 @@ protected:
 	u16					m_ownerID;
 
 
-	enum{
-		eUIIcon	=	0,
-		eUIName,
-		eUIRank,
-		eUIRankCaption,
-		eUICommunity,
-		eUICommunityCaption,
-		eUIReputation,
-		eUIReputationCaption,
-		eUIRelation,
-		eUIRelationCaption,
-		eMaxCaption,
+	enum UIItemType
+	{
+		eIcon	=	0,
+		eIconOver,
+		eRankIcon,
+		eRankIconOver,
+		eCommunityIcon,
+		eCommunityIconOver,
+		eCommunityBigIcon,
+		eCommunityBigIconOver,
+
+		eName,
+		eNameCaption,
+		eRank,
+		eRankCaption,
+		eCommunity,
+		eCommunityCaption,
+		eReputation,
+		eReputationCaption,
+		eRelation,
+		eRelationCaption,
+
+		eMaxCaption
 	};
 	CUIStatic*					m_icons[eMaxCaption];
 	shared_str					m_texture_name;
+	u32					m_deadbody_color;
 
 public:
 						CUICharacterInfo();
@@ -54,8 +66,14 @@ public:
 
 	virtual void		Update					();
 
-	u16					OwnerID					()	const {return m_ownerID;}
-	CUIStatic&			UIIcon					()		{VERIFY(m_icons[eUIIcon]);return *m_icons[eUIIcon];}	
-	CUIStatic&			UIName()				{VERIFY(m_icons[eUIName]);return *m_icons[eUIName];}	
-	const shared_str&	IconName				() {return m_texture_name;}
+	u16					OwnerID					()	const	{	return m_ownerID;	}
+	CUIStatic&			UIIcon					()	const	{	VERIFY(m_icons[eIcon]);			return *m_icons[eIcon];	}
+	CUIStatic&			UIName					()	const	{	VERIFY(m_icons[eName]);			return *m_icons[eName];	}
+	CUIStatic&			UICommunity				()	const	{	VERIFY(m_icons[eCommunity]);	return *m_icons[eCommunity];	}
+	CUIStatic&			UICommunityCaption		()	const	{	VERIFY(m_icons[eCommunityCaption]);	return *m_icons[eCommunityCaption];	}
+
+	const shared_str&	IconName				() const {return m_texture_name;}
+
+	static	bool		get_actor_community		(shared_str* our, shared_str* enemy);
+	static	bool		ignore_community		(shared_str const& check_community);
 };

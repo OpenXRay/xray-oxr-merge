@@ -51,7 +51,7 @@ void CUIActorMenu::InitInventoryMode()
 	m_pQuickSlot->Show					(true);
 	m_pTrashList->Show					(true);
 	m_RightDelimiter->Show				(false);
-//	m_clock_value->Show					(true);
+	m_clock_value->Show					(true);
 
 	InitInventoryContents				(m_pInventoryBagList);
 

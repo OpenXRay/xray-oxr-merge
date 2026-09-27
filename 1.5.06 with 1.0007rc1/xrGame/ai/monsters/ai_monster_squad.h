@@ -9,7 +9,7 @@ class CBaseMonster;
 //////////////////////////////////////////////////////////////////////////
 // Member local goal notification
 //////////////////////////////////////////////////////////////////////////
-enum EMemberGoalType 
+enum EMemberGoalType
 {
 	MG_AttackEnemy,				// entity
 	MG_PanicFromEnemy,			// entity
@@ -20,7 +20,7 @@ enum EMemberGoalType
 	MG_None,
 };
 
-struct SMemberGoal 
+struct SMemberGoal
 {
 	EMemberGoalType		type;
 	CEntity				*entity;
@@ -36,7 +36,7 @@ struct SMemberGoal
 //////////////////////////////////////////////////////////////////////////
 // Squad command 
 //////////////////////////////////////////////////////////////////////////
-enum ESquadCommandType 
+enum ESquadCommandType
 { 
 	SC_EXPLORE,
 	SC_ATTACK,
@@ -63,7 +63,7 @@ struct SSquadCommand
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // MonsterSquad Class
-class CMonsterSquad 
+class CMonsterSquad
 {
 public:
 	DEFINE_MAP		(const CEntity*, SSquadCommand,	MEMBER_COMMAND_MAP, MEMBER_COMMAND_MAP_IT);
@@ -106,7 +106,7 @@ public:
 	
 	void			UpdateGoal			(CEntity *pE, const SMemberGoal	&goal);
 	void			UpdateCommand		(const CEntity *pE, const SSquadCommand &com);
-	
+
 	void			GetGoal				(CEntity *pE, SMemberGoal &goal);
 	void			GetCommand			(CEntity *pE, SSquadCommand &com);
 	SMemberGoal		&GetGoal			(CEntity *pE);

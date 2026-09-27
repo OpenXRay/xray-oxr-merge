@@ -49,7 +49,6 @@
 const u32	_pmt_psy_attack_delay		= 2000;
 const float	_pmt_psy_attack_min_angle	= deg(5);
 
-
 namespace detail
 {
 	namespace controller 
@@ -61,7 +60,6 @@ namespace detail
 
 	} // namespace controller
 } // namespace detail
-
 
 CController::CController()
 {

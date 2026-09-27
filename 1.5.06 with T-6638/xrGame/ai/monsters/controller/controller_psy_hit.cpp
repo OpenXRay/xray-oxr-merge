@@ -34,8 +34,11 @@ void CControllerPsyHit::reinit()
 
 bool CControllerPsyHit::check_start_conditions()
 {
-	if (is_active())				return false;	
-	if (m_man->is_captured_pure())	return false;
+	if (is_active())
+		return false;	
+
+	if (m_man->is_captured_pure())
+		return false;
 	
 	if (Actor()->Cameras().GetCamEffector(eCEControllerPsyHit))	
 									return false;
@@ -79,7 +82,7 @@ void CControllerPsyHit::deactivate()
 		NET_Packet			P;
 
 		Actor()->u_EventGen	(P, GEG_PLAYER_WEAPON_HIDE_STATE, Actor()->ID());
-		P.w_u32				(INV_STATE_BLOCK_ALL);
+		P.w_u16				(INV_STATE_BLOCK_ALL);
 		P.w_u8				(u8(false));
 		Actor()->u_EventSend(P);
 	}
@@ -111,7 +114,7 @@ void CControllerPsyHit::play_anim()
 	SControlAnimationData		*ctrl_anim = (SControlAnimationData*)m_man->data(this, ControlCom::eControlAnimation); 
 	VERIFY						(ctrl_anim);
 
-	ctrl_anim->global.motion	= m_stage[m_current_index];
+	ctrl_anim->global.set_motion ( m_stage[m_current_index] );
 	ctrl_anim->global.actual	= false;
 }
 
@@ -144,12 +147,19 @@ bool check_actor_visibility (const Fvector trace_from,
 
 bool CControllerPsyHit::check_conditions_final()
 {
-	if (!m_object->g_Alive())						return false;
-	if (!Actor())									return false;
-	if (m_object->EnemyMan.get_enemy() != Actor())	return false;
-	if (!Actor()->g_Alive())						return false;
+	if (!m_object->g_Alive())
+		return false;
+
+	if (!g_actor)
+		return false;
+
+	if (m_object->EnemyMan.get_enemy() != Actor())
+		return false;
+
+	if (!Actor()->g_Alive())
+		return false;
 	
-	if ( !m_blocked && !m_object->EnemyMan.see_enemy_now() ) 
+	if ( !m_blocked && !m_object->EnemyMan.see_enemy_now() )
 	{
 		using namespace detail;
 		const Fvector self_head = get_head_position(m_object);
@@ -193,7 +203,10 @@ void CControllerPsyHit::death_glide_start()
 
 	target_pos.mad		(src_pos,dir,dist-4.8f);
 	
-	Actor()->Cameras().AddCamEffector(xr_new<CControllerPsyHitCamEffector>(eCEControllerPsyHit, src_pos,target_pos, m_man->animation().motion_time(m_stage[1], m_object->Visual())));
+	Actor()->Cameras().AddCamEffector(xr_new<CControllerPsyHitCamEffector>(eCEControllerPsyHit, src_pos,target_pos,
+										m_man->animation().motion_time(m_stage[1], m_object->Visual()),
+										base_fov, dest_fov));
+
 	smart_cast<CController *>(m_object)->draw_fire_particles();
 
 	dir.sub(src_pos,target_pos);
@@ -207,7 +220,7 @@ void CControllerPsyHit::death_glide_start()
 
 	NET_Packet			P;
 	Actor()->u_EventGen	(P, GEG_PLAYER_WEAPON_HIDE_STATE, Actor()->ID());
-	P.w_u32				(INV_STATE_BLOCK_ALL);
+	P.w_u16				(INV_STATE_BLOCK_ALL);
 	P.w_u8				(u8(true));
 	Actor()->u_EventSend(P);
 	
@@ -232,7 +245,6 @@ void CControllerPsyHit::death_glide_end()
 	Actor()->Cameras().RemoveCamEffector(eCEControllerPsyHit);
 	CController *monster = smart_cast<CController *>(m_object);
 	monster->draw_fire_particles();
-
 
 	monster->m_sound_tube_hit_left.play_at_pos(Actor(), Fvector().set(-1.f, 0.f, 1.f), sm_2D);
 	monster->m_sound_tube_hit_right.play_at_pos(Actor(), Fvector().set(1.f, 0.f, 1.f), sm_2D);
@@ -290,16 +302,26 @@ void CControllerPsyHit::hit()
 	//m_object->Hit_Psy		(Actor(), monster->m_tube_damage);
 }
 
-void CControllerPsyHit::on_death()
+void CControllerPsyHit::stop ()
 {
-	if (!is_active()) return;
 	HUD().SetRenderable(true);
 	
+	if ( CController* controller = smart_cast<CController*>(m_object) )
+		if ( controller->CControlledActor::is_controlling() )
+			controller->CControlledActor::release();
+
 	// Stop camera effector
 	CEffectorCam* ce = Actor()->Cameras().GetCamEffector(eCEControllerPsyHit);
-	if (ce) {
+	if (ce)
 		Actor()->Cameras().RemoveCamEffector(eCEControllerPsyHit);
-	}
+}
+
+void CControllerPsyHit::on_death()
+{
+	if (!is_active()) 
+		return;
+
+	stop ();
 
 	m_man->deactivate		(this);
 }

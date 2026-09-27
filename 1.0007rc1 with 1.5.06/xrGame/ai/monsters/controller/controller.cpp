@@ -49,6 +49,19 @@
 const u32	_pmt_psy_attack_delay		= 2000;
 const float	_pmt_psy_attack_min_angle	= deg(5);
 
+namespace detail
+{
+	namespace controller 
+	{
+		// default settings for tube fire:
+		const float default_tube_condition_see_duration = 1000;
+		const float default_tube_condition_min_delay    = 10000;
+		const float default_tube_condition_min_distance = 10;
+
+	} // namespace controller
+} // namespace detail
+
+#define TUBE_PROBABILITY	20
 
 CController::CController()
 {
@@ -235,6 +248,23 @@ void CController::Load(LPCSTR section)
 	m_psy_hit_damage	= pSettings->r_float(section,"psy_hit_damage");
 	m_tube_damage		= pSettings->r_float(section,"tube_damage");
 	m_tube_at_once		= !!pSettings->r_bool(section,"tube_at_once");
+
+	LPCSTR tube_see_duration_line           = "tube_condition_see_duration";
+	LPCSTR tube_condition_min_delay_line    = "tube_condition_min_delay";
+	LPCSTR tube_condition_min_distance_line = "tube_condition_min_distance";
+
+	using namespace detail::controller;
+	m_tube_condition_see_duration = pSettings->line_exist(section, tube_see_duration_line) ?
+	                             	pSettings->r_float(section, tube_see_duration_line) :
+									default_tube_condition_see_duration;
+
+	m_tube_condition_min_delay    = pSettings->line_exist(section, tube_condition_min_delay_line) ?
+	                             	pSettings->r_float(section, tube_condition_min_delay_line) :
+									default_tube_condition_min_delay;
+
+	m_tube_condition_min_distance = pSettings->line_exist(section, tube_condition_min_distance_line) ?
+	                             	pSettings->r_float(section, tube_condition_min_distance_line) :
+									default_tube_condition_min_distance;
 
 	m_aura->load		(section);
 }
@@ -577,10 +607,6 @@ void CController::set_psy_fire_delay_default()
 // TUBE
 //////////////////////////////////////////////////////////////////////////
 
-#define SEE_ENEMY_DURATION	1000
-#define MIN_DELAY			10000
-#define TUBE_PROBABILITY	20
-
 void CController::tube_fire()
 {
 	m_time_last_tube	= time();
@@ -593,6 +619,8 @@ void CController::tube_fire()
 
 bool CController::can_tube_fire()
 {
+	using namespace detail::controller;
+
 	if (m_tube_at_once)
 	{
 		if (EnemyMan.get_enemy() &&  EnemyMan.see_enemy_now() && m_psy_hit->check_start_conditions())
@@ -606,16 +634,16 @@ bool CController::can_tube_fire()
 	if (!EnemyMan.get_enemy())
 	 return false;
 
-	if (m_time_last_tube + MIN_DELAY > time())
+	if ( m_time_last_tube + m_tube_condition_min_delay > time() )
 	 return false;
 
-	if (EnemyMan.see_enemy_duration() < SEE_ENEMY_DURATION)
+	if ( EnemyMan.see_enemy_duration() < m_tube_condition_see_duration ) 
 	 return false;
 
 	if (!m_psy_hit->check_start_conditions())
 	 return false;
 
-	if (EnemyMan.get_enemy()->Position().distance_to(Position()) < 10.f)
+	if ( EnemyMan.get_enemy()->Position().distance_to(Position()) < m_tube_condition_min_distance ) 
 	 return false;
 
 	return true;

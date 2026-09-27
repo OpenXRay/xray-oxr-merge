@@ -1,8 +1,8 @@
 #include "stdafx.h"
-#include "..\igame_persistent.h"
-#include "..\fbasicvisual.h"
-#include "..\customhud.h"
-#include "..\xr_object.h"
+#include "../../xrEngine/igame_persistent.h"
+#include "../xrRender/FBasicVisual.h"
+#include "../../xrEngine/customhud.h"
+#include "../../xrEngine/xr_object.h"
 
 IC	bool	pred_sp_sort	(ISpatial*	_1, ISpatial* _2)
 {
@@ -75,7 +75,7 @@ void CRender::render_main	(Fmatrix&	m_ViewProjection, bool _fportals)
 		for (u32 s_it=0; s_it<PortalTraverser.r_sectors.size(); s_it++)
 		{
 			CSector*	sector		= (CSector*)PortalTraverser.r_sectors[s_it];
-			IRender_Visual*	root	= sector->root();
+			dxRender_Visual*	root	= sector->root();
 			for (u32 v_it=0; v_it<sector->r_frustums.size(); v_it++)	{
 				set_Frustum			(&(sector->r_frustums[v_it]));
 				add_Geometry		(root);
@@ -113,7 +113,8 @@ void CRender::render_main	(Fmatrix&	m_ViewProjection, bool _fportals)
 					VERIFY							(renderable);
 
 					// Occlusion
-					vis_data&		v_orig			= renderable->renderable.visual->vis;
+					//	casting is faster then using getVis method
+					vis_data&		v_orig			= ((dxRender_Visual*)renderable->renderable.visual)->vis;
 					vis_data		v_copy			= v_orig;
 					v_copy.box.xform				(renderable->renderable.xform);
 					BOOL			bVisible		= HOM.visible(v_copy);
@@ -220,7 +221,7 @@ void CRender::Render		()
 		m_project.build_projection	(
 			deg2rad(Device.fFOV/* *Device.fASPECT*/), 
 			Device.fASPECT, VIEWPORT_NEAR, 
-			z_distance * g_pGamePersistent->Environment().CurrentEnv.far_plane);
+			z_distance * g_pGamePersistent->Environment().CurrentEnv->far_plane);
 		m_zfill.mul	(m_project,Device.mView);
 		r_pmask										(true,false);	// enable priority "0"
 		set_Recorder								(NULL)		;

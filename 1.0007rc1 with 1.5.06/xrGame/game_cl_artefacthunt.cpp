@@ -4,7 +4,6 @@
 #include "hudmanager.h"
 #include "level.h"
 #include "UIGameAHunt.h"
-#include "clsid_game.h"
 #include "map_manager.h"
 #include "LevelGameDef.h"
 #include "hit.h"
@@ -17,13 +16,15 @@
 #include "ui/UIMessageBoxEx.h"
 #include "ui/UIProgressShape.h"
 #include "xr_level_controller.h"
-#include "Artifact.h"
+#include "Artefact.h"
 #include "map_location.h"
 #include "Inventory.h"
 #include "ActorCondition.h"
 #include "ui/TeamInfo.h"
 #include "string_table.h"
 #include "CustomOutfit.h"
+#include "clsid_game.h"
+#include "ui/UIActorMenu.h"
 
 #define TEAM0_MENU		"artefacthunt_team0"
 #define	TEAM1_MENU		"artefacthunt_team1"
@@ -32,7 +33,7 @@
 #define MESSAGE_MENUS	"ahunt_messages_menu"
 
 #include "game_cl_artefacthunt_snd_msg.h"
-#include "../IGame_Persistent.h"
+#include "../xrEngine/IGame_Persistent.h"
 
 game_cl_ArtefactHunt::game_cl_ArtefactHunt()
 {
@@ -371,7 +372,7 @@ void game_cl_ArtefactHunt::shedule_Update			(u32 dt)
 
 			if (local_player && Level().CurrentControlEntity())
 			{
-				if (Level().CurrentControlEntity()->CLS_ID == CLSID_OBJECT_ACTOR)
+				if (smart_cast<CActor*>(Level().CurrentControlEntity()))
 				{
 					if(m_game_ui) m_game_ui->SetBuyMsgCaption("");
 					if (m_bBuyEnabled)
@@ -536,10 +537,10 @@ BOOL game_cl_ArtefactHunt::CanCallBuyMenu			()
 	{
 		return FALSE;
 	};
-	if (m_game_ui->m_pInventoryMenu && m_game_ui->m_pInventoryMenu->IsShown())
+	if ( m_game_ui && m_game_ui->ActorMenu().IsShown() )
 	{
 		return FALSE;
-	};
+	}
 
 	CActor* pCurActor = smart_cast<CActor*> (Level().CurrentEntity());
 	if (!pCurActor || !pCurActor->g_Alive()) return FALSE;

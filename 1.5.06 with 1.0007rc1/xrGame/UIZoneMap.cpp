@@ -22,7 +22,7 @@
 CUIZoneMap::CUIZoneMap()
 :m_current_map_idx(u8(-1)),
 visible(true)
-{	
+{
 }
 
 CUIZoneMap::~CUIZoneMap()

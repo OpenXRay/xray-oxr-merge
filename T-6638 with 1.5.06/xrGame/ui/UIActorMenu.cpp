@@ -473,8 +473,6 @@ void CUIActorMenu::UpdateItemsPlace()
 	}
 }
 
-// ================================================================
-
 void CUIActorMenu::clear_highlight_lists()
 {
 	m_InvSlot2Highlight->Show(false);
@@ -509,6 +507,7 @@ void CUIActorMenu::clear_highlight_lists()
 	}
 	m_highlight_clear = true;
 }
+
 void CUIActorMenu::highlight_item_slot(CUICellItem* cell_item)
 {
 	PIItem item = (PIItem)cell_item->m_pData;
@@ -804,8 +803,6 @@ void CUIActorMenu::highlight_weapons_for_addon( PIItem addon_item, CUIDragDropLi
 
 	}//for i
 }
-
-// -------------------------------------------------------------------
 
 void CUIActorMenu::ClearAllLists()
 {

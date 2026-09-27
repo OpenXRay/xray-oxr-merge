@@ -37,7 +37,7 @@ bool CPHAICharacter::TryPosition(Fvector pos,bool exact_state){
 	Fvector	displace;displace.sub(pos,current_pos);
 	float	disp_mag=displace.magnitude();
 	
-	if( fis_zero( disp_mag ) || fis_zero( Device.fTimeDelta ) ) 
+	if( fis_zero( disp_mag ) || fis_zero( inl_ph_world().Device().fTimeDelta ) ) 
 														return true ;
 	const	u32		max_steps = 15 ;
 	const	float	fmax_steps = float ( max_steps ) ;
@@ -94,7 +94,7 @@ bool CPHAICharacter::TryPosition(Fvector pos,bool exact_state){
 #endif
 
 	SetPosition(pos_new);
-	m_last_move.sub(pos_new,current_pos).mul(1.f/Device.fTimeDelta);
+	m_last_move.sub(pos_new,current_pos).mul(1.f/inl_ph_world().Device().fTimeDelta);
 	m_body_interpolation.UpdatePositions();
 	m_body_interpolation.UpdatePositions();
 	if(ret)
@@ -179,7 +179,7 @@ void CPHAICharacter::InitContact(dContact* c,bool	&do_collide,u16 material_idx_1
 		b_valide_wall_contact=false;
 	}
 #ifdef DEBUG
-	if(ph_dbg_draw_mask.test(phDbgNeverUseAiPhMove))do_collide=false;
+	if(debug_output().ph_dbg_draw_mask().test(phDbgNeverUseAiPhMove))do_collide=false;
 #endif
 }
 /*

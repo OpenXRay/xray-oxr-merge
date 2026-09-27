@@ -11,7 +11,6 @@
 #include "memory_manager.h"
 #include "visual_memory_manager.h"
 #include "hit_memory_manager.h"
-#include "clsid_game.h"
 #include "ef_storage.h"
 #include "ef_pattern.h"
 #include "autosave_manager.h"
@@ -48,6 +47,7 @@ CEnemyManager::CEnemyManager									(CCustomMonster *object)
 	m_last_enemy_change			= 0;
 	m_stalker					= smart_cast<CAI_Stalker*>(object);
 	m_enable_enemy_change		= true;
+	m_smart_cover_enemy			= 0;
 }
 
 bool CEnemyManager::is_useful				(const CEntityAlive *entity_alive) const
@@ -90,7 +90,7 @@ float CEnemyManager::evaluate				(const CEntityAlive *object) const
 {
 //	Msg						("[%6d] enemy manager %s evaluates %s",Device.dwTimeGlobal,*m_object->cName(),*object->cName());
 
-	bool					actor = (object->CLS_ID == CLSID_OBJECT_ACTOR);
+	bool					actor = (!!smart_cast<CActor const*>(object));
 	if (actor)
 		m_ready_to_save		= false;
 
@@ -252,10 +252,10 @@ bool CEnemyManager::change_from_wounded					(const CEntityAlive *current, const 
 
 IC	bool CEnemyManager::enemy_inertia					(const CEntityAlive *previous_enemy) const
 {
-	if (m_selected->CLS_ID == CLSID_OBJECT_ACTOR)
+	if (smart_cast<CActor const*>(m_selected))
 		return					(Device.dwTimeGlobal <= (m_last_enemy_change + ENEMY_INERTIA_TIME_TO_ACTOR));
 
-	if (previous_enemy && previous_enemy->CLS_ID == CLSID_OBJECT_ACTOR)
+	if (previous_enemy && smart_cast<CActor const*>(previous_enemy))
 		return					(Device.dwTimeGlobal <= (m_last_enemy_change + ENEMY_INERTIA_TIME_FROM_ACTOR));
 
 	return						(Device.dwTimeGlobal <= (m_last_enemy_change + ENEMY_INERTIA_TIME_TO_SOMEBODY));

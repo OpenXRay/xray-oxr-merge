@@ -7,10 +7,12 @@
 #include "material_manager.h"
 #include "profiler.h"
 #include "IKLimbsController.h"
+
 #ifdef	DEBUG
 BOOL debug_step_info = FALSE;
 BOOL debug_step_info_load = FALSE;
 #endif
+
 CStepManager::CStepManager()
 {
 }

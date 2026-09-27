@@ -741,7 +741,7 @@ bool CRelationMapLocation::Update()
 
 		pEnt = smart_cast<CInventoryOwner*>(Level().Objects.net_Find(m_objectID));
 		pAct = smart_cast<CInventoryOwner*>(Level().Objects.net_Find(m_pInvOwnerActorID));
-		if(!pEnt || !pAct)	
+		if(!pEnt || !pAct)
 			return false;
 
 		m_last_relation =  RELATION_REGISTRY().GetRelationType(pEnt, pAct);
@@ -798,9 +798,7 @@ bool CRelationMapLocation::Update()
 				m_b_minimap_visible	= m_b_minimap_visible && (ml->MiniMapSpot()==NULL);
 				m_b_levelmap_visible= m_b_levelmap_visible && (ml->LevelMapSpot()==NULL);
 			}
-			
 		}
-
 	}
 
 	return true;

@@ -18,6 +18,7 @@ public:
 
 	// -----------------------------------------------------
 	const CEntityAlive	*get_corpse				();
+
 	SMonsterCorpse		get_corpse_info			();
 	u32					get_corpse_count		() {return m_objects.size();}
 

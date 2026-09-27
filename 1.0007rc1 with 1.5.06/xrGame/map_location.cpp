@@ -4,7 +4,7 @@
 #include "map_manager.h"
 
 #include "level.h"
-#include "../xr_object.h"
+#include "../xrEngine/xr_object.h"
 #include "ai_space.h"
 #include "game_graph.h"
 #include "xrServer.h"
@@ -28,6 +28,7 @@
 CMapLocation::CMapLocation(LPCSTR type, u16 object_id)
 {
 	m_flags.zero			();
+
 	m_level_spot			= NULL;
 	m_level_spot_pointer	= NULL;
 	m_minimap_spot			= NULL;
@@ -65,15 +66,14 @@ void CMapLocation::destroy()
 CUIXml*	g_uiSpotXml=NULL;
 void CMapLocation::LoadSpot(LPCSTR type, bool bReload)
 {
-	if(!g_uiSpotXml){
+	if(!g_uiSpotXml)
+	{
 		g_uiSpotXml				= xr_new<CUIXml>();
-		bool xml_result			= g_uiSpotXml->Init(CONFIG_PATH, UI_PATH, "map_spots.xml");
-		R_ASSERT3(xml_result, "xml file not found", "map_spots.xml");
+		g_uiSpotXml->Load		(CONFIG_PATH, UI_PATH, "map_spots.xml");
 	}
 
 	XML_NODE* node = NULL;
 	string512 path_base, path;
-//	strconcat(path_base,"map_spots:",type);
 	strcpy_s		(path_base,type);
 	R_ASSERT3		(g_uiSpotXml->NavigateToNode(path_base,0), "XML node not found in file map_spots.xml", path_base);
 	LPCSTR s		= g_uiSpotXml->ReadAttrib(path_base, 0, "hint", "no hint");
@@ -81,68 +81,90 @@ void CMapLocation::LoadSpot(LPCSTR type, bool bReload)
 	
 	s = g_uiSpotXml->ReadAttrib(path_base, 0, "store", NULL);
 	if(s)
+	{
 		m_flags.set( eSerailizable, TRUE);
+	}
 
 	s = g_uiSpotXml->ReadAttrib(path_base, 0, "no_offline", NULL);
 	if(s)
+	{
 		m_flags.set( eHideInOffline, TRUE);
+	}
 
 	m_ttl = g_uiSpotXml->ReadAttribInt(path_base, 0, "ttl", 0);
-	if(m_ttl>0){
+	if ( m_ttl > 0 )
+	{
 		m_flags.set( eTTL, TRUE);
 		m_actual_time = Device.dwTimeGlobal+m_ttl*1000;
 	}
 
 	s = g_uiSpotXml->ReadAttrib(path_base, 0, "pos_to_actor", NULL);
 	if(s)
+	{
 		m_flags.set( ePosToActor, TRUE);
-
+	}
 
 	strconcat(sizeof(path),path,path_base,":level_map");
 	node = g_uiSpotXml->NavigateToNode(path,0);
-	if(node){
+	if ( node )
+	{
 		LPCSTR str = g_uiSpotXml->ReadAttrib(path, 0, "spot", "");
-		if( xr_strlen(str) ){
+		if( xr_strlen(str) )
+		{
 			if(!bReload)
+			{
 				m_level_spot = xr_new<CMapSpot>(this);
+			}
 			m_level_spot->Load(g_uiSpotXml,str);
 		}else{
 			VERIFY( !(bReload&&m_level_spot) );
 		}
 
 		str = g_uiSpotXml->ReadAttrib(path, 0, "pointer", "");
-		if( xr_strlen(str) ){
+		if( xr_strlen(str) )
+		{
 			if(!bReload)
+			{
 				m_level_spot_pointer = xr_new<CMapSpotPointer>(this);
+			}
 			m_level_spot_pointer->Load(g_uiSpotXml,str);
 		}else{
 			VERIFY( !(bReload&&m_level_spot_pointer) );
 		}
-	};
+	}
 
 	strconcat(sizeof(path),path,path_base,":mini_map");
 	node = g_uiSpotXml->NavigateToNode(path,0);
-	if(node){
+	if ( node )
+	{
 		LPCSTR str = g_uiSpotXml->ReadAttrib(path, 0, "spot", "");
-		if( xr_strlen(str) ){
+		if( xr_strlen(str) )
+		{
 			if(!bReload)
+			{
 				m_minimap_spot = xr_new<CMiniMapSpot>(this);
+			}
 			m_minimap_spot->Load(g_uiSpotXml,str);
 		}else{
 			VERIFY( !(bReload&&m_minimap_spot) );
 		}
 
 		str = g_uiSpotXml->ReadAttrib(path, 0, "pointer", "");
-		if( xr_strlen(str) ){
+		if( xr_strlen(str) )
+		{
 			if(!bReload)
+			{
 				m_minimap_spot_pointer = xr_new<CMapSpotPointer>(this);
+			}
 			m_minimap_spot_pointer->Load(g_uiSpotXml,str);
 		}else{
 			VERIFY( !(bReload&&m_minimap_spot_pointer) );
 		}
-	};
-	if(NULL==m_minimap_spot && NULL==m_level_spot)
+	}
+	if ( m_minimap_spot == NULL && m_level_spot == NULL )
+	{
 		DisableSpot	();
+	}
 }
 
 Fvector2 CMapLocation::Position()
@@ -393,7 +415,8 @@ void CMapLocation::UpdateSpot(CUICustomMap* map, CMapSpot* sp )
 			for(; (it!=it_e)&&(!bDone) ;++it){
 				for(lit=g_lchangers.begin();lit!=lit_e; ++lit){
 					
-					if((*it)==(*lit)->ai_location().game_vertex_id() ){
+					if((*it)==(*lit)->ai_location().game_vertex_id() )
+					{
 						bDone = true;
 						break;
 					}
@@ -401,8 +424,9 @@ void CMapLocation::UpdateSpot(CUICustomMap* map, CMapSpot* sp )
 				}
 			}
 			static bool bbb = false;
-			if(!bDone&&bbb){
-				Msg("Error. Path from actor to selected map spot does not contain level changer :(");
+			if(!bDone&&bbb)
+			{
+				Msg("! Error. Path from actor to selected map spot does not contain level changer :(");
 				Msg("Path:");
 				xr_vector<u32>::iterator it			= map_point_path.begin();
 				xr_vector<u32>::iterator it_e		= map_point_path.end();
@@ -410,7 +434,7 @@ void CMapLocation::UpdateSpot(CUICustomMap* map, CMapSpot* sp )
 //					Msg("%d-%s",(*it),ai().game_graph().vertex(*it));
 					Msg("[%d] level[%s]",(*it),*ai().game_graph().header().level(ai().game_graph().vertex(*it)->level_id()).name());
 				}
-				Msg("Available LevelChangers:");
+				Msg("- Available LevelChangers:");
 				xr_vector<CLevelChanger*>::iterator lit,lit_e;
 				lit_e							= g_lchangers.end();
 				for(lit=g_lchangers.begin();lit!=lit_e; ++lit){
@@ -422,7 +446,8 @@ void CMapLocation::UpdateSpot(CUICustomMap* map, CMapSpot* sp )
 
 			
 			};
-			if(bDone){
+			if(bDone)
+			{
 				Fvector2 position;
 				position.set			((*lit)->Position().x, (*lit)->Position().z);
 				m_position_on_map		= map->ConvertRealToLocal(position);
@@ -468,9 +493,10 @@ void CMapLocation::UpdateMiniMap(CUICustomMap* map)
 void CMapLocation::UpdateLevelMap(CUICustomMap* map)
 {
 	CMapSpot* sp = m_level_spot;
-	if(!sp) return;
-	if(SpotEnabled())
+	if(sp && SpotEnabled())
+	{
 		UpdateSpot(map, sp);
+	}
 }
 
 u16	CMapLocation::AddRef() 
@@ -507,19 +533,24 @@ void CMapLocation::SetHint	(const shared_str& hint)
 
 LPCSTR CMapLocation::GetHint	()					
 {
-	CStringTable	stbl;
-	return *stbl.translate(m_hint);
+	return CStringTable().translate(m_hint).c_str();
 };
 
 CMapSpotPointer* CMapLocation::GetSpotPointer(CMapSpot* sp)
 {
 	R_ASSERT(sp);
-	if(!PointerEnabled()) return NULL;
+	if(!PointerEnabled())
+	{
+		return NULL;
+	}
 	if(sp==m_level_spot)
+	{
 		return m_level_spot_pointer;
-	else
-	if(sp==m_minimap_spot)
+	}
+	else if(sp==m_minimap_spot)
+	{
 		return m_minimap_spot_pointer;
+	}
 
 	return NULL;
 }
@@ -528,17 +559,23 @@ CMapSpot* CMapLocation::GetSpotBorder(CMapSpot* sp)
 {
 	R_ASSERT(sp);
 	if(!PointerEnabled()) return NULL;
-	if(sp==m_level_spot){
-		if(NULL==m_level_map_spot_border){
+	if(sp==m_level_spot)
+	{
+		if(NULL==m_level_map_spot_border)
+		{
 			m_level_map_spot_border	= xr_new<CMapSpot>(this);
 			m_level_map_spot_border->Load(g_uiSpotXml,"level_map_spot_border");
-		}return m_level_map_spot_border;
-	}else
-		if(sp==m_minimap_spot){
-		if(NULL==m_mini_map_spot_border){
+		}
+		return m_level_map_spot_border;
+	}
+	else if(sp==m_minimap_spot)
+	{
+		if(NULL==m_mini_map_spot_border)
+		{
 			m_mini_map_spot_border	= xr_new<CMapSpot>(this);
 			m_mini_map_spot_border->Load(g_uiSpotXml,"mini_map_spot_border");
-		}return m_mini_map_spot_border;
+		}
+		return m_mini_map_spot_border;
 	}
 	return NULL;
 }
@@ -582,7 +619,9 @@ bool CRelationMapLocation::Update()
 
 		pEnt = smart_cast<CInventoryOwner*>(Level().Objects.net_Find(m_pInvOwnerEntityID));
 		pAct = smart_cast<CInventoryOwner*>(Level().Objects.net_Find(m_pInvOwnerActorID));
-		if(!pEnt || !pAct)	return false;
+		if(!pEnt || !pAct)
+			return false;
+
 		m_last_relation =  RELATION_REGISTRY().GetRelationType(pEnt, pAct);
 		CEntityAlive* pEntAlive = smart_cast<CEntityAlive*>(pEnt);
 		if(pEntAlive)

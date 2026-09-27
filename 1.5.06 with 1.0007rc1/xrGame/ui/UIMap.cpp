@@ -359,7 +359,8 @@ CUILevelMap::CUILevelMap(CUIMapWnd* p)
 }
 
 CUILevelMap::~CUILevelMap()
-{}
+{
+}
 
 void CUILevelMap::Draw()
 {
@@ -447,11 +448,6 @@ Frect CUILevelMap::CalcWndRectOnGlobal	()
 	return res;
 }
 
-void CUILevelMap::Show( bool status )
-{
-	inherited::Show( status );
-}
-
 void CUILevelMap::Update()
 {
 	CUIGlobalMap*	w				= MapWnd()->GlobalMap();
@@ -537,7 +533,6 @@ void CUIMiniMap::Init_internal(const shared_str& name, CInifile& pLtx, const sha
 
 void CUIMiniMap::UpdateSpots()
 {
-	WINDOW_LIST wl_bk = m_ChildWndList;
 	DetachAll();
 	Locations& ls =Level().MapManager().Locations();
 	for(Locations_it it=ls.begin(); it!=ls.end(); ++it)

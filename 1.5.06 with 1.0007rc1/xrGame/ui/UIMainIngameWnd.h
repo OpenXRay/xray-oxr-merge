@@ -1,5 +1,8 @@
-#ifndef	UI_MAIN_INGAME_WND_H_INCLUDED
-#define UI_MAIN_INGAME_WND_H_INCLUDED
+// UIMainIngameWnd.h:  окошки-информация в игре
+// 
+//////////////////////////////////////////////////////////////////////
+
+#pragma once
 
 #include "UIProgressBar.h"
 #include "UIGameLog.h"
@@ -162,5 +165,3 @@ public:
 	void				draw_adjust_mode					();
 #endif
 };
-
-#endif // UI_MAIN_INGAME_WND_H_INCLUDED

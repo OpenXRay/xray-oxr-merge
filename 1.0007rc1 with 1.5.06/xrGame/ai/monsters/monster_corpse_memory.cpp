@@ -76,7 +76,8 @@ void CMonsterCorpseMemory::remove_non_actual()
 const CEntityAlive *CMonsterCorpseMemory::get_corpse()
 {
 	CORPSE_MAP_IT	it = find_best_corpse();
-	if (it != m_objects.end()) return it->first;
+	if (it != m_objects.end())
+		return it->first;
 	return (0);
 }
 

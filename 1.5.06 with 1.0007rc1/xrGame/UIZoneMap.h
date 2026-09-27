@@ -49,5 +49,4 @@ public:
 private:
 	void						SetHeading		(float angle);
 	void						UpdateRadar		(Fvector pos);
-
 };

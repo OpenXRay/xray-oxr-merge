@@ -6,15 +6,12 @@
 
 #include "UIProgressBar.h"
 #include "UIGameLog.h"
-
-#include "../alife_space.h"
-
 #include "UICarPanel.h"
 #include "UIMotionIcon.h"
+#include "UIZoneMap.h"
+
 #include "../hudsound.h"
-//для режима настройки HUD
-extern int				g_bHudAdjustMode;
-extern float			g_fHudAdjustValue;
+#include "../../xrServerEntities/alife_space.h"
 
 class					CUIPdaMsgListItem;
 class					CLAItem;
@@ -62,7 +59,6 @@ protected:
 public:
 	CUIStatic*			GetPDAOnline					() { return &UIPdaOnline; };
 protected:
-
 
 	// 5 статиков для отображения иконок:
 	// - сломанного оружия
@@ -122,12 +118,12 @@ public:
 	void				SetFlashIconState_				(EFlashingIcons type, bool enable);
 
 	void				AnimateContacts					(bool b_snd);
-	HUD_SOUND			m_contactSnd;
+	HUD_SOUND_ITEM		m_contactSnd;
 
 	void				ReceiveNews						(GAME_NEWS_DATA* news);
 	
 protected:
-	void				SetWarningIconColor				(CUIStatic* s, const u32 cl);
+	void				SetWarningIconColorUI			(CUIStatic* s, const u32 cl);
 	void				InitFlashingIcons				(CUIXml* node);
 	void				DestroyFlashingIcons			();
 	void				UpdateFlashingIcons				();
@@ -140,7 +136,7 @@ protected:
 	FlashingIcons		m_FlashingIcons;
 
 	//для текущего активного актера и оружия
-	CActor*				m_pActor;	
+	CActor*				m_pActor;
 	CWeapon*			m_pWeapon;
 	CMissile*			m_pGrenade;
 	CInventoryItem*		m_pItem;

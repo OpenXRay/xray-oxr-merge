@@ -3,7 +3,7 @@
 
 
 
-typedef u32	CGID;
+#include "icollidevalidator.h"
 typedef u32	CLClassBits;
 typedef u32 CLBits;
 class CPHObject;
@@ -63,6 +63,8 @@ static	IC	bool			DoCollide					(const CPHObject& obj1,const CPHObject& obj2)
 	return false;
 #endif // DEBUG
 }
+
+
 
 static	IC bool				DoCollideStatic				(const CPHObject& obj)
 {

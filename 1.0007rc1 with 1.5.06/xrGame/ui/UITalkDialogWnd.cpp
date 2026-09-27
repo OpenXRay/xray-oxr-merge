@@ -11,8 +11,6 @@
 #define				TALK_XML				"talk.xml"
 #define				TRADE_CHARACTER_XML		"trade_character.xml"
 
-//////////////////////////////////////////////////////////////////////////
-
 CUITalkDialogWnd::CUITalkDialogWnd()
 	:	m_pNameTextFont		(NULL)
 {
@@ -27,8 +25,7 @@ CUITalkDialogWnd::~CUITalkDialogWnd()
 void CUITalkDialogWnd::Init(float x, float y, float width, float height)
 {
 	m_uiXml						= xr_new<CUIXml>();
-	bool xml_result				= m_uiXml->Init(CONFIG_PATH, UI_PATH, TALK_XML);
-	R_ASSERT3					(xml_result, "xml file not found", TALK_XML);
+	m_uiXml->Load				(CONFIG_PATH, UI_PATH, TALK_XML);
 	CUIXmlInit					ml_init;
 
 	inherited::Init				(x, y, width, height);
@@ -74,7 +71,7 @@ void CUITalkDialogWnd::Init(float x, float y, float width, float height)
 
 	//кнопка перехода в режим торговли
 	AttachChild					(&UIToTradeButton);
-	CUIXmlInit::Init3tButton	(*m_uiXml, "button", 0, &UIToTradeButton);
+	CUIXmlInit::Init3tButtonEx	(*m_uiXml, "button", 0, &UIToTradeButton);
 	UIToTradeButton.SetWindowName("trade_btn");
 
 	//Элементы автоматического добавления
@@ -150,10 +147,12 @@ void CUITalkDialogWnd::AddQuestion(LPCSTR str, LPCSTR value)
 	UIQuestionsList->AddWindow		(itm, true);
 	Register						(itm);
 }
+
 #include "../game_news.h"
 #include "../level.h"
 #include "../actor.h"
 #include "../alife_registry_wrappers.h"
+
 void CUITalkDialogWnd::AddAnswer(LPCSTR SpeakerName, LPCSTR str, bool bActor)
 {
 	CUIAnswerItem* itm				= xr_new<CUIAnswerItem>(m_uiXml,bActor?"actor_answer_item":"other_answer_item");
@@ -208,19 +207,19 @@ void CUIQuestionItem::SendMessage				(CUIWindow* pWnd, s16 msg, void* pData)
 
 CUIQuestionItem::CUIQuestionItem			(CUIXml* xml_doc, LPCSTR path)
 {
-	m_text							= xr_new<CUI3tButton>();m_text->SetAutoDelete(true);
+	m_text							= xr_new<CUI3tButtonEx>();m_text->SetAutoDelete(true);
 	AttachChild						(m_text);
 
 	string512						str;
 	CUIXmlInit						xml_init;
 
-	strcpy							(str,path);
+	strcpy_s							(str,path);
 	xml_init.InitWindow				(*xml_doc, str, 0, this);
 
 	m_min_height					= xml_doc->ReadAttribFlt(path,0,"min_height",15.0f);
 
 	strconcat						(sizeof(str),str,path,":content_text");
-	xml_init.Init3tButton			(*xml_doc, str, 0, m_text);
+	xml_init.Init3tButtonEx			(*xml_doc, str, 0, m_text);
 
 	Register						(m_text);
 	m_text->SetWindowName			("text_button");
@@ -253,7 +252,7 @@ CUIAnswerItem::CUIAnswerItem			(CUIXml* xml_doc, LPCSTR path)
 	string512						str;
 	CUIXmlInit						xml_init;
 
-	strcpy							(str,path);
+	strcpy_s						(str,path);
 	xml_init.InitWindow				(*xml_doc, str, 0, this);
 
 	m_min_height					= xml_doc->ReadAttribFlt(path,0,"min_height",15.0f);
@@ -297,6 +296,4 @@ void CUIAnswerItemIconed::Init		(LPCSTR text, LPCSTR texture_name, Frect texture
 	m_icon->TextureAvailable		(true);
 	m_icon->TextureOn				();
 	m_icon->SetStretchTexture		(true);
-
 }
-

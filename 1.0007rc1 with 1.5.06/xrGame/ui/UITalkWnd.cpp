@@ -8,7 +8,7 @@
 #include "../HUDManager.h"
 #include "../UIGameSP.h"
 #include "../PDA.h"
-#include "../character_info.h"
+#include "../../xrServerEntities/character_info.h"
 #include "../level.h"
 
 #include "../PhraseDialog.h"
@@ -17,7 +17,7 @@
 #include "../game_cl_base.h"
 #include "../string_table.h"
 #include "../xr_level_controller.h"
-#include "../../cameraBase.h"
+#include "../../xrEngine/cameraBase.h"
 #include "UIXmlInit.h"
 
 CUITalkWnd::CUITalkWnd()
@@ -32,29 +32,24 @@ CUITalkWnd::CUITalkWnd()
 
 	ToTopicMode				();
 
-	Init					();
+	InitTalkWnd				();
 	Hide					();
-//.	SetFont					(HUD().Font().pFontHeaderRussian);
 
 	m_bNeedToUpdateQuestions = false;
 }
-
-//////////////////////////////////////////////////////////////////////////
 
 CUITalkWnd::~CUITalkWnd()
 {
 }
 
-//////////////////////////////////////////////////////////////////////////
-
-void CUITalkWnd::Init()
+void CUITalkWnd::InitTalkWnd()
 {
-	inherited::Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT);
+	inherited::SetWndRect(Frect().set(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT));
 
 	//Меню разговора
 	UITalkDialogWnd = xr_new<CUITalkDialogWnd>();UITalkDialogWnd->SetAutoDelete(true);
 	AttachChild(UITalkDialogWnd);
-	UITalkDialogWnd->Init(0,0, UI_BASE_WIDTH, UI_BASE_HEIGHT);
+	UITalkDialogWnd->InitTalkDialogWnd();
 
 	/////////////////////////
 	//Меню торговли
@@ -63,11 +58,9 @@ void CUITalkWnd::Init()
 	UITradeWnd->Hide();
 }
 
-//////////////////////////////////////////////////////////////////////////
-
 void CUITalkWnd::InitTalkDialog()
 {
-	m_pActor = smart_cast<CActor *>(Level().CurrentEntity());
+	m_pActor = Actor();
 	if (m_pActor && !m_pActor->IsTalking()) return;
 
 	m_pOurInvOwner = smart_cast<CInventoryOwner*>(m_pActor);
@@ -231,22 +224,16 @@ void CUITalkWnd::Update()
 
 }
 
-//////////////////////////////////////////////////////////////////////////
-
 void CUITalkWnd::Draw()
 {
 	inherited::Draw				();
 }
-
-//////////////////////////////////////////////////////////////////////////
 
 void CUITalkWnd::Show()
 {
 	InitTalkDialog				();
 	inherited::Show				();
 }
-
-//////////////////////////////////////////////////////////////////////////
 
 void CUITalkWnd::Hide()
 {
@@ -262,21 +249,15 @@ void CUITalkWnd::Hide()
 	m_pActor = NULL;
 }
 
-//////////////////////////////////////////////////////////////////////////
-
 bool  CUITalkWnd::TopicMode			() 
 {
 	return NULL == m_pCurrentDialog.get();
 }
 
-//////////////////////////////////////////////////////////////////////////
-
 void  CUITalkWnd::ToTopicMode		() 
 {
 	m_pCurrentDialog = DIALOG_SHARED_PTR((CPhraseDialog*)NULL);
 }
-
-//////////////////////////////////////////////////////////////////////////
 
 void CUITalkWnd::AskQuestion()
 {
@@ -309,8 +290,6 @@ void CUITalkWnd::AskQuestion()
 	NeedUpdateQuestions		();
 }
 
-//////////////////////////////////////////////////////////////////////////
-
 void CUITalkWnd::SayPhrase(const shared_str& phrase_id)
 {
 
@@ -325,31 +304,32 @@ void CUITalkWnd::SayPhrase(const shared_str& phrase_id)
 	if(m_pCurrentDialog->IsFinished()) ToTopicMode();
 }
 
-//////////////////////////////////////////////////////////////////////////
-
 void CUITalkWnd::AddQuestion(const shared_str& text, const shared_str& value)
 {
-	if(text.size() == 0) return;
+	if(text.size() == 0)
+	{
+		return;
+	}
 	UITalkDialogWnd->AddQuestion(*CStringTable().translate(text),value.c_str());
 }
-
-//////////////////////////////////////////////////////////////////////////
 
 void CUITalkWnd::AddAnswer(const shared_str& text, LPCSTR SpeakerName)
 {
 	//для пустой фразы вообще ничего не выводим
-	if(text.size() == 0) return;
+	if(text.size() == 0)
+	{
+		return;
+	}
 	PlaySnd			(text.c_str());
 
 	bool i_am = (0 == xr_strcmp(SpeakerName, m_pOurInvOwner->Name()));
 	UITalkDialogWnd->AddAnswer(SpeakerName,*CStringTable().translate(text),i_am);
 }
 
-//////////////////////////////////////////////////////////////////////////
-
 void CUITalkWnd::SwitchToTrade()
 {
-	if(m_pOurInvOwner->IsTradeEnabled() && m_pOthersInvOwner->IsTradeEnabled() ){
+	if(m_pOurInvOwner->IsTradeEnabled() && m_pOthersInvOwner->IsTradeEnabled() )
+	{
 
 		UITalkDialogWnd->Hide		();
 

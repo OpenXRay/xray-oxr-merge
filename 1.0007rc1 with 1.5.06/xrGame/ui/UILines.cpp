@@ -81,9 +81,7 @@ void CUILines::SetText(const char* text){
 	{
 		if(m_text==text) 
 			return;
-        
 		m_text		= text;
-
 		uFlags.set(flNeedReparse, TRUE);
 	}
 	else
@@ -178,7 +176,7 @@ void CUILines::ParseText(){
 				char szTempLine[ MAX_MB_CHARS ] , *pszSearch = NULL;
 				size_t llen = xr_strlen( line->m_subLines[i].m_text.c_str() );
 				VERIFY( llen < MAX_MB_CHARS );
-				strcpy( szTempLine , line->m_subLines[i].m_text.c_str() );
+				strcpy_s( szTempLine , line->m_subLines[i].m_text.c_str() );
 				pszSearch = szTempLine;
 				while ( ( pszTemp = strstr( pszSearch , "\\n" ) ) != NULL ) {
 					bNewLines = TRUE;
@@ -300,12 +298,8 @@ void CUILines::ParseText(){
 			}
 		}
 	}
-//.		while (line->GetSize() > 0 )
-//.			m_lines.push_back(*line->CutByLength(m_pFont, m_wndSize.x, uFlags.test(flCutWordsMode)));
-
 	xr_delete(line);
 	uFlags.set(flNeedReparse, FALSE);
-
 }
 
 float CUILines::GetVisibleHeight()
@@ -389,7 +383,6 @@ void CUILines::Draw(float x, float y){
 			m_lines[i].Draw(m_pFont, pos.x, pos.y);
 			pos.y+= height + m_interval;
 		}
-
 	}
 
 	m_pFont->OnRender();

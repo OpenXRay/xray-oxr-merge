@@ -5,7 +5,7 @@
 #include "ui/UIXmlInit.h"
 #include "ui/UIMApWnd.h"
 #include "level.h"
-#include "../xr_object.h"
+#include "../xrEngine/xr_object.h"
 #include "object_broker.h"
 #include "ui/UITextureMaster.h"
 
@@ -34,12 +34,18 @@ LPCSTR CMapSpot::GetHint()
 	return MapLocation()->GetHint();
 };
 
+void CMapSpot::SetWndPos(const Fvector2& pos)
+{
+	inherited::SetWndPos( pos );
+}
+
 void CMapSpot::Update()
 {
 	inherited::Update();
-	if(m_bCursorOverWindow){
-		VERIFY(m_dwFocusReceiveTime>=0);
-		if( Device.dwTimeGlobal>(m_dwFocusReceiveTime+500) ){
+	if(m_bCursorOverWindow)
+	{
+		if( Device.dwTimeGlobal>(m_dwFocusReceiveTime+500) )
+		{
 			GetMessageTarget()->SendMessage(this, MAP_SHOW_HINT, NULL);
 		}
 	}
@@ -48,11 +54,16 @@ void CMapSpot::Update()
 bool CMapSpot::OnMouseDown		(int mouse_btn)
 {
 /*
-	if(left_button){
+	if(left_button)
+	{
 		GetMessageTarget()->SendMessage(this, MAP_SELECT_SPOT);
 		return true;
-	}else
+	}
+	else
+
+	{
 		return false;
+	}
 */
 		return false;
 }
@@ -175,7 +186,8 @@ void CMiniMapSpot::Load(CUIXml* xml, LPCSTR path)
 void CMiniMapSpot::Draw()
 {
 	CObject* O = Level().CurrentViewEntity();
-	if(O&&m_icon_above&&m_icon_below){
+	if(O&&m_icon_above->inited()&&m_icon_below->inited())
+	{
 		float ml_y = MapLocation()->GetLastPosition().y;
 		float d = O->Position().y-ml_y;
 

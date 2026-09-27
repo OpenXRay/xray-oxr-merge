@@ -44,6 +44,7 @@ void CMonsterCorpseMemory::add_corpse(const CEntityAlive *corpse)
 	corpse_info.position	= corpse->Position();
 	corpse_info.vertex		= corpse->ai_location().level_vertex_id();
 	corpse_info.time		= Device.dwTimeGlobal;
+
 	CORPSE_MAP_IT it = m_objects.find(corpse);
 	if (it != m_objects.end()) {
 		// обновить данные о враге
@@ -93,7 +94,8 @@ void CMonsterCorpseMemory::remove_non_actual()
 const CEntityAlive *CMonsterCorpseMemory::get_corpse()
 {
 	CORPSE_MAP_IT	it = find_best_corpse();
-	if (it != m_objects.end()) {
+	if (it != m_objects.end())
+	{
 		if (const_cast<CEntityAlive *>(it->first)->is_locked_corpse()) return (0);
 
 		return it->first;

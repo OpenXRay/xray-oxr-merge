@@ -3,7 +3,7 @@
 class CBaseMonster;
 class CPatrolPath;
 
-class CMonsterHome 
+class CMonsterHome
 {
 	CBaseMonster		*m_object;
 	const CPatrolPath	*m_path;

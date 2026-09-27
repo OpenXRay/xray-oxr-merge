@@ -93,7 +93,6 @@ CUIGameDM::CUIGameDM()
 //-	m_pActorMenu		= xr_new<CUIActorMenu>();
 //-	m_pPdaMenu			= xr_new<CUIPdaWnd>();
 	m_pMapDesc			= NULL;//xr_new<CUIMapDesc>		();
-
 }
 //--------------------------------------------------------------------
 void CUIGameDM::SetClGame (game_cl_GameState* g)

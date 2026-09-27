@@ -8,14 +8,48 @@
 
 #pragma once
 
+#include "game_graph_space.h"
+#include "xrserver_space.h"
+#include "alife_space.h"
+#include "script_export_space.h"
+
 class CSE_ALifeOnlineOfflineGroup;
+class CALifeMonsterMovementManager;
+class CSE_ALifeSmartZone;
+class NET_Packet;
 
 class CALifeOnlineOfflineGroupBrain {
+public:
+	typedef CSE_ALifeOnlineOfflineGroup						object_type;
+	typedef CALifeMonsterMovementManager					movement_manager_type;
+
 private:
-	CSE_ALifeOnlineOfflineGroup	*m_object;
+	object_type					*m_object;
+	movement_manager_type		*m_movement_manager;
 
 public:
-	IC							CALifeOnlineOfflineGroupBrain	(CSE_ALifeOnlineOfflineGroup *object);
-};
+						CALifeOnlineOfflineGroupBrain	(object_type *object);
+	virtual				~CALifeOnlineOfflineGroupBrain	();
 
-#include "alife_online_offline_group_brain_inline.h"
+public:
+	void						on_state_write			(NET_Packet &packet);
+	void						on_state_read			(NET_Packet &packet);
+	void						on_register				();
+	void						on_unregister			();
+	void						on_location_change		();
+	void						on_switch_online		();
+	void						on_switch_offline		();
+
+public:
+	void						update					();
+public:
+	IC		object_type				&object				() const;
+	IC		movement_manager_type	&movement			() const;
+
+	DECLARE_SCRIPT_REGISTER_FUNCTION
+};
+add_to_type_list(CALifeOnlineOfflineGroupBrain)
+#undefscript_type_list
+#definescript_type_listsave_type_list(CALifeOnlineOfflineGroupBrain)
+
+#include"alife_online_offline_group_brain_inline.h"

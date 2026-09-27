@@ -120,10 +120,8 @@ void CUIMainIngameWnd::Init()
 	UIWeaponIcon.SetShader		(GetEquipmentIconsShader());
 	UIWeaponIcon_rect			= UIWeaponIcon.GetWndRect();
 */	//---------------------------------------------------------
-	AttachChild					(&UIPickUpItemIcon);
-	xml_init.InitStatic			(uiXml, "pick_up_item", 0, &UIPickUpItemIcon);
+	UIPickUpItemIcon			= UIHelper::CreateStatic		(uiXml, "pick_up_item", this);
 	UIPickUpItemIcon->SetShader	(GetEquipmentIconsShader());
-	UIPickUpItemIcon->ClipperOn	();
 
 	m_iPickUpItemIconWidth		= UIPickUpItemIcon->GetWidth();
 	m_iPickUpItemIconHeight		= UIPickUpItemIcon->GetHeight();
@@ -135,8 +133,7 @@ void CUIMainIngameWnd::Init()
 	UIZoneMap->Init				();
 
 	// Подсказки, которые возникают при наведении прицела на объект
-	AttachChild					(&UIStaticQuickHelp);
-	xml_init.InitStatic			(uiXml, "quick_info", 0, &UIStaticQuickHelp);
+	UIStaticQuickHelp			= UIHelper::CreateStatic(uiXml, "quick_info", this);
 
 	uiXml.SetLocalRoot			(uiXml.GetRoot());
 
@@ -217,8 +214,7 @@ void CUIMainIngameWnd::Init()
 	AttachChild								(&UIMotionIcon);
 	UIMotionIcon.Init						();
 
-	AttachChild								(&UIStaticDiskIO);
-	xml_init.InitStatic						(uiXml, "disk_io", 0, &UIStaticDiskIO);
+	UIStaticDiskIO							= UIHelper::CreateStatic(uiXml, "disk_io", this);
 
 	m_ui_hud_states							= xr_new<CUIHudStatesWnd>();
 	m_ui_hud_states->SetAutoDelete			(true);
@@ -301,13 +297,7 @@ void CUIMainIngameWnd::Update()
 		m_pMPLogWnd->Update();
 
 	if ( !pActor )
-	{
-		m_pItem				= NULL;
-//		m_pWeapon			= NULL;
-		m_pGrenade			= NULL;
-//y		CUIWindow::Update	();
 		return;
-	}
 
 	UIZoneMap->Update();
 	
@@ -446,51 +436,6 @@ void CUIMainIngameWnd::Update()
 	}//	while ( i <= ewiWeaponJammed ) // ewiInvincible
 
 }//update
-
-bool CUIMainIngameWnd::OnKeyboardPress(int dik)
-{
-#ifdef DEBUG
-	test_key(dik);
-#endif // #ifdef DEBUG
-/*
-	if(Level().IR_GetKeyState(DIK_LSHIFT) || Level().IR_GetKeyState(DIK_RSHIFT))
-	{
-//		switch(dik)
-//		{
-//		case DIK_NUMPADMINUS:
-//			UIZoneMap->ZoomOut();
-//			return true;
-//			break;
-//		case DIK_NUMPADPLUS:
-//			UIZoneMap->ZoomIn();
-//			return true;
-//			break;
-//		}
-	}
-	else
-	{
-		switch(dik)
-		{
-		case DIK_NUMPADMINUS:
-			if ( HUD().GetUI()->UIGame() && !HUD().GetUI()->UIGame()->ActorMenu().IsShown() )
-			{
-				HUD().GetUI()->ShowGameIndicators(false);
-			}
-			return true;
-			break;
-		case DIK_NUMPADPLUS:
-			if ( HUD().GetUI()->UIGame() && !HUD().GetUI()->UIGame()->ActorMenu().IsShown() )
-			{
-				HUD().GetUI()->ShowGameIndicators(true);
-			}
-			return true;
-			break;
-		}
-	}
-*/
-	return false;
-}
-
 
 void CUIMainIngameWnd::RenderQuickInfos()
 {
@@ -727,9 +672,6 @@ void CUIMainIngameWnd::OnSectorChanged(int sector)
 
 void CUIMainIngameWnd::reset_ui()
 {
-//	m_pWeapon						= NULL;
-	m_pGrenade						= NULL;
-	m_pItem							= NULL;
 	m_pPickUpItem					= NULL;
 	UIMotionIcon->ResetVisibility	();
 	if ( m_ui_hud_states )

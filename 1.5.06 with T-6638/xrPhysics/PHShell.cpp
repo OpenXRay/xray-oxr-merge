@@ -9,10 +9,11 @@
 #include "PHJointDestroyInfo.h"
 #include "SpaceUtils.h"
 #include "MathUtils.h"
-#include "PhysicsShellHolder.h"
+#include "iPhysicsShellHolder.h"
 #include "../Include/xrRender/Kinematics.h"
 #include "PHCollideValidator.h"
-#include "game_object_space.h"
+#include "../xrengine/bone.h"
+//#include "game_object_space.h"
 //#pragma warning(disable:4995)
 //#pragma warning(disable:4267)
 //#include "../3rd party/ode/ode/src/collision_kernel.h"
@@ -33,10 +34,10 @@
 #include "PHCollideValidator.h"
 #include "PHElementInline.h"
 #include "PhysicsShellAnimator.h"
-
+#include "phshellbuildjoint.h"
 #include <boost/noncopyable.hpp>
 #ifdef DEBUG
-#include	"phdebug.h"
+#include	"debug_output.h"
 #endif
 IC		bool	PhOutOfBoundaries			(const Fvector& v)
 {
@@ -83,7 +84,7 @@ void CPHShell::EnableObject(CPHObject* obj)
 void CPHShell::DisableObject()
 {
 
-	CPhysicsShellHolder* ref_object=(*elements.begin())->PhysicsRefObject();
+	IPhysicsShellHolder* ref_object=(*elements.begin())->PhysicsRefObject();
 //.	if (!ref_object) return;
 
 	if (ref_object)
@@ -128,18 +129,18 @@ void CPHShell::ReanableObject()
 void CPHShell::vis_update_activate()
 {
 	++m_active_count;
-	CPhysicsShellHolder* ref_object=(*elements.begin())->PhysicsRefObject();
+	IPhysicsShellHolder* ref_object=(*elements.begin())->PhysicsRefObject();
 	if(ref_object&&m_active_count>0)
 	{
 		m_active_count=0;
-		ref_object->processing_activate();
+		ref_object->ObjectProcessingActivate();
 	}
 }
 
 void CPHShell::vis_update_deactivate()
 {
 	--m_active_count;
-		//CPhysicsShellHolder* ref_object=(*elements.begin())->PhysicsRefObject();
+		//IPhysicsShellHolder* ref_object=(*elements.begin())->PhysicsRefObject();
 		//if(ref_object&&!m_flags.test(flProcessigDeactivated))
 		//{
 		//	//ref_object->processing_deactivate();
@@ -477,7 +478,7 @@ void CPHShell::Enable()
 	EnableObject(0);
 }
 
-void CPHShell::set_PhysicsRefObject	 (CPhysicsShellHolder* ref_object)
+void CPHShell::set_PhysicsRefObject	 (IPhysicsShellHolder* ref_object)
 {
 	
 
@@ -733,7 +734,7 @@ void CPHShell::AddElementRecursive(CPhysicsElement* root_e, u16 id,Fmatrix globa
 		;
 
 	///////////////////////////////////////////////////////////////
-	lvis_check=(check_obb_sise(bone_data.obb));
+	lvis_check=(check_obb_sise(bone_data.get_obb()));
 	
 	bool *arg_check=vis_check;
 	if(breakable||!root_e)//.
@@ -750,7 +751,7 @@ void CPHShell::AddElementRecursive(CPhysicsElement* root_e, u16 id,Fmatrix globa
 	u16	 splitter_position=0;
 	u16 fracture_num=u16(-1);
 
-	if(!no_physics_shape(bone_data.shape) || !root_e)	//
+	if(!no_physics_shape(bone_data.get_shape()) || !root_e)	//
 	{	
 
 		if(joint_data.type==jtRigid && root_e ) //
@@ -776,15 +777,15 @@ void CPHShell::AddElementRecursive(CPhysicsElement* root_e, u16 id,Fmatrix globa
 				VERIFY								(u16(-1)!=fracture.m_start_geom_num);
 				fracture.m_break_force				=joint_data.break_force;
 				fracture.m_break_torque				=joint_data.break_torque;
-				root_e->add_Shape(bone_data.shape,vs_root_position);
-				root_e->add_Mass(bone_data.shape,vs_root_position,bone_data.center_of_mass,bone_data.mass,&fracture);
+				root_e->add_Shape(bone_data.get_shape(),vs_root_position);
+				root_e->add_Mass(bone_data.get_shape(),vs_root_position,bone_data.get_center_of_mass(),bone_data.get_mass(),&fracture);
 
 				fracture_num=E->setGeomFracturable(fracture);
 			}
 			else
 			{
-				root_e->add_Shape(bone_data.shape,vs_root_position);
-				root_e->add_Mass(bone_data.shape,vs_root_position,bone_data.center_of_mass,bone_data.mass);
+				root_e->add_Shape(bone_data.get_shape(),vs_root_position);
+				root_e->add_Mass(bone_data.get_shape(),vs_root_position,bone_data.get_center_of_mass(),bone_data.get_mass());
 			}
 
 
@@ -797,14 +798,14 @@ void CPHShell::AddElementRecursive(CPhysicsElement* root_e, u16 id,Fmatrix globa
 			E	= P_create_Element();
 			E->m_SelfID=id;
 			E->mXFORM.set		(fm_position);
-			E->SetMaterial		(bone_data.game_mtl_idx);
+			E->SetMaterial		(bone_data.get_game_mtl_idx());
 			//Fvector mc;
 			//fm_position.transform_tiny(mc,bone_data.center_of_mass);
 			E->set_ParentElement(root_e);
 			///B.set_callback(BonesCallback1,E);
-			if(!no_physics_shape(bone_data.shape)){
-				E->add_Shape(bone_data.shape);
-				E->setMassMC(bone_data.mass,bone_data.center_of_mass);
+			if(!no_physics_shape(bone_data.get_shape())){
+				E->add_Shape(bone_data.get_shape());
+				E->setMassMC(bone_data.get_mass(),bone_data.get_center_of_mass());
 			}
 			element_number=u16(elements.size());
 			add_Element(E);
@@ -1035,13 +1036,13 @@ void CPHShell::AddElementRecursive(CPhysicsElement* root_e, u16 id,Fmatrix globa
 		E=root_e;
 	}
 	
-	if(!no_physics_shape(bone_data.shape))
+	if(!no_physics_shape(bone_data.get_shape()))
 	{
 		CODEGeom* added_geom	=	E->last_geom();
 		if(added_geom)
 		{
 			added_geom->set_bone_id(id);
-			added_geom->set_shape_flags( bone_data.shape.flags );
+			added_geom->set_shape_flags( bone_data.get_shape().flags );
 		}
 	}
 #ifdef DEBUG
@@ -1108,7 +1109,7 @@ void CPHShell::AddElementRecursive(CPhysicsElement* root_e, u16 id,Fmatrix globa
 		Log("end-------");
 	}
 
-	VERIFY3(bbb,*dbg_obj->cNameVisual(),"has breaking parts with no vertexes or size less than 1mm");//
+	VERIFY3(bbb,dbg_obj->ObjectNameVisual(),"has breaking parts with no vertexes or size less than 1mm");//
 #endif
 	
 }
@@ -1123,13 +1124,13 @@ void CPHShell::ResetCallbacksRecursive(u16 id,u16 element,Flags64 &mask)
 
 	//if(elements.size()==element)	return;
 	CBoneInstance& B	= m_pKinematics->LL_GetBoneInstance(u16(id));
-	CBoneData& bone_data= m_pKinematics->LL_GetData(u16(id));
-	SJointIKData& joint_data=bone_data.IK_data;
+	const IBoneData& bone_data= m_pKinematics->GetBoneData(u16(id));
+	const SJointIKData& joint_data=bone_data.get_IK_data();
 
 	if( mask.is(1ui64<<(u64)id) )
 	{
 
-		if(no_physics_shape(bone_data.shape)||joint_data.type==jtRigid&& element!=u16(-1))
+		if(no_physics_shape(bone_data.get_shape())||joint_data.type==jtRigid&& element!=u16(-1))
 		{
 
 			B.set_callback(bctPhysics,0,cast_PhysicsElement(elements[element]));
@@ -1179,7 +1180,7 @@ CPHElement* get_physics_parent( IKinematics &k,  u16 id )
 	while( true )
 	{
 		CBoneInstance	& B			= k.LL_GetBoneInstance( u16(id) );
-		CBoneData		& bone_data	= k.LL_GetData( u16(id) );
+		const IBoneData		& bone_data	= k.GetBoneData( u16(id) );
 		if( B.callback_type() == bctPhysics && B.callback_param() )
 			return cast_PHElement( B.callback_param() );
 
@@ -1231,13 +1232,13 @@ void CPHShell::SetCallbacksRecursive(u16 id,u16 element)
 	VERIFY( false );
 	//if(elements.size()==element)	return;
 	CBoneInstance& B	= m_pKinematics->LL_GetBoneInstance(u16(id));
-	CBoneData& bone_data= m_pKinematics->LL_GetData(u16(id));
-	SJointIKData& joint_data=bone_data.IK_data;
+	const IBoneData& bone_data= m_pKinematics->GetBoneData(u16(id));
+	const SJointIKData& joint_data=bone_data.get_IK_data();
 	Flags64 mask;
 	mask.assign(m_pKinematics->LL_GetBonesVisible());
 	if(mask.is(1ui64<<(u64)id))
 	{
-		if((no_physics_shape(bone_data.shape)||joint_data.type==jtRigid)	&& element!=u16(-1)){
+		if((no_physics_shape(bone_data.get_shape())||joint_data.type==jtRigid)	&& element!=u16(-1)){
 			B.set_callback(bctPhysics,0,cast_PhysicsElement(elements[element]));
 		}else{
 			element_position_in_set_calbacks++;
@@ -1260,7 +1261,7 @@ void CPHShell::ZeroCallbacks()
 void CPHShell::ZeroCallbacksRecursive(u16 id)
 {
 	CBoneInstance& B	= m_pKinematics->LL_GetBoneInstance(u16(id));
-	CBoneData& bone_data= m_pKinematics->LL_GetData(u16(id));
+	const IBoneData& bone_data= m_pKinematics->GetBoneData(u16(id));
 	if(B.callback_type() == bctPhysics)
 	{
 		B.reset_callback	();
@@ -1327,11 +1328,11 @@ void CPHShell::InterpolateGlobalTransform(Fmatrix* m)
 
 	VERIFY2(_valid(*m),"not valide transform");
 
-	CPhysicsShellHolder* ref_object=(*elements.begin())->PhysicsRefObject();
+	IPhysicsShellHolder* ref_object=(*elements.begin())->PhysicsRefObject();
 	if(ref_object&&m_active_count<0)
 	{
-		ref_object->processing_deactivate();
-		ref_object->spatial_move();
+		ref_object->ObjectProcessingDeactivate();
+		ref_object->ObjectSpatialMove();
 		m_active_count=0;
 	}
 
@@ -1732,13 +1733,13 @@ void CPHShell::SetIgnoreRagDoll()
 
 
 	//Делает данный физический объек анимированным 
-void CPHShell::CreateShellAnimator( CInifile* ini, LPCSTR section )
+void CPHShell::CreateShellAnimator( CInifile const * ini, LPCSTR section )
 {	
 	//Для фильтра коллизий относим данный объект к классу анимированных
 	CPHCollideValidator::SetAnimatedClass(*this);
 	m_pPhysicsShellAnimatorC=xr_new<CPhysicsShellAnimator>( this,  ini, section );
 	VERIFY( PhysicsRefObject( ) );
-	PhysicsRefObject()->processing_activate();
+	PhysicsRefObject()->ObjectProcessingActivate();
 	//m_pPhysicsShellAnimatorC->ResetCallbacks();
 }
 

@@ -46,10 +46,10 @@ bool CControllerPsyHit::tube_ready () const
 
 bool CControllerPsyHit::check_start_conditions()
 {
-	if (is_active())				
+	if (is_active())
 		return false;	
 
-	if (m_man->is_captured_pure())	
+	if (m_man->is_captured_pure())
 		return false;
 	
 	if (Actor()->Cameras().GetCamEffector(eCEControllerPsyHit))	
@@ -192,7 +192,7 @@ bool CControllerPsyHit::check_conditions_final()
 	if (!m_object->g_Alive())						
 		return false;
 	
-	if (!g_actor)									
+	if (!g_actor)
 		return false;
 	
 // 	if (m_object->EnemyMan.get_enemy() != Actor())	
@@ -248,7 +248,7 @@ void CControllerPsyHit::death_glide_start()
 	float const base_fov	=	g_fov;
 	float const dest_fov	=	g_fov - (g_fov-10.f)*actor_psy_immunity;
 	
-	Actor()->Cameras().AddCamEffector(xr_new<CControllerPsyHitCamEffector>(eCEControllerPsyHit, src_pos,target_pos, 
+	Actor()->Cameras().AddCamEffector(xr_new<CControllerPsyHitCamEffector>(eCEControllerPsyHit, src_pos,target_pos,
 										m_man->animation().motion_time(m_stage[1], m_object->Visual()),
 										base_fov, dest_fov));
 

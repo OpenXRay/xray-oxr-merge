@@ -23,7 +23,6 @@
 
 CUIHudStatesWnd::CUIHudStatesWnd()
 :m_b_force_update(true),
-	m_timer_1sec(0),
 	m_last_health(0.0f),
 	m_radia_self(0.0f),
 	m_radia_hit(0.0f)
@@ -79,7 +78,7 @@ ALife::EInfluenceType CUIHudStatesWnd::get_indik_type( ALife::EHitType hit_type 
 	case ALife::eHitTypeExplosion:
 	case ALife::eHitTypeFireWound:
 	case ALife::eHitTypeWound_2:
-//	case ALife::eHitTypePhysicStrike:
+	case ALife::eHitTypePhysicStrike:
 		return ALife::infl_max_count;
 	default:
 		NODEFAULT;
@@ -263,40 +262,7 @@ void CUIHudStatesWnd::UpdateHealth( CActor* actor )
 		m_static_armor->Show( false );
 		m_ui_armor_bar->Show( false );
 	}
-*/	
-	/*
-	float bleeding_speed = actor->conditions().BleedingSpeed();
-	if(bleeding_speed > 0.01f)
-		m_bleeding_lev1->Show(true);
-	else
-		m_bleeding_lev1->Show(false);
-
-	if(bleeding_speed > 0.35f)
-		m_bleeding_lev2->Show(true);
-	else
-		m_bleeding_lev2->Show(false);
-	
-	if(bleeding_speed > 0.7f)
-		m_bleeding_lev3->Show(true);
-	else
-		m_bleeding_lev3->Show(false);
-	
-	
-	if(m_radia_self > 0.01f)
-		m_radiation_lev1->Show(true);
-	else
-		m_radiation_lev1->Show(false);
-
-	if(m_radia_self > 0.35f)
-		m_radiation_lev2->Show(true);
-	else
-		m_radiation_lev2->Show(false);
-	
-	if(m_radia_self > 0.7f)
-		m_radiation_lev3->Show(true);
-	else
-		m_radiation_lev3->Show(false);
-		*/
+*/
 }
 
 void CUIHudStatesWnd::UpdateActiveItemInfo( CActor* actor )

@@ -2,7 +2,7 @@
 #include "UIMpItemsStoreWnd.h"
 #include "UIXmlInit.h"
 #include "UITabButtonMP.h"
-#include "../object_broker.h"
+#include "object_broker.h"
 #include "restrictions.h"
 
 void CStoreHierarchy::item::destroy()
@@ -48,7 +48,9 @@ void CStoreHierarchy::LoadLevel(CUIXml& xml, int index, item* _item, int depth_l
 	string1024			buff;
 	buff[0] = 0;
 	for(int c = 0; c<depth_level; ++c) strcat(buff,"-");
+#ifndef MASTER_GOLD
 	Msg("%s%s",buff,_item->m_name.c_str());
+#endif // #ifndef MASTER_GOLD
 
 	int cnt				= xml.GetNodesNum("level", index, "level");
 	for(int i=0; i<cnt; ++i)
@@ -96,9 +98,11 @@ void CStoreHierarchy::InitItemsInGroup(const shared_str& sect, item* _itm)
 			_itm->m_items_in_group.push_back	(buff);
 			VERIFY3(g_mp_restrictions.GetItemGroup(buff).size(),"item has no group in restrictions", buff);
 		}
+#ifndef MASTER_GOLD
 		Msg("group[%s]", _itm->m_name.c_str());
 		Msg("items[%s]", v.c_str());
 		Msg("");
+#endif // #ifndef MASTER_GOLD
 	}else
 		for(u32 i=0; i<cnt;++i)
 			InitItemsInGroup					(sect,_itm->m_childs[i]);

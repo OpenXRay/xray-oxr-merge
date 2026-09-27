@@ -544,10 +544,6 @@ BOOL game_cl_ArtefactHunt::CanCallBuyMenu			()
 	{
 		return FALSE;
 	}
-	/*if (m_game_ui->m_pInventoryMenu && m_game_ui->m_pInventoryMenu->IsShown())
-	{
-		return FALSE;
-	};*/
 
 	CActor* pCurActor = smart_cast<CActor*> (Level().CurrentEntity());
 	if (!pCurActor || !pCurActor->g_Alive()) return FALSE;

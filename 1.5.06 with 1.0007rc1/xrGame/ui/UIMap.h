@@ -94,15 +94,16 @@ class CUILevelMap: public CUICustomMap
 
 	CUIMapWnd*					m_mapWnd;
 	Frect						m_GlobalRect;			// virtual map size (meters)
+
 								CUILevelMap			(const CUILevelMap &obj) {}
 
 			CUILevelMap			&operator=			(const CUILevelMap &obj) {}
+
 public:
 								CUILevelMap			(CUIMapWnd*);
 	virtual						~CUILevelMap		();
 	const Frect&				GlobalRect			() const								{return m_GlobalRect;}
 	virtual void				Draw				();
-	virtual void				Show				(bool status);
 	virtual void				Update				();
 	virtual bool				OnMouse				(float x, float y, EUIMessages mouse_action);
 	virtual void				SendMessage			(CUIWindow* pWnd, s16 msg, void* pData);

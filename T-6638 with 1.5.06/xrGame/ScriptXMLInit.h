@@ -14,6 +14,7 @@ class CUIComboBox;
 class CUIButton;
 class CUI3tButton;
 class CUICheckButton;
+class CUIListWnd;
 class CUITabControl;
 class CUIFrameLineWnd;
 class CUIEditBox;
@@ -34,6 +35,7 @@ class CScriptXmlInit
 public:
 	void ParseFile		(LPCSTR xml_file);
 	void				InitWindow(LPCSTR path, int index, CUIWindow* pWnd);
+	CUIListWnd*			InitList(LPCSTR path, CUIWindow* parent);
 	CUIFrameWindow*		InitFrame(LPCSTR path, CUIWindow* parent);
 	CUIFrameLineWnd*	InitFrameLine(LPCSTR path, CUIWindow* parent);
 	CUIEditBox*			InitEditBox(LPCSTR path, CUIWindow* parent);
@@ -46,6 +48,7 @@ public:
 	CUISpinFlt*			InitSpinFlt(LPCSTR path, CUIWindow* parent);
 	CUISpinText*		InitSpinText(LPCSTR path, CUIWindow* parent);
 	CUIComboBox*		InitComboBox(LPCSTR path, CUIWindow* parent);
+	CUIButton*			InitButton(LPCSTR path, CUIWindow* parent);
 	CUI3tButton*		Init3tButton(LPCSTR path, CUIWindow* parent);
 
 	CUITabControl*		InitTab(LPCSTR path, CUIWindow* parent);
@@ -58,8 +61,8 @@ public:
 	CUIMMShniaga*		InitMMShniaga(LPCSTR path, CUIWindow* parent);
 	CUIWindow*			InitKeyBinding(LPCSTR path, CUIWindow* parent);
 	CUIScrollView*		InitScrollView(LPCSTR path, CUIWindow* parent);
-	CUIListBox*			InitListBox(LPCSTR path, CUIWindow* parent);
 	CUIProgressBar*		InitProgressBar(LPCSTR path, CUIWindow* parent);
+	void				InitAutoStaticGroup(LPCSTR path, CUIWindow* pWnd);
 protected:
 	CUIXml	m_xml;
 public:

@@ -129,8 +129,8 @@ public:
 		void		detour_graph_points		(u32 game_graph_vertex_id = u32(-1));
 	IC	void		set_generic_parameters	();
 
-		Fvector		get_target_found		() {return m_target_found.position;}
-		Fvector		get_target_set			() {return m_target_set.position;}
+		Fvector		get_target_found		() {return m_target_found.position();}
+		Fvector		get_target_set			() {return m_target_set.position();}
 
 		// -------------------------------------------------------------------
 		// Services

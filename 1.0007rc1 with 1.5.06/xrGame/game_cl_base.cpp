@@ -109,7 +109,7 @@ void	game_cl_GameState::net_import_state	(NET_Packet& P)
 			IP->net_Import(P);
 			//-----------------------------------------------
 			if (OldFlags != IP->flags__)
-				if (Type() != GAME_SINGLE) OnPlayerFlagsChanged(IP);
+				if (Type() != eGameIDSingle) OnPlayerFlagsChanged(IP);
 			if (OldVote != IP->m_bCurrentVoteAgreed)
 				OnPlayerVoted(IP);
 			//***********************************************
@@ -120,7 +120,7 @@ void	game_cl_GameState::net_import_state	(NET_Packet& P)
 			IP = createPlayerState();
 			IP->net_Import		(P);
 
-			if (Type() != GAME_SINGLE) OnPlayerFlagsChanged(IP);
+			if (Type() != eGameIDSingle) OnPlayerFlagsChanged(IP);
 
 			players_new.insert(mk_pair(ID,IP));
 		}
@@ -145,6 +145,8 @@ void	game_cl_GameState::net_import_update(NET_Packet& P)
 
 	// Update
 	PLAYERS_MAP_IT I	= players.find(ID);
+	/*VERIFY2(I != players.end(), 
+		make_string("Player ClientID = %d not found in players map", ID.value()).c_str());*/
 	if (players.end()!=I)
 	{
 		game_PlayerState* IP		= I->second;
@@ -156,7 +158,7 @@ void	game_cl_GameState::net_import_update(NET_Packet& P)
 		IP->net_Import(P);
 		//-----------------------------------------------
 		if (OldFlags != IP->flags__)
-			if (Type() != GAME_SINGLE) OnPlayerFlagsChanged(IP);
+			if (Type() != eGameIDSingle) OnPlayerFlagsChanged(IP);
 		if (OldVote != IP->m_bCurrentVoteAgreed)
 			OnPlayerVoted(IP);
 		//***********************************************
@@ -165,7 +167,7 @@ void	game_cl_GameState::net_import_update(NET_Packet& P)
 	{
 		game_PlayerState*	PS = createPlayerState();
 		PS->net_Import		(P);
-		if (Type() != GAME_SINGLE) OnPlayerFlagsChanged(PS);
+		if (Type() != eGameIDSingle) OnPlayerFlagsChanged(PS);
 		xr_delete(PS);
 	};
 
@@ -389,6 +391,7 @@ void				game_cl_GameState::SendPickUpEvent		(u16 ID_who, u16 ID_what)
 {
 	NET_Packet P;
 	u_EventGen(P,GE_OWNERSHIP_TAKE, ID_who);
+	//u_EventGen(P,GE_OWNERSHIP_TAKE_MP_FORCED, ID_who);
 	P.w_u16(ID_what);
 	u_EventSend(P);
 };
@@ -396,8 +399,9 @@ void				game_cl_GameState::SendPickUpEvent		(u16 ID_who, u16 ID_what)
 void game_cl_GameState::set_type_name(LPCSTR s)	
 { 
 	m_game_type_name		=s; 
-	if(OnClient()){
-		strcpy					(g_pGamePersistent->m_game_params.m_game_type, *m_game_type_name);
+	if(OnClient())
+	{
+		strcpy_s			(g_pGamePersistent->m_game_params.m_game_type, m_game_type_name.c_str());
 		g_pGamePersistent->OnGameStart();
 	}
 };

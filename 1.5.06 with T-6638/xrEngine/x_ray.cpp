@@ -484,9 +484,6 @@ struct damn_keys_filter {
 #undef dwFilterKeysStructSize
 #undef dwToggleKeysStructSize
 
-// ѕриблудина дл€ SecuROM-а
-#include "securom_api.h"
-
 // ‘унци€ дл€ тупых требований THQ и тупых американских пользователей
 BOOL IsOutOfVirtualMemory()
 {
@@ -851,11 +848,11 @@ void _InitializeFont(CGameFont*& F, LPCSTR section, u32 flags)
 	LPCSTR font_tex_name = _GetFontTexName(section);
 	R_ASSERT(font_tex_name);
 
+	LPCSTR sh_name = pSettings->r_string(section,"shader");
 	if(!F){
-		F = xr_new<CGameFont> ("font", font_tex_name, flags);
-		Device.seqRender.Add( F, REG_PRIORITY_LOW-1000 );
+		F = xr_new<CGameFont> (sh_name, font_tex_name, flags);
 	}else
-		F->Initialize("font",font_tex_name);
+		F->Initialize(sh_name, font_tex_name);
 
 	if (pSettings->line_exist(section,"size")){
 		float sz = pSettings->r_float(section,"size");
@@ -1013,11 +1010,6 @@ void CApplication::LoadBegin	()
 		_InitializeFont		(pFontSystem,"ui_font_graffiti19_russian",0);
 
 		m_pRender->LoadBegin();
-		/*
-		ll_hGeom.create		(FVF::F_TL, RCache.Vertex.Buffer(), RCache.QuadIB);
-		sh_progress.create	("hud\\default","ui\\ui_load");
-		ll_hGeom2.create		(FVF::F_TL, RCache.Vertex.Buffer(),NULL);
-		*/
 #endif
 		phase_timer.Start	();
 		load_stage			= 0;

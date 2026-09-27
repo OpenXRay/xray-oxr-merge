@@ -94,7 +94,7 @@ void CPoltergeist::Load(LPCSTR section)
 	anim().LinkAction(ACT_STEAL,		eAnimWalkFwd);
 	anim().LinkAction(ACT_LOOK_AROUND,	eAnimLookAround);
 
-#ifdef DEBUG	
+#ifdef DEBUG
 	anim().accel_chain_test		();
 #endif
 

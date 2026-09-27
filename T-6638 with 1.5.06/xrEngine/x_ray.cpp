@@ -28,8 +28,6 @@
 
 #include "xrSash.h"
 
-#include "securom_api.h"
-
 //---------------------------------------------------------------------
 ENGINE_API CInifile* pGameIni		= NULL;
 BOOL	g_bIntroFinished			= FALSE;
@@ -913,29 +911,11 @@ int stack_overflow_exception_filter	(int exception_code)
        return EXCEPTION_CONTINUE_SEARCH;
 }
 
-#include <boost/crc.hpp>
-
 int APIENTRY WinMain(HINSTANCE hInstance,
                      HINSTANCE hPrevInstance,
                      char *    lpCmdLine,
                      int       nCmdShow)
 {
-	//FILE* file				= 0;
-	//fopen_s					( &file, "z:\\development\\call_of_prypiat\\resources\\gamedata\\shaders\\r3\\objects\\r4\\accum_sun_near_msaa_minmax.ps\\2048__1___________4_11141_", "rb" );
-	//u32 const file_size		= 29544;
-	//char* buffer			= (char*)malloc(file_size);
-	//fread					( buffer, file_size, 1, file );
-	//fclose					( file );
-
-	//u32 const& crc			= *(u32*)buffer;
-
-	//boost::crc_32_type		processor;
-	//processor.process_block	( buffer + 4, buffer + file_size );
-	//u32 const new_crc		= processor.checksum( );
-	//VERIFY					( new_crc == crc );
-
-	//free					(buffer);
-
 	__try 
 	{
 		WinMain_impl		(hInstance,hPrevInstance,lpCmdLine,nCmdShow);
@@ -1286,8 +1266,6 @@ void CApplication::Level_Append		(LPCSTR folder)
 
 void CApplication::Level_Scan()
 {
-	SECUROM_MARKER_PERFORMANCE_ON(8)
-
 	for (u32 i=0; i<Levels.size(); i++)
 	{
 		xr_free(Levels[i].folder);
@@ -1322,8 +1300,6 @@ void gen_logo_name(string_path& dest, LPCSTR level_name, int num)
 
 void CApplication::Level_Set(u32 L)
 {
-	SECUROM_MARKER_PERFORMANCE_ON(9)
-
 	if (L>=Levels.size())	return;
 	FS.get_path	("$level$")->_set	(Levels[L].folder);
 
@@ -1357,16 +1333,11 @@ void CApplication::Level_Set(u32 L)
 		m_pRender->setLevelLogo	(path);
 
 	CheckCopyProtection			();
-
-	SECUROM_MARKER_PERFORMANCE_OFF(9)
 }
 
 int CApplication::Level_ID(LPCSTR name, LPCSTR ver, bool bSet)
 {
 	int result = -1;
-
-	SECUROM_MARKER_SECURITY_ON(7)
-
 	CLocatorAPI::archives_it it		= FS.m_archives.begin();
 	CLocatorAPI::archives_it it_e	= FS.m_archives.end();
 	bool arch_res					= false;
@@ -1405,8 +1376,6 @@ int CApplication::Level_ID(LPCSTR name, LPCSTR ver, bool bSet)
 
 	if( arch_res )
 		g_pGamePersistent->OnAssetsChanged	();
-
-	SECUROM_MARKER_SECURITY_OFF(7)
 
 	return result;
 }

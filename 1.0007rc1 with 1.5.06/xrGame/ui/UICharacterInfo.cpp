@@ -5,7 +5,7 @@
 #include "uicharacterinfo.h"
 #include "../actor.h"
 #include "../level.h"
-#include "../character_info.h"
+#include "../../xrServerEntities/character_info.h"
 #include "../string_table.h"
 #include "../relation_registry.h"
 
@@ -20,7 +20,7 @@
 #include "../ai_space.h"
 #include "../alife_object_registry.h"
 #include "../xrServer.h"
-#include "../xrServer_Objects_ALife_Monsters.h"
+#include "../../xrServerEntities/xrServer_Objects_ALife_Monsters.h"
 
 using namespace InventoryUtilities;
 
@@ -35,7 +35,8 @@ CSE_ALifeTraderAbstract* ch_info_get_from_id (u16 id)
 }
 
 CUICharacterInfo::CUICharacterInfo()
-:m_ownerID(u16(-1)),pUIBio(NULL)
+	: m_ownerID(u16(-1)),
+	pUIBio(NULL)
 {
 	ZeroMemory			(m_icons,sizeof(m_icons));
 	m_bForceUpdate		= false;

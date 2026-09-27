@@ -77,7 +77,9 @@ void CUIWindow::script_register(lua_State *L)
 		.def("SetWndSize",				(void (CUIWindow::*)(Fvector2)) &CUIWindow::SetWndSize_script)
 		.def("GetWndPos",				&get_wnd_pos)
 		.def("GetWidth",				&CUIWindow::GetWidth)
+		.def("SetWidth",				&CUIWindow::SetWidth)
 		.def("GetHeight",				&CUIWindow::GetHeight)
+		.def("SetHeight",				&CUIWindow::SetHeight)
 
 		.def("Enable",					&CUIWindow::Enable)
 		.def("IsEnabled",				&CUIWindow::IsEnabled)
@@ -90,13 +92,16 @@ void CUIWindow::script_register(lua_State *L)
 		.def("ResetPPMode",				&CUIWindow::ResetPPMode),
 
 		class_<CDialogHolder>("CDialogHolder")
+		.def("MainInputReceiver",		&CDialogHolder::MainInputReceiver)
+		.def("start_stop_menu",			&CDialogHolder::StartStopMenu)
 		.def("AddDialogToRender",		&CDialogHolder::AddDialogToRender)
 		.def("RemoveDialogToRender",	&CDialogHolder::RemoveDialogToRender),
 
 		class_<CUIDialogWnd, CUIWindow>("CUIDialogWnd")
 		.def("ShowDialog",				&CUIDialogWnd::ShowDialog)
 		.def("HideDialog",				&CUIDialogWnd::HideDialog)
-		.def("GetHolder",				&CUIDialogWnd::GetHolder),
+		.def("GetHolder",				&CUIDialogWnd::GetHolder)
+		.def("SetHolder",				&CUIDialogWnd::SetHolder),
 
 		class_<CUIFrameWindow, CUIWindow>("CUIFrameWindow")
 		.def(							constructor<>())
@@ -108,6 +113,7 @@ void CUIWindow::script_register(lua_State *L)
 		.def(							constructor<>())
 		.def("SetWidth",				&CUIFrameLineWnd::SetWidth)
 		.def("SetHeight",				&CUIFrameLineWnd::SetHeight)
+		.def("SetOrientation",					&CUIFrameLineWnd::SetOrientation)
 		.def("SetColor",				&CUIFrameLineWnd::SetTextureColor),
 
 		class_<CUIMMShniaga, CUIWindow>("CUIMMShniaga")

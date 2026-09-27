@@ -641,20 +641,7 @@ void CUIXmlInit::InitAutoStaticGroup(CUIXml& xml_doc, LPCSTR path, int index, CU
 		}
 		node						= curr_root->IterateChildren(node);
 	}
-/*
-	CUIStatic* pUIStatic				= NULL;
-	string64							sname;
-	for(int i=0; i<items_num; i++)
-	{
-		pUIStatic						= xr_new<CUIStatic>();
-		InitStatic						(xml_doc, "auto_static", i, pUIStatic);
-		xr_sprintf						(sname,"auto_static_%d", i);
-		pUIStatic->SetWindowName		(sname);
-		pUIStatic->SetAutoDelete		(true);
-		pParentWnd->AttachChild			(pUIStatic);
-		pUIStatic						= NULL;
-	}
-*/
+
 	xml_doc.SetLocalRoot				(_stored_root);
 }
 

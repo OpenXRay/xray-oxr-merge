@@ -168,6 +168,8 @@ public:
 
 	SAnimationTripleData anim_triple_control;
 
+	virtual	char*		get_monster_class_name		() { return "controller"; }
+
 #ifdef DEBUG
 	virtual CBaseMonster::SDebugInfo show_debug_info();
 
@@ -179,7 +181,6 @@ private:
 
 		Fvector			P1,P2;
 #endif
-
 
 	DECLARE_SCRIPT_REGISTER_FUNCTION
 };
